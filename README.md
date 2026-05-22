@@ -2,6 +2,8 @@
 
 Real-time exam monitoring system with a Django backend, React frontend, WebSocket live updates, offline video analysis, camera streaming through go2rtc, and optional Triton-backed inference flows.
 
+**Maintainer:** Eng.Ahmed ElBamby
+
 ## Repository Status
 
 - Active local branches: `master`, `006-modular-low-coupling`
