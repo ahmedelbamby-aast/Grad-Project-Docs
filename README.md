@@ -10,7 +10,6 @@ Real-time exam monitoring system with a Django backend, React frontend, WebSocke
 - Primary remote branches present: `origin/001-exam-monitor-dashboard`, `origin/master`, `origin/006-modular-low-coupling`
 - Documentation coverage status: the authored backend, frontend, script, and infrastructure inventory currently maps to `docs/` with `Missing docs: 0`
 - Required documentation gate: `scripts/ci/verify_docs_diagrams.py` currently passes
-- Repository content policy: [Docs-only policy](DOCS_ONLY_POLICY.md)
 
 ## Documentation Map
 

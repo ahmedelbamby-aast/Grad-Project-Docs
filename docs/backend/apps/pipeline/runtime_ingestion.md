@@ -4,34 +4,32 @@
 - [backend/apps/pipeline/runtime_ingestion.py](../../../../../backend/apps/pipeline/runtime_ingestion.py)
 
 ## Purpose
-
-Persists runtime telemetry as immutable raw events plus hourly rollups, with optional async ingestion through Celery.
+Ingests normalized runtime events, maintains rollups, persists buffering telemetry sidecars, and projects governed dashboard telemetry views.
 
 ## Main structures and functions
+- `RuntimeIngestPayload`: typed runtime ingest contract with serialization helpers.
+- `BoundedEventBuffer`: bounded append-only in-memory event buffer (drop-oldest).
+- `StreamClock`: monotonic timestamp helper for frame delta and effective FPS.
+- `BufferTelemetryEvent`: queue/spill/overflow telemetry envelope.
+- `write_buffer_pressure_event(...)`: JSONL buffer telemetry writer with optional normalized ingest.
+- `ingest_runtime_event(...)`: immutable raw event persistence with ordered ingest sequence.
+- `update_runtime_rollup(...)`: hourly rollup upsert with worker health/backlog counters.
+- `enqueue_runtime_ingestion(...)`: async-first ingestion with inline fallback.
+- Projection APIs:
+  - `project_dashboard_telemetry_summary(...)`
+  - `project_dashboard_telemetry_timeline(...)`
+  - `project_dashboard_telemetry_artifacts(...)`
+  - `project_dashboard_runtime_assignments(...)`
+  - `project_dashboard_worker_isolation_rollups(...)`
+  - `project_dashboard_benchmark_comparison(...)`
 
-- `RuntimeIngestPayload`: typed ingest contract with `to_dict/from_dict`.
-- `ingest_runtime_event(...)`: writes `RuntimeRawTruthEvent` with ordered `ingest_sequence`.
-- `update_runtime_rollup(...)`: upserts `RuntimeSessionRollup` and updates counters/latency.
-- `process_runtime_ingestion(...)`: synchronous ingest pipeline.
-- `enqueue_runtime_ingestion(...)`: async-first with inline fallback.
-
-## Data path
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
-flowchart LR
-    Producer["pipeline/video_analysis runtime producer"] --> Payload["RuntimeIngestPayload"]
-    Payload --> Enqueue["enqueue_runtime_ingestion()"]
-    Enqueue -->|async enabled| Task["apps.pipeline.tasks.ingest_runtime_event_task"]
-    Enqueue -->|fallback| Inline["process_runtime_ingestion()"]
-    Task --> Inline
-    Inline --> Raw["RuntimeRawTruthEvent (immutable)"]
-    Inline --> Rollup["RuntimeSessionRollup (hour bucket)"]
-```
+## Feature alignment
+- Mirrors queue/spill/overflow telemetry persistence required for buffering behavior.
+- Mirrors per-model worker health/backlog/timeout/error rollups.
+- Mirrors normalized dashboard telemetry projections used by REST and MCP layers.
 
 ## Cross-links
-
-- [tasks.md](tasks.md)
-- [services/runtime_comparison.md](services/runtime_comparison.md)
-- [../../architecture/data-flow.md](../../architecture/data-flow.md)
-
+- [buffering.md](buffering.md)
+- [failure_injection.md](failure_injection.md)
+- [reconciliation.md](reconciliation.md)
+- [../video_analysis/views.md](../video_analysis/views.md)

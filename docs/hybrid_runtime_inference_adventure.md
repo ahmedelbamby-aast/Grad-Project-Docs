@@ -20,6 +20,35 @@ Job: `e2e83ad0-7e15-4821-8a91-5f8d18611ade`
 
 Observation: inference dominates runtime. Logs also showed repeated `TRITON_TIMEOUT` for `person_detector` and `posture_model` during frame-level loop.
 
+## Latest Full-Frame Validation Run (2026-05-22)
+Job: `3a5989c0-f8fc-4276-880a-050ca6d3fbc2`  
+Command:
+
+```powershell
+.\.venv\Scripts\python.exe backend/manage.py benchmark_offline_video_job --video "E:\grad_project\Raw Data\Arguing Students only\Arguing_004.mp4" --pipeline-mode full_frame
+```
+
+| Metric | Baseline (`e2e83ad0...`) | Latest (`3a5989c0...`) | Delta |
+|---|---:|---:|---:|
+| Job status | `completed` | `completed` | same |
+| Total wall time (DB duration) | `835,716.724 ms` (~13.93 min) | `637,069.179 ms` (~10.62 min) | `-198,647.545 ms` (~23.8% faster) |
+| Decode total | `114.82 ms` | `0.00 ms`* | N/A |
+| Preprocess total | `2,862.37 ms` | `0.00 ms`* | N/A |
+| Inference total | `562,497.47 ms` | `0.00 ms`* | N/A |
+| Postprocess total | `25,735.63 ms` | `0.00 ms`* | N/A |
+
+\* Latest audit payload schema did not include `stage_timings_ms` totals for this run path; wall-time remains valid.
+
+### Acceptance Criteria Verification (Pass)
+- Pose data present: `pose_record_count = 125`.
+- Pose output video rendered: `pose_output_video.mp4` exists.
+- Final output video rendered: `final_output_video.mp4` exists.
+- JSON artifacts fully exported and parseable:
+  - `inference_audit.json`
+  - `pose_results.json`
+  - `pose_per_student.json`
+  - `pose_quality_summary.json`
+
 ## Model Inventory Available
 Repository currently includes these models:
 - `person_detector`

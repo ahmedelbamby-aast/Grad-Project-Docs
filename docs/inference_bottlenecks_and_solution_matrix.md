@@ -4,7 +4,7 @@
 
 | Area | Issue / Bottleneck | Evidence | Impact | Solution |
 |---|---|---|---|---|
-| End-to-end runtime | Very high total latency for short video | `benchmark_offline_video_job` on `Arguing_004.mp4` measured total wall time around 12.6 min for ~9 sec clip | Poor UX and low throughput | Reduce per-frame inference load, tune Triton concurrency/queueing, overlap stages safely |
+| End-to-end runtime | High total latency for short video, improved in latest full-frame validation | Baseline job `e2e83ad0-7e15-4821-8a91-5f8d18611ade` took `835,716.724 ms` (~13.93 min); latest full-frame job `3a5989c0-f8fc-4276-880a-050ca6d3fbc2` took `637,069.179 ms` (~10.62 min), ~23.8% faster | Still significant runtime, but trend is improved | Continue reducing per-frame inference load, tune Triton concurrency/queueing, overlap stages safely |
 | Inference stage share | Inference dominates runtime | Stage totals show inference time much larger than decode/preprocess/postprocess | Main bottleneck | Prioritize model-level and scheduler-level optimization before other work |
 | Triton timeouts | Repeated timeout responses under load | Multiple `TRITON_TIMEOUT` warnings in benchmark logs | Adds latency and drops frame/model results | Increase timeout budget appropriately, reduce burst concurrency, tune `instance_group` and batch scheduler |
 | Pose reliability | Pose records can drop silently | Runtime bug around ambiguous numpy truth evaluation caused result drops | Missing skeleton artifacts | Fixed parsing guard in `pose_runtime` and added regression test |
@@ -14,6 +14,7 @@
 | Frame volume | Processing too many frames | 9s input still drives large model-call volume | Unnecessary compute | Keep `TRITON_OFFLINE_FRAME_STRIDE=2`; test `3` with quality gate |
 | Observability | Stage attribution historically weak | Root-cause needed deep log inspection | Slow troubleshooting | Keep explicit stage telemetry and benchmark command as standard gate |
 | Event delivery robustness | Redis channel broadcast can fail near completion | Observed `WinError 10054` in Channels broadcast | UI event reliability issue | Add retry/guarded non-fatal broadcast path; decouple completion from WS publish |
+| Validation quality gate | Need explicit artifact/pose completeness in benchmark verdict | Latest full-frame benchmark (`3a5989c0...`) produced non-empty pose records (`pose_record_count=125`), rendered `pose_output_video.mp4`, rendered `final_output_video.mp4`, and exported parseable JSON artifacts (`inference_audit.json`, `pose_results.json`, `pose_per_student.json`, `pose_quality_summary.json`) | Prevents false pass from timing-only checks | Keep artifact-completeness gate mandatory for benchmark pass/fail |
 
 ## Table 2: Deep Solution Matrix (Docs-backed) and Recommendation
 

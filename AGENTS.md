@@ -3,6 +3,11 @@
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
 
+<!-- SPECKIT START -->
+## Active Spec Kit Plan
+- Active feature plan: [specs/009-parallel-pose-inference/plan.md](specs/009-parallel-pose-inference/plan.md)
+<!-- SPECKIT END -->
+
 ## Parallel Testing Policy
 - Prefer framework-native parallelism first:
   - Frontend unit tests: Vitest workers.
