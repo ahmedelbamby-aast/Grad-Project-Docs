@@ -174,6 +174,35 @@ grad_project/
   quickstart.md           Step-by-step local setup
 ```
 
+## Linux Deployment Custom Notes (No Docker, No sudo)
+
+For constrained Linux deployment servers where Docker and sudo are not allowed, Triton and TensorRT require a custom user-space setup.
+
+What is different from standard setup:
+
+- Triton server is built from source in user space (no container build).
+- TensorRT runtime is installed in project venv and linked through `LD_LIBRARY_PATH`.
+- Extra third-party headers/libraries are vendored in user space:
+  - RapidJSON
+  - Boost headers
+  - libb64 headers and static lib
+  - TensorRT headers (for backend compilation)
+- Triton TensorRT backend plugin is built separately and installed into Triton backends.
+
+Recommended paths used in production deployment:
+
+- Triton source: `/home/bamby/services/triton_src`
+- Triton build tree: `/home/bamby/services/triton_build_r2502`
+- Triton runtime binary: `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver`
+- Triton model repository (CUDA12 profile): `/home/bamby/grad_project/backend/models/triton_repository_cuda12`
+
+Key requirement:
+
+- Always start Triton with explicit backend directory:
+  - `--backend-directory=/home/bamby/services/triton_build_r2502/tritonserver/install/backends`
+
+See [quickstart.md](/E:/grad_project/quickstart.md) section `Linux Deployment Runbook (No Docker, No sudo)` for exact commands.
+
 ## Backend Surface
 
 - Django 5.1.5

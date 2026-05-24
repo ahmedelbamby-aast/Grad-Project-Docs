@@ -12,6 +12,130 @@ This guide brings up the current repository from a fresh checkout using the comm
 - React Vite frontend
 - Optional Triton dev profile
 
+## Linux Deployment Runbook (No Docker, No sudo)
+
+This runbook is for production-like Linux hosts where you cannot use Docker or sudo.
+
+For phased execution, milestone gates, mandatory tests, commit stages, and sync/stash closure across dev/prod/GitHub, see:
+- [docs/linux_production_optimization_execution_phases.md](/E:/grad_project/docs/linux_production_optimization_execution_phases.md)
+
+### 0) Install backend dependencies with CUDA12-safe pins (`uv`)
+
+On CUDA 12.x production hosts, use the backend requirements from this repo and keep torch in the pinned range (`torch 2.7.x`, `torchvision 0.22.x`) to avoid accidental `cu13` dependency pull.
+
+```bash
+cd /home/bamby/grad_project
+source .venv/bin/activate
+python -m pip install -U pip setuptools wheel uv
+cd backend
+uv pip install -r requirements.txt
+```
+
+If `cu13` packages were pulled in a previous attempt, remove them and re-install:
+
+```bash
+cd /home/bamby/grad_project
+source .venv/bin/activate
+pip uninstall -y nvidia-cudnn-cu13 nvidia-cusparselt-cu13 nvidia-nccl-cu13 nvidia-nvshmem-cu13 triton || true
+cd backend
+uv pip install -r requirements.txt
+```
+
+### 1) Build TensorRT engines from ONNX (user-space)
+
+From project root on Linux server:
+
+```bash
+source /home/bamby/grad_project/.venv/bin/activate
+python /home/bamby/grad_project/backend/scripts/build_tensorrt_engines.py --workspace-mib 4096
+```
+
+This generates/refreshes engines for:
+
+- `student_teacher`
+- `standing_sitting`
+- `right_left`
+- `up_down`
+- `forward_backward`
+- `rtmpose`
+
+### 2) Build Triton server in user-space (no container build)
+
+```bash
+cd /home/bamby/services
+git clone -b r25.02 https://github.com/triton-inference-server/server.git triton_src
+cd triton_src
+python3 build.py \
+  --no-container-build \
+  --build-dir /home/bamby/services/triton_build_r2502 \
+  --build-type Release \
+  --enable-logging \
+  --enable-stats \
+  --enable-metrics \
+  --enable-gpu \
+  --endpoint=http \
+  --endpoint=grpc
+```
+
+### 3) Build TensorRT backend plugin (required for `tensorrt_plan`)
+
+The backend requires user-space header/lib wiring:
+
+- TensorRT headers (vendored): `/home/bamby/services/vendor/TensorRT/include`
+- TensorRT libs from venv: `/home/bamby/grad_project/.venv/lib/python3.11/site-packages/tensorrt_libs`
+
+Build command:
+
+```bash
+cd /home/bamby/services/triton_src
+python3 build.py \
+  --no-container-build \
+  --no-core-build \
+  --build-dir /home/bamby/services/triton_build_r2502 \
+  --install-dir /home/bamby/services/triton_build_r2502/tritonserver/install \
+  --build-type Release \
+  --enable-gpu \
+  --backend=tensorrt \
+  --extra-backend-cmake-arg tensorrt:CMAKE_CUDA_ARCHITECTURES=90 \
+  --extra-backend-cmake-arg tensorrt:NVINFER_INCLUDE_DIR=/home/bamby/services/vendor/TensorRT/include \
+  --extra-backend-cmake-arg tensorrt:NVINFER_LIBRARY=/home/bamby/grad_project/.venv/lib/python3.11/site-packages/tensorrt_libs/libnvinfer.so.10 \
+  --extra-backend-cmake-arg tensorrt:NVINFER_PLUGIN_LIBRARY=/home/bamby/grad_project/.venv/lib/python3.11/site-packages/tensorrt_libs/libnvinfer_plugin.so.10
+```
+
+Expected backend plugin after success:
+
+```bash
+ls /home/bamby/services/triton_build_r2502/tritonserver/install/backends/tensorrt/libtriton_tensorrt.so
+```
+
+### 4) Start Triton with CUDA12 repository and explicit backend directory
+
+```bash
+/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver \
+  --model-repository=/home/bamby/grad_project/backend/models/triton_repository_cuda12 \
+  --backend-directory=/home/bamby/services/triton_build_r2502/tritonserver/install/backends \
+  --http-port=18000 \
+  --grpc-port=18001 \
+  --metrics-port=18002
+```
+
+Health check:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:18000/v2/health/ready
+```
+
+`200` means ready.
+
+### 5) Known custom dependencies used in this environment
+
+- `RapidJSON` vendored under `/home/bamby/services/vendor/rapidjson`
+- `Boost` headers under `/home/bamby/services/vendor/boost_1_87_0`
+- `libb64` headers/lib under `/home/bamby/services/vendor/libb64`
+- TensorRT headers under `/home/bamby/services/vendor/TensorRT/include`
+
+These are required because host package installation is restricted.
+
 ## Setup Flow
 
 ```mermaid
@@ -79,6 +203,12 @@ Root `.env.example` and root `.env` variables:
 | `CELERY_RESULT_BACKEND` | `redis://localhost:6379/2` | Celery worker | Task result backend. | Valid Redis backend URL. | Wrong value breaks task state/result tracking. |
 | `CELERY_WORKER_POOL` | `solo` on Windows, `prefork` otherwise | `backend/config/celery.py` | Optional worker pool override, present in the active `.env`. | `solo`, `prefork`, `threads`. | Use `solo` on Windows if you hit worker startup issues. |
 | `CELERY_WORKER_CONCURRENCY` | `1` on Windows or CPU-count on Linux | `backend/config/celery.py` | Optional concurrency override, present in the active `.env`. | Positive integer. | Reduce it if the machine is memory-constrained. |
+| `CELERY_LIVE_PERSON_QUEUE` | `pipeline.live.person_detector.worker` | Celery routing | Dedicated live queue for person detection tasks. | Queue name string. | Enables process-level queue isolation for live detector load. |
+| `CELERY_LIVE_POSE_QUEUE` | `pipeline.live.rtmpose_model.worker` | Celery routing | Dedicated live queue for RTMPose tasks. | Queue name string. | Isolates live pose inference from other workloads. |
+| `CELERY_LIVE_BEHAVIOR_QUEUE` | `pipeline.live.behavior.worker` | Celery routing | Dedicated live queue for behavior/gaze/posture tasks. | Queue name string. | Reduces queue contention in live streaming. |
+| `CELERY_OFFLINE_PERSON_QUEUE` | `pipeline.offline.person_detector.worker` | Celery routing | Dedicated offline queue for person detection tasks. | Queue name string. | Improves offline throughput predictability under stride=1. |
+| `CELERY_OFFLINE_POSE_QUEUE` | `pipeline.offline.rtmpose_model.worker` | Celery routing | Dedicated offline queue for RTMPose tasks. | Queue name string. | Isolates offline pose throughput and timeout behavior. |
+| `CELERY_OFFLINE_BEHAVIOR_QUEUE` | `pipeline.offline.behavior.worker` | Celery routing | Dedicated offline queue for behavior/gaze/posture tasks. | Queue name string. | Prevents mixed-workload starvation in offline runs. |
 | `FIELD_ENCRYPTION_KEY` | generated Fernet key | Camera encrypted fields | Encrypts camera URLs at rest. | Valid Fernet key. | Missing/invalid values break encrypted camera access and migration logic. |
 | `GO2RTC_API_URL` | `http://localhost:1984` | Camera/go2rtc services | Backend go2rtc control API endpoint. | Reachable HTTP URL. | Wrong value breaks stream registration/status calls. |
 | `GO2RTC_WHEP_URL` | `http://localhost:8555` | Shared streaming topology reference | Documents the WHEP bridge endpoint. | Reachable HTTP URL. | Keep aligned with go2rtc WHEP listener. |
@@ -117,6 +247,10 @@ Root `.env.example` and root `.env` variables:
 | `PYRAMID_DEVICE` | `cuda` | Pipeline config | Preferred local inference device. | `cpu`, `cuda`, `mps`. | Selects execution hardware. |
 | `PYRAMID_OPENVINO_DEVICE` | `intel:gpu` | Pipeline config | OpenVINO target device. | `intel:gpu`, `intel:cpu`, `intel:npu`, similar valid device strings. | Changes OpenVINO execution target. |
 | `PYRAMID_PERSON_CONFIDENCE_THRESHOLD` | `0.5` | Pipeline config | Person detection confidence cutoff. | Float `0.0` to `1.0`. | Higher values reduce false positives. |
+| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline video analysis | Runs detector every N frames while still producing frame-level outputs. | Integer `>= 1`. | Lowers detector pressure while keeping stride=1 rendering. |
+| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live video analysis | Runs detector every N frames in live path. | Integer `>= 1`. | Reduces live detector cost and improves responsiveness. |
+| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline video analysis | Reuses last valid detections when detector frame is skipped or times out. | Integer `>= 0`. | Improves continuity and mitigates transient detector timeouts. |
+| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live video analysis | Reuses last valid detections for a bounded live-frame window. | Integer `>= 0`. | Smooths live overlays and avoids flicker on brief inference stalls. |
 | `PYRAMID_BEHAVIOR_CONFIDENCE_THRESHOLD` | `0.5` | Pipeline config | Behavior confidence cutoff. | Float `0.0` to `1.0`. | Higher values reduce noisy labels. |
 | `PYRAMID_WORKER_COUNT` | `4` | Pipeline config | Parallel inference worker count. | Integer `1` to `16`. | Higher values increase throughput until saturation. |
 | `PYRAMID_INFERENCE_TIMEOUT` | `30.0` | Pipeline config | Per-inference timeout in seconds. | Float `1.0` to `300.0`. | Prevents hung inference calls. |
@@ -142,6 +276,7 @@ Root `.env.example` and root `.env` variables:
 | `TRITON_RETRY_ATTEMPTS` | `2` | Triton request policy | Retry count for Triton requests. | Non-negative integer. | Higher values improve resilience at the cost of latency. |
 | `TRITON_RETRY_TIMEOUT_SCALE` | `2.0` | Triton request policy | Backoff multiplier between retries. | Positive float. | Higher values back off more aggressively. |
 | `TRITON_OFFLINE_FRAME_STRIDE` | `10` | Offline video analysis | Frame thinning factor for offline Triton processing. | Positive integer. | Higher values reduce load but skip more frames. |
+| `TRITON_EXECUTION_PROFILE` | `throughput_guardrails` | Triton runtime policy | Selects production tuning profile for Triton-only deployment. | `throughput_guardrails`, `live_latency_first`. | Controls batching/timeout/queue strategy defaults by workload profile. |
 
 Frontend `frontend/.env.example` variables:
 
@@ -853,6 +988,17 @@ Recommended localhost values:
 - `GO2RTC_API_URL=http://127.0.0.1:1984`
 - `GO2RTC_WHEP_URL=http://127.0.0.1:8555`
 - `TRITON_URL=http://127.0.0.1:8000` (only if Triton enabled)
+- `TRITON_EXECUTION_PROFILE=throughput_guardrails` (production default)
+- `OFFLINE_DETECT_EVERY_N_FRAMES=2`
+- `LIVE_DETECT_EVERY_N_FRAMES=3`
+- `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=20`
+- `LIVE_REUSE_LAST_BOXES_TTL_FRAMES=8`
+- `CELERY_LIVE_PERSON_QUEUE=pipeline.live.person_detector.worker`
+- `CELERY_LIVE_POSE_QUEUE=pipeline.live.rtmpose_model.worker`
+- `CELERY_LIVE_BEHAVIOR_QUEUE=pipeline.live.behavior.worker`
+- `CELERY_OFFLINE_PERSON_QUEUE=pipeline.offline.person_detector.worker`
+- `CELERY_OFFLINE_POSE_QUEUE=pipeline.offline.rtmpose_model.worker`
+- `CELERY_OFFLINE_BEHAVIOR_QUEUE=pipeline.offline.behavior.worker`
 
 ### 11.10 Backend + frontend setup (no Docker runtime)
 

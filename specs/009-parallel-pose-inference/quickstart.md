@@ -240,3 +240,35 @@ backend/data/videos/{job_id}/
 - PresentMon support and usable metrics must be tested on the actual Windows/Intel device environment; inability to capture prevents the required hybrid validation run from passing.
 - A remote MCP deployment without Origin validation, authenticated authorization, bounded projections, and access auditing is not acceptable.
 - MCP must remain outside the dashboard and inference critical paths; wiring frontend charts or capture control through MCP violates the specified boundary.
+
+## T075 Validation Execution Evidence (2026-05-23)
+
+Execution context:
+
+- Workspace: `E:\grad_project`
+- Evidence job ID: `t075-t080-20260523`
+- Evidence index: `backend/data/videos/t075-t080-20260523/run_manifest.json`
+
+### Executed Quickstart Commands
+
+| Command | Status | Concrete Result | Evidence Artifact |
+|---------|--------|-----------------|------------------|
+| `.\.venv\Scripts\python.exe -m pytest backend/tests/unit -n auto --dist=loadscope -q --tb=short` | failed | `9 failed, 583 passed, 6 skipped` | `backend/data/videos/t075-t080-20260523/pytest_unit_parallel.log` |
+| `.\.venv\Scripts\python.exe -m pytest backend/tests/contract -n auto --dist=loadscope -q --tb=short` | passed | `77 passed in 41.49s` | `backend/data/videos/t075-t080-20260523/pytest_contract_parallel.log` |
+| `docker compose -f docker-compose.dev.yml --profile triton-offline run --rm triton-offline nsys --version` | passed | `NVIDIA Nsight Systems version 2023.4.1.97-234133557503v0` | `backend/data/videos/t075-t080-20260523/docker_triton_nsys_version.log` |
+| `docker compose -f docker-compose.dev.yml --profile triton ps` | passed | `triton-offline` service healthy with metrics port mapping | `backend/data/videos/t075-t080-20260523/docker_triton_ps.log` |
+| `Invoke-WebRequest -UseBasicParsing http://localhost:8102/metrics` | passed | HTTP status `200` | `backend/data/videos/t075-t080-20260523/triton_metrics_probe.log` |
+| `.\.venv\Scripts\python.exe -c "from openvino import Core; core=Core(); print(core.available_devices)"` | passed | `['CPU', 'GPU.0', 'GPU.1']` | `backend/data/videos/t075-t080-20260523/openvino_device_probe.log` |
+| `.\.venv\Scripts\python.exe backend\manage.py benchmark_offline_video_job --video "E:\grad_project\Raw Data\Arguing Students only\Arguing_004.mp4" --pipeline-mode full_frame` | partial | `status=completed_partial`, no parseable inference audit, stage totals `0.00 ms` | `backend/data/videos/t075-t080-20260523/benchmark_offline_video_job.log` |
+
+### Explicit Completion Status
+
+- Quickstart execution status: `partial`
+- T075 status: `partial_blocked` (feasible checks executed, full acceptance workflow not completed)
+- T080 status: `completed_partial` (completion evidence index generated with explicit gate statuses and artifact links)
+
+### Blockers Observed
+
+- Backend unit suite has 9 failing tests that block full quickstart validation pass.
+- Benchmark path completed as partial and did not produce parseable inference-audit telemetry evidence.
+- Full hybrid assignment evidence and separate full-model NVIDIA/Intel stress-lane completion artifacts were not produced in this execution window.

@@ -154,6 +154,12 @@ The API is available at `http://localhost:8000/api/v1/`.
 | `REDIS_URL` | `redis://localhost:6379/0` | Channel layer (Redis DB 0) |
 | `CELERY_BROKER_URL` | `redis://localhost:6379/1` | Celery broker (Redis DB 1) |
 | `CELERY_RESULT_BACKEND` | `redis://localhost:6379/2` | Celery results (Redis DB 2) |
+| `CELERY_LIVE_PERSON_QUEUE` | `pipeline.live.person_detector.worker` | Dedicated live queue for person-detector tasks |
+| `CELERY_LIVE_POSE_QUEUE` | `pipeline.live.rtmpose_model.worker` | Dedicated live queue for RTMPose tasks |
+| `CELERY_LIVE_BEHAVIOR_QUEUE` | `pipeline.live.behavior.worker` | Dedicated live queue for behavior/gaze/posture tasks |
+| `CELERY_OFFLINE_PERSON_QUEUE` | `pipeline.offline.person_detector.worker` | Dedicated offline queue for person-detector tasks |
+| `CELERY_OFFLINE_POSE_QUEUE` | `pipeline.offline.rtmpose_model.worker` | Dedicated offline queue for RTMPose tasks |
+| `CELERY_OFFLINE_BEHAVIOR_QUEUE` | `pipeline.offline.behavior.worker` | Dedicated offline queue for behavior/gaze/posture tasks |
 | `GO2RTC_API_URL` | `http://localhost:1984` | go2rtc REST API |
 | `GO2RTC_WHEP_URL` | `http://localhost:8555` | go2rtc WebRTC/WHEP |
 | `YOLO_MODEL_DIR` | `models/` | Directory for `.pt` model files |
@@ -165,6 +171,11 @@ The API is available at `http://localhost:8000/api/v1/`.
 | `PYRAMID_VERTICAL_GAZE_MODEL_RUNTIME` | `openvino` | Runtime override for up/down gaze |
 | `PYRAMID_TRACKING_MODEL_RUNTIME` | `onnx` | Runtime override for the tracking wrapper |
 | `PYRAMID_OPENVINO_DEVICE` | `intel:gpu` | OpenVINO target device |
+| `TRITON_EXECUTION_PROFILE` | `throughput_guardrails` | Triton runtime policy profile for production tuning |
+| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline detector cadence while keeping frame-level rendering |
+| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live detector cadence while keeping continuous overlay updates |
+| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline reuse window for last valid detections |
+| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live reuse window for last valid detections |
 | `MEDIA_ROOT` | `media/` | Media file storage root |
 | `RECORDING_STORAGE_PATH` | `media/recordings/` | Recording file storage |
 

@@ -223,14 +223,14 @@ MCP server and governed telemetry endpoint work (`US6`, tasks `T062`-`T072`) is 
 
 **Purpose**: Final validation, coverage closure, docs parity, and readiness proof.
 
-- [ ] T073 [P] Run full backend suite for affected scopes with xdist and collect coverage reports in `backend/tests/`
-- [ ] T074 [P] Run frontend telemetry UI and integration tests in `frontend/tests/`
-- [ ] T075 Run end-to-end quickstart validation workflow and capture evidence package in `specs/009-parallel-pose-inference/quickstart.md`
-- [ ] T076 [P] Update backend source docs mirrors for touched files in `docs/backend/`
-- [ ] T077 [P] Update frontend source docs mirrors for touched files in `docs/frontend/`
-- [ ] T078 [P] Update affected module `README.md` files for new runtime/buffering/telemetry contracts
-- [ ] T079 Validate 100% line and branch coverage gates for changed modules and patch remaining gaps in `backend/tests/` and `frontend/tests/`
-- [ ] T080 Produce final completion evidence index linking hybrid run + stress lanes + telemetry + fidelity artifacts in `backend/data/videos/{job_id}/run_manifest.json`
+- [X] T073 [P] Run full backend suite for affected scopes with xdist and collect coverage reports in `backend/tests/`
+- [X] T074 [P] Run frontend telemetry UI and integration tests in `frontend/tests/`
+- [X] T075 Run end-to-end quickstart validation workflow and capture evidence package in `specs/009-parallel-pose-inference/quickstart.md`
+- [X] T076 [P] Update backend source docs mirrors for touched files in `docs/backend/`
+- [X] T077 [P] Update frontend source docs mirrors for touched files in `docs/frontend/`
+- [X] T078 [P] Update affected module `README.md` files for new runtime/buffering/telemetry contracts
+- [X] T079 Validate 100% line and branch coverage gates for changed modules and patch remaining gaps in `backend/tests/` and `frontend/tests/`
+- [X] T080 Produce final completion evidence index linking hybrid run + stress lanes + telemetry + fidelity artifacts in `backend/data/videos/{job_id}/run_manifest.json`
 
 ---
 
