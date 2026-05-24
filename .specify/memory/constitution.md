@@ -1,1548 +1,1279 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.7.0 -> 1.8.0
-Bump rationale: MINOR - Added a new system hardening principle and
-materially expanded testing, planning, performance, documentation,
-and deployment governance from user input. The amendment formalizes
-100% test coverage, real model weights and raw test data, live-stream
-and offline-video planning, Ultralytics documentation authority, and
-the development Docker versus production native Linux split.
+Version change: 1.8.1 -> 2.0.0
+Bump rationale: MAJOR - The prior project-wide quality and documentation
+charter is replaced by binding runtime, temporal, identity, scientific,
+contract, and acceptance laws for a production behavioral intelligence
+platform. This redefines production inference authority, maturity closure,
+and the meaning of acceptable evidence.
 
-Modified Principles:
-- II. Test-in-Loop Standards - raised coverage and real-data rules
-- VI. Performance Requirements - expanded responsiveness targets
+Modified principles:
+- Generic student monitoring engineering directives -> Production behavioral
+  intelligence system doctrine and runtime authority.
+- Optional/preferred Triton posture -> Triton-only production inference with
+  fail-closed enforcement.
+- General tracking/overlay expectations -> Identity- and temporal-truth
+  preconditions for any behavioral claim.
+- Broad test/documentation rules -> Evidence-based production and scientific
+  acceptance gates.
 
-Added Principles:
-- XII. End-to-End System Hardening
+Added sections:
+- Foundational System Doctrine
+- Production Runtime Constitution
+- Temporal Truth Constitution
+- Identity Continuity Constitution
+- Pose Runtime Constitution
+- Behavioral Intelligence Constitution
+- Observability and Scientific Rigor Constitution
+- Queue, Orchestration, and Resilience Constitution
+- API, Contract, and Schema Constitution
+- Data and Storage Constitution
+- Security, Stability, and Failure Constitution
+- Acceptance, Validation, and Evidence Constitution
+- Cross-Wave Dependency Constitution
+- Final Architectural Positioning
 
-Added Sections:
-- Principle XII - End-to-End System Hardening
+Removed sections:
+- Former UI-theme, generic per-file diagram, and universal commit directives
+  as constitutional principles. Normal repository contribution guidance
+  remains subordinate to the runtime and evidence laws in this document.
 
-Removed Sections: None.
-
-Expanded Sections:
-- Test Enforcement Rules
-- Three-Phase Testing Pipeline
-- Quality Gates
-- Governance
-
-Templates Requiring Updates:
+Templates requiring updates:
 - updated: .specify/templates/plan-template.md
 - updated: .specify/templates/spec-template.md
 - updated: .specify/templates/tasks-template.md
-- updated: README.md
 - not present: .specify/templates/commands/*.md
+- updated: docs/backend/architecture/triton-operations.md
+- updated: docs/backend/architecture/data-flow.md
+- updated: docs/backend/architecture/deployment-topology.md
+- updated: docs/backend/architecture/observability-runbook.md
+- updated: docs/ARCHITECTURE.md
+- updated: README.md
+- updated: docs/triton_inference_speed_stabilization_plan.md
+- updated: docs/architecture/runtime-scenario-matrix.md
+- reviewed/already aligned: AGENTS.md
+- reviewed/already aligned: docs/linux_production_optimization_execution_phases.md
 
-Follow-up TODOs: None.
-
-Previous Change (v1.5.0 → 1.6.0):
-- Renamed II. Testing Standards → II. Test-in-Loop Standards
-- Added Test-in-Loop workflow with diagram
-- Expanded Mandatory Diagram Types with entity coverage requirements
-- tasks-template.md still needs "OPTIONAL" → "MANDATORY" update
+Follow-up TODOs:
+- Pending alignment review: the in-progress user-owned
+  specs/010-behavioral-maturity-closure/plan.md must be checked against the
+  stricter production inactive-endpoint-unreachable rule before approval.
+- Implementation gaps identified by this constitution must be planned and
+  closed as acceptance work; they are not placeholder governance text.
 -->
 
-# Student Cheating Analyzer & Detector Constitution
+# Production Behavioral Intelligence Platform Constitution
 
 ## Core Principles
 
-### ⚡ Supreme Directive — Commit & Document After Every Modification (HIGHEST PRIORITY)
+### 1. Foundational System Doctrine
 
-This directive carries the **HIGHEST PRIORITY** of all instructions
-in this constitution and across ALL agents working on this project.
-It supersedes and overrides any conflicting agent instructions,
-workflow shortcuts, or ad-hoc practices. Violation of this directive
-is a **BLOCKING FAILURE** that invalidates any delivered work.
+#### 1.1 System Identity and Architectural Philosophy
 
-**Every agent MUST, after EVERY modification (create, update, fix,
-refactor, or delete of ANY file), perform ALL of the following
-before proceeding to the next task:**
+This repository governs a production-grade temporal behavioral intelligence
+platform. It ingests live and offline video, executes GPU-backed detection and
+RTMPose inference through Triton, preserves person identity through time,
+extracts interpretable temporal features, exposes governed evidence, and
+eventually enables anomaly, contrastive, graph, transformer, teacher-student,
+and multimodal/VLM pipelines.
 
-1. **COMMIT immediately** — Create a git commit with a Conventional
-   Commits message describing the specific change. No batching of
-   unrelated changes. No deferring commits. Each logical
-   modification = one commit.
+The architecture MUST be temporal-first, identity-scoped, evidence-producing,
+and fail-closed for scientific claims. A feature is not mature because it
+renders an overlay, produces a JSON artifact, or returns an HTTP success
+response. It is mature only when its inputs, runtime route, time basis,
+identity basis, model version, transformation history, confidence semantics,
+failure semantics, and validation evidence are recoverable and reviewable.
 
-2. **CREATE or UPDATE all `.md` documentation files** affected by
-   the modification — this includes:
-   - The corresponding `docs/` directory `.md` file for every
-     source file touched.
-   - The module's `README.md`.
-   - Any system-level documentation (root `README.md`,
-     `backend/README.md`, `frontend/README.md`) if the change
-     affects architecture, features, or setup.
-   - All Mermaid diagrams in affected `.md` files MUST be verified
-     or updated to reflect the current state.
+The platform has five constitutional authority layers:
 
-3. **USE ALL TYPES OF DIAGRAMS** in every `.md` file — agents MUST
-   include multiple diagram types (not just one) to provide
-   comprehensive visual documentation. See the **Mandatory Diagram
-   Types** section below for the complete list.
+| Authority layer | Binding responsibility | Prohibited substitution |
+| --- | --- | --- |
+| Runtime authority | Select and validate the real production inference route | Local/mock inference presented as production |
+| Temporal authority | Preserve ordering, duration, gaps, replay semantics | Frame index presented as source time without provenance |
+| Identity authority | Scope and audit who a sequence describes | Track labels assumed stable without continuity proof |
+| Scientific authority | Define behavior meaning, quality, and claim evidence | UI appearance or synthetic metrics used as validation |
+| Contract authority | Version schemas, artifacts, and forensic lineage | Silent payload, serializer, or artifact drift |
 
-4. **EXPLAIN every diagram in VERY DETAILED way** — each diagram
-   MUST be preceded by an introduction paragraph and followed by a
-   detailed explanation section that walks through every node, edge,
-   relationship, and flow depicted. See the **Diagram Explanation
-   Requirements** section below for exact format.
+#### 1.2 Production Behavioral Intelligence Definition
 
-5. **CONNECT all `.md` files to each other** — every `.md` file
-   MUST contain explicit cross-reference links to related `.md`
-   files using relative Markdown links. See the **.md File
-   Interconnection** section below for exact requirements.
+Production behavioral intelligence is the ability to derive reviewable,
+time-bounded behavioral observations from identity-continuous, timestamp-valid,
+pose- and context-supported sequences under a validated production runtime.
+Each output MUST state whether it is an observation, feature, heuristic event,
+model inference, anomaly candidate, or adjudicated outcome. No output MAY imply
+intent, misconduct, or anomaly truth merely from position, pose, attention
+direction, or a statistical score.
 
-**Enforcement**:
-- Work without a commit after each modification is NOT delivered.
-- Documentation without ALL diagram types is NOT complete.
-- Diagrams without detailed explanations are NOT acceptable.
-- `.md` files without cross-links to related files are NOT valid.
-- Agents MUST self-verify these five items as a checklist after
-  every single modification before proceeding.
+A behavioral output is eligible for production use only when it carries:
 
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA',
-   'tertiaryColor': '#1E1B4B'}}}%%
-flowchart TD
-    classDef mandatory fill:#7C3AED,stroke:#A78BFA,color:#fff
-    classDef gate fill:#EF4444,stroke:#F87171,color:#fff
-    classDef success fill:#22C55E,stroke:#4ADE80,color:#000
+| Required provenance | Minimum content |
+| --- | --- |
+| Subject scope | session, camera, canonical identity or explicitly unresolved identity |
+| Temporal scope | window start/end in canonical time, coverage, gaps, drift state |
+| Input authority | source frames or sequence reference, pose stream, feature version |
+| Runtime authority | active mode, Triton model/version/config, hardware/run identifier |
+| Decision semantics | ontology label, confidence, ambiguity/missing-data state |
+| Traceability | event ID, contract version, persistence/artifact references |
 
-    M["🔧 ANY Modification<br/>(create / update / fix)"]:::mandatory
-    C["📝 Git Commit<br/>(Conventional Commits)"]:::mandatory
-    D["📄 Update docs/ .md<br/>+ Module README"]:::mandatory
-    G["📊 ALL Diagram Types<br/>(see Mandatory list)"]:::mandatory
-    E["📖 Detailed Diagram<br/>Explanations"]:::mandatory
-    L["🔗 Cross-Link<br/>All .md Files"]:::mandatory
-    V{"✅ Self-Verify<br/>5-Point Checklist"}:::gate
-    N["➡️ Next Task"]:::success
+#### 1.3 Temporal-First Reasoning Doctrine
 
-    M --> C --> D --> G --> E --> L --> V
-    V -- "All Pass" --> N
-    V -- "Any Fail" --> M
+Frame-centric detections answer where a candidate body region appears at an
+instant. Behavior requires duration, recurrence, rate of change, transition
+order, interactions, recovery after missing data, and reference to preceding
+context. Therefore:
+
+- Single-frame results MUST NOT be classified as temporal behavior.
+- Temporal features MUST be computed over explicit windows with source-time
+  boundaries, sample coverage, gap masks, and feature-definition versions.
+- Every behavioral event MUST link to the ordered observations that support it.
+- Loss of continuity MUST reduce confidence or invalidate a window; it MUST NOT
+  be bridged silently for a visually smooth overlay.
+
+Frame-level person detection and pose estimation are necessary substrates, but
+pose overlays are not behavioral intelligence. An overlay is a presentation
+artifact. It does not prove gaze duration, repeated wrist activity, sustained
+posture deviation, interaction sequence, anomalous transition, or causal
+meaning.
+
+#### 1.4 Identity Continuity Doctrine
+
+Behavior attaches to a temporally coherent subject, not to an arbitrary local
+tracker label. Any sequence containing unacknowledged identity switches,
+cross-camera collisions, unsafe merges, or unresolved association gaps is
+ineligible for behavioral model training, anomaly scoring, or maturity claims.
+
+Identity continuity MUST be:
+
+- scoped to session and camera before any wider aliasing;
+- represented separately from local tracking assignment;
+- measured with switch, fragmentation, occlusion recovery, and re-entry
+  recovery metrics;
+- auditable through lifecycle transitions and ReID evidence;
+- conservative under uncertainty, preferring unresolved gaps to wrong merges.
+
+#### 1.5 Scientific Reproducibility Doctrine
+
+Every performance or behavioral-quality claim MUST be reproducible from a
+versioned input manifest, source media digest or approved live-capture
+manifest, runtime configuration, model artifacts, schema/ontology versions,
+code revision, environment/hardware description, and raw metric output.
+
+Production acceptance MAY use bounded operational thresholds with repeated
+real runs and confidence intervals. Research, thesis, or comparative algorithm
+claims MUST additionally disclose study design, variance, effect size,
+statistical method, and limitations. A demonstration, mock run, screen capture,
+or single successful execution is not scientific evidence.
+
+#### 1.6 Observability Truth Doctrine
+
+Telemetry is an evidence source, not decoration. A metric MUST be emitted from
+measured execution, a validated aggregation of measured events, or an explicit
+unknown/unavailable state. The system MUST NOT synthesize availability,
+fabricate healthy status, convert missing values to measured zeros, or hide
+failed sub-stages behind aggregate success.
+
+All operator and forensic surfaces MUST distinguish:
+
+| State | Meaning |
+| --- | --- |
+| measured zero | Source ran successfully and observed no occurrences |
+| unavailable | Source could not provide a measurement |
+| unknown | Measurement has not been established for this interval |
+| stale | Last value exists but exceeds freshness contract |
+| degraded | Output exists but one or more required authorities failed |
+| valid | Measurement satisfies its source and freshness contract |
+
+#### 1.7 Deployment Authority Doctrine
+
+Production deployment is native Linux, NVIDIA GPU-backed, Triton-only, with no
+Docker dependency and no sudo assumption. User-space processes, service
+scripts, environment files, model repositories, queue workers, and health
+checks MUST operate under the deployed account's permissions. Docker MAY be
+used in development or controlled testing but MUST NOT be an unstated
+production precondition.
+
+#### 1.8 Runtime Determinism Doctrine
+
+Runtime choices MUST be explicit, versioned, diagnosable, and stable for the
+duration of an accepted run. Mode selection, endpoint binding, queue route,
+model config, batching policy, feature version, artifact naming, and
+degradation state MUST be reconstructable. Environment ambiguity, fallback
+chosen without recorded authority, or mixed-mode results invalidate acceptance
+evidence.
+
+### 2. Production Runtime Constitution
+
+#### 2.1 Triton Runtime Authority
+
+Triton Inference Server is the sole production authority for detector,
+RTMPose, and any future deployed GPU-backed behavior model inference. A local
+PyTorch, ONNX Runtime, OpenVINO, mock, stub, cached prediction, or frontend
+calculation MAY support development tests or explicitly labeled experiments,
+but MUST NOT:
+
+- satisfy production readiness;
+- be reported as a production prediction;
+- silently substitute for an unavailable Triton result;
+- populate a benchmark candidate identified as a production run;
+- create a behavior, anomaly, or forensic claim marked production-valid.
+
+If required Triton inference is unavailable in production, the inference
+operation MUST fail closed or produce an explicitly degraded, non-authoritative
+artifact that cannot be promoted to behavioral evidence.
+
+#### 2.2 Endpoint and Execution Mode Governance
+
+The platform maintains two defined endpoint profiles:
+
+| Mode profile | HTTP / gRPC / metrics ports | Scheduling intent | Production activation |
+| --- | --- | --- | --- |
+| `live` | `39000 / 39001 / 39002` | latency-first RTSP/live processing | Active only when selected |
+| `offline` | `39100 / 39101 / 39102` | throughput-first offline processing | Active only when selected |
+
+The phrase dual Triton endpoint architecture means both endpoint profiles,
+model configuration families, and route contracts exist. It does not authorize
+two live Triton server processes in production. Production MUST run exactly one
+active Triton endpoint profile at a time. The inactive profile MUST be
+unreachable and MUST receive no inference, health acceptance, queue dispatch,
+benchmark samples, or scheduler traffic.
+
+When the operational deployment binds both application workload URL settings
+to the selected endpoint, that binding MUST be recorded in the startup
+diagnostic manifest. Workloads incompatible with the selected mode MUST be
+rejected, queued for later activation, or explicitly run in a separately
+controlled mode window; they MUST NOT cause a second endpoint to start.
+
+#### 2.3 Startup Validation Rules
+
+Before backend workers accept production inference work, an automated preflight
+MUST execute and persist its result. Startup is successful only when every
+required check passes:
+
+| Gate | Required verification | Rejection condition |
+| --- | --- | --- |
+| Deployment gate | Linux host, intended environment, non-root operational account | Docker-only/sudo-dependent assumption or wrong environment |
+| Mode gate | Exactly one allowed mode value and one selected profile | Missing, unknown, contradictory, or multi-active mode |
+| Port gate | Active ports bound; inactive profile ports unbound | Both profiles reachable or active profile missing |
+| Triton gate | Active `/v2/health/live` and `/v2/health/ready` succeed | Non-ready active server |
+| Model gate | Required detector/RTMPose model readiness, version and config match selected profile | Missing, wrong config, wrong I/O, failed warmup |
+| GPU gate | Required GPU visible; memory/capability sufficient for loaded models | CPU/local substitution or capacity rejection |
+| Queue gate | Only allowed mode routes are enabled; worker queues and concurrency declared | Cross-mode consumption or uncontrolled queue |
+| Schema gate | Contract, event, artifact and feature versions configured | Unversioned payload/persistence |
+| Telemetry gate | Readiness and failure emission stores/probes are writable | Readiness cannot be measured |
+
+An invalid configuration MUST terminate startup or keep affected workers out of
+service. Logging a warning and continuing is prohibited when a required
+authority gate fails.
+
+#### 2.4 Health Validation Hierarchy
+
+Health is hierarchical and MUST NOT be collapsed into one boolean:
+
+1. Process liveness proves the selected Triton process exists and responds.
+2. Triton readiness proves the selected server accepts requests.
+3. Model readiness proves each required versioned model is loaded.
+4. Contract readiness proves expected input/output tensor signatures and
+   configuration profiles match application expectations.
+5. Functional canary readiness proves a real sanctioned inference sample
+   returns schema-valid output.
+6. Pipeline readiness proves enqueue, worker pickup, inference, persistence,
+   telemetry, and contract emission operate.
+7. Behavioral readiness proves temporal and identity authorities are valid for
+   feature or anomaly usage.
+
+A higher-level ready state MUST NOT be emitted unless every lower required
+level is valid or the higher level explicitly states its unavailable/degraded
+dependency.
+
+#### 2.5 Startup, Shutdown, GPU, Scheduler, and Queue Ownership
+
+The active mode owns its Triton process, loaded model configuration, GPU
+capacity reservation, scheduler parameters, and accepted workload queues for
+the activation interval. A mode change is an operational cutover, not an
+ordinary request-level branch.
+
+- Startup MUST drain or reject stale incompatible work before declaring the
+  selected mode ready.
+- Shutdown MUST stop admission, record cutover intent, drain or terminate
+  bounded in-flight work according to policy, flush evidence/telemetry, and
+  verify endpoint unreachability before activating another profile.
+- GPU overcommit, OOM, allocation failure, model unload, or unexpected GPU
+  reset MUST place the affected mode into failure or degraded state and MUST
+  invalidate incomplete benchmark/behavior evidence.
+- Scheduler parameters such as batching, queue delay, instance group, memory
+  pool, and priority MUST be profile-versioned and captured in manifests.
+- Celery queues MUST be declared by mode and stage. Live workers MUST NOT
+  consume offline inference queues and offline workers MUST NOT consume live
+  inference queues during production operation.
+
+Constitutional queue families include:
+
+| Workload | Detector queue | Pose queue | Behavior queue |
+| --- | --- | --- | --- |
+| Live | `pipeline.live.person_detector.worker` | `pipeline.live.rtmpose_model.worker` | `pipeline.live.behavior.worker` |
+| Offline | `pipeline.offline.person_detector.worker` | `pipeline.offline.rtmpose_model.worker` | `pipeline.offline.behavior.worker` |
+
+#### 2.6 Runtime Fault Classes and Isolation Semantics
+
+Every runtime failure MUST be classified, exposed, and handled using a bounded
+policy:
+
+| Fault class | Example | Permitted handling | Evidence consequence |
+| --- | --- | --- | --- |
+| Configuration fatal | Invalid mode, wrong endpoint/profile binding | Reject startup | No production run exists |
+| Dependency fatal | Selected Triton/model not ready | Reject or stop admission | No authoritative inference |
+| Capacity degradation | Queue SLO breach, GPU pressure, bounded timeout | Shed/throttle with explicit state | Exclude degraded windows unless policy accepts them |
+| Data-local failure | Corrupt frame, failed crop, missing timestamp | Preserve valid siblings; mark item failure | Invalidate affected item/window only |
+| Integrity failure | Identity collision, schema mismatch, event duplication corruption | Quarantine/fail stop | Block behavior/scientific maturity |
+| Security failure | Unauthorized data/event access, tampering | Isolate and audit | Block release pending incident handling |
+
+Silent runtime degradation, local production fallback, continued admission
+after fatal authority loss, simultaneous profile activity, and unrecorded
+manual routing changes are prohibited.
+
+### 3. Temporal Truth Constitution
+
+#### 3.1 Canonical Timestamp Semantics
+
+Every frame, crop inference, pose observation, identity transition, feature
+window, event, artifact, and benchmark sample MUST identify its time basis. The
+canonical behavior time is `source_timestamp`, derived from the source stream
+or media timeline and never silently replaced by processing wall-clock time.
+
+| Timestamp | Definition | Required use |
+| --- | --- | --- |
+| `source_timestamp` | Media presentation/capture time on the source timeline | Ordering, windows, behavioral duration, replay |
+| `ingest_timestamp` | Monotonic/UTC receipt time at system ingress | Network/decoder delay and operational latency |
+| `queue_timestamp` | Enqueue time and dequeue/pickup time for a task | Queue wait and starvation analysis |
+| `inference_timestamp` | Start/end time of actual model execution/request | Compute/service latency and timeout analysis |
+| `persistence_timestamp` | Commit/write completion time for durable output | Evidence freshness and end-to-end latency |
+
+All persisted time-bearing records MUST store timezone semantics for wall-clock
+fields and units for timeline values. Millisecond integers without declared
+origin, unit, and time basis are insufficient for scientific exports.
+
+#### 3.2 Timestamp Propagation Contract
+
+The ingest boundary MUST create or validate a temporal envelope containing:
+`source_id`, `session_id`, `camera_id` where applicable, `frame_id`,
+`source_timestamp`, `ingest_timestamp`, time-base metadata, frame sequence
+number, and correlation ID. Each downstream stage MUST propagate the envelope,
+append its stage timestamps and outcome, and MUST NOT rewrite earlier
+timestamps.
+
+When a source cannot provide genuine capture timestamps:
+
+- offline media MUST derive source time from decoded presentation timestamp,
+  time base, and file digest;
+- live media MUST record the timestamp origin as derived/arrival-based, report
+  the limitation, and exclude unsupported precision claims;
+- any correction, synchronization, or drift adjustment MUST retain original
+  and corrected values plus method/version.
+
+#### 3.3 Temporal Continuity and Sequence Integrity Laws
+
+A canonical sequence is ordered by source time within a subject scope. It MUST
+carry expected cadence, observed cadence, gaps, drops, duplicate handling,
+reordering decisions, interpolation markers, and coverage ratio.
+
+- No sequence window MAY contain records from different sessions, cameras, or
+  canonical identities unless its schema explicitly represents an interaction.
+- Duplicate event or frame keys MUST be idempotently rejected or linked as
+  retries; they MUST NOT inflate counts or durations.
+- Out-of-order arrivals MAY be reordered only within an explicitly bounded
+  watermark; late arrivals beyond that watermark MUST be recorded as late and
+  handled according to window finalization policy.
+- Dropped or failed frames MUST remain visible as missing intervals with
+  reasons. A gap MUST NOT disappear because display interpolation exists.
+- Interpolated values MUST never overwrite measured values or be exported as
+  raw measurements.
+
+#### 3.4 Temporal Memory Authority and Replay Guarantees
+
+Rolling temporal memory is an identity-scoped materialization, never the sole
+source of truth. Durable observation and lifecycle records remain authoritative
+for reconstruction. Redis/cache state MAY accelerate active sessions but MUST
+be rebuildable and MUST use keys including runtime mode, session, camera, and
+canonical/local identity scope as applicable.
+
+A replay MUST pin:
+
+- source input manifest and digest;
+- decoder/time-base version and correction policy;
+- event/schema/pose/feature/ontology versions;
+- identity decisions and any permitted reevaluation policy;
+- selected runtime/model/configuration when replaying inference;
+- deterministic seed or nondeterminism disclosure;
+- replay identifier linking derived output to its parent evidence.
+
+Replay output is invalid if it silently changes model versions, identity merge
+decisions, time correction, excluded intervals, feature definitions, or data
+filters relative to its declared manifest.
+
+#### 3.5 Temporal Corruption and Drift Governance
+
+The following are temporal corruption conditions and MUST block affected
+behavior claims until resolved or explicitly excluded:
+
+| Invalid state | Required action |
+| --- | --- |
+| Missing source timestamp origin | Mark non-authoritative for temporal behavior |
+| Timestamp regression beyond permitted reorder window | Quarantine interval and emit integrity failure |
+| Duplicate persisted frame/event treated as new | Correct aggregation and invalidate contaminated metric |
+| Source-to-ingest drift exceeds configured per-mode tolerance | Mark drift breach and invalidate unsupported latency/sequence claims |
+| Inference/persistence time predates required upstream event without clock explanation | Fail validation |
+| Gap bridged without missing/interpolation marker | Invalidate sequence/export |
+| Mode cutover mixed inside a benchmark or feature window | Split or reject window |
+
+Drift tolerances MUST be numeric, mode-specific, versioned, and justified in a
+plan or acceptance artifact. This constitution does not invent acceptable
+numeric values; a feature cannot be accepted until its plan defines and tests
+them using representative data.
+
+### 4. Identity Continuity Constitution
+
+#### 4.1 Canonical Identity Schema and Namespace Rules
+
+The canonical identity key for person-specific temporal evidence MUST include:
+
+```text
+identity_scope = session_id + camera_id + canonical_track_id
+observation_key = identity_scope + source_timestamp + frame_id
 ```
 
-**Detailed explanation of the Supreme Directive workflow diagram
-above**: This flowchart depicts the mandatory post-modification
-workflow that every agent MUST follow. The flow begins at the top
-with **ANY Modification** (purple node) — this includes creating
-new files, updating existing code, fixing bugs, or refactoring.
-The agent then proceeds sequentially through five mandatory steps:
-(1) **Git Commit** — the change is committed immediately with a
-Conventional Commits message; (2) **Update docs/ .md + Module
-README** — all documentation files affected by the modification
-are created or updated; (3) **ALL Diagram Types** — the agent
-ensures every `.md` file includes all applicable diagram types from
-the mandatory list; (4) **Detailed Diagram Explanations** — every
-diagram has an introductory paragraph and a walkthrough explanation;
-(5) **Cross-Link All .md Files** — relative links connect the file
-to all related documentation. After all five steps, the agent
-reaches the **Self-Verify 5-Point Checklist** gate (red diamond).
-If all five checks pass, the agent proceeds to the **Next Task**
-(green node). If ANY check fails, the flow loops back to the
-modification step to fix the gap. This loop enforces that no task
-progresses until documentation and commits are complete.
+`local_track_id` is the immediate tracker assignment in one camera stream.
+`canonical_track_id` is the continuity identity used for sequences only after
+provenance rules are satisfied. A local ID MUST NOT be assumed globally unique
+within a session, across cameras, across jobs, across reconnects, or across
+runtime activations.
 
-### I. Code Quality Excellence
+Each identity-bearing record MUST expose:
 
-Every module, class, and function MUST adhere to strict code quality
-standards. This is the foundation upon which all other principles rest.
+| Field | Requirement |
+| --- | --- |
+| `session_id` / `job_id` | Defines processing lifecycle boundary |
+| `camera_id` or offline source ID | Prevents multi-source collision |
+| `local_track_id` | Preserves tracker output provenance |
+| `canonical_track_id` | Present only for authorized continuity identity |
+| `lifecycle_state` | `active`, `occluded`, `reidentified`, `lost`, `ended`, or `unresolved` |
+| `identity_confidence` | Calibrated score/state and threshold metadata |
+| `identity_provenance` | Algorithm, version, source observations, decision reason |
+| `decision_timestamp` | Time the association/merge was committed |
 
-- **SOLID principles are mandatory** for every class and module:
-  - **Single Responsibility**: Each class has exactly one reason to
-    change. Each module file handles one concern.
-  - **Open/Closed**: New detection models are added via plugin
-    registry, not by modifying pipeline code. Config-driven behavior
-    changes MUST NOT require code changes.
-  - **Liskov Substitution**: All model adapters MUST be
-    interchangeable via a common base interface.
-  - **Interface Segregation**: Clients MUST NOT depend on methods
-    they do not use. Separate interfaces for read-only vs read-write
-    operations.
-  - **Dependency Inversion**: High-level modules depend on
-    abstractions, not concrete implementations. Dependencies MUST be
-    injected via constructors.
-- **Zero `print()` statements** — all output MUST go through
-  structured logging with auto-redaction of sensitive patterns.
-- **Custom exception hierarchy** with retry/backoff for transient
-  failures and graceful degradation for non-critical paths.
-- **Design patterns** MUST be applied where appropriate: Strategy
-  (model selection), Factory (pipeline stages), Observer (anomaly
-  alerts), Template Method (detection layers).
-- **Functions MUST NOT exceed 30 lines**. Classes MUST follow
-  single-responsibility. Naming MUST be meaningful and consistent.
-  DRY is enforced — no duplicated logic.
-- **All configuration** MUST be loaded through validated config
-  models (e.g., Pydantic v2 strict mode). No hardcoded magic
-  numbers or string literals.
-- **Package-per-module structure**: Every module MUST have its own
-  package directory with clear entry points and separated concerns
-  (business logic, CLI, interfaces).
+#### 4.2 Multi-Camera Isolation and Cross-Talk Prevention
 
-### II. Test-in-Loop Standards (NON-NEGOTIABLE)
+Camera namespaces are isolated by default. Equal local IDs from two cameras
+MUST resolve to different scoped identities unless an explicit cross-camera
+ReID feature is approved, versioned, audited, and evidence-backed. Cache keys,
+WebSocket groups, artifacts, database uniqueness constraints, event keys, and
+frontend routes MUST preserve camera scope.
 
-No feature, update, or fix is considered delivered until ALL test
-cases pass. Testing is a blocking delivery gate — not optional.
-Every agent MUST use the **Test-in-Loop** methodology: write ALL
-tests first across all levels, verify they fail, then implement
-until all tests pass, running them continuously throughout
-development.
+Cross-camera or cross-session merges are forbidden by default for behavioral
+evidence. An implementation claiming such continuity MUST introduce a separate
+governed contract and validation protocol; ordinary single-camera ReID
+thresholds cannot authorize it.
 
-#### Test-in-Loop Methodology (MANDATORY)
+#### 4.3 ReID Authority and Merge Semantics
 
-The Test-in-Loop workflow is the ONLY acceptable development
-methodology for this project. Every agent MUST follow this exact
-sequence for every feature, fix, or update:
+ReID is a conservative aliasing authority, not a convenience label generator.
+It MAY establish a canonical alias only when all policy predicates pass:
 
-1. **WRITE ALL TESTS FIRST** — Before writing any implementation
-   code, the agent MUST write the complete test suite covering:
-   - **Unit tests** for every public function, class, and method
-     that will be created or modified.
-   - **Integration tests** for every cross-module interaction,
-     layer handoff, API contract, and data flow between components.
-   - **System tests** for every end-to-end user scenario defined
-     in the spec (e.g., video input → detection → anomaly report
-     → UI display).
-2. **VERIFY ALL TESTS FAIL (RED)** — Run the complete test suite
-   and confirm every new test fails. A test that passes before
-   implementation indicates the test is not testing new behavior
-   and MUST be rewritten.
-3. **IMPLEMENT UNTIL TESTS PASS (GREEN)** — Write the minimum
-   implementation code needed to make all tests pass. During
-   implementation, the agent MUST run the test suite after every
-   logical change (every few lines or every function completion)
-   to get continuous feedback. This is the "loop" — tests are
-   executed repeatedly throughout development, not just at the end.
-4. **REFACTOR (CLEAN)** — Once all tests pass, refactor the
-   implementation for clarity, performance, and adherence to
-   Principle I (Code Quality). Re-run all tests after each
-   refactoring step to ensure no regressions.
-5. **FULL SUITE VERIFICATION** — After refactoring, run the
-   entire test suite (unit + integration + system) one final time.
-   ALL tests MUST pass. This is a blocking gate.
+1. camera and session scope permit comparison;
+2. lifecycle transition is physically and temporally plausible;
+3. similarity/confidence meets a versioned calibrated threshold;
+4. competing candidates do not create ambiguity above the conflict tolerance;
+5. observation quality is sufficient and no integrity hold exists.
 
-**Test-in-Loop is NOT optional.** Agents MUST NOT:
-- Write implementation code before writing tests.
-- Write only unit tests and skip integration or system tests.
-- Write tests after implementation ("test-after" is PROHIBITED).
-- Run tests only at the end of implementation.
-- Skip the RED phase (verifying tests fail first).
+If predicates do not all pass, the system MUST persist an unresolved candidate
+rather than forcing a merge. The candidate record MUST retain source local
+track, possible canonical identity, scores, thresholds, features/model
+version, reason for non-merge, and resolution status.
 
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA',
-   'tertiaryColor': '#1E1B4B'}}}%%
-flowchart TD
-    classDef test fill:#3B82F6,stroke:#60A5FA,color:#fff
-    classDef red fill:#EF4444,stroke:#F87171,color:#fff
-    classDef green fill:#22C55E,stroke:#4ADE80,color:#000
-    classDef refactor fill:#F59E0B,stroke:#FBBF24,color:#000
-    classDef gate fill:#7C3AED,stroke:#A78BFA,color:#fff
+A merge MUST be append-only/auditable: original local observations remain
+immutable; canonical identity is attached through a decision record. A
+reversal MUST create a compensating identity decision and identify derived
+windows or artifacts requiring invalidation/recomputation.
 
-    W["📝 Write ALL Tests<br/>(Unit + Integration<br/>+ System)"]:::test
-    R{"🔴 All Tests Fail?<br/>(RED)"}:::red
-    FIX["✏️ Fix Tests<br/>(not testing new<br/>behavior)"]:::red
-    I["🔨 Implement Code<br/>(minimum to pass)"]:::green
-    LOOP{"🔁 Run Tests<br/>(after every change)"}:::green
-    PASS{"🟢 All Tests Pass?<br/>(GREEN)"}:::green
-    MORE["🔨 Continue<br/>Implementing"]:::green
-    RF["♻️ Refactor Code<br/>(quality + clarity)"]:::refactor
-    RTEST{"🔁 Run Tests<br/>(after each refactor)"}:::refactor
-    FINAL{"✅ Full Suite Pass?<br/>(Unit+Integ+System)"}:::gate
-    DONE["🏁 Delivered"]:::gate
+#### 4.4 Lifecycle and Occlusion Recovery Doctrine
 
-    W --> R
-    R -- "Yes: all fail" --> I
-    R -- "No: some pass" --> FIX --> W
-    I --> LOOP
-    LOOP --> PASS
-    PASS -- "Yes" --> RF
-    PASS -- "No" --> MORE --> LOOP
-    RF --> RTEST
-    RTEST -- "Pass" --> FINAL
-    RTEST -- "Fail" --> RF
-    FINAL -- "All Pass" --> DONE
-    FINAL -- "Any Fail" --> I
+Lifecycle events MUST reflect observed continuity:
+
+| Transition | Required evidence |
+| --- | --- |
+| `active -> occluded` | Last valid observation and occlusion/gap trigger |
+| `occluded -> reidentified` | ReID/association evidence meeting policy |
+| `occluded -> lost` | Bounded recovery window exceeded or confidence failure |
+| `active/reidentified -> ended` | Stream/job termination or explicit exit |
+| any -> `unresolved` | Conflict, ambiguity, collision, or integrity hold |
+
+Occlusion recovery MUST NOT treat proximity or box order alone as identity
+proof in crowded or crossing scenes. Association MAY use IoU, motion,
+appearance/ReID, pose consistency, and lifecycle priors only when each factor
+has documented semantics and thresholds. Unsafe interpolation MUST be rejected.
+
+#### 4.5 Forbidden Identity States and Trust Scoring
+
+Forbidden states include identity without camera scope, a canonical identity
+created without provenance, one local observation simultaneously assigned to
+multiple canonical identities, merged identities across incompatible sessions,
+silent ID-switch repair, behavior windows spanning unresolved identity
+conflicts, and metrics that conceal identity failures.
+
+Identity trust scoring MUST report at least:
+
+- ID switch count/rate;
+- fragmentation rate and average uninterrupted duration;
+- unresolved association count/rate;
+- occlusion recovery success and false-recovery review outcomes;
+- re-entry recovery rate;
+- merge/reversal counts and confidence distribution;
+- proportion of windows eligible for behavioral inference.
+
+Thresholds for behavioral eligibility MUST be stated in a feature plan and
+validated on representative multi-person, occlusion, and crossing evidence.
+
+### 5. Pose Runtime Constitution
+
+#### 5.1 RTMPose Authority and Model Contract
+
+RTMPose is the pose-estimation authority for governed pose streams unless a
+future constitutional amendment approves an alternative. Production RTMPose
+inference MUST be served through the selected active Triton profile. Model
+repository version, TensorRT/serialized artifact digest, tensor names,
+dimensions, coordinate system, skeleton/keypoint order, confidence definition,
+preprocessing, postprocessing, and warmup/batching configuration MUST be
+captured for acceptance.
+
+A detector crop, person association, and RTMPose result MUST carry compatible
+frame, identity, and source-time envelopes. A pose attached to the wrong
+person, wrong frame, or unknown crop is not partial success; it is an integrity
+failure for that record.
+
+#### 5.2 Canonical Pose Streams
+
+Three distinct streams MUST be represented when used:
+
+| Stream | Definition | Intended usage | Scientific authority |
+| --- | --- | --- | --- |
+| `raw_keypoints` | Direct validated RTMPose output plus confidence/visibility, without temporal smoothing | Reproducibility, model evaluation, downstream reprocessing | Primary measurement authority |
+| `smoothed_keypoints` | Temporally filtered transform of raw output with method/version/parameters and masks | Approved feature extraction where method is declared | Derived authority only |
+| `display_keypoints` | Visibility-filtered and presentation-adjusted points for overlay/UI | Rendering and operator visualization | Never scientific input unless separately validated |
+
+The streams MUST NOT be conflated. UI-ready filtering or smoothing MUST NOT
+overwrite raw output. Behavioral feature definitions MUST name the accepted
+stream and its transform version. Exports MUST preserve masks and lineage from
+derived streams to raw inputs.
+
+#### 5.3 Visibility, Smoothing, and Interpolation Semantics
+
+Each keypoint record MUST contain a score or explicit absence and an approved
+visibility threshold contract. A keypoint below threshold is missing/low
+visibility; it MUST NOT be converted to a confident coordinate for behavior
+features.
+
+Smoothing MUST declare filter algorithm, parameters, warmup, causal versus
+acausal behavior, handling of gaps, and induced latency. Offline acausal
+smoothing cannot be represented as live-real-time behavior without disclosure.
+Interpolation MUST:
+
+- be bounded in time and only bridge explicitly allowed short missing intervals;
+- identify each interpolated sample and its source anchors;
+- be blocked across identity discontinuity, mode cutover, invalid source time,
+  or confidence failure;
+- never count as raw pose evidence;
+- be excluded or separately evaluated in quality metrics unless the metric
+  explicitly addresses interpolation.
+
+#### 5.4 Batch Inference and Partial Failure Laws
+
+Batching is permitted only when each crop/result retains deterministic mapping
+to frame, identity candidate, source time, batch index, and result status.
+Dynamic batching or concurrent execution MUST NOT alter result attribution.
+
+When one item in a batch fails:
+
+- valid siblings MAY be persisted with `success` and batch provenance;
+- the failed item MUST be persisted or emitted as failed/missing with reason;
+- a whole-frame behavior window MUST evaluate resulting coverage and
+  eligibility, not assume success because some poses exist;
+- a contract mismatch, response-shape ambiguity, or mapping failure MUST fail
+  the affected batch rather than guess.
+
+#### 5.5 Fallback Governance and Behavioral Readiness
+
+Production local model fallback is prohibited. Permitted degradation consists
+of explicit missing pose, bounded previously measured display continuation for
+UI only, or failure state publication. A reused or interpolated display pose
+MUST NOT silently feed behavioral features.
+
+Pose output becomes behavior-ready only when model contract validation, stream
+lineage, identity continuity, temporal coverage, visibility/missingness, and
+quality acceptance thresholds pass. Pose-overlay availability alone is not a
+maturity criterion.
+
+### 6. Behavioral Intelligence Constitution
+
+#### 6.1 Behavioral Ontology Governance
+
+Behavioral semantics MUST reside in a versioned ontology and feature registry,
+not in implicit frontend labels, ad hoc Python conditions, or undocumented
+model classes. Each ontology entry MUST define:
+
+| Definition component | Required content |
+| --- | --- |
+| Name and version | Stable identifier and semantic version |
+| Claim class | observation, derived feature, event candidate, anomaly score, adjudicated label |
+| Required input | pose stream, identity trust, context, time window, visibility coverage |
+| Operational definition | measurable condition or model contract |
+| Confidence semantics | calibration/rule thresholds and ambiguity state |
+| Invalidating conditions | missing data, identity fault, drift, low coverage, unavailable context |
+| Ethical interpretation | what output does not prove |
+
+Implicit behavioral semantics are forbidden. Labels such as suspicious,
+cheating, inattentive, interaction, anomaly, or risk MUST NOT be emitted
+without ontology ownership, evidence links, and approved interpretation limits.
+
+#### 6.2 Temporal Feature Authority
+
+Features are computed from canonical identity-scoped windows with declared time
+bounds, sample policy, selected pose stream, missingness mask, context
+requirements, and feature implementation version. Feature computation MUST be
+deterministic for identical input records and versioned configuration, or must
+record nondeterminism and seeds.
+
+Mandatory feature families for any behavior-readiness claim are:
+
+| Family | Examples of valid feature concepts | Critical guards |
+| --- | --- | --- |
+| Head behavior | orientation proxy, turn duration, repeated direction transition | visibility, calibration, no intent inference |
+| Wrist behavior | hand elevation, disappearance duration, hand-to-region motion | occlusion, crop quality, context boundary |
+| Motion behavior | velocity, acceleration, stillness duration, periodic movement | source-time accuracy, gap masks |
+| Posture behavior | torso lean, pose symmetry, sustained posture transition | skeleton validity, camera perspective limitation |
+| Interaction behavior | relative proximity/motion or synchronized temporal events | separate identities, same calibrated scene/time |
+
+Feature output MUST contain coverage, quality flags, source interval, identity
+trust, pose stream version, ontology version, and reason for suppression where
+not emitted.
+
+#### 6.3 Temporal Window and Missing-Data Semantics
+
+Window definitions MUST specify duration, stride, minimum measurements,
+permitted gap length, visibility requirement, late-arrival closure policy, and
+whether interpolation contributes. Missing observations MUST be represented by
+masks/reasons and MUST NOT default to zero movement, neutral posture, absent
+interaction, or normal behavior.
+
+A feature or behavioral event MUST be invalid/suppressed when:
+
+- identity is unresolved or trust is below approved threshold;
+- source time is invalid or coverage/drift exceeds window policy;
+- pose stream is missing, wrong-versioned, or insufficiently visible;
+- required context, baseline, or interacting identity is absent;
+- data was generated by unauthorized runtime fallback;
+- ontology/schema/model version is unknown;
+- a conflict makes more than one interpretation plausible and no ambiguity
+  output is defined.
+
+#### 6.4 Anomaly and Sequence Intelligence Semantics
+
+Anomaly output is a deviation score or event candidate relative to a documented
+reference distribution, not an automatic finding about a student. Before
+learned anomaly deployment, interpretable feature and primitive-event outputs
+MUST exist so decisions can be audited. An anomaly model MUST name its training
+dataset manifest, split policy, feature/pose/identity eligibility filters,
+model digest, calibration procedure, threshold policy, limitations, and
+monitoring/drift plan.
+
+Future temporal transformers, ST-GCN/CTR-GCN models, contrastive encoders,
+interaction graphs, teacher-student models, or VLM fusion MUST consume governed
+sequence contracts. They MUST NOT bypass timestamp, identity, pose-stream,
+ontology, access, evidence, or API governance because their architecture is
+more expressive.
+
+#### 6.5 Ambiguity and Confidence Rules
+
+Confidence MUST refer to an explicitly defined quantity: pose visibility,
+identity association trust, feature quality, rule certainty, anomaly score
+calibration, or model posterior. Scores from different stages MUST NOT be
+collapsed into one display number without a documented combination method and
+validation.
+
+Ambiguous intervals MUST remain ambiguous. The system MAY display candidate
+evidence for review, but MUST suppress authoritative behavioral or anomaly
+assertions when required evidence is conflicting or incomplete.
+
+### 7. Observability and Scientific Rigor Constitution
+
+#### 7.1 Telemetry Truth Rules
+
+Telemetry MUST be probe-backed or derived from immutable, deduplicated runtime
+events. Every metric MUST declare source, aggregation interval, dimensions,
+units, freshness, missing-state behavior, and retention. Critical dimensions
+include runtime mode, endpoint profile, model/version, job/session/camera,
+queue, worker, stage, outcome, and evidence run ID where applicable.
+
+Required telemetry domains include:
+
+- Triton liveness/readiness/model readiness and request failures;
+- model latency, queue duration, batching, timeout, GPU memory/utilization and
+  OOM/resource events;
+- Celery enqueue/pickup/ack/retry/dead-letter/starvation observations;
+- frame/drop/gap/late/reordered/persistence-failure counts;
+- identity switches, fragmentation, unresolved associations and recovery;
+- pose success/missingness/jitter/visibility/partial failure;
+- behavior feature eligibility/suppression and anomaly output lineage;
+- API/WS schema validation failures and artifact availability.
+
+Synthetic telemetry acceptance, hardcoded availability, fake readiness states,
+default-success branches, silently masked KPI failures, and dashboard
+replacement of unavailable values with zeros are constitutional violations.
+
+#### 7.2 Benchmark Integrity Laws
+
+A benchmark run MUST be immutable and manifest-driven. At minimum it stores:
+
+| Manifest domain | Required content |
+| --- | --- |
+| Code/runtime | commit hash, dirty-state disclosure, OS, service versions |
+| Hardware | GPU model/driver/runtime, CPU/RAM where relevant |
+| Workload | source media/live capture manifest, digest, duration, mode, concurrency |
+| Inference | active endpoint, model/config/artifact versions, batching/scheduler parameters |
+| Data contracts | schema, pose stream, feature, ontology and eligibility versions |
+| Results | raw measurements, aggregations, failed/dropped samples, logs/artifacts |
+| Comparison | explicit independent baseline and candidate identifiers |
+
+Self-baseline comparison, candidate-versus-identical-candidate scoring, mock-only
+production benchmarking, omitted failed attempts, synthetic pass records,
+mixed-mode profile comparisons, changed input without disclosure, and reported
+availability not supported by raw measurements are forbidden.
+
+#### 7.3 Statistical Rigor Requirements
+
+Operational production acceptance MUST use repeated real executions with a
+predeclared pass/fail rule. For each reported primary performance or quality
+metric, reports MUST include sample count, central estimate, dispersion, and
+confidence interval or a documented reason a CI is inappropriate.
+
+Research and paper claims comparing methods or configurations MUST additionally
+include:
+
+- hypothesis or estimand and primary/secondary metrics declared before result
+  interpretation;
+- baseline and candidate run grouping with comparable workloads;
+- effect size and uncertainty;
+- suitable parametric or nonparametric test with assumptions noted;
+- multiple-comparison handling when evaluating many alternatives;
+- power or sample-size limitation statement;
+- treatment of failures, missing intervals, excluded sequences, and outliers.
+
+Variance MUST be reported, not hidden behind averaged throughput or latency.
+Quality metrics such as identity switches, pose jitter, feature eligibility,
+coverage and event precision/recall MUST accompany latency claims whenever
+scientific behavior readiness is asserted.
+
+#### 7.4 Evidence Authority and Reproducibility
+
+Evidence precedence is:
+
+1. immutable raw observations/runtime events and source manifests;
+2. versioned durable database records;
+3. generated artifacts with manifest/digest lineage;
+4. aggregated telemetry computed from authoritative records;
+5. frontend presentation derived from versioned API contracts.
+
+A cache, dashboard rendering, log excerpt without provenance, or hand-written
+summary MUST NOT override a lower-numbered authority. Evidence artifacts MUST
+be addressable, permission-controlled, integrity-checkable, and linked from
+the claim or acceptance gate they support.
+
+### 8. Queue, Orchestration, and Resilience Constitution
+
+#### 8.1 Queue Governance and Worker Isolation
+
+Celery orchestration MUST isolate live and offline work by named queue and
+stage, bind workers deliberately, and expose bindings in diagnostics. Queues
+MUST declare admission, concurrency, acknowledgment, prefetch, timeout,
+retry, priority, overflow, dead-letter, and drain/cutover behavior.
+
+`worker_prefetch_multiplier=1` and late acknowledgment are the required
+starting policy for long-lived inference tasks unless an evidence-backed
+amendment proves another configuration preserves correctness under worker loss
+and overload. A worker MUST NOT consume queues outside its approved runtime
+mode activation.
+
+#### 8.2 Retry, DLQ, and Poison Message Laws
+
+Retries MUST be bounded by fault class. Every retryable task MUST define a
+maximum attempt count, bounded backoff with maximum delay, task deadline or
+staleness rule, idempotency key, and terminal behavior. Unbounded retry loops
+are prohibited.
+
+| Failure class | Retry handling |
+| --- | --- |
+| Transient network/service timeout with healthy authority | Bounded retry while within deadline |
+| Stale live frame after latency budget | Do not retry inference; account as drop/stale |
+| Invalid schema, corrupt payload, unauthorized request | No retry; quarantine/DLQ and alert |
+| Triton/model authority unavailable in production | Fail/degrade explicitly; no local fallback |
+| Persistence conflict with idempotency recovery path | Bounded retry, deduplicate on commit |
+
+Dead-letter records MUST include original message identity, mode/queue, retry
+history, failure class, payload reference or sanitized digest, time envelope,
+operator resolution state, and linked evidence. A poison message MUST NOT
+cycle between retry queues or block healthy work indefinitely.
+
+#### 8.3 Backpressure, Starvation, and Collapse Prevention
+
+Each mode MUST define numeric SLO gates for queue depth, p95 queue wait, timeout
+rate, and drop rate before acceptance. Backpressure actions MUST be explicit
+and observable:
+
+- live mode MAY shed stale frames, reduce governed cadence, suspend optional
+  feature stages, or enter degraded presentation while preserving drop/gap
+  truth and forbidding unsupported behavior claims;
+- offline mode MAY pause admissions, throttle batch dispatch, or fail a job
+  with resumable evidence; it MUST NOT discard frames silently for throughput;
+- priority MUST not permit indefinite starvation; age and starvation metrics
+  MUST trigger bounded escalation or admission control;
+- queue collapse MUST not merge live/offline routes, start unauthorized
+  endpoints, or disable evidence writes.
+
+#### 8.4 RTSP State Machine Doctrine
+
+Each live stream MUST have an auditable state machine:
+
+```text
+configured -> connecting -> connected -> degraded/disconnected
+degraded/disconnected -> retry_wait -> reconnecting -> recovered/failed
+connected/recovered/degraded -> stopping -> stopped
 ```
 
-**Detailed explanation of the Test-in-Loop workflow diagram above**:
-This flowchart enforces the mandatory Test-in-Loop development cycle
-for every agent. The flow begins with **Write ALL Tests** (blue
-node) — the agent writes the complete test suite spanning unit,
-integration, and system tests before any implementation code exists.
-Next, the **All Tests Fail? (RED)** gate (red diamond) verifies
-every new test fails; if any test passes before implementation, the
-agent loops back to **Fix Tests** to ensure the tests actually
-validate new behavior. Once all tests correctly fail, the agent
-enters the implementation loop: **Implement Code** (green) writes
-the minimum code needed, then **Run Tests (after every change)**
-provides continuous feedback — this is the core "loop" that gives
-the methodology its name. If tests pass, the agent moves to
-**Refactor Code** (yellow) for quality improvements, running tests
-after each refactor step. If refactoring breaks a test, the agent
-refactors again until tests pass. Finally, the **Full Suite Pass?**
-gate (purple) runs the complete test suite one last time. Only when
-all unit, integration, and system tests pass does the agent reach
-**Delivered**. If the final suite reveals failures, the agent loops
-back to implementation. No shortcutting is allowed — every arrow in
-this diagram represents a mandatory step.
-
-#### Three-Phase Testing Pipeline
-
-ALL three phases MUST pass before any merge or delivery:
-
-1. **Unit tests** for every public function and class.
-2. **Integration tests** for: pyramid layer handoffs, RTSP
-   connection lifecycle, anomaly detection pipeline, tracking ID
-   persistence, frontend-backend API contracts.
-3. **System tests** for end-to-end flows covering BOTH mandatory
-   runtime scenarios:
-   - **Live stream scenario**: RTSP/WebRTC input -> detection ->
-     tracking -> anomaly report -> UI display.
-   - **Offline video processing scenario**: uploaded/raw video file
-     -> batch inference -> tracking -> persisted results -> playback
-     overlay.
-
-#### Test Enforcement Rules
-
-- **100% line and branch coverage** is enforced as a delivery gate
-  for every module, feature, and integration path already
-  implemented or newly implemented. Any temporary exemption MUST be
-  documented in Complexity Tracking with owner, expiry date, and
-  removal plan.
-- **Tests MUST mirror source structure**: `tests/unit/`, `tests/
-  integration/`, `tests/system/` directories MUST parallel the
-  `src/` tree.
-- **Real model weights and real raw test data are mandatory** for
-  every inference, prediction, tracking, video-processing, and
-  overlay test. Tests MUST use the project model artifacts and raw
-  video/image data from approved test-data locations. Mocks,
-  fakes, or synthetic frames MUST NOT replace model weights, raw
-  media, trackers, or prediction outputs in these paths.
-- **Limited test doubles** are allowed only for non-ML side effects
-  such as email, network outages, auth providers, or clocks. They
-  MUST NOT hide frontend-backend, backend-Triton, Docker, or native
-  Linux production wiring defects.
-- **Every agent delivering a feature or update MUST confirm that
-  ALL existing and new test cases pass before marking work as
-  complete.** Partial test passes are a blocking failure.
-- **No feature merges** without the full test pipeline (Unit →
-  Integration → System) passing green.
-- **Automation testing is mandatory by default**: all repeatable
-  validations (unit, integration, system, contract, regression,
-  smoke, performance/load) MUST run through automated CI/local
-  scripts. Manual-only testing MAY supplement but MUST NOT replace
-  required automated gates.
-- **Load testing is mandatory** for backend APIs, WebSocket/event
-  streams, inference queues, and storage paths that handle
-  production-like traffic. Test plans MUST define concurrency,
-  sustained duration, burst behavior, and pass/fail thresholds
-  (latency, throughput, error rate, resource usage) before merge.
-- **High-value test categories are required where applicable**:
-  contract testing (API and WebSocket schema compatibility),
-  regression testing (defect-prevention suites), smoke testing
-  (critical-path deploy checks), and resilience testing (timeouts,
-  retries, dependency degradation, recovery behavior).
-
-### III. User Experience Consistency
-
-Every user-facing interaction MUST follow uniform patterns that
-make the system intuitive, predictable, and professional.
-
-- **Uniform interaction patterns** across all views (monitoring
-  dashboard, camera feeds, recording review, settings).
-- **Real-time feedback** for detection status (active / paused /
-  error) with ≤500 ms UI update latency.
-- **Error messages MUST be actionable**: user-facing messages MUST
-  explain what happened and what the user can do about it. Raw
-  stack traces, error codes, or technical jargon MUST NEVER be
-  shown to users.
-- **Loading states and progressive disclosure** for long-running
-  operations (video processing, model loading, recording playback).
-- **Keyboard navigable**: all primary workflows MUST be accessible
-  via keyboard alone.
-- **Responsive layout** supporting 1920×1080 minimum resolution.
-- **Consistent iconography and color semantics** across all
-  components: red = alert/critical, yellow = warning, green =
-  normal/active, purple = primary accent.
-- **Micro-interactions** for state changes MUST complete within
-  200 ms to feel instant.
-
-### IV. Security Standards
-
-All data handling, authentication, and communication MUST follow
-strict security practices. Student monitoring data is sensitive.
-
-- **API keys, tokens, passwords, and secrets MUST NEVER be
-  hardcoded** in source code. Store in `.env` (in `.gitignore`),
-  load via environment variables, and use encrypted in-memory
-  vaults (Fernet encryption, decrypt-at-use, immediate clearance).
-- **All file paths MUST be sanitized** against directory traversal
-  attacks: resolve to absolute path, verify within allowed
-  directories, reject paths containing `..`, `~`, or null bytes.
-- **RTSP URLs MUST be validated** against allowlist patterns before
-  connection.
-- **Student data is PII**: no raw student identifiers in logs,
-  anonymized IDs in telemetry, data retention policies enforced
-  and configurable.
-- **Role-based access control** for dashboard: instructor and admin
-  roles with principle of least privilege.
-- **Audit log** for every detection event, configuration change,
-  login attempt, and recording access.
-- **Input validation**: all video file MIME types verified before
-  processing. All config values validated through strict schemas.
-- **Session management**: secure session tokens, configurable
-  inactivity timeout (default 30 min), non-specific error messages
-  for failed login attempts.
-- **Log redaction**: all logging MUST auto-redact patterns matching
-  API keys, tokens, passwords, and PII.
-
-### V. Amazing UI Design & User Experience
-
-The interface MUST be beautiful, modern, and purpose-built for
-exam monitoring — not generic. Visual design is a first-class
-requirement, not an afterthought.
-
-- **Three themes MUST be shipped from Day 1**:
-  - **Black + Purple** (default): dark background with purple
-    accent colors for a professional, modern look.
-  - **Full Black**: pure black backgrounds for OLED-friendly,
-    low-light exam hall environments.
-  - **White**: clean light theme for well-lit environments or
-    printed documentation.
-- **Theme switching MUST be instant** (≤300 ms, no page reload)
-  and persist across browser sessions via local storage.
-- **All three themes MUST pass WCAG 2.1 AA** contrast requirements
-  for text and interactive elements.
-- **Bounding box overlay colors MUST remain distinguishable** in
-  all three themes — adaptive stroke colors where necessary.
-- **Camera feed dashboard**: real-time multi-camera grid view with
-  color-coded bounding boxes (per detection class), student
-  tracking IDs, and anomaly indicators overlaid on feeds.
-- **Predictions panel**: per-student pyramid layer breakdown with
-  severity-scored anomaly highlights.
-- **Student behavior timeline**: scrollable history with anomaly
-  markers and one-click navigation to video moments.
-- **Reusable component library**: buttons, cards, modals, status
-  badges, form inputs, toggles — all themed consistently.
-- **Dark/light mode transitions MUST animate smoothly** — no
-  flash-of-unstyled-content allowed.
-- **WCAG 2.1 AA accessibility compliance** for all interactive
-  elements.
-
-### VI. Performance Requirements
-
-The system MUST sustain real-time operation under production
-workloads on both GPU and CPU environments.
-
-- **Real-time inference MUST sustain ≥15 FPS** on live camera
-  feeds (single stream). Multi-stream targets MUST be documented
-  per hardware profile.
-- **Multi-threading MUST be used** for I/O-bound operations:
-  video capture, RTSP streaming, file reading, network calls,
-  logging I/O.
-- **Multi-processing MUST be used** for CPU-bound operations:
-  frame preprocessing, model inference (CPU mode), batch anomaly
-  analysis.
-- **GPU acceleration (CUDA) MUST be used** when available; graceful
-  CPU fallback MUST be implemented with documented performance
-  expectations for each mode.
-- **Memory-efficient student tracking**: bounded track history per
-  student, automatic cleanup of expired tracks, no unbounded growth.
-- **Batch processing** for recorded videos MUST utilize all
-  available cores.
-- **Lazy model loading**: pyramid layers loaded on-demand per
-  camera session, not all at startup.
-- **Frontend performance**: initial page load ≤3 seconds on
-  standard broadband. UI interactions ≤200 ms response time.
-  Camera grid renders at native feed frame rate without dropped
-  frames.
-- **System responsiveness** MUST be measured across browser,
-  backend API, WebSocket, Celery/background workers, inference
-  runtime, and storage. Plans MUST define p95 latency targets for
-  user-visible actions and frame/result propagation.
-- **Live stream and offline video performance** MUST be planned and
-  tested separately. A feature that handles video MUST state
-  throughput, latency, backpressure, retry, timeout, and degradation
-  behavior for both scenarios.
-- **Cross-platform**: Windows + Linux with identical behavior.
-  CI MUST verify both platforms.
-
-### VII. Delivery Sign-Off Protocol
-
-No work is considered delivered until the agent has performed a
-comprehensive quality sweep and verified every gate passes. This
-principle governs the mandatory sign-off sequence for ALL agents.
-
-### VIII. Think Before Coding
-
-Do not assume. Do not hide confusion. Surface tradeoffs. Before
-implementing, state assumptions explicitly. If uncertain, ask.
-If multiple interpretations exist, present them — do not pick
-silently. If a simpler approach exists, say so. Push back when
-warranted. If something is unclear, stop, name what is confusing,
-and ask.
-
-- **Surface assumptions explicitly** — every agent MUST state
-  what they are assuming before writing code.
-- **Present tradeoffs** — when multiple approaches exist, document
-  the options with pros/cons rather than silently choosing one.
-- **Ask when uncertain** — confusion is not a failure; hidden
-  confusion is. Name what is unclear and seek clarification.
-- **Push back when warranted** — if requirements seem wrong,
-  overcomplicated, or contradictory, raise the issue before
-  proceeding.
-- **Prefer simplicity** — if a simpler solution exists, propose it
-  before implementing the complex one.
-
-### IX. Simplicity First
-
-Write the minimum code that solves the problem. Nothing
-speculative. No features beyond what was asked. No abstractions
-for single-use code. No "flexibility" or "configurability" that
-was not requested. No error handling for impossible scenarios.
-If you write 200 lines and it could be 50, rewrite it.
-
-- **Minimum viable solution** — implement exactly what is required,
-  no more.
-- **No speculative features** — do not add functionality that
-  "might be needed later."
-- **No premature abstractions** — single-use code does not need
-  abstraction layers.
-- **No unnecessary configurability** — hardcode values that will
-  not change; expose as config only when variability is required.
-- **Ruthless reduction** — if code can be simplified, it MUST be
-  simplified before delivery.
-- **Self-check** — ask: "Would a senior engineer say this is
-  overcomplicated?" If yes, simplify.
-
-### X. Surgical Changes
-
-Touch only what you must. Clean up only your own mess. When editing
-existing code, do not "improve" adjacent code, comments, or
-formatting. Do not refactor things that are not broken. Match
-existing style, even if you would do it differently. If you notice
-unrelated dead code, mention it — do not delete it. Remove only
-imports, variables, or functions that YOUR changes made unused.
-
-- **Minimal surface area** — every changed line MUST trace directly
-  to the user's request.
-- **No tangential improvements** — do not refactor, reformat, or
-  "clean up" code unrelated to the task.
-- **Match existing style** — follow the patterns already present
-  in the file, even if they differ from your preference.
-- **Clean up your own orphans only** — remove unused imports,
-  variables, or functions that YOUR changes created. Do not remove
-  pre-existing dead code unless explicitly asked.
-- **Report, do not fix** — if you notice unrelated issues, mention
-  them but do not fix them in the same change set.
-
-### XI. Goal-Driven Execution
-
-Define success criteria. Loop until verified. Transform vague
-tasks into verifiable goals: "Add validation" becomes "Write
-tests for invalid inputs, then make them pass." "Fix the bug"
-becomes "Write a test that reproduces it, then make it pass."
-"Refactor X" becomes "Ensure tests pass before and after." For
-multi-step tasks, state a brief plan with verification at each
-step.
-
-- **Verifiable success criteria** — every task MUST have explicit,
-  testable completion conditions.
-- **Test-driven verification** — when fixing or adding features,
-  write the test first, then make it pass.
-- **State the plan** — for multi-step work, enumerate steps with
-  verification criteria: "1. Step name -> verify: expected check"
-- **Loop until verified** — do not mark work complete until
-  success criteria are demonstrably met.
-- **Strong criteria enable autonomy** — clear success criteria let
-  agents work independently without constant clarification.
-
-No work is considered delivered until the agent has performed a
-comprehensive quality sweep and verified every gate passes. This
-principle governs the mandatory sign-off sequence for ALL agents.
-
-- **Step 1 — Comprehensive Issue Scan**: Before declaring any
-  work complete, the agent MUST scan for ALL known issue types:
-  - **Lint errors**: ESLint, Ruff/Flake8, Pylint violations.
-  - **Type errors**: TypeScript `tsc --noEmit`, mypy/Pyright.
-  - **Security warnings**: dependency vulnerabilities (npm audit,
-    pip-audit/safety), hardcoded secrets scan, path traversal
-    risks, CORS/CSRF misconfigurations.
-  - **Runtime warnings**: deprecation notices, unhandled promise
-    rejections, Django system checks, React strict-mode warnings.
-  - **Build errors**: compilation failures, missing imports,
-    circular dependencies.
-  - **Test failures**: unit, integration, and system test suites.
-  - **Documentation gaps**: missing module READMEs, stale
-    docstrings, outdated Mermaid diagrams.
-  - **Spec compliance violations**: deviations from spec.md FRs,
-    plan.md architecture, data-model.md schemas, or API contracts.
-- **Step 2 — Solution Determination**: For every issue found, the
-  agent MUST determine and document the resolution approach before
-  applying changes. Fixes MUST NOT introduce regressions.
-- **Step 3 — Fix Application**: Apply all fixes systematically.
-  Each fix MUST be an atomic, reviewable change. Fixes MUST be
-  committed individually with Conventional Commits messages.
-- **Step 4 — Full Test Suite Verification**: ALL test phases
-  (Unit → Integration → System) MUST pass green. Partial passes
-  are a blocking failure.
-- **Step 5 — Security Gateway Verification**: All security checks
-  MUST pass: no hardcoded secrets, paths sanitized, PII redacted
-  in logs, RBAC enforced, audit logging functional, dependencies
-  free of known critical/high CVEs.
-- **Step 6 — Spec-Driven Compliance Check**: The delivered code
-  MUST satisfy all applicable FRs from spec.md, adhere to the
-  architecture in plan.md, match data-model.md schemas, and
-  conform to API contracts. Deviations MUST be documented and
-  approved.
-- **Step 7 — Sign-Off**: ONLY after Steps 1–6 pass without
-  blocking findings can the agent mark work as **delivered**.
-  The sign-off MUST include a brief delivery summary listing:
-  issues found, issues resolved, test results, and any deferred
-  items with justification.
-- **Partial delivery is prohibited**: If any gate fails, the work
-  MUST NOT be signed off. The agent MUST iterate through Steps
-  1–6 until all gates pass.
-
-### XII. End-to-End System Hardening
-
-The project MUST be hardened as one connected system, not as isolated
-files. Documents, source code, Mermaid diagrams, frontend-backend
-contracts, Docker development wiring, Triton inference wiring, and
-native Linux production deployment MUST remain consistent and
-verifiable at every change.
-
-- **Modular low-coupling design** is mandatory. Each module MUST
-  expose a narrow public interface, depend on abstractions where
-  practical, and avoid cross-module knowledge that is not required
-  by the feature.
-- **Simple code is the default**. Complexity is allowed only when
-  the feature genuinely requires it, and the plan MUST document why
-  the simpler approach is insufficient.
-- **Live stream and offline video processing are first-class
-  scenarios**. Every spec, plan, task list, and system test for a
-  video or inference feature MUST cover both scenarios, or state an
-  explicit non-applicability rationale.
-- **Frontend-backend contracts MUST be hardened** through typed API
-  schemas, WebSocket payload contracts, error contracts, and
-  integration tests that exercise real request/response wiring.
-- **Backend-Triton wiring MUST be hardened** through explicit model
-  repository layout, model versioning, health/readiness checks,
-  timeout/retry policy, and integration tests using real model
-  weights.
-- **Docker is a development and test convenience only**. Development
-  MAY use Docker Compose for infrastructure and Triton. Production
-  Linux servers MUST NOT depend on Docker availability; deployment
-  plans and runbooks MUST use native Linux services, systemd or
-  equivalent process supervision, and filesystem model repositories.
-- **Ultralytics official documentation is the authority** for YOLO
-  prediction, tracking, tracker configuration, and inference API
-  behavior. Plans and research for tracking or prediction changes
-  MUST reference Ultralytics docs as the primary source and document
-  any deliberate deviation.
-- **Mermaid explainability diagrams MUST match implementation**.
-  Architecture, flow, sequence, state, ER, deployment, and wiring
-  diagrams MUST be updated when code or deployment behavior changes,
-  and every diagram MUST explain how live-stream and offline-video
-  paths move through the system when applicable.
-
-## Mandatory Diagram Types (ALL MUST Be Used)
-
-Every `.md` documentation file MUST include diagrams from ALL of the
-following categories that are applicable to the file's content. An
-agent MUST NOT skip a diagram type unless it has zero relevance to
-the file — and MUST document the reason for omission in a comment.
-
-### 1. Flowchart Diagrams
-
-Show control flow, decision points, and process steps. Use for:
-algorithms, request handling, lifecycle management, workflow steps.
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
-flowchart TD
-    A["Start"] --> B{"Decision?"}
-    B -- Yes --> C["Action A"]
-    B -- No --> D["Action B"]
-    C --> E["End"]
-    D --> E
-```
-
-### 2. Sequence Diagrams
-
-Show time-ordered interactions between components, services, or
-actors. Use for: API call flows, WebSocket message exchanges,
-authentication flows, multi-service orchestrations.
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'actorTextColor': '#E9D5FF', 'actorBkg': '#7C3AED',
-   'signalColor': '#A78BFA'}}}%%
-sequenceDiagram
-    actor User
-    participant Frontend
-    participant Backend
-    participant DB
-    User ->> Frontend: Action
-    Frontend ->> Backend: API Request
-    Backend ->> DB: Query
-    DB -->> Backend: Result
-    Backend -->> Frontend: Response
-    Frontend -->> User: UI Update
-```
-
-### 3. Class Diagrams
-
-Show class hierarchies, interfaces, inheritance, and composition.
-Use for: model definitions, service layers, abstract base classes,
-design pattern implementations.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-classDiagram
-    class BaseModel {
-        <<abstract>>
-        +predict(image) PoseResult
-    }
-    class ConcreteModelA {
-        +predict(image) PoseResult
-    }
-    BaseModel <|-- ConcreteModelA
-```
-
-### 4. Entity-Relationship (ER) Diagrams
-
-Show database entities, their attributes, and relationships. Use
-for: data model files, migration documentation, schema overviews.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-erDiagram
-    USER ||--o{ SESSION : creates
-    SESSION ||--|{ RECORDING : contains
-    SESSION ||--o{ ANOMALY_EVENT : detects
-```
-
-### 5. State Diagrams
-
-Show state machines, transitions, and lifecycle states. Use for:
-session lifecycle, anomaly triage workflow, recording states,
-export job states, connection states.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-stateDiagram-v2
-    [*] --> New
-    New --> Acknowledged : triage
-    New --> Dismissed : dismiss
-    Acknowledged --> New : admin revert
-    Dismissed --> New : admin revert
-```
-
-### 6. Gantt Charts
-
-Show task timelines, dependencies, and phases. Use for: project
-plans, migration schedules, deployment timelines, feature roadmaps.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-gantt
-    title Feature Implementation Timeline
-    dateFormat YYYY-MM-DD
-    section Phase 1
-    Setup           :a1, 2026-03-01, 3d
-    section Phase 2
-    Core Models     :a2, after a1, 5d
-    section Phase 3
-    API Integration :a3, after a2, 5d
-```
-
-### 7. Pie Charts
-
-Show proportional distributions. Use for: test coverage breakdown,
-module size distributions, error type distributions, resource usage.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-pie title Module Distribution
-    "Backend Apps" : 11
-    "Frontend Pages" : 17
-    "Shared Core" : 4
-    "Infrastructure" : 3
-```
-
-### 8. Mindmap Diagrams
-
-Show hierarchical concept relationships. Use for: feature
-breakdowns, module dependency trees, decision trees, architecture
-overviews.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-mindmap
-  root((System))
-    Backend
-      Django Apps
-      Celery Workers
-      YOLO Pipeline
-    Frontend
-      React Pages
-      Zustand Stores
-      WebSocket Hooks
-    Infrastructure
-      PostgreSQL
-      Redis
-      go2rtc
-```
-
-### 9. Git Graph Diagrams
-
-Show branching strategies, merge flows, and release timelines. Use
-for: branching documentation, release workflow, feature branch
-lifecycle.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-gitGraph
-    commit id: "init"
-    branch feature/001
-    commit id: "spec"
-    commit id: "plan"
-    commit id: "impl"
-    checkout main
-    merge feature/001 id: "merge"
-    commit id: "release"
-```
-
-### 10. Architecture / C4 Diagrams (using flowchart)
-
-Show high-level system architecture with layered containers. Use
-for: system overview, deployment topology, service boundaries.
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
-flowchart TB
-    classDef client fill:#3B82F6,stroke:#60A5FA,color:#fff
-    classDef server fill:#7C3AED,stroke:#A78BFA,color:#fff
-    classDef infra fill:#F59E0B,stroke:#FBBF24,color:#000
-    classDef ml fill:#EF4444,stroke:#F87171,color:#fff
-
-    subgraph Client["Browser Client"]
-        React["React 19 SPA"]:::client
-    end
-    subgraph Server["Application Server"]
-        Django["Django ASGI"]:::server
-        Channels["WebSocket Layer"]:::server
-    end
-    subgraph ML["ML Pipeline"]
-        YOLO["YOLO Pyramid"]:::ml
-    end
-    subgraph Infra["Infrastructure"]
-        PG["PostgreSQL"]:::infra
-        Redis["Redis"]:::infra
-        Go2rtc["go2rtc"]:::infra
-    end
-
-    React --> Django
-    React --> Channels
-    React --> Go2rtc
-    Django --> PG
-    Django --> Redis
-    Channels --> Redis
-    Django --> YOLO
-```
-
-### 11. Timeline Diagrams
-
-Show chronological sequences of events or milestones. Use for:
-project milestones, incident timelines, session event sequences.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-timeline
-    title Project Milestones
-    section Phase 0
-        Research : Completed
-    section Phase 1
-        Data Model : Completed
-        API Contracts : Completed
-    section Phase 2
-        Backend : In Progress
-        Frontend : In Progress
-```
-
-### 12. Quadrant Charts
-
-Show prioritized comparisons on two axes. Use for: feature
-prioritization, risk assessment, technology evaluation.
-
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-quadrantChart
-    title Feature Priority Matrix
-    x-axis Low Effort --> High Effort
-    y-axis Low Impact --> High Impact
-    quadrant-1 Do First
-    quadrant-2 Plan Carefully
-    quadrant-3 Delegate
-    quadrant-4 Eliminate
-    Auth System: [0.3, 0.9]
-    Camera Feed: [0.7, 0.95]
-    Theme Switch: [0.2, 0.6]
-    Export ZIP: [0.8, 0.5]
-```
-
-### Mandatory Entity Coverage in Diagrams (ALL MUST Be Shown)
-
-Every `.md` documentation file MUST include diagrams that explicitly
-show the relationships between ALL applicable entities in the
-project. Diagrams MUST NOT be abstract — they MUST reference real
-project entities by name. The following entity categories MUST be
-covered wherever relevant:
-
-1. **Files and Source Code Relationships**: Diagrams MUST show which
-   source files depend on, import from, or interact with other source
-   files. Use class diagrams or flowcharts to map file-to-file
-   dependencies, inheritance chains, and import graphs.
-
-2. **Users and Actors**: Diagrams MUST show all user roles (student,
-   teacher, instructor, admin) and how they interact with the system.
-   Use sequence diagrams or flowcharts to map user actions to system
-   responses. ER diagrams MUST show User entities and their
-   relationships to other data entities.
-
-3. **Databases and Storage**: Diagrams MUST show all database
-   tables/entities, their attributes, and relationships using ER
-   diagrams. Data flow diagrams MUST show how data moves from input
-   (video frames, user actions) through processing to storage
-   (database, file system) and retrieval.
-
-4. **ML Models and Detection Pipeline**: Diagrams MUST show all
-   trained models (person detector, standing/sitting classifier,
-   left/right classifier, forward/backward classifier, up/down
-   classifier), their inputs, outputs, and how they connect within
-   the feature pyramid. Use flowcharts for pipeline flow and class
-   diagrams for model interfaces.
-
-5. **All Project Entities**: Every entity defined in data-model.md,
-   spec.md, or plan.md MUST appear in at least one diagram in the
-   relevant documentation file. Entities include but are not limited
-   to: Frame, Person Detection, Cropped Student Image, Behavior
-   Prediction, Merged Behavior Record, Session, Recording, Anomaly
-   Event, Camera Source, User Account.
-
-**Enforcement**: A `.md` file that documents a module touching any
-of the above categories but omits diagrams showing those entity
-relationships is NOT considered complete. Agents MUST verify entity
-coverage as part of the self-verification checklist.
-
-## Diagram Explanation Requirements (MANDATORY)
-
-Every Mermaid diagram in every `.md` file MUST follow this exact
-documentation pattern:
-
-1. **Introduction paragraph** (BEFORE the diagram): A paragraph
-   explaining what the diagram shows, why it is included, and what
-   the reader MUST focus on. This paragraph MUST:
-   - State the diagram type (e.g., "The following sequence diagram
-     shows...").
-   - Explain the context (e.g., "...the authentication flow between
-     the browser, Django backend, and PostgreSQL database").
-   - Highlight key aspects to observe (e.g., "Note how the session
-     cookie is validated during the WebSocket upgrade handshake").
-
-2. **The Mermaid diagram code block** (the diagram itself).
-
-3. **Detailed explanation section** (AFTER the diagram): A thorough
-   walkthrough of the diagram that covers:
-   - **Every node/actor**: What each box, circle, or actor
-     represents in the system.
-   - **Every edge/arrow**: What each connection means — the data
-     or control flowing between nodes.
-   - **Every decision point**: What conditions trigger each branch
-     (for flowcharts and state diagrams).
-   - **Temporal sequence**: The order of operations and why that
-     order matters (for sequence diagrams).
-   - **Color semantics**: What each color represents (if colors
-     are used to encode meaning).
-   - **Real-world mapping**: How diagram elements map to actual
-     files, classes, functions, or infrastructure components in
-     the codebase.
-
-**Format example**:
-```markdown
-The following flowchart shows the anomaly triage workflow that
-instructors follow when reviewing detected anomalies during a
-live monitoring session. Focus on the first-write-wins locking
-mechanism at the decision node.
-
-Mermaid diagram block goes here.
-
-**Detailed explanation**: The diagram begins with the **Anomaly
-Detected** node (purple), representing a new anomaly event
-created by the YOLO pipeline's rule engine
-(`backend/apps/pipeline/rule_engine.py`). The event flows to
-the **Instructor Review** node, where the instructor sees the
-alert in the anomaly panel (`frontend/src/components/anomaly/
-AnomalyPanel.tsx`). At the **Triage Decision** diamond, the
-instructor chooses one of two paths: **Acknowledge** (marking
-the event as reviewed, handled by `TriageService.acknowledge()`
-in `backend/apps/anomalies/services.py`) or **Dismiss** (with
-a mandatory reason, handled by `TriageService.dismiss()`). Both
-paths converge at the **Audit Log** node, where the action is
-recorded as an immutable `AuditLogEntry` in
-`backend/apps/audit/models.py`. The red **Lock Check** gate
-enforces first-write-wins: if another instructor has already
-triaged this anomaly, the action is rejected with an "already
-handled" message. The green **Success** node indicates the
-triage is complete and all connected WebSocket clients receive
-a status update via `AnomalyConsumer` in
-`backend/apps/anomalies/consumers.py`.
-```
-
-**Agents MUST NOT**:
-- Include a diagram without both introduction and explanation.
-- Write vague explanations like "This diagram shows the flow."
-- Skip nodes or edges in the explanation.
-- Omit file path references where diagram nodes map to real code.
-
-## .md File Interconnection (MANDATORY)
-
-Every `.md` documentation file MUST be interconnected with all
-related `.md` files through explicit relative Markdown links. No
-`.md` file may exist in isolation.
-
-### Cross-Reference Requirements
-
-1. **Every `docs/` file MUST link to**:
-   - The source file it documents (relative path).
-   - The module's `README.md`.
-   - All `docs/` files for modules it imports or depends on.
-   - All `docs/` files for modules that import or depend on it.
-   - The relevant spec file(s) in `specs/` if the module
-     implements specific functional requirements.
-   - The data model file (`data-model.md`) if the module defines
-     or uses database entities.
-   - The API contract file (`contracts/rest-api.md` or
-     `contracts/websocket-api.md`) if the module exposes or
-     consumes API endpoints.
-
-2. **Every module `README.md` MUST link to**:
-   - All `docs/` files for source files in that module.
-   - The parent directory's `README.md` (e.g., `apps/README.md`
-     or `backend/README.md`).
-   - Related module `README.md` files for direct dependencies.
-   - The constitution (`../.specify/memory/constitution.md`).
-
-3. **Every spec file MUST link to**:
-   - Related spec files (e.g., `spec.md` ↔ `plan.md` ↔
-     `tasks.md` ↔ `data-model.md`).
-   - The constitution.
-   - Implementation source files and their `docs/` counterparts.
-
-4. **Navigation aids**: Each `.md` file MUST include a
-   **"Related Documents"** section at the bottom containing a
-   bulleted list of all cross-referenced files with brief
-   descriptions:
-
-```markdown
-## Related Documents
-
-- [constitution.md](../../.specify/memory/constitution.md) —
-  Project governance and coding standards
-- [models.md](models.md) — Data models for this module
-- [views.md](views.md) — API endpoints for this module
-- [services.md](services.md) — Business logic for this module
-- [../cameras/models.md](../cameras/models.md) — Camera models
-  (dependency: CameraSource FK)
-- [../../specs/001-exam-monitor-dashboard/spec.md](
-  ../../specs/001-exam-monitor-dashboard/spec.md) — Feature
-  specification
-- [../../specs/001-exam-monitor-dashboard/data-model.md](
-  ../../specs/001-exam-monitor-dashboard/data-model.md) — Database
-  schema reference
-```
-
-5. **Link validation**: Agents MUST verify that all cross-reference
-   links resolve to existing files. Broken links are a blocking
-   finding.
-
-```mermaid
-%%{init: {'theme': 'dark', 'themeVariables':
-  {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
-flowchart LR
-    classDef spec fill:#3B82F6,stroke:#60A5FA,color:#fff
-    classDef doc fill:#7C3AED,stroke:#A78BFA,color:#fff
-    classDef src fill:#22C55E,stroke:#4ADE80,color:#000
-    classDef core fill:#F59E0B,stroke:#FBBF24,color:#000
-
-    SPEC["specs/<br/>spec.md"]:::spec
-    PLAN["specs/<br/>plan.md"]:::spec
-    TASKS["specs/<br/>tasks.md"]:::spec
-    DMODEL["specs/<br/>data-model.md"]:::spec
-    CONST["constitution.md"]:::core
-
-    DOCM["docs/backend/<br/>models.md"]:::doc
-    DOCV["docs/backend/<br/>views.md"]:::doc
-    DOCS["docs/backend/<br/>services.md"]:::doc
-    README["module/<br/>README.md"]:::doc
-
-    SRCM["backend/apps/<br/>models.py"]:::src
-    SRCV["backend/apps/<br/>views.py"]:::src
-    SRCS["backend/apps/<br/>services.py"]:::src
-
-    CONST --> SPEC
-    CONST --> PLAN
-    SPEC <--> PLAN
-    PLAN <--> TASKS
-    SPEC <--> DMODEL
-
-    DOCM <--> DOCV
-    DOCM <--> DOCS
-    DOCV <--> DOCS
-    README --> DOCM
-    README --> DOCV
-    README --> DOCS
-
-    DOCM --> SRCM
-    DOCV --> SRCV
-    DOCS --> SRCS
-
-    DOCM --> DMODEL
-    DOCV --> SPEC
-    DOCS --> PLAN
-```
-
-**Detailed explanation of the .md File Interconnection diagram
-above**: This flowchart shows the mandatory cross-referencing
-topology between all documentation file types in the project. On
-the left side (blue nodes), the **spec files** form a tightly
-linked cluster: `spec.md`, `plan.md`, `tasks.md`, and
-`data-model.md` all link bidirectionally to each other, and all
-link back to the **constitution** (yellow node at center-left).
-In the middle column (purple nodes), the **docs/ directory files**
-(`models.md`, `views.md`, `services.md`) are fully
-cross-referenced with each other — because models are used by
-views, views call services, and services operate on models. The
-module **README.md** links down to all three docs/ files. On the
-right side (green nodes), the **source files** (`models.py`,
-`views.py`, `services.py`) are referenced by their corresponding
-docs/ files. Crucially, docs/ files also link back to spec files:
-`models.md` links to `data-model.md` (for schema reference),
-`views.md` links to `spec.md` (for FR traceability), and
-`services.md` links to `plan.md` (for architecture context). This
-creates a fully navigable documentation graph where any reader can
-traverse from any file to any related file.
-
-## Documentation & Commit Standards
-
-Documentation is a first-class deliverable. Every file, module, and
-feature MUST be documented, and the project README MUST always
-reflect the current state of the system.
-
-### README.md (System-Level)
-
-- A **major `README.md` MUST exist at the project root** from the
-  very first commit and MUST be kept updated with every feature
-  addition or structural change.
-- The README MUST include: project overview, architecture diagram
-  (Mermaid), setup instructions, module listing, contribution
-  guidelines, and current feature status.
-- **Every agent delivering work MUST update the root `README.md`**
-  if the work adds, removes, or changes modules, features, or
-  setup steps. This is a mandatory delivery artifact.
-- A **separate `README.md` MUST exist for each top-level project
-  directory** (`backend/README.md`, `frontend/README.md`) covering:
-  project-specific setup, architecture, testing, and deployment.
-
-### README.md (Per-Module — Mandatory)
-
-- **Every module (package directory) MUST have its own `README.md`**.
-  This applies to:
-  - Every Django app (e.g., `backend/apps/accounts/README.md`,
-    `backend/apps/cameras/README.md`, etc.)
-  - Every frontend component domain (e.g.,
-    `frontend/src/components/anomaly/README.md`,
-    `frontend/src/stores/README.md`, etc.)
-  - Every shared/core package (e.g., `backend/core/README.md`)
-  - Every configuration package (e.g., `backend/config/README.md`)
-- Each module README MUST include:
-  - **Purpose**: What this module does and why it exists.
-  - **Public API**: Key classes, functions, hooks, or components
-    exported by this module.
-  - **Dependencies**: Internal modules and external packages this
-    module depends on.
-  - **Usage examples**: How to import and use the module's API.
-  - **Configuration**: Environment variables, settings, or config
-    files the module requires.
-- **Every agent creating a new module MUST create its README.md
-  in the same commit.** This is non-negotiable — a module without
-  a README is not considered delivered.
-- **Every agent modifying a module MUST update its README.md** if
-  the change affects the public API, dependencies, or configuration.
-- **Post-work README gate**: After finishing ANY work session on a
-  module (feature, fix, refactor, or documentation), the agent
-  MUST verify the module's README.md exists and is current. If it
-  does not exist, the agent MUST create it before marking the work
-  as complete. This applies even to minor changes.
-
-### Per-File Documentation
-
-- **Every source file** MUST have a module-level docstring or header
-  comment explaining its purpose, responsibilities, and key exports.
-- **Documentation MUST be created alongside code** — not after. If
-  a file is created, its documentation is created in the same
-  commit.
-
-### `docs/` Directory — Source Code Documentation (MANDATORY)
-
-A project-level `docs/` directory MUST exist at the repository root.
-This directory mirrors the folder structure of `backend/` and
-`frontend/` but replaces every source code file (`.py`, `.ts`,
-`.tsx`, `.js`, `.jsx`) with a corresponding `.md` Markdown file
-that documents that source file comprehensively.
-
-- **Structure rule**: The `docs/` folder MUST replicate the exact
-  directory hierarchy of `backend/` and `frontend/`. For example:
-  ```text
-  docs/
-  ├── backend/
-  │   ├── apps/
-  │   │   ├── accounts/
-  │   │   │   ├── models.md
-  │   │   │   ├── views.md
-  │   │   │   ├── serializers.md
-  │   │   │   ├── services.md
-  │   │   │   ├── permissions.md
-  │   │   │   └── urls.md
-  │   │   ├── cameras/
-  │   │   │   ├── models.md
-  │   │   │   ├── views.md
-  │   │   │   ├── consumers.md
-  │   │   │   └── services.md
-  │   │   └── ... (every app mirrors its source files)
-  │   ├── config/
-  │   │   ├── settings.md
-  │   │   ├── urls.md
-  │   │   ├── asgi.md
-  │   │   └── celery.md
-  │   └── core/
-  │       ├── exceptions.md
-  │       ├── logger.md
-  │       ├── middleware.md
-  │       └── pagination.md
-  └── frontend/
-      └── src/
-          ├── components/
-          │   └── ... (mirrors component files)
-          ├── pages/
-          │   └── ... (mirrors page files)
-          ├── hooks/
-          │   └── ... (mirrors hook files)
-          ├── stores/
-          │   └── ... (mirrors store files)
-          └── api/
-              └── ... (mirrors API files)
-  ```
-- **Content requirements for each `.md` file**:
-  1. **Purpose**: What the source file does and why it exists.
-  2. **Exports**: Every class, function, constant, type, hook, or
-     component exported by the file — with brief descriptions.
-  3. **Internal logic**: Explanation of key algorithms, business
-     rules, and control flow within the file.
-  4. **Dependencies**: All internal modules and external packages
-     imported by the file, with explanation of why each is needed.
-  5. **Cross-references**: How this file connects to other modules
-     in the system — which files call it, which files it calls,
-     and the data flow between them.
-  6. **Mermaid diagram (MANDATORY)**: At least one Mermaid diagram
-     per `.md` file showing the file's relationships, data flow,
-     or class hierarchy. See the Mermaid Diagrams section below
-     for formatting requirements.
-- **Agent obligation**: Every agent MUST create or update the
-  corresponding `docs/` `.md` file whenever it creates or modifies
-  a source file. A source file without its `docs/` counterpart is
-  NOT considered delivered.
-- **New module creation**: When an agent creates a new module or
-  package, it MUST also create all corresponding `docs/` files in
-  the same commit.
-- **Modification rule**: When an agent modifies a source file in a
-  way that changes its public API, dependencies, or control flow,
-  the corresponding `docs/` `.md` file MUST be updated in the same
-  commit.
-- **Review gate**: Pull requests MUST include `docs/` updates for
-  every source file touched. PRs missing `docs/` updates for
-  modified files are a blocking review finding.
-
-### Mermaid Diagrams
-
-- **Architecture diagrams MUST use Mermaid syntax** for rendering
-  in Markdown (GitHub, GitLab, VS Code all render natively).
-- Diagrams MUST be **colorful**: use `style`, `classDef`, or
-  `%%{init: {'theme': ...}}%%` directives to apply distinct colors
-  to different component types.
-- Diagrams MUST have **readable, properly sized text**: node labels
-  MUST be concise (≤5 words), and diagrams MUST be tested for
-  readability at standard viewport widths.
-- **Text fitting**: All text inside diagram nodes, edges, and
-  labels MUST be fully visible without truncation or overflow.
-  Agents MUST verify that diagram labels do not exceed node
-  boundaries by keeping labels short and using line breaks
-  (`<br/>`) for multi-word labels when necessary.
-- **Diagram sizing**: Diagrams MUST render correctly at a viewport
-  width of 900px minimum. Use `%%{init: {'theme': 'base',
-  'themeVariables': {'fontSize': '14px'}}}%%` or equivalent to
-  ensure consistent font sizing across renderers.
-- **ALL diagram types are MANDATORY**: Every `.md` file in the
-  `docs/` directory MUST include diagrams from ALL applicable
-  categories listed in the **Mandatory Diagram Types** section
-  above. The minimum set per file is:
-  - At least one **flowchart** OR **sequence diagram** showing
-    the file's primary control/data flow.
-  - At least one **class diagram** OR **ER diagram** showing
-    the file's data structures or relationships.
-  - At least one **state diagram** if the file manages stateful
-    entities (sessions, recordings, anomalies, exports).
-  - Additional diagram types (pie, gantt, mindmap, timeline,
-    quadrant, git graph) MUST be included wherever they add
-    value to understanding.
-- **Detailed explanations are MANDATORY**: Every diagram MUST have
-  an introduction paragraph and a detailed walkthrough explanation
-  as specified in the **Diagram Explanation Requirements** section.
-  Diagrams without explanations are a blocking finding.
-- **Cross-references are MANDATORY**: Every `.md` file MUST include
-  a **Related Documents** section as specified in the **.md File
-  Interconnection** section. Files without cross-links are not
-  considered complete.
-- **Entity coverage is MANDATORY**: Every `.md` file MUST include
-  diagrams covering all applicable entity categories as specified
-  in the **Mandatory Entity Coverage in Diagrams** section. Files
-  missing entity-relationship diagrams for entities they interact
-  with are a blocking finding.
-- **`docs/` directory diagrams**: Every `.md` file in the `docs/`
-  directory MUST include at least one Mermaid diagram showing:
-  - The file's relationship to other modules (dependency graph),
-    OR
-  - The file's internal class/function hierarchy, OR
-  - The data flow through the file's key functions.
-  Agents MUST choose the diagram type that best explains the
-  file's role in the system — and SHOULD include multiple types.
-- **Required system-level diagrams** (minimum):
-  - System architecture (frontend ↔ backend ↔ detection pipeline)
-  - YOLO pyramid detection flow (layer-by-layer)
-  - Data flow diagram (camera → detection → anomaly → storage)
-  - Entity relationship diagram (key data models)
-  - WebSocket message flow (sequence diagram)
-  - Session lifecycle state machine (state diagram)
-  - Anomaly triage workflow (flowchart)
-  - Module dependency graph (mindmap or flowchart)
-  - Project timeline (gantt or timeline)
-  - Feature priority matrix (quadrant chart)
-- Diagrams MUST be updated when the architecture changes.
-- **Diagram count guidance**: A well-documented `.md` file
-  typically includes 3–6 diagrams. Files documenting complex
-  modules (e.g., pipeline, anomalies, sessions) SHOULD include
-  5+ diagrams covering multiple diagram types.
-
-### Commit Standards
-
-- **Every commit MUST have an explanatory message** following
-  Conventional Commits format: `type(scope): description`
-  - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`,
-    `style`, `ci`, `chore`, `build`
-  - Scope: module or feature name (e.g., `detection`, `dashboard`,
-    `auth`)
-  - Description: imperative mood, ≤72 characters, explains *what*
-    and *why* (not *how*).
-- **Atomic commits**: each commit MUST represent one logical change.
-  Do not mix unrelated changes in a single commit.
-- **Commit after EVERY modification (SUPREME DIRECTIVE)**: Every
-  agent MUST create a git commit IMMEDIATELY after completing each
-  logical modification — whether it is a code change, documentation
-  update, configuration edit, test addition, or any other file
-  change. This is the HIGHEST PRIORITY instruction in this
-  constitution. Deferring commits, batching unrelated changes, or
-  skipping commits for "small" changes is PROHIBITED.
-- **Commit messages MUST be reviewed** for clarity. Vague messages
-  like "fix stuff", "update code", or "WIP" are prohibited.
-- **Mandatory post-work commit (NON-NEGOTIABLE)**: After finishing
-  ANY work — whether a feature, bugfix, refactor, documentation
-  update, or test addition — the agent MUST create a git commit
-  before marking work as complete. Work without a commit is NOT
-  considered delivered. The commit MUST include:
-  1. All source code changes.
-  2. Corresponding `docs/` Markdown files (new or updated) with
-     ALL diagram types and detailed explanations.
-  3. Module README.md (new or updated).
-  4. Cross-reference links verified in all affected `.md` files.
-  5. A Conventional Commits message describing the change.
-  Agents MUST NOT defer commits to a later session or batch
-  multiple unrelated work items into a single commit.
-
-## Development Workflow
-
-Every feature follows the speckit pipeline. Quality gates block
-progression — no shortcuts allowed.
-
-### Spec-First Development
-
-1. Every feature starts with `speckit.specify` → `speckit.plan` →
-   `speckit.tasks` before any code is written.
-2. Feature branches MUST be named `NNN-short-name` (e.g.,
-   `001-exam-monitor-dashboard`).
-3. The spec MUST be approved before planning begins. The plan MUST
-   be approved before implementation begins.
-
-### Test-in-Loop Development (MANDATORY)
-
-Every implementation task MUST follow the Test-in-Loop workflow
-defined in Principle II. This means:
-
-1. Before implementing any feature task, write ALL tests (unit,
-   integration, system) for that task.
-2. Verify all tests fail (RED phase).
-3. Implement code while running tests continuously (GREEN phase).
-4. Refactor with continuous test verification (CLEAN phase).
-5. Full suite verification before marking task complete.
-
-No implementation task may skip this workflow. Agents MUST NOT
-write implementation code before the corresponding tests exist.
-
-### Quality Gates (Blocking)
-
-1. **Pre-commit**: Lint + format + type-check MUST pass.
-2. **Pre-merge**: Full test pipeline (Unit -> Integration -> System)
-   MUST pass. Coverage MUST be collected and published for every run.
-   Coverage thresholds are release-policy inputs (not implicit hard
-   blockers) and MUST be enforced only by explicit gate configuration.
-   Required automated categories for applicable changes include:
-   regression, contract, smoke, and performance/load tests with
-   documented thresholds and published results.
-3. **PR approval**: Every change MUST be submitted as a Pull
-   Request, MUST receive automated approval checks before merging,
-   and MUST also receive human approval when the change affects
-   protected or sensitive areas (or when automated checks flag
-   issues). Direct pushes to protected branches are prohibited.
-4. **Constitution compliance**: Every PR/review MUST verify
-  adherence to all 12 principles (I-XII). Non-compliance is a
-  blocking finding.
-5. **Documentation check**: README.md updated, module docs present,
-   `docs/` directory `.md` files created/updated for all touched
-   source files, Mermaid diagrams current.
-6. **Diagram completeness check**: Every `.md` file MUST include
-   ALL applicable diagram types from the Mandatory Diagram Types
-   list. Every diagram MUST have introduction + detailed
-   explanation. Every `.md` file MUST have a Related Documents
-   section with cross-links to all related files. Every `.md`
-   file MUST include entity-relationship diagrams covering all
-   applicable entity categories.
-7. **Test-in-Loop compliance check**: Every implementation task
-   MUST demonstrate that tests were written before implementation.
-   Test commit timestamps MUST precede implementation commit
-   timestamps for the same feature.
-8. **System wiring hardening check**: Frontend-backend,
-   backend-Triton, Docker development, and native Linux production
-   wiring MUST have documented contracts, Mermaid diagrams, and
-   passing integration/system tests. Live-stream and offline-video
-   paths MUST both be verified for video/inference features.
-
-### Pull Request & Code Review (MANDATORY)
-
-Every code change — regardless of size — MUST go through a Pull
-Request reviewed before merging. This is a non-negotiable gate.
-
-- **Branch strategy**: All work MUST be done on the spec feature
-  branch tied to the active spec (e.g., `NNN-feature-name`). Teams
-  MUST reuse that spec branch for iterative PRs and MUST NOT create
-  a new branch for each Pull Request. Direct commits to protected
-  base branches are prohibited.
-- **PR creation**: Every agent completing a task MUST commit
-  changes and open a Pull Request targeting the appropriate base
-  branch.
-- **Automated review**: Every PR MUST be reviewed by CodeRabbit
-  (or equivalent automated reviewer) before merge. CodeRabbit
-  findings rated "critical" or "high" are blocking.
-- **Human review**: For changes affecting architecture, security,
-  or constitution compliance, at least one human reviewer MUST
-  approve the PR in addition to automated review.
-- **PR description**: Every PR MUST include a clear description
-  of what changed and why, referencing the task ID or spec
-  requirement (e.g., `Closes T015`, `Implements FR-023`).
-- **No self-merge without review**: An agent or developer MUST
-  NOT merge their own PR without at least one approval (automated
-  or human).
-- **Merge strategy**: Squash-merge for single-task PRs; merge
-  commit for multi-task PRs to preserve individual commit history.
-
-### Agent Collaboration Rules
-
-- All agents MUST read existing plans, tasks, and constitution
-  before proposing changes.
-- All agents MUST use the same design patterns, naming conventions,
-  and module structure established in the implementation plan.
-- Agents MUST NOT introduce conflicting patterns or duplicate
-  existing functionality.
-- Agents MUST update shared artifacts (task list, plan, README)
-  when changes affect other modules.
-- **All agents MUST commit work on a branch and create a Pull
-  Request** — work is not considered submitted until a PR exists
-  and has been reviewed. For a given spec, agents MUST use the same
-  spec branch rather than creating per-PR branches.
-- **All agents MUST follow the Test-in-Loop workflow** — tests
-  first, implementation second. No exceptions.
-
-### Continuous Integration
-
-- CI pipeline: lint → type-check → unit tests → integration tests
-  → system tests (all stages blocking).
-- CI MUST execute automated regression, contract, smoke, and
-  performance/load suites for applicable changes; skipped categories
-  MUST include explicit non-applicability rationale in CI output.
-- CI MUST run on every push and every pull request.
-- CI MUST verify both Windows and Linux compatibility.
-- Parallel test execution SHOULD be enabled by default with
-  framework-native workers/processes (e.g., Vitest workers,
-  Playwright workers, pytest-xdist) while preserving deterministic
-  isolation for databases, files, and network ports.
-- When enabling parallelism, teams MUST avoid nested concurrency
-  collisions (for example, running multiple xdist invocations in
-  parallel that share identical worker DB names).
-- CI and local scripts MUST expose explicit knobs for worker counts
-  (fixed number or percentage) so execution can be tuned per host.
+State transitions MUST emit source/session/camera scope, timestamps, attempt
+number, reason, next action, and resulting temporal gap. Reconnect attempts
+MUST have ceilings, bounded exponential backoff with jitter where applicable,
+operator-stop cancellation, and terminal failure behavior. Reconnection MUST
+not fabricate uninterrupted source time or silently reuse a prior identity
+beyond validated recovery rules.
+
+#### 8.5 Fail-Stop and Ingestion Resilience Semantics
+
+Ingestion MUST reject corrupt/unsupported media or record per-frame decode
+failures with reasons. Failure to persist essential event, time, or identity
+records after inference MUST mark affected outputs non-authoritative and
+surface an operator fault. A mode MUST fail stop when integrity or production
+inference authority is lost; it MAY continue non-authoritative visualization
+only when clearly labeled and segregated from accepted evidence.
+
+### 9. API, Contract, and Schema Constitution
+
+#### 9.1 Contract Authority and Versioning
+
+REST, WebSocket, runtime event, artifact manifest, sequence export, telemetry,
+and forensic trace payloads MUST be governed by a canonical contract registry.
+Each public payload MUST include or be negotiated against a version, and its
+producer, consumers, compatibility promise, validation tests, and migration
+path MUST be recorded.
+
+No public payload MAY change silently. Adding, removing, renaming, changing
+meaning, changing nullability, changing units, or changing enumeration meaning
+requires a schema change decision and appropriate version bump.
+
+#### 9.2 Serializer Governance
+
+Public serializers MUST explicitly enumerate exposed fields and access
+permissions. `fields = '__all__'`, equivalent broad automatic exposure, and
+reflection of sensitive model state into public endpoints are prohibited.
+Temporal raw data, forensic traces, source identifiers, model internals, and
+behavioral outputs require intentional authorization and auditability.
+
+Serialization MUST preserve distinctions between missing, unavailable,
+degraded, invalid, redacted, and measured-zero values. A client MUST not need
+to infer these states from absence or string conventions.
+
+#### 9.3 REST and WebSocket Governance
+
+REST endpoints MUST expose deterministic idempotency, authorization,
+pagination/filter semantics where needed, and versioned error contracts.
+WebSocket messages MUST specify message type, version, sequence/order or replay
+behavior, reconnection/catch-up semantics, duplicate handling, authorization,
+and subscription lifecycle. WebSocket presentation events MUST NOT become an
+untracked parallel truth source independent of durable evidence.
+
+Generated frontend types or validation clients MUST be produced from the
+canonical registry or tested against it. Handwritten client DTOs MAY exist
+only when contract parity is verified in CI.
+
+#### 9.4 Artifact Authority Hierarchy and Compatibility Rules
+
+Artifacts are derived evidence unless explicitly declared raw acquisition.
+Public artifact endpoints MUST state artifact type, version, producing run,
+input references, content digest, creation time, quality/degradation flags,
+and retention status.
+
+Compatibility guarantees:
+
+- additive optional fields MAY occur in a compatible minor contract update
+  only when consumers are verified tolerant;
+- changed semantics, units, required fields, identifiers, or privacy boundary
+  require a breaking version or negotiated migration;
+- database migrations and backfills MUST preserve provenance and be
+  reversible or explicitly non-reversible with backup/evidence plan;
+- unknown future versions MUST be rejected or safely reported as unsupported,
+  not parsed as the current contract.
+
+Silent contract drift, unversioned payload evolution, undocumented mutation,
+and frontend-only repair of incorrect backend contracts are forbidden.
+
+### 10. Data and Storage Constitution
+
+#### 10.1 Typed Temporal Sequence Doctrine
+
+Canonical sequence storage MUST represent observations as typed,
+identity-scoped, source-time-ordered records rather than opaque result blobs.
+At minimum, a sequence schema MUST carry source/session/camera identity,
+canonical/local track provenance, temporal envelope, pose stream references,
+visibility/missing masks, lifecycle events, feature/ontology versions,
+runtime/model authority, quality flags, and event/artifact linkage.
+
+Raw observations, derived transforms, behavioral features, anomaly candidates,
+operator adjudications, and UI render artifacts MUST remain distinguishable in
+storage and exports.
+
+#### 10.2 Persistence, Event Identity, and Idempotency
+
+Durable persistence is authoritative for accepted operational and scientific
+outputs. Every durable event/observation MUST have a stable idempotency key
+derived from its scope and semantic identity, not from a transient retry
+attempt. Replayed tasks MUST update or reject duplicates according to contract;
+they MUST NOT create duplicate evidence or inflate telemetry.
+
+Events MUST carry correlation identifiers spanning ingest, queue task, Triton
+request, track/sequence, behavior output, artifact, API event and benchmark run
+where applicable. Database and artifact writes MUST define transaction and
+partial-write recovery behavior.
+
+#### 10.3 Artifact Lifecycle, Retention, and Compaction
+
+Artifacts MUST have lifecycle states such as pending, complete, degraded,
+invalidated, superseded, archived and deleted, with reasons and manifest
+history. Artifact cleanup MUST never delete authoritative evidence needed by an
+active acceptance, investigation, model dataset, or paper claim without a
+recorded retention decision.
+
+Raw temporal sequence retention currently follows the feature decision to keep
+raw sequence records indefinitely unless manually purged. A future retention
+change is a governance and data-migration decision and MUST specify legal,
+privacy, storage, reproducibility and dataset consequences.
+
+Compaction MAY materialize summaries or archive raw partitions only when it
+preserves digests, provenance, schema readability, retrieval authority and
+replay requirements. Destructive compaction without verified lineage and
+retention authority is prohibited.
+
+#### 10.4 Export and ML-Readiness Governance
+
+Dataset or evidence exports MUST include source manifest/digests, eligibility
+filters, excluded/missing intervals, identity/pose quality metrics,
+schema/feature/ontology versions, model/runtime configuration where derived,
+split assignment policy, label provenance, access policy, and generation code
+revision.
+
+No dataset is ready for ST-GCN/CTR-GCN, temporal transformers, contrastive
+learning, graph reasoning, teacher-student distillation, anomaly training or
+VLM fusion until identity and temporal quality gates pass and exclusions are
+recorded. Data volume cannot substitute for valid lineage.
+
+### 11. Security, Stability, and Failure Constitution
+
+#### 11.1 Runtime Safety and Corruption Prevention
+
+Video, identity, behavioral, and forensic data are sensitive. Authentication,
+authorization, audit logs, least privilege, transport security, secret
+management, input/path validation, and log redaction MUST cover ingest,
+artifacts, raw sequence access, APIs, WebSockets, operations scripts and
+exports. Production must not require privileged escalation to operate.
+
+At minimum, the system MUST prevent:
+
+- unauthorized access to raw video, raw sequences, forensic traces or
+  behavioral outputs;
+- command/path injection through media, artifact or deployment parameters;
+- secrets, raw identity data or sensitive source URLs in unsafe logs;
+- artifact tampering or mutation without digest/audit evidence;
+- public schema exposure of unapproved private model fields;
+- acceptance of data whose integrity lineage cannot be established.
+
+#### 11.2 Failure Isolation and Degradation Policies
+
+Partial degradation is allowed only when explicitly represented and scoped.
+A presentation overlay may continue with marked stale/display-only points; a
+behavioral event may not continue from the same data unless its input authority
+still passes. A valid pose for one identity may persist when a sibling crop
+fails; a corrupted response mapping cannot be salvaged by guessing.
+
+Safe fallback semantics mean reduced capability or fail-stop with truth, not an
+unrecorded alternative inference provider. Development fallback paths MUST be
+labeled non-production and excluded from production evidence.
+
+#### 11.3 Invalid and Catastrophic Runtime States
+
+| State | Classification | Required response |
+| --- | --- | --- |
+| Both Triton mode profiles active in production | Invalid authority state | Stop admission, isolate, invalidate mixed evidence |
+| Production inference completed by local/mock runtime | Catastrophic evidence violation | Quarantine outputs and block release/claim |
+| Identity collisions or unsafe merges affecting features | Scientific integrity failure | Invalidate affected windows/datasets |
+| Temporal corruption or unexplained ordering drift | Scientific integrity failure | Stop feature/anomaly acceptance for intervals |
+| Telemetry reports ready while probes are unavailable | Observability integrity failure | Correct state, audit affected acceptance |
+| Queue runaway/retry storm risking loss or starvation | Operational critical failure | Apply admission control/fail-stop policy |
+| Schema exposure or unauthorized raw trace access | Security incident | Contain, audit, and follow incident recovery |
+
+#### 11.4 Recovery Rules
+
+Recovery MUST be bounded, observable and evidence-preserving. Operational
+recovery procedures MUST specify detection, isolation, stop/admission action,
+data integrity assessment, restart/cutover validation, evidence invalidation or
+reprocessing, and sign-off. Recovery from a fatal authority or integrity fault
+requires fresh validation; process uptime alone cannot restore maturity state.
+
+### 12. Acceptance, Validation, and Evidence Constitution
+
+#### 12.1 Maturity Closure Authority
+
+Maturity is closed only by evidence, not by implementation intent, issue status,
+UI availability, or mock tests. Every maturity claim MUST identify an owner,
+required gate, execution environment, evidence artifacts, result, remaining
+limitations and approval record.
+
+PRs implementing constitutional concerns MUST include:
+
+- mapped constitutional laws and requirements;
+- contract/schema/ontology/migration changes where applicable;
+- tests for nominal, failure, overload and integrity cases;
+- real-production-route validation plan for runtime/ML claims;
+- observable acceptance metrics and evidence paths;
+- rollback/invalidation strategy;
+- explicit deferred gaps that are not claimed mature.
+
+#### 12.2 Production Readiness Gates
+
+No production sign-off for affected capability is valid without passing the
+applicable gates:
+
+| Gate | Minimum evidence |
+| --- | --- |
+| Runtime mode | Native Linux startup preflight; active endpoint healthy; inactive endpoint unreachable |
+| Triton/model | Required model readiness, contract signature, model/config/artifact manifest, GPU execution |
+| Queue/resilience | Queue binding, bounded retries/DLQ/backpressure, failure and reconnect validation |
+| Temporal | Timestamp envelope, gap/drift/replay validation using representative inputs |
+| Identity | Multi-camera isolation, crossing/occlusion/ReID evaluation and trust metrics |
+| Pose | Raw/smoothed/display lineage, batch partial-failure tests, pose quality measures |
+| Behavior | Versioned ontology/features, missingness/ambiguity guards, interpretable traces |
+| Observability | Probe-backed metrics, unknown/unavailable truth states, dedup tests |
+| Contract/storage | Versioned schemas, explicit serializers, migrations/idempotency/retention checks |
+| Benchmark | Real baseline/candidate repeats, confidence/variance and workload comparability |
+| Security | Access/audit/redaction/secret/input/artifact integrity checks |
+
+#### 12.3 GPU, Live, and Offline Validation Obligations
+
+Production inference acceptance MUST execute on the intended NVIDIA GPU through
+the active native-Linux Triton endpoint using declared model artifacts and
+configuration. CPU runs, mocks, local fallback, Docker-only tests and
+development demonstrations can support engineering but cannot close production
+GPU validation.
+
+Live validation MUST cover RTSP state transitions, reconnect boundaries,
+bounded latency/backpressure behavior, source-time gaps, identity recovery,
+display versus behavioral degradation, telemetry truth and active live-profile
+routing. Offline validation MUST cover deterministic decoding/time base,
+batching, full artifact persistence, replay, sequence/export integrity,
+throughput and active offline-profile routing. A capability spanning both modes
+requires evidence from both modes in separate valid activation windows.
+
+#### 12.4 Benchmark and Scientific Acceptance
+
+A production performance acceptance report MUST include repeated real runs,
+explicit baseline and candidate, comparable workloads, raw result artifacts,
+mode-specific thresholds, failed-run handling, sample count, variance and
+confidence intervals. Scientific acceptance for behavior or anomaly claims
+MUST additionally include quality metrics, eligible-window criteria, label or
+reference truth protocol, effect size/statistical method and study limitations.
+
+Mock-only maturity claims, synthetic telemetry acceptance, fake benchmark pass
+logic, screenshots without raw evidence, self-baseline comparisons and silent
+KPI masking are prohibited.
+
+### 13. Cross-Wave Dependency Constitution
+
+#### 13.1 Dependency Hierarchy
+
+Implementation waves MUST honor dependencies in this order:
+
+| Wave | Authority established | Blocks |
+| --- | --- | --- |
+| Wave 1: Runtime authority | Production route, endpoint mode, Linux/GPU/Triton validation | All production evidence |
+| Wave 2: Queue and ingestion truth | Routing, backpressure, retry/DLQ, RTSP/time envelope | Continuity and live validity |
+| Wave 3: Identity and temporal continuity | Canonical identity, lifecycle, association, sequence truth | Behavioral features |
+| Wave 4: Pose behavioral substrate | Stream lineage, quality, batch/failure semantics | Scientific pose/feature quality |
+| Wave 5: Behavioral feature layer | Ontology, typed windows, interpretable features/primitives | Learned anomaly maturity |
+| Wave 6: Observability and benchmark truth | Evidence, metrics, repeated benchmark/statistics | Acceptance and paper claims |
+| Wave 7: Contract and forensic governance | Stable external schemas and trace resolution | Auditable investigation |
+| Wave 8: Final evidence closure | Full validation and recorded limitations | Production maturity claim |
+
+No wave MAY be marked mature merely because code exists. A blocking predecessor
+requires accepted evidence or an explicit decision that dependent maturity is
+not claimed.
+
+#### 13.2 Why Wave 3 Blocks Wave 5
+
+Wave 3 establishes who an observation represents and whether ordered
+observations remain temporally coherent. Wave 5 computes duration, repetition,
+transition and interaction features attached to a subject. Without Wave 3,
+feature windows may span ID switches, cross-camera collisions, unsafe
+interpolation or unresolved re-entry. The resulting feature is not noisy
+behavior; it is semantically assigned to the wrong entity. Therefore behavior
+feature authority, anomaly primitive validity and training-export eligibility
+MUST remain blocked until identity and temporal continuity pass.
+
+#### 13.3 Why Wave 4 Blocks Wave 6
+
+Wave 4 establishes pose-stream definitions, RTMPose contract validity,
+visibility/missingness, smoothing/interpolation lineage and quality. Wave 6
+reports benchmark and observability evidence about behavior readiness and
+scientific quality. Without Wave 4, a benchmark can measure fast response while
+the input substrate is jittery, missing, presentation-filtered, wrongly
+attributed or batch-corrupted. Operational latency alone cannot validate a
+scientific pipeline. Wave 6 may report runtime performance earlier, but MUST
+not report pose/behavior maturity or comparative scientific conclusions until
+Wave 4 evidence exists.
+
+#### 13.4 Why Observability Blocks Scientific Maturity
+
+Scientific maturity requires the ability to detect missing measurements,
+failed stages, data exclusions, quality drift, runtime changes and repeated-run
+variance. If telemetry fabricates readiness, suppresses failure, loses event
+deduplication or treats unavailable data as zero, the platform cannot determine
+which samples are valid. Any behavior/anomaly claim then lacks a trustworthy
+denominator and execution context. Probe-backed observability and evidence
+lineage are therefore preconditions to scientific acceptance.
+
+#### 13.5 Why Contract Governance Blocks Forensic Maturity
+
+Forensic review must traverse an event through identity, temporal window, pose,
+feature, model/runtime, artifact and UI/API presentation without ambiguity.
+Unversioned payloads, broad serializers or silent WebSocket mutation break the
+chain: historical evidence may no longer mean what a reviewer sees. A forensic
+surface without schema authority can be convenient but cannot be authoritative.
+Contract governance is therefore a prerequisite for forensic maturity and
+paper traceability.
+
+### 14. Final Architectural Positioning
+
+#### 14.1 Current Maturity
+
+The implemented system currently provides meaningful video analytics
+infrastructure: ingestion, live/offline workflows, Triton-related runtime
+routing and model calls, RTMPose-oriented outputs, tracking, queue
+orchestration, telemetry surfaces, artifacts, event persistence and frontend
+overlays. Repository evidence also shows partial queue isolation, execution
+profile configuration, queue wait capture, ReID-related code, pose display
+records and active work on production optimization.
+
+It is not yet constitutionally mature behavioral intelligence. Existing
+implementation and documents still contain partial or conflicting production
+routing assumptions, incomplete single-active-endpoint enforcement, incomplete
+identity/temporal proof, display-oriented pose surfaces, pending dynamic-batch
+and benchmark sign-off work, and unclosed scientific evidence requirements.
+
+#### 14.2 Transitional Architecture State
+
+The transitional system is an evidence-constrained video and pose analytics
+platform moving toward temporal behavioral intelligence. During transition:
+
+- frame, pose and overlay functionality MAY be delivered as analytics
+  capability;
+- behavioral features MAY be implemented experimentally when explicitly
+  labeled and gated;
+- no anomaly, scientific, forensic or production maturity claim MAY bypass the
+  runtime, temporal, identity, pose, telemetry and schema requirements above;
+- current optimization milestones MUST close their evidence gates rather than
+  treating intended architecture as implemented fact.
+
+#### 14.3 Target Production Identity
+
+The target platform is a native-Linux, Triton-only, single-active-mode,
+GPU-backed behavioral intelligence system that deterministically transforms
+governed live or offline inputs into identity-continuous temporal sequences,
+versioned pose streams, interpretable behavioral features, traceable event
+candidates, trustworthy metrics and reproducible evidence.
+
+True temporal intelligence exists when an output can answer, with evidence:
+what was observed, for whom, over which valid interval, using which source and
+model authority, under which missingness and confidence constraints, according
+to which behavioral definition, and with which reproducible validation.
+
+#### 14.4 Future AI-Readiness Posture
+
+Learned anomaly AI is scientifically valid only after:
+
+- production Triton execution and mode authority are verified;
+- source-time, sequence replay and drift laws are enforced;
+- identity trust and exclusion thresholds pass representative validation;
+- pose streams and quality semantics are versioned and measured;
+- behavioral ontology and interpretable features are accepted;
+- datasets carry lineage, filters, splits and quality manifests;
+- telemetry and benchmarks expose real failures and uncertainty;
+- APIs/artifacts preserve forensic traceability and access control.
+
+Only then may temporal transformers, ST-GCN/CTR-GCN, contrastive methods,
+interaction graphs, teacher-student learning or VLM fusion be evaluated as
+behavioral intelligence candidates. They remain subject to this constitution;
+model sophistication never waives truth, identity, evidence or operational
+safety.
 
 ## Governance
 
-This constitution is the supreme governance document for the
-Student Cheating Analyzer & Detector project. It supersedes all
-other development practices, agent instructions, and ad-hoc
-decisions.
+This constitution is the binding engineering, runtime and scientific maturity
+authority for the Production Behavioral Intelligence Platform. It supersedes
+conflicting generic project governance and any documentation that permits
+production conduct forbidden here. Implementation may lag a newly ratified
+law, but such lag is an explicit gap and cannot be presented as accepted
+maturity.
 
-- **Amendments** require: (1) explicit rationale documented in
-  the Sync Impact Report, (2) version bump following semantic
-  versioning (MAJOR for principle removal/redefinition, MINOR for
-  additions, PATCH for clarifications), (3) propagation to all
-  dependent templates.
-- **All PRs and code reviews MUST verify compliance** with every
-  applicable principle. Reviewers MUST use the constitution
-  checklist.
-- **Complexity MUST be justified** — default to simplicity. YAGNI
-  applies unless the constitution explicitly mandates otherwise.
-- **Video and inference planning MUST cover both runtime modes**:
-  live-stream processing and offline video processing. Missing one
-  mode requires explicit non-applicability rationale.
-- **Production deployment governance MUST assume no Docker on Linux
-  servers**. Docker-specific steps are limited to development and
-  test unless production Docker access is explicitly ratified by a
-  future constitution amendment.
-- **Quarterly principle review** recommended to assess relevance
-  and update thresholds.
-- **`.specify/memory/constitution.md`** is the single source of
-  truth. No shadow governance documents.
-- **Non-compliance is a blocking review finding** — code MUST NOT
-  merge until all violations are resolved or formally exempted with
-  documented rationale in the Complexity Tracking table.
+### Amendment Procedure
 
-**Version**: 1.8.1 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-17
+Every amendment MUST:
+
+1. state the governing problem, affected laws and implementation/evidence
+   consequences;
+2. modify this document with a Sync Impact Report;
+3. assign a semantic version bump and ISO-formatted amendment date;
+4. propagate changed gates to Spec Kit templates and affected runtime guidance;
+5. identify any implementation gaps, migration needs or invalidated evidence;
+6. undergo review before its dependent capability is accepted.
+
+Version policy is strict: MAJOR for incompatible authority or principle
+redefinition; MINOR for additive principles or materially expanded mandatory
+governance; PATCH for non-semantic clarification or corrected wording.
+
+### Compliance and Review Authority
+
+Specs, plans, tasks, pull requests, deployments, benchmark reports and
+scientific outputs MUST map applicable constitutional rules to evidence or
+explicitly state why a rule is not applicable. Review MUST block:
+
+- production local inference fallback or mixed active endpoint profiles;
+- temporal or identity integrity gaps used for behavioral claims;
+- unversioned public contracts, broad serializer exposure or undocumented
+  artifact mutation;
+- unbounded retries, uncontrolled collapse behavior or hidden degradation;
+- synthetic/readiness/benchmark evidence that is not derived from measured
+  production-authority execution;
+- maturity claims without reproducible evidence.
+
+Operational SLO numbers, model-quality thresholds, retention changes, access
+policy changes, and behavioral ontology decisions MUST be recorded in the
+feature plan and evidence artifacts when they are not fixed by this
+constitution. Such values are engineering decisions subject to validation, not
+license to weaken these laws.
+
+**Version**: 2.0.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-25

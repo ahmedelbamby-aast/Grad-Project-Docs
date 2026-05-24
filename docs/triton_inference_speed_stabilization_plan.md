@@ -1,5 +1,14 @@
 # Triton Throughput + Steady Utilization Plan (Phased)
 
+> **Superseded production instruction (2026-05-25):** This historical plan
+> originally proposed concurrent live and offline Triton endpoints. The active
+> production authority is
+> [Linux Production Optimization Execution Phases](linux_production_optimization_execution_phases.md)
+> and constitution v2.0.0: both endpoint profiles may be configured, but only
+> one native Linux Triton endpoint profile may run at a time. Any concurrent
+> endpoint instructions below are retained only as historical context and MUST
+> NOT be executed in production.
+
 ## Summary
 - Objective: increase inference speed and make GPU usage steady (not bursty) for both live and offline workloads.
 - Root issues from current state: models are effectively running at `batch=1` with single instances, offline queueing exists but scheduler-level tuning is minimal, and some Triton tuning env knobs are defined but not actively shaping execution.
@@ -17,8 +26,11 @@
    Exit gate: `>=15%` throughput gain and no timeout/error regression.
 
 3. **Phase 2 (Days 3-5): Split Live vs Offline Triton Scheduling**  
-   Goal: remove one-profile compromise.  
-   Changes: create dual scheduler configs per model using Triton `configs/<name>.pbtxt` pattern; run two Triton endpoints (`live` and `offline`) with `--model-config-name`.  
+   Goal: remove one-profile compromise without concurrent production endpoints.
+   Changes: create dual scheduler configs per model using Triton
+   `configs/<name>.pbtxt` pattern; activate only the selected `live` or
+   `offline` endpoint profile in production using `--model-config-name`, and
+   verify the inactive endpoint is unreachable.
    Live profile defaults: `max_batch_size` up to 4 (RTMPose up to 2), preferred batches `[1,2,4]` (RTMPose `[1,2]`), queue delay `1500us` (RTMPose `800us`), instance count `1`.  
    Offline profile defaults: `max_batch_size` up to 8 (RTMPose up to 4), preferred batches `[2,4,8]` (RTMPose `[1,2,4]`), queue delay `10000us` (RTMPose `5000us`), instance count `2` for `person_detector`/`posture_model`, `1` for others.  
    Exit gate: higher GPU occupancy with stable live p99.

@@ -84,18 +84,24 @@
 -->
 
 - **Live Stream Scenario**: [Describe RTSP/WebRTC/live camera flow,
-  expected outputs, latency/responsiveness target, failure/retry behavior,
-  and independent test using real model weights and real raw/live test data]
+  active `live` Triton profile, queue routes, timestamp envelope,
+  identity/lifecycle continuity, latency/backpressure and bounded reconnect
+  behavior, telemetry evidence, and an independent real-GPU validation]
 - **Offline Video Processing Scenario**: [Describe upload/raw video flow,
-  batch processing expectations, persisted results/playback outputs,
-  failure/retry behavior, and independent test using real model weights
-  and real raw video data]
+  active `offline` Triton profile, deterministic decoding/source time,
+  batch processing, sequence/artifact persistence, replay/benchmark evidence,
+  and an independent real-GPU validation]
 - **Frontend-Backend Wiring**: [Describe API/WebSocket contracts and
-  user-visible state transitions]
-- **Backend-Inference Wiring**: [Describe direct model/Triton calls, health
-  checks, timeout/retry behavior, and model artifact/version expectations]
-- **Deployment Boundary**: [Describe dev/test Docker assumptions and
-  production native Linux assumptions; production MUST NOT require Docker]
+  schema versions, truth states (`unknown`, `unavailable`, `degraded`,
+  `valid`), and user-visible state transitions]
+- **Backend-Inference Wiring**: [Describe Triton-only production authority,
+  selected endpoint/model/config checks, inactive-profile rejection,
+  timeout/retry/fail-stop behavior, and model artifact/version expectations]
+- **Temporal/Identity/Pose Authority**: [Describe all required timestamps,
+  identity scope and ReID provenance, pose stream selection and missingness,
+  behavior ontology/feature version, and invalid-window rules]
+- **Deployment Boundary**: [Describe dev/test assumptions and production
+  native Linux, NVIDIA GPU, no-Docker, no-sudo, single-active-mode rules]
 
 ## Requirements *(mandatory)*
 
@@ -111,6 +117,8 @@
 - **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-006**: System MUST [state contract/schema version, telemetry evidence,
+  idempotency, and failure/degradation semantics for the feature]
 
 *Example of marking unclear requirements:*
 
@@ -136,9 +144,13 @@
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
 - **SC-005**: [For video/inference features, live stream scenario meets
-  defined latency/throughput target using real model weights and real raw
-  test data, or N/A with rationale]
+  defined latency/throughput/integrity target through the active native
+  Triton/GPU route with real media and evidence artifacts, or N/A with rationale]
 - **SC-006**: [For video/inference features, offline video processing
-  scenario completes within defined throughput/accuracy target using real
-  model weights and real raw video data, or N/A with rationale]
-- **SC-007**: [Affected modules maintain 100% line and branch coverage]
+  scenario completes within defined throughput/quality/integrity target
+  through the active native Triton/GPU route with real media and reproducible
+  evidence artifacts, or N/A with rationale]
+- **SC-007**: [Temporal/identity/pose/feature validity criteria and rejected
+  interval behavior are verified where behavioral claims exist]
+- **SC-008**: [Telemetry and benchmark reports distinguish valid, degraded,
+  unavailable and failed outcomes without synthetic success]

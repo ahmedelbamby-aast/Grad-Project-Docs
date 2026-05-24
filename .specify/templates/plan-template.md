@@ -27,8 +27,11 @@
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 **Runtime Scenarios**: [Live stream scenario and offline video processing scenario; state N/A rationale for either if not applicable]
-**Inference/Tracking Reference**: [Ultralytics official docs decisions for YOLO prediction/tracking, or N/A]
-**Deployment Topology**: [Dev/test Docker services and production native Linux services; production MUST NOT assume Docker]
+**Inference/Tracking Reference**: [Triton/RTMPose/model contract and tracking/ReID decisions, or N/A]
+**Runtime Authority**: [Production Triton-only route; active `live` or `offline` endpoint profile; inactive-profile rejection evidence]
+**Temporal/Identity Authority**: [Timestamp envelope, canonical identity scope, lifecycle/ReID and invalidation rules]
+**Evidence/Schema Authority**: [Telemetry, benchmark, API/WS/artifact/sequence schema versions and evidence outputs]
+**Deployment Topology**: [Dev/test services and production native Linux services; production MUST NOT assume Docker or sudo]
 
 ## Constitution Check
 
@@ -36,41 +39,47 @@
 
 [Gates determined based on constitution file]
 
-> **Supreme Directive Gate**: Every plan MUST confirm that the
-> commit-after-every-modification, ALL-diagram-types, detailed
-> diagram explanations, and .md cross-linking requirements from
-> constitution §Supreme Directive are acknowledged and will be
-> enforced throughout implementation. This gate is BLOCKING.
+> **Production Runtime Authority Gate**: Every production inference
+> plan MUST enforce native Linux, no-Docker/no-sudo assumptions,
+> Triton-only GPU inference, and exactly one active endpoint profile
+> (`live` or `offline`). It MUST define startup rejection and
+> inactive-profile validation. Local/mock inference cannot close a
+> production gate.
 
-> **Test-in-Loop Gate**: Every plan MUST confirm that the
-> Test-in-Loop methodology (constitution §II) will be enforced:
-> ALL tests (unit, integration, system) MUST be written BEFORE
-> implementation for every task. No implementation code may be
-> written until corresponding tests exist and fail. This gate
-> is BLOCKING.
+> **Temporal and Identity Truth Gate**: Any plan touching frames,
+> tracks, pose, behavior, events, artifacts, or replay MUST define
+> source/ingest/queue/inference/persistence timestamps, gap and drift
+> handling, session/camera/canonical/local identity scope, ReID
+> provenance, lifecycle rules, and invalidation behavior.
 
-> **100% Real-Data Test Gate**: Every plan MUST require 100% line
-> and branch coverage for all affected modules and features. Tests
-> for inference, prediction, tracking, video processing, and overlays
-> MUST use real model weights and real raw test data. Mocks MUST NOT
-> replace model weights, raw media, trackers, prediction outputs, or
-> frontend-backend/backend-Triton wiring.
+> **Pose and Behavior Semantics Gate**: Any pose or behavioral plan
+> MUST distinguish `raw_keypoints`, `smoothed_keypoints`, and
+> `display_keypoints`, declare visibility/interpolation rules, and
+> define versioned feature/ontology and missing-data/ambiguity
+> semantics before making behavioral claims.
 
-> **Live/Offline Scenario Gate**: Every video or inference plan MUST
-> define both a live stream scenario and an offline video processing
-> scenario, including performance targets, failure handling, and
-> system tests for each. If a scenario is not applicable, the plan
-> MUST explain why.
+> **Queue and Failure Gate**: Any orchestrated or streaming feature
+> MUST define deterministic queue ownership, worker isolation,
+> bounded retry/DLQ/backpressure behavior, RTSP reconnect state
+> transitions where applicable, and fail-stop/degraded evidence
+> handling.
 
-> **System Hardening Gate**: Every plan MUST document frontend-backend
-> contracts, backend-Triton wiring, Docker development/test topology,
-> and production native Linux topology. Production plans MUST NOT
-> depend on Docker availability.
+> **Contract and Storage Gate**: Every external or persisted payload
+> MUST have a governed versioned schema, explicit serializer exposure,
+> idempotency and migration/retention rules. `fields = '__all__'`,
+> unversioned evolution, and silent contract drift are forbidden.
 
-> **Ultralytics Authority Gate**: Prediction, tracking, tracker
-> configuration, and YOLO inference decisions MUST use the official
-> Ultralytics docs website as the primary reference. Deviations MUST
-> be documented in research.md with rationale.
+> **Observability and Scientific Evidence Gate**: Any readiness,
+> performance, quality, anomaly, or maturity claim MUST define
+> probe-backed telemetry and immutable evidence. Benchmarks MUST use
+> independent real baseline/candidate runs, variance and confidence
+> reporting; research claims require statistical method and effect
+> size disclosure.
+
+> **Live/Offline Validation Gate**: Video or inference features MUST
+> specify both live and offline validation when their behavior spans
+> both modes. Each run occurs in a separate valid active-profile
+> window; N/A requires an explicit rationale.
 
 ## Project Structure
 

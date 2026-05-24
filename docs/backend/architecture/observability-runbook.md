@@ -40,7 +40,9 @@ flowchart LR
 1. Check `inference_latency_ms` and `inference_timeout_total`.
 2. Split by labels (`model_name`, `status`) to isolate affected routes.
 3. Correlate with runtime telemetry snapshots and Triton health.
-4. If needed, shift traffic with runtime policy flags to local path until stable.
+4. In production, stop admission or mark outputs explicitly
+   non-authoritative until the selected Triton profile is healthy; never shift
+   production-authoritative inference to a local path.
 
 ### B) Inference failures
 

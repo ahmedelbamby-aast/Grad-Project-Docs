@@ -8,7 +8,13 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: Tests are MANDATORY per the Test-in-Loop methodology (Constitution §II). ALL tests (unit, integration, system) MUST be written BEFORE implementation for every user story. Tests MUST be verified to fail (RED) before any implementation code is written. Affected modules and features MUST reach 100% line and branch coverage. Inference, prediction, tracking, video-processing, and overlay tests MUST use real model weights and real raw test data; mocks MUST NOT replace model weights, raw media, trackers, prediction outputs, or system wiring.
+**Tests and Evidence**: Tests and evidence tasks are mandatory for every
+applicable constitutional authority. Runtime/ML production claims MUST be
+validated through the native Linux, GPU-backed, Triton-only route with one
+active endpoint profile and real media. Temporal, identity, pose, behavioral,
+queue, telemetry, schema, storage, security, benchmark, and failure semantics
+MUST have focused validation and evidence paths. Mocks MAY support unit
+isolation, but cannot close production or scientific maturity gates.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -68,9 +74,14 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T007 Create base models/entities that all stories depend on
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
-- [ ] T010 [P] Verify real model weights and real raw test data locations for all inference/tracking/video tests
-- [ ] T011 [P] Document dev/test Docker topology and production native Linux topology
-- [ ] T012 [P] Define frontend-backend and backend-inference wiring contracts
+- [ ] T010 [P] Define native Linux Triton-only runtime mode, endpoint profile,
+      GPU/model readiness, and inactive-profile rejection evidence
+- [ ] T011 [P] Define timestamp envelope, continuity/drift, canonical identity,
+      lifecycle/ReID, and pose stream authority contracts
+- [ ] T012 [P] Define explicit API/WS/artifact/sequence schema versions,
+      serializer fields, telemetry truth, idempotency and retention rules
+- [ ] T013 [P] Define queue isolation, bounded retry/DLQ, backpressure,
+      reconnect and failure/degradation evidence contracts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,24 +93,25 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (MANDATORY — Test-in-Loop) 🔴
+### Validation and Evidence for User Story 1 (MANDATORY)
 
-> **MANDATORY: Write ALL tests FIRST, verify they FAIL (RED) before implementation (Constitution §II)**
+> **MANDATORY**: Define applicable runtime, integrity, contract, failure, and
+> scientific evidence gates before claiming this story complete
 
-- [ ] T013 [P] [US1] Unit test for [module/function] in tests/unit/test_[name].py
-- [ ] T014 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T015 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
-- [ ] T016 [P] [US1] System test for live stream scenario using real model weights and real raw/live test data in tests/system/test_[name]_live.py
-- [ ] T017 [P] [US1] System test for offline video processing scenario using real model weights and real raw video data in tests/system/test_[name]_offline.py
+- [ ] T014 [P] [US1] Unit test for [module/function] in tests/unit/test_[name].py
+- [ ] T015 [P] [US1] Contract/schema test for [endpoint/event/artifact] in tests/contract/test_[name].py
+- [ ] T016 [P] [US1] Integrity test for [timestamp/identity/pose/feature/failure semantics] in tests/integration/test_[name].py
+- [ ] T017 [P] [US1] Native Triton live-profile validation with real media and evidence manifest in tests/system/test_[name]_live.py
+- [ ] T018 [P] [US1] Native Triton offline-profile validation with real media and evidence manifest in tests/system/test_[name]_offline.py
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T019 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T020 [US1] Implement [Service] in src/services/[service].py (depends on T018, T019)
-- [ ] T021 [US1] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T022 [US1] Add validation and error handling
-- [ ] T023 [US1] Add logging for user story 1 operations
+- [ ] T019 [P] [US1] Create [Entity1] model in src/models/[entity1].py
+- [ ] T020 [P] [US1] Create [Entity2] model in src/models/[entity2].py
+- [ ] T021 [US1] Implement [Service] in src/services/[service].py (depends on T019, T020)
+- [ ] T022 [US1] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T023 [US1] Add explicit validation, degradation and rejection paths
+- [ ] T024 [US1] Add probe-backed telemetry and evidence lineage
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,20 +123,20 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 2 (MANDATORY — Test-in-Loop) 🔴
+### Validation and Evidence for User Story 2 (MANDATORY)
 
-- [ ] T024 [P] [US2] Unit test for [module/function] in tests/unit/test_[name].py
-- [ ] T025 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T026 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
-- [ ] T027 [P] [US2] System test for live stream scenario using real model weights and real raw/live test data in tests/system/test_[name]_live.py
-- [ ] T028 [P] [US2] System test for offline video processing scenario using real model weights and real raw video data in tests/system/test_[name]_offline.py
+- [ ] T025 [P] [US2] Unit test for [module/function] in tests/unit/test_[name].py
+- [ ] T026 [P] [US2] Contract/schema test for [endpoint/event/artifact] in tests/contract/test_[name].py
+- [ ] T027 [P] [US2] Integrity test for [timestamp/identity/pose/feature/failure semantics] in tests/integration/test_[name].py
+- [ ] T028 [P] [US2] Native Triton live-profile validation with real media and evidence manifest in tests/system/test_[name]_live.py
+- [ ] T029 [P] [US2] Native Triton offline-profile validation with real media and evidence manifest in tests/system/test_[name]_offline.py
 
 ### Implementation for User Story 2
 
-- [ ] T029 [P] [US2] Create [Entity] model in src/models/[entity].py
-- [ ] T030 [US2] Implement [Service] in src/services/[service].py
-- [ ] T031 [US2] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T032 [US2] Integrate with User Story 1 components (if needed)
+- [ ] T030 [P] [US2] Create [Entity] model in src/models/[entity].py
+- [ ] T031 [US2] Implement [Service] in src/services/[service].py
+- [ ] T032 [US2] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T033 [US2] Integrate with User Story 1 components (if needed)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,19 +148,19 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 3 (MANDATORY — Test-in-Loop) 🔴
+### Validation and Evidence for User Story 3 (MANDATORY)
 
-- [ ] T033 [P] [US3] Unit test for [module/function] in tests/unit/test_[name].py
-- [ ] T034 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T035 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
-- [ ] T036 [P] [US3] System test for live stream scenario using real model weights and real raw/live test data in tests/system/test_[name]_live.py
-- [ ] T037 [P] [US3] System test for offline video processing scenario using real model weights and real raw video data in tests/system/test_[name]_offline.py
+- [ ] T034 [P] [US3] Unit test for [module/function] in tests/unit/test_[name].py
+- [ ] T035 [P] [US3] Contract/schema test for [endpoint/event/artifact] in tests/contract/test_[name].py
+- [ ] T036 [P] [US3] Integrity test for [timestamp/identity/pose/feature/failure semantics] in tests/integration/test_[name].py
+- [ ] T037 [P] [US3] Native Triton live-profile validation with real media and evidence manifest in tests/system/test_[name]_live.py
+- [ ] T038 [P] [US3] Native Triton offline-profile validation with real media and evidence manifest in tests/system/test_[name]_offline.py
 
 ### Implementation for User Story 3
 
-- [ ] T038 [P] [US3] Create [Entity] model in src/models/[entity].py
-- [ ] T039 [US3] Implement [Service] in src/services/[service].py
-- [ ] T040 [US3] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T039 [P] [US3] Create [Entity] model in src/models/[entity].py
+- [ ] T040 [US3] Implement [Service] in src/services/[service].py
+- [ ] T041 [US3] Implement [endpoint/feature] in src/[location]/[file].py
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -171,11 +183,18 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Validate all cross-reference links resolve to existing files — no broken links
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
-- [ ] TXXX [P] Verify 100% line and branch coverage for all affected modules and features
-- [ ] TXXX [P] Verify real model weights and real raw test data are used by inference/tracking/video tests
-- [ ] TXXX [P] Verify live stream scenario and offline video processing scenario both pass system tests
-- [ ] TXXX [P] Verify frontend-backend, backend-Triton, Docker dev/test, and native Linux production wiring diagrams are current
-- [ ] TXXX [P] Additional unit/integration/system tests needed to reach 100% coverage
+- [ ] TXXX [P] Verify production Triton-only routing, exactly one active
+      endpoint profile, model/GPU health, and inactive-profile rejection
+- [ ] TXXX [P] Verify timestamp, identity, lifecycle/ReID and pose stream
+      integrity, including invalid/suppressed behavioral windows
+- [ ] TXXX [P] Verify queue retry/DLQ/backpressure/RTSP failure behavior is
+      bounded and observable
+- [ ] TXXX [P] Verify API/WS/artifact/sequence contracts are versioned,
+      serializers explicit, and migrations/idempotency covered
+- [ ] TXXX [P] Run real live and offline validation in separate active-mode
+      windows and store evidence manifests
+- [ ] TXXX [P] Produce benchmark/statistical reports with real independent
+      baseline/candidate runs, variance, confidence and failure accounting
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 
@@ -200,7 +219,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Validation and evidence gates MUST be defined before a story is claimed complete
 - Models before services
 - Services before endpoints
 - Core implementation before integration
@@ -267,9 +286,7 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Agents MUST create a commit after finishing ANY work — no uncommitted deliveries
+- Validate nominal, failure, integrity, and degraded cases before acceptance
 - Every source file change MUST include its corresponding `docs/` .md file
 - Module README.md MUST be created/updated after finishing work on a module
 - Stop at any checkpoint to validate story independently

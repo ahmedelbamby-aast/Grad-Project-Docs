@@ -32,7 +32,7 @@ flowchart TB
     subgraph AI["Inference & Tracking"]
         Route["model_route_service.py"]
         Triton["Triton Inference Server"]
-        LocalInference["Local ONNX/OpenVINO/YOLO runtime"]
+        LocalInference["Local adapters (non-production only)"]
         Tracking["tracking pipeline + ReID + video exporter"]
     end
 
@@ -89,7 +89,7 @@ flowchart LR
     Upload["Offline upload POST /api/v1/video-analysis/jobs/"] --> Job["VideoAnalysisJob"]
     Job --> Queue["process_video_upload (Celery)"]
     Queue --> Policy["runtime policy resolution"]
-    Policy --> Infer["Triton path or local path"]
+    Policy --> Infer["Active Triton profile in production"]
     Infer --> Track["tracking + ReID + overlays"]
     Track --> Persist["Frame/Detection/Track rows + output media + WS updates"]
 
@@ -105,6 +105,12 @@ Upload processing supports two runtime paths:
 - `legacy_crop`: historical crop-first pipeline and primary tracking flow.
 - `full_frame`: full-frame multi-model inference with shared detection packet schema and optional annotated export output.
 
+These pipeline paths describe preprocessing and artifact behavior, not
+production inference-provider choice. Production inference authority is native
+Linux Triton-only, with exactly one active endpoint profile at a time. Local
+adapter paths in the implementation are limited to development or explicitly
+non-production validation and cannot satisfy production evidence gates.
+
 ## Deployment Boundary
 
 ```mermaid
@@ -116,9 +122,14 @@ flowchart LR
     DevCompose --> DevTriton["tritonserver container (optional profile)"]
 
     ProdHost["Production Linux host"] --> Systemd["infra/systemd/triton-server.service"]
-    Systemd --> ProdTriton["native triton process"]
+    Systemd --> ProdTriton["one active native Triton profile"]
     ProdBackend["backend services"] --> ProdTriton
 ```
+
+Production runs do not depend on Docker or sudo. The live endpoint profile
+uses `39000/39001/39002`; the offline endpoint profile uses
+`39100/39101/39102`. Readiness acceptance requires the selected profile to be
+healthy and the inactive profile to be unreachable.
 
 ## Domain Boundaries
 

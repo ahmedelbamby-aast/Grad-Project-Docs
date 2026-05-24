@@ -1,0 +1,22 @@
+# Production Risk Register - Runtime Remediation
+
+## Purpose
+
+This risk register records production and scientific risks introduced or exposed by live benchmark execution. Each risk requires detection, mitigation, and an acceptance owner before maturity closure.
+
+| Risk ID | Risk | Category | Severity | Likelihood | Detection Mechanism | Operational Consequence | Scientific Consequence | Mitigation | Fallback Strategy | Acceptance Owner |
+|---------|------|----------|----------|------------|---------------------|-------------------------|------------------------|------------|-------------------|------------------|
+| RR-001 | Retry storms | Retry/orchestration | Critical | Medium | retry generation counts, retry amplification matrix | queue saturation, timeout spikes, duplicated work | benchmark latency and behavior windows invalid | retry ceilings, recursion detector, lineage persistence | stop retry, mark items failed/degraded | Backend/SRE |
+| RR-002 | Silent degraded execution | Runtime correctness | Critical | Medium | inference_path and terminal state audit | operators believe normal success occurred | feature confidence and anomaly semantics invalid | explicit `degraded` path and `DEGRADED_COMPLETED` terminal state | fail closed or expose degraded evidence | Backend/CV |
+| RR-003 | Hidden GPU starvation | ML infra | High | High | GPU duty cycle, idle windows, latency decomposition | low throughput despite high wall time | throughput claims invalid | GPU instrumentation and orchestration attribution | reject benchmark claim pending tuning | ML Infra |
+| RR-004 | Workflow state divergence | Orchestration | Critical | Medium | Celery/DB reconciliation watchdog | jobs remain stuck processing | incomplete sequences look valid | atomic terminal-state transitions | reconciliation to failed with audit event | Backend |
+| RR-005 | Fallback amplification | Inference runtime | Critical | Medium | fallback ratio and duplicate dispatch ratio | unnecessary Triton calls and queue pressure | benchmark and pose completeness distorted | bounded fallback policy and detector | disable fallback retry and mark unresolved | CV/SRE |
+| RR-006 | Batch salvage corruption | Pose runtime | High | Medium | partial-batch item status audit | successful crops lost or wrong item mapped | temporal pose windows corrupted | item-scoped salvage and origin tracking | keep raw failures and exclude bad items | CV/Pose |
+| RR-007 | Duplicate inference fanout | Queue/inference | High | Medium | request lineage duplicate check | duplicated GPU/CPU work | inflated evidence and duplicate events | idempotency keys and fanout detector | deduplicate by request/batch/item ID | Backend/SRE |
+| RR-008 | Telemetry causality gaps | Observability | High | Medium | missing request lineage or trace edge count | incidents cannot be debugged | benchmark/paper evidence unverifiable | mandatory request lineage propagation | fail evidence generation | SRE/Benchmark |
+| RR-009 | Benchmark invalidity | Benchmarking | Critical | Medium | causality report and statistical gate | false pass/release | scientific claims invalid | baseline/candidate enforcement and failure matrix | mark benchmark invalid | Benchmark Owner |
+| RR-010 | Synthetic readiness false positives | Deployment | Critical | Medium | probe-backed readiness validator | runtime starts with unavailable model | production evidence impossible to trust | remove hardcoded readiness and fail closed | block startup | SRE/ML Infra |
+| RR-011 | Triton readiness mismatch | Deployment | Critical | Medium | startup readiness graph | wrong endpoint mode or both modes required | live/offline evidence contaminated | active/inactive endpoint enforcement | fail startup | ML Infra |
+| RR-012 | Partial-batch silent fallback | Pose/benchmark | High | Medium | fallback resolution report | wall latency unexplained | pose completeness overstated | disclose fallback path in artifacts | mark fallback-only windows degraded | CV/Benchmark |
+| RR-013 | Python orchestration bottleneck | Backend runtime | High | High | perf/flamegraph overhead report | GPU idle, high latency | throughput optimization claims misdirected | latency decomposition and batching refactor | reduce concurrency or batch strategy | Backend/SRE |
+| RR-014 | Timeout misattribution | Observability | High | Medium | timeout correlation report | wrong remediation path | benchmark cause invalid | correlate timeout with Triton queue/GPU/queue wait | mark timeout window invalid | SRE |

@@ -5,7 +5,10 @@ This plan is intentionally detailed for PR review. It contains full implementati
 ## Global Guardrails
 
 1. Production mode is Triton-only.
-2. Production mode is single-endpoint only.
+2. Production mode keeps dual Triton endpoints configured:
+   - one for live processing
+   - one for offline video processing
+3. Production host runs one mode at a time, selected via `.env`.
 3. Linux production constraints are no Docker and no sudo.
 4. Behavioral intelligence maturity is blocked until identity continuity and temporal truth are stable.
 5. Mock-only validations do not count as production acceptance evidence.
@@ -16,18 +19,18 @@ This plan is intentionally detailed for PR review. It contains full implementati
 ### Objectives
 
 1. Remove endpoint authority conflicts across env/settings/scripts/docs.
-2. Enforce single active Triton endpoint policy in runtime and operations.
+2. Preserve dual endpoint configuration while enforcing single active mode at runtime.
 3. Produce live production evidence, not script-text-only evidence.
 
 ### Scope Of Work
 
-1. Define one production endpoint authority and bind both app URLs to active endpoint.
+1. Define endpoint policy authority with dual configured endpoints and one active mode selector in `.env`.
 2. Align `.env.example`, backend env examples, and production settings values.
-3. Align quickstart and production docs to single-endpoint workflow.
+3. Align quickstart and production docs to dual-endpoint configured, single-mode active workflow.
 4. Align `tools/prod` scripts so start/status/preflight all enforce active endpoint policy.
 5. Ensure no guidance implies Docker/sudo on production path.
 6. Split dev fallback behavior from production behavior in docs/tests.
-7. Replace endpoint scaffold assumptions that require dual endpoint operation in production.
+7. Replace endpoint scaffolds that conflict with "dual configured endpoints + one active mode at runtime."
 
 ### Deliverables
 
@@ -38,10 +41,11 @@ This plan is intentionally detailed for PR review. It contains full implementati
 
 ### Acceptance Gates
 
-1. Active endpoint returns ready health.
-2. Inactive endpoint is unreachable.
+1. The `.env` active mode selector is validated (`live` or `offline`).
+2. Active mode endpoint returns ready health.
+3. Inactive mode endpoint is not used by production workers/app runtime.
 3. Backend health and model-serving health pass.
-4. Docs, envs, and scripts no longer conflict on ports/profiles.
+4. Docs, envs, and scripts no longer conflict on ports/profiles/mode selector behavior.
 5. Production path has no Docker/sudo dependency.
 
 ### Required Tests

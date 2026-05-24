@@ -1,6 +1,6 @@
 # Deployment Topology — Containers, Native Services, and Network Boundaries
 
-**Updated**: 2026-05-15
+**Updated**: 2026-05-25
 
 ## 1. Development Topology (`docker-compose.dev.yml`)
 
@@ -37,17 +37,24 @@ flowchart LR
     Django --> Celery["Celery workers"]
     Django --> Redis[("Redis")]
     Django --> Postgres[("PostgreSQL")]
-    Django --> Triton["Triton HTTP/gRPC/metrics"]
-    Systemd["infra/systemd/triton-server.service"] --> Triton
-    ModelRepo["/opt/triton/models (or configured path)"] --> Triton
+    Django --> Authority["Selected Triton profile only"]
+    Authority --> Live["live: 39000/39001/39002"]
+    Authority --> Offline["offline: 39100/39101/39102"]
+    Systemd["user-space native service"] --> Authority
+    ModelRepo["configured model repository"] --> Authority
     CameraInfra["RTSP cameras + relay tier"] --> Django
 ```
 
 ### Production notes
 
-- Triton is expected to run as a native service via `infra\systemd\triton-server.service`.
-- Triton ports (`8000/8001/8002`) are internal-only.
-- Backend runtime policy can still route to local inference if Triton is unavailable.
+- Production inference requires a native Linux Triton process operated without
+  Docker or sudo assumptions.
+- Two endpoint profiles are configured, but exactly one is active: live
+  `39000/39001/39002` or offline `39100/39101/39102`; inactive ports must be
+  unreachable during readiness acceptance.
+- Backend runtime policy must fail closed or emit explicitly
+  non-authoritative degradation when selected Triton/model readiness fails.
+  Production local inference fallback is forbidden.
 
 ---
 
@@ -61,7 +68,7 @@ graph LR
     BackendSvc --> RelayDep["go2rtc/gateway dependency"]
     WorkerSvc["celery worker"] --> RedisDep
     WorkerSvc --> PgDep
-    WorkerSvc --> TritonDep["triton optional dependency"]
+    WorkerSvc --> TritonDep["active Triton authority"]
     NginxSvc["nginx"] --> BackendSvc
     NginxSvc --> RelayDep
 ```
@@ -74,7 +81,8 @@ graph LR
 2. Relay tier (`go2rtc` and/or gateway service) next.
 3. Backend API + Channels.
 4. Celery workers.
-5. Optional Triton service (for Triton-enabled workloads).
+5. Selected native Triton endpoint profile and required models, validated
+   before accepting inference work.
 6. Frontend and operator clients.
 
 ## Related Documents

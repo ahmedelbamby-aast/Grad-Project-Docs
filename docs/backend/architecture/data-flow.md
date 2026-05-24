@@ -1,6 +1,6 @@
 # Data Flow — API, Streaming, Inference, and Runtime Telemetry
 
-**Updated**: 2026-05-15
+**Updated**: 2026-05-25
 
 ## Scope
 
@@ -41,7 +41,6 @@ sequenceDiagram
     participant Policy as runtime_policy.py
     participant Route as model_route_service.py
     participant Triton as triton_client.py
-    participant Local as local multi-model runtime
     participant Track as tracking pipeline
     participant WS as VideoAnalysisConsumer
 
@@ -51,12 +50,11 @@ sequenceDiagram
     View->>Task: enqueue background processing
     Task->>Policy: resolve runtime mode
     Policy->>Route: map task to model route
-    alt Triton enabled and healthy
-        Route->>Triton: infer(frame)
+    alt Active offline Triton profile is validated
+        Route->>Triton: infer(frame + temporal envelope)
         Triton-->>Task: TritonInferenceResponse
-    else local fallback or policy local
-        Route->>Local: run local inference
-        Local-->>Task: frame detections
+    else Production authority unavailable
+        Route-->>Task: fail closed or degraded non-authoritative result
     end
     Task->>Track: assign IDs/colors/ReID and render outputs
     Task->>DB: persist Frame/Detection/StudentTrack/BoundingBox
@@ -78,10 +76,10 @@ flowchart TB
     Go2rtc --> Frames["frame stream"]
     Gst --> Frames
     Frames --> Policy["runtime_policy"]
-    Policy --> TritonPath["Triton path"]
-    Policy --> LocalPath["Local path"]
+    Policy --> TritonPath["Active live Triton profile"]
+    Policy --> Failure["Fail/degraded state"]
     TritonPath --> Tracking["tracking + overlays + events"]
-    LocalPath --> Tracking
+    Failure --> Persist["Failure/drop/gap evidence"]
     Tracking --> Persist["DetectionFrame/LiveDetection/Prediction rows"]
     Tracking --> DetWS["/ws/detections/*"]
     Tracking --> AnoWS["/ws/anomalies/*"]
@@ -109,10 +107,15 @@ flowchart LR
 
 ## 5. Flow Invariants
 
-- Live and offline workloads share runtime policy + route services, but use distinct entrypoints and persistence models.
-- Triton path is optional at runtime; local inference remains a first-class path.
+- Live and offline workloads share governed contracts but execute in separate
+  production activation windows with only the selected Triton endpoint active.
+- Triton is mandatory for production inference authority. A local or mock
+  result may be used only in explicitly non-production development/testing and
+  cannot be reported as production evidence.
 - Redis is used for queueing/channel-layer/cache state; PostgreSQL is the durable source of truth.
 - Runtime analytics APIs read telemetry snapshots/events and do not mutate inference state.
+- Every persisted inference/track/pose/behavior event must retain source,
+  ingest, queue, inference and persistence time provenance as applicable.
 
 ## Related Documents
 

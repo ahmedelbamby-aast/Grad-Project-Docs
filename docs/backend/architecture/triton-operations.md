@@ -1,10 +1,14 @@
 # Triton Operations Runbook
 
-**Updated**: 2026-05-15
+**Updated**: 2026-05-25
 
 ## Scope
 
-Triton is an optional-but-preferred inference backend selected through runtime policy. This runbook covers health checks, triage, and safe fallback behavior.
+Triton is the only production inference authority. Development and explicitly
+labeled test runs may exercise non-Triton adapters, but they cannot produce
+production-valid evidence. Production runs use native Linux deployment with
+one active endpoint profile at a time and fail closed when that authority is
+unavailable.
 
 ---
 
@@ -14,13 +18,16 @@ Triton is an optional-but-preferred inference backend selected through runtime p
 %%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
 flowchart TD
     Request["Inference request"] --> Policy["runtime_policy"]
-    Policy --> Cutover{"TRITON_CUTOVER_MODE / TRITON_ENABLED"}
-    Cutover -->|Triton allowed| Health{"Triton healthy?"}
-    Cutover -->|Local mode| Local["Local runtime path"]
+    Policy --> Mode{"active mode"}
+    Mode -->|live| Live["Triton live profile<br/>39000/39001/39002"]
+    Mode -->|offline| Offline["Triton offline profile<br/>39100/39101/39102"]
+    Mode -->|invalid| Reject["Reject startup"]
+    Live --> Health{"model ready?"}
+    Offline --> Health
     Health -->|Yes| Triton["TritonClient infer"]
-    Health -->|No| Local
-    Triton --> Metrics["inference_* metrics + runtime telemetry"]
-    Local --> Metrics
+    Health -->|No| Fail["Fail closed / degraded evidence"]
+    Triton --> Metrics["measured runtime telemetry"]
+    Fail --> Metrics
 ```
 
 ---
@@ -31,6 +38,8 @@ flowchart TD
 |---|---|
 | Triton liveness | `GET /v2/health/live` |
 | Triton readiness | `GET /v2/health/ready` |
+| Inactive profile isolation | Inactive profile readiness endpoint is unreachable |
+| Required model readiness | `GET /v2/models/<model>/ready` on active profile |
 | Backend model serving view | `GET /api/v1/health/model-serving/` |
 | Runtime telemetry API | `GET /api/v1/runtime/service-health/` (or related runtime endpoints) |
 
@@ -43,13 +52,14 @@ flowchart TD
 Symptoms:
 - model-serving health degrades
 - Triton route errors increase
-- workload shifts to local runtime path
+- production inference admission stops or becomes explicitly non-authoritative
 
 Actions:
 1. Validate service status (`systemctl status triton-server` or compose status in dev).
 2. Validate model repository path and model readiness endpoints.
 3. Inspect Triton logs and backend runtime events.
-4. Keep runtime policy fallback enabled until readiness recovers.
+4. Reject production-authoritative inference until readiness and model
+   contract validation recover; never switch to local production inference.
 
 ### B) Latency regression
 
@@ -61,7 +71,8 @@ Actions:
 1. Confirm host resource pressure (GPU/CPU/memory).
 2. Inspect Triton metrics endpoint (`:8002/metrics`).
 3. Validate active route policy/canary settings.
-4. Reduce Triton pressure or switch selected workloads to local runtime until stable.
+4. Apply documented backpressure, throttle admission, or suspend the selected
+   mode; do not route production work to local inference.
 
 ### C) Model load/version issues
 
@@ -88,7 +99,7 @@ sequenceDiagram
 
     Ops->>Triton: verify health endpoints
     Ops->>Backend: confirm model-serving health + runtime analytics
-    Backend-->>Worker: continue routing fallback/local if needed
+    Backend-->>Worker: stop or mark non-authoritative admission
     Ops->>Triton: restart/reload model artifacts
     Triton-->>Backend: readiness restored
     Backend-->>Worker: route traffic back to Triton based on policy flags
@@ -98,9 +109,15 @@ sequenceDiagram
 
 ## 5. Operational Boundaries
 
-- Development: Triton usually runs in compose (profile-controlled).
-- Production: Triton runs as native systemd service (`infra/systemd/triton-server.service`).
-- Runtime policy must remain the single switchboard for cutover/canary decisions; avoid hardcoding direct Triton-only assumptions in callers.
+- Development: Triton may run in compose; non-Triton adapters are
+  non-production test conveniences only.
+- Production: Triton runs natively on Linux, with no Docker or sudo
+  dependency, and is mandatory for inference authority.
+- Production has two configured endpoint profiles but only one running profile
+  at any time: `live` on `39000/39001/39002` or `offline` on
+  `39100/39101/39102`.
+- Runtime policy is the authority for mode binding and must reject invalid,
+  multi-active, unhealthy, or model-incompatible production startup.
 
 ## 6. Phase 4/5 Runtime Knobs (Backend-Facing)
 

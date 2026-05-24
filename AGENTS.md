@@ -5,13 +5,13 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
-- Active feature plan: [specs/009-parallel-pose-inference/plan.md](specs/009-parallel-pose-inference/plan.md)
+- Active feature plan: [specs/010-behavioral-maturity-closure/plan.md](specs/010-behavioral-maturity-closure/plan.md)
 <!-- SPECKIT END -->
 
 ## Current Active Optimization Plan
 - **Active plan name:** `Linux Production Optimization Execution Phases (RTX 5090)`
 - Plan file: [docs/linux_production_optimization_execution_phases.md](docs/linux_production_optimization_execution_phases.md)
-- **Production policy update:** Triton is **single-endpoint mode only** (never run live/offline Triton endpoints at the same time).
+- **Production policy update:** Triton uses **dual configured endpoint profiles** (live and offline), but production runs **one active mode at a time** selected by `.env` (`TRITON_EXECUTION_MODE=live` or `TRITON_EXECUTION_MODE=offline`). The inactive endpoint profile must not receive production inference traffic, scheduler requests, Celery routing, or production-ready health status.
 
 ## Current Phase Status (handover snapshot)
 - M0: partially completed (sync/hygiene repeatedly applied; local untracked `tmp/*` still exists on dev laptop).
@@ -21,7 +21,7 @@ This file defines how agents should execute tests quickly and safely in this rep
   - Phase 3.1: in progress/partially implemented (sparse detect + reuse present).
   - Phase 3.2: not started (bbox interpolation/clamp/continuity guards).
 - M4: partially touched, not accepted (live cadence/reuse/telemetry still needs full validation).
-- M5: policy changed to single-endpoint mode; implement/verify active endpoint binding only.
+- M5: policy changed to dual configured Triton endpoint profiles with one active production mode; implement/verify active endpoint binding and inactive profile isolation.
 - M6: not completed (dynamic-batch TensorRT regeneration and tuned Triton configs still pending full sign-off).
 - M7:
   - Phase 7.1: started (benchmark exporter/test scaffolding added).
@@ -37,7 +37,7 @@ This file defines how agents should execute tests quickly and safely in this rep
   - no Docker
   - no sudo
   - Triton-only inference on NVIDIA GPU
-  - single active Triton endpoint at a time
+  - dual Triton endpoint profiles configured, one active production mode at a time
 - Current commonly used app ports:
   - Backend: `127.0.0.1:8011`
   - Frontend: `127.0.0.1:5174`
