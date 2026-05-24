@@ -8,6 +8,86 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Active feature plan: [specs/009-parallel-pose-inference/plan.md](specs/009-parallel-pose-inference/plan.md)
 <!-- SPECKIT END -->
 
+## Current Active Optimization Plan
+- **Active plan name:** `Linux Production Optimization Execution Phases (RTX 5090)`
+- Plan file: [docs/linux_production_optimization_execution_phases.md](docs/linux_production_optimization_execution_phases.md)
+- **Production policy update:** Triton is **single-endpoint mode only** (never run live/offline Triton endpoints at the same time).
+
+## Current Phase Status (handover snapshot)
+- M0: partially completed (sync/hygiene repeatedly applied; local untracked `tmp/*` still exists on dev laptop).
+- M1: partially completed (profile/cadence env contract documented, continue hardening env examples).
+- M2: largely completed (queue routing + worker scripts added).
+- M3:
+  - Phase 3.1: in progress/partially implemented (sparse detect + reuse present).
+  - Phase 3.2: not started (bbox interpolation/clamp/continuity guards).
+- M4: partially touched, not accepted (live cadence/reuse/telemetry still needs full validation).
+- M5: policy changed to single-endpoint mode; implement/verify active endpoint binding only.
+- M6: not completed (dynamic-batch TensorRT regeneration and tuned Triton configs still pending full sign-off).
+- M7:
+  - Phase 7.1: started (benchmark exporter/test scaffolding added).
+  - Phase 7.2: not started (full profile matrix execution/report ranking).
+- M8: not completed (final acceptance gates + full stash/sync closure).
+
+## Production Server Details (Linux, no Docker, no sudo)
+- Host: `0.tcp.eu.ngrok.io`
+- SSH port: `27681`
+- Username: `bamby`
+- Repo path: `/home/bamby/grad_project`
+- Runtime constraints:
+  - no Docker
+  - no sudo
+  - Triton-only inference on NVIDIA GPU
+  - single active Triton endpoint at a time
+- Current commonly used app ports:
+  - Backend: `127.0.0.1:8011`
+  - Frontend: `127.0.0.1:5174`
+  - Triton (offline profile mode): `39100/39101/39102`
+  - Triton (live profile mode, only when selected): `39000/39001/39002`
+  - Redis: `6379`
+  - PostgreSQL may run non-default in this environment (check with `ss -ltnp` and `.env`)
+
+## Windows Connection + Tooling Workflow
+- Preferred client tools on Windows:
+  - OpenSSH `ssh` / `scp` (built into modern Windows)
+  - PowerShell scripts in `tools/prod`
+- Optional/fallback:
+  - PuTTY `pscp` if OpenSSH transfer has issues
+
+### Recommended helper scripts
+- `tools/prod/prod-ssh.ps1`:
+  - `.\tools\prod\prod-ssh.ps1`
+  - `.\tools\prod\prod-ssh.ps1 -Cmd "hostname"`
+- `tools/prod/prod-copy-to.ps1`:
+  - `.\tools\prod\prod-copy-to.ps1 -LocalPath "E:\grad_project\Raw Data\Video Project 1.mp4" -RemotePath "/home/bamby/grad_project/raw_test_videos/"`
+- `tools/prod/prod-copy-from.ps1`
+- `tools/prod/prod-workers.ps1` (`preflight|start|status|stop`)
+- `tools/prod/prod-health-snapshot.ps1`
+- `tools/prod/prod-hash-parity.ps1`
+- `tools/prod/prod-stash-hygiene.ps1`
+- `tools/prod/prod-sync-env-keys.ps1`
+
+## Production Startup/Validation Checklist (for next agents)
+1. Confirm branch and hash parity:
+   - local: `git rev-parse HEAD`
+   - remote: `ssh prod-grad "cd /home/bamby/grad_project && git rev-parse HEAD"`
+2. Confirm single Triton endpoint policy:
+   - active endpoint health returns `200`
+   - inactive endpoint returns `000`/unreachable
+3. Confirm backend/model-serving health:
+   - `http://127.0.0.1:8011/api/v1/health/`
+   - `http://127.0.0.1:8011/api/v1/health/model-serving/`
+4. Confirm ports:
+   - `ss -ltnp | egrep '39100|39000|8011|5174|6379|5432|55432'`
+5. Run focused tests before full suites:
+   - `backend/tests/unit/video_analysis/test_tasks_detection_cadence.py`
+   - `backend/tests/unit/scripts/test_benchmark_export_csv.py`
+   - scaffold integration/system tests (xfail markers are expected until converted)
+
+## Notes About `xfail` Scaffold Tests
+- Some tests are intentionally marked `xfail(strict=True)` as implementation scaffolds.
+- `xfailed` is not a regression by itself.
+- When behavior is fully implemented, remove `xfail` and convert to normal passing assertions in the same phase commit.
+
 ## Parallel Testing Policy
 - Prefer framework-native parallelism first:
   - Frontend unit tests: Vitest workers.

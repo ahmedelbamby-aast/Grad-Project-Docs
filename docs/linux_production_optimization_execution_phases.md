@@ -19,7 +19,7 @@ Constraints:
 | M2 | Celery Isolation | Per-model queue routing and worker topology active |
 | M3 | Offline Pipeline | stride=1 + sparse detect + reuse/interpolation behavior implemented |
 | M4 | Live Pipeline | live cadence/reuse behavior with timeout-safe degrade path |
-| M5 | Triton Split | dual endpoints + live/offline model config profiles |
+| M5 | Triton Single-Endpoint Profiles | one active endpoint at a time + profile-specific model config binding |
 | M6 | TensorRT Dynamic Batch | regenerated dynamic-batch engines active in Triton |
 | M7 | Benchmark Artifacts | profile matrix + JSON/CSV/MD ranking outputs |
 | M8 | Sign-off + Sync Closure | acceptance gates evidence + stash closure + hash sync |
@@ -205,40 +205,45 @@ celery -A config inspect stats
 ### Phase 4.2 Commit Stage
 - `feat(live): timeout-safe box reuse with runtime telemetry counters`
 
-## M5: Triton Split and Profile Binding
+## M5: Triton Single-Endpoint Mode and Profile Binding
 
 ### Phase 5.1 Tasks (mandatory)
-1. Run dual Triton endpoints:
-   - Live: `39000/39001/39002`
-   - Offline: `39100/39101/39102`
-2. Set:
-   - `TRITON_LIVE_URL=http://127.0.0.1:39000`
-   - `TRITON_OFFLINE_URL=http://127.0.0.1:39100`
-3. Add preflight checks for ports, model repository, readiness.
+1. Enforce single active Triton endpoint policy (never run live+offline endpoints together).
+2. Allowed endpoint profiles:
+   - Live mode: `39000/39001/39002`
+   - Offline mode: `39100/39101/39102`
+3. Set both application URLs to the currently active endpoint:
+   - `TRITON_LIVE_URL=http://127.0.0.1:<active_http_port>`
+   - `TRITON_OFFLINE_URL=http://127.0.0.1:<active_http_port>`
+4. Add preflight checks for ports, model repository, readiness.
 
 ### Phase 5.1 Tests
 ```bash
-curl -fsS http://127.0.0.1:39000/v2/health/ready
+# Example: offline mode active
 curl -fsS http://127.0.0.1:39100/v2/health/ready
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:39000/v2/health/ready || true
 ss -ltn | awk 'NR==1 || /:39000|:39100|:8000|:8011|:5173|:5174/'
 ```
 
 ### Phase 5.1 Commit Stage
-- `feat(triton): split live and offline triton endpoints with preflight checks`
+- `feat(triton): enforce single-endpoint triton mode with preflight checks`
 
 ### Phase 5.2 Tasks (mandatory)
-1. Bind live endpoint to `configs/live.pbtxt`.
-2. Bind offline endpoint to `configs/offline.pbtxt`.
-3. Verify loaded model configs by endpoint.
+1. Bind active endpoint to the selected profile config:
+   - `configs/live.pbtxt` when live mode is active.
+   - `configs/offline.pbtxt` when offline mode is active.
+2. Verify loaded model configs on the active endpoint.
+3. Ensure inactive endpoint is stopped.
 
 ### Phase 5.2 Tests
 ```bash
-curl -s http://127.0.0.1:39000/v2/models/person_detector/config
+# Example: offline mode active
 curl -s http://127.0.0.1:39100/v2/models/person_detector/config
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:39000/v2/models/person_detector/config || true
 ```
 
 ### Phase 5.2 Commit Stage
-- `feat(triton): enforce per-profile model-config binding for dual endpoints`
+- `feat(triton): enforce per-profile model-config binding for single active endpoint`
 
 ## M6: TensorRT Dynamic Batch Activation
 
