@@ -171,11 +171,11 @@ The API is available at `http://localhost:8000/api/v1/`.
 | `PYRAMID_VERTICAL_GAZE_MODEL_RUNTIME` | `openvino` | Runtime override for up/down gaze |
 | `PYRAMID_TRACKING_MODEL_RUNTIME` | `onnx` | Runtime override for the tracking wrapper |
 | `PYRAMID_OPENVINO_DEVICE` | `intel:gpu` | OpenVINO target device |
-| `TRITON_EXECUTION_PROFILE` | `throughput_guardrails` | Triton runtime policy profile for production tuning |
-| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline detector cadence while keeping frame-level rendering |
-| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live detector cadence while keeping continuous overlay updates |
-| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline reuse window for last valid detections |
-| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live reuse window for last valid detections |
+| `TRITON_EXECUTION_PROFILE` | `throughput_guardrails` | Triton runtime policy profile (`throughput_guardrails` or `live_latency_first`; invalid values fall back to `throughput_guardrails`) |
+| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline detector cadence while keeping frame-level rendering (`1..300`, fallback to `2`) |
+| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live detector cadence while keeping continuous overlay updates (`1..300`, fallback to `3`) |
+| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline reuse window for last valid detections (`0..2000`, fallback to `20`) |
+| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live reuse window for last valid detections (`0..2000`, fallback to `8`) |
 | `MEDIA_ROOT` | `media/` | Media file storage root |
 | `RECORDING_STORAGE_PATH` | `media/recordings/` | Recording file storage |
 

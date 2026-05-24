@@ -247,10 +247,10 @@ Root `.env.example` and root `.env` variables:
 | `PYRAMID_DEVICE` | `cuda` | Pipeline config | Preferred local inference device. | `cpu`, `cuda`, `mps`. | Selects execution hardware. |
 | `PYRAMID_OPENVINO_DEVICE` | `intel:gpu` | Pipeline config | OpenVINO target device. | `intel:gpu`, `intel:cpu`, `intel:npu`, similar valid device strings. | Changes OpenVINO execution target. |
 | `PYRAMID_PERSON_CONFIDENCE_THRESHOLD` | `0.5` | Pipeline config | Person detection confidence cutoff. | Float `0.0` to `1.0`. | Higher values reduce false positives. |
-| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline video analysis | Runs detector every N frames while still producing frame-level outputs. | Integer `>= 1`. | Lowers detector pressure while keeping stride=1 rendering. |
-| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live video analysis | Runs detector every N frames in live path. | Integer `>= 1`. | Reduces live detector cost and improves responsiveness. |
-| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline video analysis | Reuses last valid detections when detector frame is skipped or times out. | Integer `>= 0`. | Improves continuity and mitigates transient detector timeouts. |
-| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live video analysis | Reuses last valid detections for a bounded live-frame window. | Integer `>= 0`. | Smooths live overlays and avoids flicker on brief inference stalls. |
+| `OFFLINE_DETECT_EVERY_N_FRAMES` | `2` | Offline video analysis | Runs detector every N frames while still producing frame-level outputs. | Integer `1..300` (invalid/out-of-range falls back to `2`). | Lowers detector pressure while keeping stride=1 rendering. |
+| `LIVE_DETECT_EVERY_N_FRAMES` | `3` | Live video analysis | Runs detector every N frames in live path. | Integer `1..300` (invalid/out-of-range falls back to `3`). | Reduces live detector cost and improves responsiveness. |
+| `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES` | `20` | Offline video analysis | Reuses last valid detections when detector frame is skipped or times out. | Integer `0..2000` (invalid/out-of-range falls back to `20`). | Improves continuity and mitigates transient detector timeouts. |
+| `LIVE_REUSE_LAST_BOXES_TTL_FRAMES` | `8` | Live video analysis | Reuses last valid detections for a bounded live-frame window. | Integer `0..2000` (invalid/out-of-range falls back to `8`). | Smooths live overlays and avoids flicker on brief inference stalls. |
 | `PYRAMID_BEHAVIOR_CONFIDENCE_THRESHOLD` | `0.5` | Pipeline config | Behavior confidence cutoff. | Float `0.0` to `1.0`. | Higher values reduce noisy labels. |
 | `PYRAMID_WORKER_COUNT` | `4` | Pipeline config | Parallel inference worker count. | Integer `1` to `16`. | Higher values increase throughput until saturation. |
 | `PYRAMID_INFERENCE_TIMEOUT` | `30.0` | Pipeline config | Per-inference timeout in seconds. | Float `1.0` to `300.0`. | Prevents hung inference calls. |

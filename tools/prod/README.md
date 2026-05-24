@@ -18,6 +18,28 @@ If ports are occupied, override in `backend/.env` before start:
 - `TRITON_LIVE_HTTP_PORT` (default: `39000`)
 - `TRITON_OFFLINE_HTTP_PORT` (default: `39100`)
 
+## 1.1) Enforce Triton single-endpoint policy (M5)
+
+Run on production host:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_triton_endpoint_policy.sh --profile offline
+```
+
+or for live profile:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_triton_endpoint_policy.sh --profile live
+```
+
+This check fails unless all policy rules pass:
+- only one endpoint is active (`200` on selected endpoint, inactive endpoint not `200`)
+- inactive endpoint port is not listening
+- `TRITON_LIVE_URL` and `TRITON_OFFLINE_URL` both point to active endpoint
+- each model `config.pbtxt` matches selected profile config (`configs/live.pbtxt` or `configs/offline.pbtxt`)
+
 ## 2) Start dedicated workers
 
 Run on production host:
@@ -62,3 +84,19 @@ celery -A config inspect stats
 .\tools\prod\prod-ssh.ps1 "cd /home/bamby/grad_project && bash tools/prod/prod_start_celery_workers.sh"
 ```
 
+## 6) M4 live cadence/reuse/telemetry validation (Windows helper)
+
+Run from `E:\grad_project`:
+
+```powershell
+.\tools\prod\prod-validate-m4-live.ps1
+```
+
+This executes:
+- backend and model-serving health checks
+- Triton live/offline readiness checks
+- targeted M4 test commands on production backend:
+  - `tests/unit/video_analysis/test_tasks_detection_cadence.py`
+  - `tests/unit/video_analysis/test_live_detection_policy_counters.py`
+  - `tests/integration -k "timeout and live and reuse"`
+  - `tests/resilience -k "triton_timeout"`
