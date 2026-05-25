@@ -213,7 +213,7 @@ celery -A config inspect stats
 
 ### Phase 4 / Wave 2 ingestion evidence notes
 - Queue/drop/reconnect validation is emitted through `tools/prod/prod-wave2-ingestion-evidence.ps1`.
-- The production evidence wrapper uses `backend/.env` as the single runtime env authority, then forces `DJANGO_SETTINGS_MODULE=config.settings.test` and `USE_POSTGRES_TEST_DB=0` for the Wave 2 pytest slice.
+- The production evidence wrapper uses `backend/.env` as the single runtime env authority, then enforces `DJANGO_SETTINGS_MODULE=config.settings.acceptance` and `USE_POSTGRES_TEST_DB=1` for the PostgreSQL-backed Wave 2 pytest slice.
 - This isolation is required because the production PostgreSQL role is not guaranteed to have test-database create/drop privileges, while the Wave 2 integration contract only requires deterministic application-level persistence and API validation.
 
 ## M5: Triton Single-Endpoint Mode and Profile Binding
@@ -227,7 +227,7 @@ celery -A config inspect stats
 ## M7 / Wave 6 observability execution notes
 
 - Wave 6 evidence is captured with `tools/prod/prod-wave6-observability-evidence.ps1`.
-- The backend Wave 6 pytest slice runs with `DJANGO_SETTINGS_MODULE=config.settings.test`, `USE_POSTGRES_TEST_DB=0`, and a known-good `FIELD_ENCRYPTION_KEY`.
+- The backend Wave 6 pytest slice runs with `DJANGO_SETTINGS_MODULE=config.settings.acceptance`, `USE_POSTGRES_TEST_DB=1`, and a known-good `FIELD_ENCRYPTION_KEY`.
 - The frontend Wave 6 test path uses a temporary Node 22 binary in `/dev/shm/node22` because the production host currently exposes only system Node 18 and the root filesystem is full, which blocks persistent user-space installs under `/home/bamby`.
 - `frontend/vite.config.ts` must stay ESM-safe and must not rely on `__dirname`; Wave 6 prod validation uses Vitest `--configLoader runner` specifically to avoid bundled-config writes onto the full root filesystem.
 3. Declare runtime mode explicitly:
@@ -360,7 +360,7 @@ python scripts/pose_eval/run_profile_matrix.py --help
 
 Wave 8 orchestration/evidence slice status:
 - `backend/apps/video_analysis/management/commands/run_maturity_acceptance.py` evaluates Wave 1-7 evidence presence, Wave 8 artifact presence, representative dataset coverage, profile-matrix reproducibility, performance-report pass state, and paper traceability before writing `ci_evidence/production/wave8/final_acceptance_manifest.json`
-- `tools/prod/prod-wave8-final-evidence.ps1` captures a health snapshot, runs the owned Wave 8 pytest slice, and then invokes `run_maturity_acceptance --skip-tests` to package the acceptance manifest without double-running pytest inside the evidence wrapper
+- `tools/prod/prod-wave8-final-evidence.ps1` captures a health snapshot and invokes `run_maturity_acceptance` without skipped test execution; skipped test results cannot satisfy final production acceptance
 - this slice does not implement the earlier Wave 8 artifact generators (`T109-T118`); if those artifacts are absent or structurally invalid, the final acceptance command fails closed
 
 ### Phase 8.1 Commit Stage

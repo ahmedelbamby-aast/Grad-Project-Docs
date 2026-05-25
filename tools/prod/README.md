@@ -89,7 +89,8 @@ Wave 2 queue governance notes:
 - dead-letter names follow the `.dlq` suffix contract
 - offline upload dispatch resolves its primary queue from runtime queue authority instead of legacy hardcoded queue names
 - `.\tools\prod\prod-wave2-ingestion-evidence.ps1` captures the Wave 2 queue/drop/reconnect evidence bundle from Windows
-- the Wave 2 prod pytest wrapper runs with `DJANGO_SETTINGS_MODULE=config.settings.test` and `USE_POSTGRES_TEST_DB=0` so evidence collection does not depend on PostgreSQL test-database create privileges on the server
+- the Wave 2 prod pytest wrapper runs with `DJANGO_SETTINGS_MODULE=config.settings.acceptance` and PostgreSQL only
+- pytest-backed production evidence requires a dedicated PostgreSQL test role with `CREATEDB`; the runtime application role is not an accepted workaround
 
 Wave 5 behavior evidence:
 - run `.\tools\prod\prod-wave5-behavior-evidence.ps1` from Windows to generate
@@ -145,7 +146,8 @@ Run from `E:\grad_project`:
 ```
 
 Wave 6 notes:
-- backend evidence uses isolated Django test settings with `USE_POSTGRES_TEST_DB=0`
+- backend evidence uses PostgreSQL-only acceptance settings through `config.settings.acceptance`
+- configure a dedicated PostgreSQL test role with `CREATEDB` before running pytest-backed production evidence
 - frontend evidence uses a temporary user-space Node 22 toolchain staged in `/dev/shm/node22`
 - the `/dev/shm` staging path is required on the current production host because the root filesystem is full and the system Node 18 runtime is too old for the current Vite/Vitest stack
 
@@ -162,5 +164,7 @@ Wave 8 notes:
 - it runs only the owned Wave 8 pytest slice:
   - `tests/system/test_wave8_final_acceptance.py`
   - `tests/performance/test_wave8_live_soak_offline_validation.py`
-- backend evidence uses isolated Django test settings with `USE_POSTGRES_TEST_DB=0`
-- the final acceptance manifest is written by `manage.py run_maturity_acceptance --skip-tests` so the evidence package records artifact-gate evaluation separately from raw pytest output
+- backend evidence uses PostgreSQL-only acceptance settings through `config.settings.acceptance`
+- pytest-backed acceptance requires the dedicated PostgreSQL test role with `CREATEDB`; SQLite fallback is prohibited
+- the final acceptance manifest is written by `manage.py run_maturity_acceptance` and cannot pass if its owned system and performance slices are skipped
+- the self-hosted `ci-runtime-gpu.yml` workflow requires repository secrets `RUNTIME_CI_POSTGRES_DB`, `RUNTIME_CI_POSTGRES_USER`, `RUNTIME_CI_POSTGRES_PASSWORD`, `RUNTIME_CI_POSTGRES_HOST`, and `RUNTIME_CI_POSTGRES_PORT`; the configured role must have `CREATEDB`

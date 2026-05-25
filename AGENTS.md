@@ -18,6 +18,11 @@ This file defines how agents should execute tests quickly and safely in this rep
   - Grant ownership/privileges for runtime DB access as needed.
   - Update environment keys consistently (local/prod CI shells) to use the same PostgreSQL host/port and test role for pytest.
 
+## CI Credential Handling
+- Authenticated GitHub CI inspection uses `GITHUB_TOKEN` loaded from local ignored file `.local/secrets/github.env`.
+- The credential file MUST remain untracked and MUST contain a rotated token, never a token exposed in chat, logs, evidence, or Markdown.
+- Agents MUST NOT write raw CI tokens into tracked files, command transcripts, or production evidence packages.
+
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
 - Active feature plan: [specs/010-behavioral-maturity-closure/plan.md](specs/010-behavioral-maturity-closure/plan.md)
@@ -60,7 +65,7 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ## Production Toolchain Pinning (Mandatory)
 - Triton production default binary MUST be pinned to:
-  - `/home/bamby/services/triton/v265/tritonserver/tritonserver/bin/tritonserver`
+  - `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver`
 - Python command in production shells MUST resolve consistently to backend venv:
   - `/home/bamby/grad_project/backend/.venv/bin/python`
 - Agents must ensure both `~/.bashrc` and `~/.profile` export stable user-path resolution for:
@@ -71,7 +76,7 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ### Required Prod Shell Exports
 - `export PATH="/home/bamby/grad_project/backend/.venv/bin:$PATH"`
-- `export TRITON_SERVER_BIN="/home/bamby/services/triton/v265/tritonserver/tritonserver/bin/tritonserver"`
+- `export TRITON_SERVER_BIN="/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver"`
 - `export PIP_CACHE_DIR="/home/bamby/.cache/pip"`
 - Optional convenience alias:
   - `alias python="/home/bamby/grad_project/backend/.venv/bin/python"`

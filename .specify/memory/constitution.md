@@ -67,6 +67,14 @@ Follow-up TODOs:
 
 ## Core Principles
 
+### Credential Evidence Boundary
+
+CI inspection credentials MUST be sourced from the untracked local path
+`.local/secrets/github.env` via `GITHUB_TOKEN`. Raw tokens MUST NOT appear in
+tracked governance, evidence, logs, or acceptance artifacts. Any credential
+shared through chat or captured in output is compromised and MUST be rotated
+before use for maturity closure.
+
 ### 1. Foundational System Doctrine
 
 #### 1.1 System Identity and Architectural Philosophy
@@ -204,6 +212,8 @@ For the current production estate, CUDA authority is fixed at **CUDA 12.8**.
 All GPU-serving dependencies (Triton runtime line, TensorRT runtime/Python,
 engine builds, and backend integration libraries) MUST remain version-compatible
 with CUDA 12.8 unless an explicit migration plan updates this constitution.
+For the current pinned production runtime, Triton binary authority is
+`/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver`.
 
 Production shell resolution is constitutional runtime authority. User-local
 path pinning in `~/.bashrc` and `~/.profile` MUST provide deterministic
