@@ -9,6 +9,7 @@ Constraints:
 - Linux production host: no Docker, no sudo.
 - Triton-only inference on production GPU.
 - Do not revert unrelated work from other contributors.
+- Backend runtime entrypoints must source only `backend/.env`; repo-root `.env` must not silently diverge or participate in backend startup on production.
 
 ## Milestone Map
 
@@ -118,6 +119,11 @@ git log --oneline -n 3
    - `pipeline.offline.behavior.worker`
 2. Wire task routes for live/offline dispatch.
 3. Keep:
+
+Phase 2.1 implementation status update:
+- runtime queue authority now exposes a canonical route map and `.dlq` naming contract
+- Celery worker bootstrap loads `backend/.env`, matching Django/ASGI runtime bootstrap
+- offline upload queue selection is resolved from runtime queue authority instead of legacy hardcoded queue names
    - `worker_prefetch_multiplier=1`
    - `acks_late=true`
 4. Add queue names to env examples and documentation.
@@ -205,6 +211,11 @@ celery -A config inspect stats
 ### Phase 4.2 Commit Stage
 - `feat(live): timeout-safe box reuse with runtime telemetry counters`
 
+### Phase 4 / Wave 2 ingestion evidence notes
+- Queue/drop/reconnect validation is emitted through `tools/prod/prod-wave2-ingestion-evidence.ps1`.
+- The production evidence wrapper uses `backend/.env` as the single runtime env authority, then forces `DJANGO_SETTINGS_MODULE=config.settings.test` and `USE_POSTGRES_TEST_DB=0` for the Wave 2 pytest slice.
+- This isolation is required because the production PostgreSQL role is not guaranteed to have test-database create/drop privileges, while the Wave 2 integration contract only requires deterministic application-level persistence and API validation.
+
 ## M5: Triton Single-Endpoint Mode and Profile Binding
 
 ### Phase 5.1 Tasks (mandatory)
@@ -212,10 +223,25 @@ celery -A config inspect stats
 2. Allowed endpoint profiles:
    - Live mode: `39000/39001/39002`
    - Offline mode: `39100/39101/39102`
-3. Set both application URLs to the currently active endpoint:
+
+## M7 / Wave 6 observability execution notes
+
+- Wave 6 evidence is captured with `tools/prod/prod-wave6-observability-evidence.ps1`.
+- The backend Wave 6 pytest slice runs with `DJANGO_SETTINGS_MODULE=config.settings.test`, `USE_POSTGRES_TEST_DB=0`, and a known-good `FIELD_ENCRYPTION_KEY`.
+- The frontend Wave 6 test path uses a temporary Node 22 binary in `/dev/shm/node22` because the production host currently exposes only system Node 18 and the root filesystem is full, which blocks persistent user-space installs under `/home/bamby`.
+- `frontend/vite.config.ts` must stay ESM-safe and must not rely on `__dirname`; Wave 6 prod validation uses Vitest `--configLoader runner` specifically to avoid bundled-config writes onto the full root filesystem.
+3. Declare runtime mode explicitly:
+   - `TRITON_EXECUTION_MODE=live` for live profile
+   - `TRITON_EXECUTION_MODE=offline` for offline profile
+4. Set all application URLs to the currently active endpoint:
+   - `TRITON_URL=http://127.0.0.1:<active_http_port>`
    - `TRITON_LIVE_URL=http://127.0.0.1:<active_http_port>`
    - `TRITON_OFFLINE_URL=http://127.0.0.1:<active_http_port>`
-4. Add preflight checks for ports, model repository, readiness.
+5. Add preflight checks for ports, model repository, readiness, and inactive-port rejection.
+6. Distinguish backend subsystem states precisely:
+   - `healthy`: dependency reachable and authenticated
+   - `degraded`: dependency reachable but runtime contract incomplete (for example Redis auth challenge)
+   - `unhealthy`: dependency unreachable or failing hard
 
 ### Phase 5.1 Tests
 ```bash
@@ -233,7 +259,7 @@ ss -ltn | awk 'NR==1 || /:39000|:39100|:8000|:8011|:5173|:5174/'
    - `configs/live.pbtxt` when live mode is active.
    - `configs/offline.pbtxt` when offline mode is active.
 2. Verify loaded model configs on the active endpoint.
-3. Ensure inactive endpoint is stopped.
+3. Ensure inactive endpoint is stopped and no Celery runtime on the node routes inference work to it.
 
 ### Phase 5.2 Tests
 ```bash
@@ -331,6 +357,11 @@ python scripts/pose_eval/run_profile_matrix.py --help
 .\.venv\Scripts\python.exe -m pytest backend/tests/system -n auto --dist=loadscope -q --tb=short
 .\.venv\Scripts\python.exe -m pytest backend/tests/performance -n auto --dist=loadscope -q --tb=short
 ```
+
+Wave 8 orchestration/evidence slice status:
+- `backend/apps/video_analysis/management/commands/run_maturity_acceptance.py` evaluates Wave 1-7 evidence presence, Wave 8 artifact presence, representative dataset coverage, profile-matrix reproducibility, performance-report pass state, and paper traceability before writing `ci_evidence/production/wave8/final_acceptance_manifest.json`
+- `tools/prod/prod-wave8-final-evidence.ps1` captures a health snapshot, runs the owned Wave 8 pytest slice, and then invokes `run_maturity_acceptance --skip-tests` to package the acceptance manifest without double-running pytest inside the evidence wrapper
+- this slice does not implement the earlier Wave 8 artifact generators (`T109-T118`); if those artifacts are absent or structurally invalid, the final acceptance command fails closed
 
 ### Phase 8.1 Commit Stage
 - `test(perf): record acceptance-gate evidence for production profiles`

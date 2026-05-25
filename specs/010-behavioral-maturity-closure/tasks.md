@@ -83,12 +83,12 @@ flowchart TD
 
 **Purpose**: Prepare the repository, test scaffolds, evidence directories, and documentation targets needed by all waves.
 
-- [ ] T001 Create maturity closure evidence directory scaffold in `ci_evidence/production/wave1/.gitkeep`, `ci_evidence/production/wave2/.gitkeep`, `ci_evidence/production/wave3/.gitkeep`, `ci_evidence/production/wave4/.gitkeep`, `ci_evidence/production/wave5/.gitkeep`, `ci_evidence/production/wave6/.gitkeep`, `ci_evidence/production/wave7/.gitkeep`, `ci_evidence/production/wave8/.gitkeep`
-- [ ] T002 [P] Create shared maturity test helpers in `backend/tests/utils/maturity_evidence.py` and `backend/tests/utils/maturity_media.py`
-- [ ] T003 [P] Create production evidence manifest schema fixture in `backend/tests/fixtures/maturity_evidence_schema.json`
-- [ ] T004 [P] Create backend behavior app package skeleton in `backend/apps/behavior/__init__.py`, `backend/apps/behavior/apps.py`, `backend/apps/behavior/README.md`
-- [ ] T005 [P] Create backend contract governance app skeleton in `backend/apps/contracts/__init__.py`, `backend/apps/contracts/apps.py`, `backend/apps/contracts/README.md`
-- [ ] T006 Update active Spec Kit handoff references in `AGENTS.md` and production task guidance in `tools/prod/README.md`
+- [X] T001 Create maturity closure evidence directory scaffold in `ci_evidence/production/wave1/.gitkeep`, `ci_evidence/production/wave2/.gitkeep`, `ci_evidence/production/wave3/.gitkeep`, `ci_evidence/production/wave4/.gitkeep`, `ci_evidence/production/wave5/.gitkeep`, `ci_evidence/production/wave6/.gitkeep`, `ci_evidence/production/wave7/.gitkeep`, `ci_evidence/production/wave8/.gitkeep`
+- [X] T002 [P] Create shared maturity test helpers in `backend/tests/utils/maturity_evidence.py` and `backend/tests/utils/maturity_media.py`
+- [X] T003 [P] Create production evidence manifest schema fixture in `backend/tests/fixtures/maturity_evidence_schema.json`
+- [X] T004 [P] Create backend behavior app package skeleton in `backend/apps/behavior/__init__.py`, `backend/apps/behavior/apps.py`, `backend/apps/behavior/README.md`
+- [X] T005 [P] Create backend contract governance app skeleton in `backend/apps/contracts/__init__.py`, `backend/apps/contracts/apps.py`, `backend/apps/contracts/README.md`
+- [X] T006 Update active Spec Kit handoff references in `AGENTS.md` and production task guidance in `tools/prod/README.md`
 
 ### Phase 2: Foundational (Blocking Prerequisites)
 
@@ -96,18 +96,18 @@ flowchart TD
 
 **Critical Gate**: No user story implementation may be accepted until T007-T018 are complete.
 
-- [ ] T007 Write runtime mode contract tests in `backend/tests/unit/pipeline/test_runtime_mode_authority.py`
-- [ ] T008 Write endpoint isolation contract tests in `backend/tests/contract/test_runtime_mode_contract.py`
-- [ ] T009 Implement validated runtime mode settings in `backend/apps/pipeline/runtime_mode.py` and wire production flags in `backend/config/settings.py`
-- [ ] T010 Implement Triton endpoint authority resolver in `backend/apps/pipeline/triton_endpoints.py` and route integration in `backend/apps/pipeline/inference_runtime.py`
-- [ ] T011 [P] Write timestamp envelope and drop-accounting unit tests in `backend/tests/unit/pipeline/test_timestamp_drop_contract.py`
-- [ ] T012 [P] Implement canonical timestamp envelope in `backend/apps/pipeline/timestamps.py`
-- [ ] T013 [P] Implement drop-accounting value objects and failure classes in `backend/apps/pipeline/drop_accounting.py`
-- [ ] T014 [P] Define queue route contract helpers in `backend/apps/pipeline/queue_routes.py`
-- [ ] T015 [P] Write identity namespace and Redis key contract tests in `backend/tests/unit/tracking/test_identity_scope_contract.py`
-- [ ] T016 [P] Implement identity namespace helpers in `backend/apps/tracking/identity_scope.py`
-- [ ] T017 [P] Write RTMPose Triton IO contract tests in `backend/tests/unit/pipeline/test_rtmpose_config_validation.py`
-- [ ] T018 [P] Implement RTMPose model config validator in `backend/apps/pipeline/pose_runtime_validator.py`
+- [X] T007 Write runtime mode contract tests in `backend/tests/unit/pipeline/test_runtime_mode_authority.py`
+- [X] T008 Write endpoint isolation contract tests in `backend/tests/contract/test_runtime_mode_contract.py`
+- [X] T009 Implement validated runtime mode settings in `backend/apps/pipeline/runtime_mode.py` and wire production flags in `backend/config/settings.py`
+- [X] T010 Implement Triton endpoint authority resolver in `backend/apps/pipeline/triton_endpoints.py` and route integration in `backend/apps/pipeline/inference_runtime.py`
+- [X] T011 [P] Write timestamp envelope and drop-accounting unit tests in `backend/tests/unit/pipeline/test_timestamp_drop_contract.py`
+- [X] T012 [P] Implement canonical timestamp envelope in `backend/apps/pipeline/timestamps.py`
+- [X] T013 [P] Implement drop-accounting value objects and failure classes in `backend/apps/pipeline/drop_accounting.py`
+- [X] T014 [P] Define queue route contract helpers in `backend/apps/pipeline/queue_routes.py`
+- [X] T015 [P] Write identity namespace and Redis key contract tests in `backend/tests/unit/tracking/test_identity_scope_contract.py`
+- [X] T016 [P] Implement identity namespace helpers in `backend/apps/tracking/identity_scope.py`
+- [X] T017 [P] Write RTMPose Triton IO contract tests in `backend/tests/unit/pipeline/test_rtmpose_config_validation.py`
+- [X] T018 [P] Implement RTMPose model config validator in `backend/apps/pipeline/pose_runtime_validator.py`
 
 ### Phase 3: User Story 1 - Govern Production Runtime Policy (Priority: P1, Wave 1)
 
@@ -115,16 +115,16 @@ flowchart TD
 
 **Independent Test**: Select `TRITON_EXECUTION_MODE=live` and `TRITON_EXECUTION_MODE=offline` separately and verify active profile readiness, inactive profile isolation, fallback rejection, and machine-readable preflight evidence.
 
-- [ ] T019 [P] [US1] Write production mode parser unit tests in `backend/tests/unit/pipeline/test_runtime_mode_authority.py`
-- [ ] T020 [P] [US1] Write model-serving health contract tests in `backend/tests/contract/test_model_serving_runtime_mode.py`
-- [ ] T021 [P] [US1] Write production endpoint policy script tests in `backend/tests/unit/scripts/test_prod_triton_endpoint_policy_script.py`
-- [ ] T022 [US1] Extend health serializers and responses with active/inactive endpoint fields in `backend/apps/video_analysis/views.py` and `backend/apps/video_analysis/serializers.py`
-- [ ] T023 [US1] Enforce active-mode routing and inactive endpoint rejection in `backend/apps/pipeline/inference_runtime.py` and `backend/apps/video_analysis/tasks.py`
-- [ ] T024 [US1] Update Celery route ownership by runtime mode in `backend/config/celery.py`
-- [ ] T025 [US1] Implement production preflight validator in `tools/prod/prod_triton_endpoint_policy.sh` and `tools/prod/prod-health-snapshot.ps1`
-- [ ] T026 [P] [US1] Align environment examples and production docs in `.env.example`, `docs/linux_production_optimization_execution_phases.md`, and `tools/prod/README.md`
-- [ ] T027 [US1] Generate Wave 1 evidence writer in `tools/prod/prod-wave1-evidence.ps1`
-- [ ] T028 [US1] Add Wave 1 system validation tests in `backend/tests/system/test_wave1_runtime_policy.py`
+- [X] T019 [P] [US1] Write production mode parser unit tests in `backend/tests/unit/pipeline/test_runtime_mode_authority.py`
+- [X] T020 [P] [US1] Write model-serving health contract tests in `backend/tests/contract/test_model_serving_runtime_mode.py`
+- [X] T021 [P] [US1] Write production endpoint policy script tests in `backend/tests/unit/scripts/test_prod_triton_endpoint_policy_script.py`
+- [X] T022 [US1] Extend health serializers and responses with active/inactive endpoint fields in `backend/apps/video_analysis/views.py` and `backend/apps/video_analysis/serializers.py`
+- [X] T023 [US1] Enforce active-mode routing and inactive endpoint rejection in `backend/apps/pipeline/inference_runtime.py` and `backend/apps/video_analysis/tasks.py`
+- [X] T024 [US1] Update Celery route ownership by runtime mode in `backend/config/celery.py`
+- [X] T025 [US1] Implement production preflight validator in `tools/prod/prod_triton_endpoint_policy.sh` and `tools/prod/prod-health-snapshot.ps1`
+- [X] T026 [P] [US1] Align environment examples and production docs in `.env.example`, `docs/linux_production_optimization_execution_phases.md`, and `tools/prod/README.md`
+- [X] T027 [US1] Generate Wave 1 evidence writer in `tools/prod/prod-wave1-evidence.ps1`
+- [X] T028 [US1] Add Wave 1 system validation tests in `backend/tests/system/test_wave1_runtime_policy.py`
 
 ### Phase 4: User Story 2 - Stabilize Ingestion And Queue Control (Priority: P1, Wave 2)
 
@@ -132,18 +132,18 @@ flowchart TD
 
 **Independent Test**: Run controlled disconnects, queue overload, stale stream, timeout, and drop scenarios across real live/offline validation inputs and verify SLO evidence.
 
-- [ ] T029 [P] [US2] Write queue route matrix unit tests in `backend/tests/unit/pipeline/test_queue_routing_contract.py`
-- [ ] T030 [P] [US2] Write queue wait telemetry tests in `backend/tests/unit/pipeline/test_queue_wait_telemetry.py`
-- [ ] T031 [P] [US2] Write RTSP reconnect state-machine tests in `backend/tests/unit/pipeline/test_rtsp_reconnect_state_machine.py`
-- [ ] T032 [P] [US2] Write backpressure SLO tests for live/offline thresholds in `backend/tests/unit/pipeline/test_backpressure_slo_policy.py`
-- [ ] T033 [US2] Implement canonical Celery route map and DLQ policy in `backend/apps/pipeline/queue_routes.py` and `backend/config/celery.py`
-- [ ] T034 [US2] Implement queue wait telemetry with enqueue/dequeue/start/finish stamps in `backend/apps/pipeline/queue_telemetry.py` and `backend/apps/video_analysis/tasks.py`
-- [ ] T035 [US2] Implement RTSP reconnect state machine in `backend/apps/pipeline/rtsp_reconnect.py` and integrate it in `backend/apps/video_analysis/tasks.py`
-- [ ] T036 [US2] Implement balanced backpressure controller in `backend/apps/pipeline/backpressure.py` with live/offline SLO thresholds
-- [ ] T037 [US2] Persist drop-accounting events and timestamp envelopes in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0004_maturity_runtime_events.py`
-- [ ] T038 [US2] Expose queue wait, drop, and reconnect telemetry endpoints in `backend/apps/video_analysis/views.py` and `backend/apps/video_analysis/urls.py`
-- [ ] T039 [US2] Add RTSP fault-injection integration tests in `backend/tests/integration/test_wave2_rtsp_fault_matrix.py`
-- [ ] T040 [US2] Generate Wave 2 evidence reports in `tools/prod/prod-wave2-ingestion-evidence.ps1`
+- [X] T029 [P] [US2] Write queue route matrix unit tests in `backend/tests/unit/pipeline/test_queue_routing_contract.py`
+- [X] T030 [P] [US2] Write queue wait telemetry tests in `backend/tests/unit/pipeline/test_queue_wait_telemetry.py`
+- [X] T031 [P] [US2] Write RTSP reconnect state-machine tests in `backend/tests/unit/pipeline/test_rtsp_reconnect_state_machine.py`
+- [X] T032 [P] [US2] Write backpressure SLO tests for live/offline thresholds in `backend/tests/unit/pipeline/test_backpressure_slo_policy.py`
+- [X] T033 [US2] Implement canonical Celery route map and DLQ policy in `backend/apps/pipeline/queue_routes.py` and `backend/config/celery.py`
+- [X] T034 [US2] Implement queue wait telemetry with enqueue/dequeue/start/finish stamps in `backend/apps/pipeline/queue_telemetry.py` and `backend/apps/video_analysis/tasks.py`
+- [X] T035 [US2] Implement RTSP reconnect state machine in `backend/apps/pipeline/rtsp_reconnect.py` and integrate it in `backend/apps/video_analysis/tasks.py`
+- [X] T036 [US2] Implement balanced backpressure controller in `backend/apps/pipeline/backpressure.py` with live/offline SLO thresholds
+- [X] T037 [US2] Persist drop-accounting events and timestamp envelopes in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0004_maturity_runtime_events.py`
+- [X] T038 [US2] Expose queue wait, drop, and reconnect telemetry endpoints in `backend/apps/video_analysis/views.py` and `backend/apps/video_analysis/urls.py`
+- [X] T039 [US2] Add RTSP fault-injection integration tests in `backend/tests/integration/test_wave2_rtsp_fault_matrix.py`
+- [X] T040 [US2] Generate Wave 2 evidence reports in `tools/prod/prod-wave2-ingestion-evidence.ps1`
 
 ### Phase 5: User Story 3 - Stabilize Identity And Temporal Continuity (Priority: P1, Wave 3)
 
@@ -151,18 +151,18 @@ flowchart TD
 
 **Independent Test**: Multi-camera same-session, crowded crossing, occlusion/re-entry, and long-session clips produce zero key collisions and measurable ID-switch metrics.
 
-- [ ] T041 [P] [US3] Write multi-camera identity isolation tests in `backend/tests/unit/tracking/test_identity_scope_contract.py`
-- [ ] T042 [P] [US3] Write conservative ReID decision tests in `backend/tests/unit/tracking/test_reid_canonicalization.py`
-- [ ] T043 [P] [US3] Write Hungarian association and gating tests in `backend/tests/unit/tracking/test_association.py`
-- [ ] T044 [P] [US3] Write lifecycle persistence tests in `backend/tests/unit/tracking/test_track_lifecycle_states.py`
-- [ ] T045 [US3] Add identity scope, canonical track alias, ReID decision, and lifecycle fields in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0005_identity_continuity.py`
-- [ ] T046 [US3] Implement scoped Redis identity keys in `backend/apps/tracking/identity_scope.py` and `backend/apps/tracking/tracker.py`
-- [ ] T047 [US3] Implement conservative ReID canonicalization in `backend/apps/tracking/reid.py`
-- [ ] T048 [US3] Replace index-order interpolation with cost matrix and Hungarian association in `backend/apps/tracking/association.py`
-- [ ] T049 [US3] Persist tracking lifecycle events and expose timeline state in `backend/apps/tracking/tracker.py` and `backend/apps/video_analysis/serializers.py`
-- [ ] T050 [US3] Implement identity quality metrics exporter in `backend/apps/tracking/identity_metrics.py`
-- [ ] T051 [US3] Add crowded crossing and occlusion/re-entry integration tests in `backend/tests/integration/test_wave3_identity_continuity.py`
-- [ ] T052 [US3] Generate Wave 3 identity evidence artifacts in `tools/prod/prod-wave3-identity-evidence.ps1`
+- [X] T041 [P] [US3] Write multi-camera identity isolation tests in `backend/tests/unit/tracking/test_identity_scope_contract.py`
+- [X] T042 [P] [US3] Write conservative ReID decision tests in `backend/tests/unit/tracking/test_reid_canonicalization.py`
+- [X] T043 [P] [US3] Write Hungarian association and gating tests in `backend/tests/unit/tracking/test_association.py`
+- [X] T044 [P] [US3] Write lifecycle persistence tests in `backend/tests/unit/tracking/test_track_lifecycle_states.py`
+- [X] T045 [US3] Add identity scope, canonical track alias, ReID decision, and lifecycle fields in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0005_identity_continuity.py`
+- [X] T046 [US3] Implement scoped Redis identity keys in `backend/apps/tracking/identity_scope.py` and `backend/apps/tracking/tracker.py`
+- [X] T047 [US3] Implement conservative ReID canonicalization in `backend/apps/tracking/reid.py`
+- [X] T048 [US3] Replace index-order interpolation with cost matrix and Hungarian association in `backend/apps/tracking/association.py`
+- [X] T049 [US3] Persist tracking lifecycle events and expose timeline state in `backend/apps/tracking/tracker.py` and `backend/apps/video_analysis/serializers.py`
+- [X] T050 [US3] Implement identity quality metrics exporter in `backend/apps/tracking/identity_metrics.py`
+- [X] T051 [US3] Add crowded crossing and occlusion/re-entry integration tests in `backend/tests/integration/test_wave3_identity_continuity.py`
+- [X] T052 [US3] Generate Wave 3 identity evidence artifacts in `tools/prod/prod-wave3-identity-evidence.ps1`
 
 ### Phase 6: User Story 4 - Make Pose Runtime Behavior-Grade (Priority: P1, Wave 4)
 
@@ -170,17 +170,17 @@ flowchart TD
 
 **Independent Test**: Real RTMPose/Triton validation verifies IO shape, warmup, partial crop success, stream versioning, jitter, missing joints, fallback rate, timeout rate, and latency.
 
-- [ ] T053 [P] [US4] Write pose stream contract tests in `backend/tests/unit/pipeline/test_pose_stream_contract.py`
-- [ ] T054 [P] [US4] Write pose batch partial-success tests in `backend/tests/unit/pipeline/test_pose_batch_partial_success.py`
-- [ ] T055 [P] [US4] Write pose quality metric tests in `backend/tests/unit/video_analysis/test_pose_quality_service.py`
-- [ ] T056 [P] [US4] Write real Triton RTMPose system validation scaffold in `backend/tests/system/test_wave4_rtmpose_triton_runtime.py`
-- [ ] T057 [US4] Integrate RTMPose config validator with startup preflight in `backend/apps/pipeline/pose_runtime_validator.py` and `tools/prod/prod_triton_endpoint_policy.sh`
-- [ ] T058 [US4] Implement pose batch item result model and persistence in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0006_pose_streams.py`
-- [ ] T059 [US4] Implement raw, smoothed, and display pose stream writers in `backend/apps/pipeline/pose_streams.py`
-- [ ] T060 [US4] Implement partial-success pose batching in `backend/apps/pipeline/inference_runtime.py`
-- [ ] T061 [US4] Extend pose quality service with jitter, missing joints, stability, fallback, timeout, crop failure, and latency metrics in `backend/apps/video_analysis/services/pose_quality.py`
-- [ ] T062 [US4] Add high-density pose performance test in `backend/tests/performance/test_wave4_pose_latency_gpu.py`
-- [ ] T063 [US4] Generate Wave 4 pose evidence artifacts in `tools/prod/prod-wave4-pose-evidence.ps1`
+- [X] T053 [P] [US4] Write pose stream contract tests in `backend/tests/unit/pipeline/test_pose_stream_contract.py`
+- [X] T054 [P] [US4] Write pose batch partial-success tests in `backend/tests/unit/pipeline/test_pose_batch_partial_success.py`
+- [X] T055 [P] [US4] Write pose quality metric tests in `backend/tests/unit/video_analysis/test_pose_quality_service.py`
+- [X] T056 [P] [US4] Write real Triton RTMPose system validation scaffold in `backend/tests/system/test_wave4_rtmpose_triton_runtime.py`
+- [X] T057 [US4] Integrate RTMPose config validator with startup preflight in `backend/apps/pipeline/pose_runtime_validator.py` and `tools/prod/prod_triton_endpoint_policy.sh`
+- [X] T058 [US4] Implement pose batch item result model and persistence in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0006_pose_streams.py`
+- [X] T059 [US4] Implement raw, smoothed, and display pose stream writers in `backend/apps/pipeline/pose_streams.py`
+- [X] T060 [US4] Implement partial-success pose batching in `backend/apps/pipeline/inference_runtime.py`
+- [X] T061 [US4] Extend pose quality service with jitter, missing joints, stability, fallback, timeout, crop failure, and latency metrics in `backend/apps/video_analysis/services/pose_quality.py`
+- [X] T062 [US4] Add high-density pose performance test in `backend/tests/performance/test_wave4_pose_latency_gpu.py`
+- [X] T063 [US4] Generate Wave 4 pose evidence artifacts in `tools/prod/prod-wave4-pose-evidence.ps1`
 
 ### Phase 7: User Story 5 - Establish Temporal Behavior Features (Priority: P2, Wave 5)
 
@@ -188,23 +188,23 @@ flowchart TD
 
 **Independent Test**: Representative clips produce deterministic sequence records, ontology-versioned feature windows, explicit missing states, anomaly primitive reports, and reproducible exports.
 
-- [ ] T064 [P] [US5] Write temporal sequence schema tests in `backend/tests/unit/behavior/test_sequence_schema.py`
-- [ ] T065 [P] [US5] Write soft-purge/archive retention tests in `backend/tests/unit/behavior/test_sequence_retention_actions.py`
-- [ ] T066 [P] [US5] Write behavior ontology tests in `backend/tests/unit/behavior/test_behavior_ontology.py`
-- [ ] T067 [P] [US5] Write feature extraction math tests in `backend/tests/unit/behavior/test_behavior_features.py`
-- [ ] T068 [P] [US5] Write anomaly primitive tests in `backend/tests/unit/behavior/test_anomaly_primitives.py`
-- [ ] T069 [US5] Add TemporalSequenceRecord, TemporalSequenceRetentionAction, TemporalMemoryWindow, BehaviorOntologyVersion, BehaviorFeatureWindow, and AnomalyPrimitiveEvent models in `backend/apps/behavior/models.py` and migration `backend/apps/behavior/migrations/0001_initial.py`
-- [ ] T070 [US5] Register behavior app routes, admin, and serializers in `backend/apps/behavior/urls.py`, `backend/apps/behavior/admin.py`, and `backend/apps/behavior/serializers.py`
-- [ ] T071 [US5] Implement pose-to-sequence materializer in `backend/apps/behavior/sequences.py`
-- [ ] T072 [US5] Implement per-student rolling memory in `backend/apps/behavior/memory.py`
-- [ ] T073 [US5] Implement ontology v1 registry and seed data in `backend/apps/behavior/ontology.py`
-- [ ] T074 [US5] Implement head, wrist, motion, torso, and interaction feature extractors in `backend/apps/behavior/features.py`
-- [ ] T075 [US5] Implement change-point, drift, repeated-pattern, instability, and attention-deviation primitives in `backend/apps/behavior/anomaly_primitives.py`
-- [ ] T076 [US5] Implement reproducible sequence export pipeline in `backend/apps/behavior/exports.py`
-- [ ] T077 [US5] Add pose-to-sequence integration tests in `backend/tests/integration/test_wave5_sequence_flow.py`
-- [ ] T078 [US5] Add behavior scenario tests for glance, wrist occlusion, posture instability, and interaction cues in `backend/tests/system/test_wave5_behavior_scenarios.py`
-- [ ] T079 [US5] Implement raw sequence soft-purge/archive API in `backend/apps/behavior/views.py` and `backend/apps/behavior/urls.py`
-- [ ] T080 [US5] Generate Wave 5 sequence, ontology, feature, anomaly, and export evidence in `tools/prod/prod-wave5-behavior-evidence.ps1`
+- [X] T064 [P] [US5] Write temporal sequence schema tests in `backend/tests/unit/behavior/test_sequence_schema.py`
+- [X] T065 [P] [US5] Write soft-purge/archive retention tests in `backend/tests/unit/behavior/test_sequence_retention_actions.py`
+- [X] T066 [P] [US5] Write behavior ontology tests in `backend/tests/unit/behavior/test_behavior_ontology.py`
+- [X] T067 [P] [US5] Write feature extraction math tests in `backend/tests/unit/behavior/test_behavior_features.py`
+- [X] T068 [P] [US5] Write anomaly primitive tests in `backend/tests/unit/behavior/test_anomaly_primitives.py`
+- [X] T069 [US5] Add TemporalSequenceRecord, TemporalSequenceRetentionAction, TemporalMemoryWindow, BehaviorOntologyVersion, BehaviorFeatureWindow, and AnomalyPrimitiveEvent models in `backend/apps/behavior/models.py` and migration `backend/apps/behavior/migrations/0001_initial.py`
+- [X] T070 [US5] Register behavior app routes, admin, and serializers in `backend/apps/behavior/urls.py`, `backend/apps/behavior/admin.py`, and `backend/apps/behavior/serializers.py`
+- [X] T071 [US5] Implement pose-to-sequence materializer in `backend/apps/behavior/sequences.py`
+- [X] T072 [US5] Implement per-student rolling memory in `backend/apps/behavior/memory.py`
+- [X] T073 [US5] Implement ontology v1 registry and seed data in `backend/apps/behavior/ontology.py`
+- [X] T074 [US5] Implement head, wrist, motion, torso, and interaction feature extractors in `backend/apps/behavior/features.py`
+- [X] T075 [US5] Implement change-point, drift, repeated-pattern, instability, and attention-deviation primitives in `backend/apps/behavior/anomaly_primitives.py`
+- [X] T076 [US5] Implement reproducible sequence export pipeline in `backend/apps/behavior/exports.py`
+- [X] T077 [US5] Add pose-to-sequence integration tests in `backend/tests/integration/test_wave5_sequence_flow.py`
+- [X] T078 [US5] Add behavior scenario tests for glance, wrist occlusion, posture instability, and interaction cues in `backend/tests/system/test_wave5_behavior_scenarios.py`
+- [X] T079 [US5] Implement raw sequence soft-purge/archive API in `backend/apps/behavior/views.py` and `backend/apps/behavior/urls.py`
+- [X] T080 [US5] Generate Wave 5 sequence, ontology, feature, anomaly, and export evidence in `tools/prod/prod-wave5-behavior-evidence.ps1`
 
 ### Phase 8: User Story 6 - Make Observability And Benchmarks Trustworthy (Priority: P2, Wave 6)
 
@@ -212,20 +212,20 @@ flowchart TD
 
 **Independent Test**: Disabled telemetry sources, duplicate events, missing baselines, under-sampled benchmarks, and frontend null/zero/unavailable states all behave correctly.
 
-- [ ] T081 [P] [US6] Write probe-backed telemetry tests in `backend/tests/unit/pipeline/test_telemetry_truth.py`
-- [ ] T082 [P] [US6] Write event dedup ledger tests in `backend/tests/unit/pipeline/test_runtime_event_dedup.py`
-- [ ] T083 [P] [US6] Write benchmark baseline and 5+5 repetition tests in `backend/tests/unit/pipeline/test_benchmark_integrity.py`
-- [ ] T084 [P] [US6] Write statistical report tests in `backend/tests/unit/pipeline/test_benchmark_statistics.py`
-- [ ] T085 [P] [US6] Write frontend KPI truth tests in `frontend/src/pages/__tests__/RuntimePage.kpiTruth.test.tsx`
-- [ ] T086 [US6] Implement runtime probe service in `backend/apps/pipeline/telemetry_truth.py`
-- [ ] T087 [US6] Implement runtime event ledger and dedup constraints in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0007_telemetry_dedup.py`
-- [ ] T088 [US6] Replace hardcoded availability and synthetic readiness in `backend/apps/video_analysis/views.py` and `backend/apps/pipeline/runtime_ingestion.py`
-- [ ] T089 [US6] Implement benchmark integrity engine with explicit baseline/candidate and 5+5 run enforcement in `backend/apps/pipeline/benchmark_integrity.py`
-- [ ] T090 [US6] Implement confidence interval, variance, effect size, and nonparametric report helpers in `backend/apps/pipeline/benchmark_statistics.py`
-- [ ] T091 [US6] Add structured correlation logging in `backend/config/settings.py` and `backend/apps/pipeline/logging_context.py`
-- [ ] T092 [US6] Update frontend runtime types and KPI rendering semantics in `frontend/src/types/runtime.ts`, `frontend/src/stores/healthStore.ts`, and `frontend/src/pages/RuntimePage.tsx`
-- [ ] T093 [US6] Add telemetry integrity system tests under load in `backend/tests/system/test_wave6_telemetry_integrity.py`
-- [ ] T094 [US6] Generate Wave 6 telemetry and benchmark evidence in `tools/prod/prod-wave6-observability-evidence.ps1`
+- [X] T081 [P] [US6] Write probe-backed telemetry tests in `backend/tests/unit/pipeline/test_telemetry_truth.py`
+- [X] T082 [P] [US6] Write event dedup ledger tests in `backend/tests/unit/pipeline/test_runtime_event_dedup.py`
+- [X] T083 [P] [US6] Write benchmark baseline and 5+5 repetition tests in `backend/tests/unit/pipeline/test_benchmark_integrity.py`
+- [X] T084 [P] [US6] Write statistical report tests in `backend/tests/unit/pipeline/test_benchmark_statistics.py`
+- [X] T085 [P] [US6] Write frontend KPI truth tests in `frontend/tests/unit/pages/RuntimePage.kpiTruth.test.tsx`
+- [X] T086 [US6] Implement runtime probe service in `backend/apps/pipeline/telemetry_truth.py`
+- [X] T087 [US6] Implement runtime event ledger and dedup constraints in `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0007_telemetry_dedup.py`
+- [X] T088 [US6] Replace hardcoded availability and synthetic readiness in `backend/apps/video_analysis/views.py` and `backend/apps/pipeline/runtime_ingestion.py`
+- [X] T089 [US6] Implement benchmark integrity engine with explicit baseline/candidate and 5+5 run enforcement in `backend/apps/pipeline/benchmark_integrity.py`
+- [X] T090 [US6] Implement confidence interval, variance, effect size, and nonparametric report helpers in `backend/apps/pipeline/benchmark_statistics.py`
+- [X] T091 [US6] Add structured correlation logging in `backend/config/settings.py` and `backend/apps/pipeline/logging_context.py`
+- [X] T092 [US6] Update frontend runtime types and KPI rendering semantics in `frontend/src/types/runtime.ts`, `frontend/src/stores/healthStore.ts`, and `frontend/src/pages/RuntimePage.tsx`
+- [X] T093 [US6] Add telemetry integrity system tests under load in `backend/tests/system/test_wave6_telemetry_integrity.py`
+- [X] T094 [US6] Generate Wave 6 telemetry and benchmark evidence in `tools/prod/prod-wave6-observability-evidence.ps1`
 
 ### Phase 9: User Story 7 - Govern API, WebSocket, Artifacts, And Forensic Review (Priority: P3, Wave 7)
 
@@ -233,20 +233,20 @@ flowchart TD
 
 **Independent Test**: REST and WebSocket payloads validate against one registry, serializers expose only approved fields, and a behavior event can be traced to identity, pose, feature, anomaly, artifact, and benchmark context.
 
-- [ ] T095 [P] [US7] Write schema registry contract tests in `backend/tests/contract/test_api_ws_registry.py`
-- [ ] T096 [P] [US7] Write serializer exposure tests in `backend/tests/contract/test_serializer_field_governance.py`
-- [ ] T097 [P] [US7] Write WebSocket version compatibility tests in `frontend/src/hooks/__tests__/useRuntimeSocket.versioning.test.ts`
-- [ ] T098 [P] [US7] Write forensic trace API tests in `backend/tests/contract/test_forensic_trace_contract.py`
-- [ ] T099 [US7] Implement contract registry models and schema store in `backend/apps/contracts/models.py` and migration `backend/apps/contracts/migrations/0001_initial.py`
-- [ ] T100 [US7] Implement explicit-field serializer governance in `backend/apps/contracts/serializers.py` and update public serializers in `backend/apps/video_analysis/serializers.py`, `backend/apps/anomalies/serializers.py`, and `backend/apps/exports/serializers.py`
-- [ ] T101 [US7] Implement governed WebSocket payload envelope in `backend/apps/video_analysis/consumers.py` and `backend/apps/anomalies/consumers.py`
-- [ ] T102 [US7] Implement artifact authority policy in `backend/apps/exports/services.py` and `backend/apps/exports/views.py`
-- [ ] T103 [US7] Implement forensic trace resolver in `backend/apps/behavior/forensics.py` and API endpoint in `backend/apps/behavior/views.py`
-- [ ] T104 [US7] Add frontend TypeScript contracts in `frontend/src/types/forensics.ts` and API client in `frontend/src/api/forensics.ts`
-- [ ] T105 [US7] Build forensic trace UI in `frontend/src/pages/ForensicTracePage.tsx` and `frontend/src/pages/ForensicTracePage.module.css`
-- [ ] T106 [US7] Add forensic trace navigation from anomalies and runtime pages in `frontend/src/pages/AnomalyListPage.tsx` and `frontend/src/pages/RuntimePage.tsx`
-- [ ] T107 [US7] Add API/frontend performance tests in `backend/tests/performance/test_wave7_api_forensic_perf.py` and `frontend/src/pages/__tests__/ForensicTracePage.perf.test.tsx`
-- [ ] T108 [US7] Generate Wave 7 API/WS/forensic evidence in `tools/prod/prod-wave7-forensic-evidence.ps1`
+- [X] T095 [P] [US7] Write schema registry contract tests in `backend/tests/contract/test_api_ws_registry.py`
+- [X] T096 [P] [US7] Write serializer exposure tests in `backend/tests/contract/test_serializer_field_governance.py`
+- [X] T097 [P] [US7] Write WebSocket version compatibility tests in `frontend/src/hooks/__tests__/useRuntimeSocket.versioning.test.ts`
+- [X] T098 [P] [US7] Write forensic trace API tests in `backend/tests/contract/test_forensic_trace_contract.py`
+- [X] T099 [US7] Implement contract registry models and schema store in `backend/apps/contracts/models.py` and migration `backend/apps/contracts/migrations/0001_initial.py`
+- [X] T100 [US7] Implement explicit-field serializer governance in `backend/apps/contracts/serializers.py` and update public serializers in `backend/apps/video_analysis/serializers.py`, `backend/apps/anomalies/serializers.py`, and `backend/apps/exports/serializers.py`
+- [X] T101 [US7] Implement governed WebSocket payload envelope in `backend/apps/video_analysis/consumers.py` and `backend/apps/anomalies/consumers.py`
+- [X] T102 [US7] Implement artifact authority policy in `backend/apps/exports/services.py` and `backend/apps/exports/views.py`
+- [X] T103 [US7] Implement forensic trace resolver in `backend/apps/behavior/forensics.py` and API endpoint in `backend/apps/behavior/views.py`
+- [X] T104 [US7] Add frontend TypeScript contracts in `frontend/src/types/forensics.ts` and API client in `frontend/src/api/forensics.ts`
+- [X] T105 [US7] Build forensic trace UI in `frontend/src/pages/ForensicTracePage.tsx` and `frontend/src/pages/ForensicTracePage.module.css`
+- [X] T106 [US7] Add forensic trace navigation from anomalies and runtime pages in `frontend/src/pages/AnomalyListPage.tsx` and `frontend/src/pages/RuntimePage.tsx`
+- [X] T107 [US7] Add API/frontend performance tests in `backend/tests/performance/test_wave7_api_forensic_perf.py` and `frontend/src/pages/__tests__/ForensicTracePage.perf.test.tsx`
+- [X] T108 [US7] Generate Wave 7 API/WS/forensic evidence in `tools/prod/prod-wave7-forensic-evidence.ps1`
 
 ### Phase 10: User Story 8 - Close Final Evidence And Paper Traceability (Priority: P3, Wave 8)
 
@@ -264,10 +264,10 @@ flowchart TD
 - [ ] T116 [US8] Implement dynamic batch sign-off report generator in `tools/benchmarks/generate_dynamic_batch_signoff.py`
 - [ ] T117 [US8] Implement xfail closure scanner in `tools/benchmarks/generate_xfail_closure_report.py`
 - [ ] T118 [US8] Implement paper traceability updater in `tools/benchmarks/generate_paper_traceability_report.py`
-- [ ] T119 [US8] Add final acceptance orchestration command in `backend/apps/video_analysis/management/commands/run_maturity_acceptance.py`
-- [ ] T120 [US8] Add full acceptance system tests in `backend/tests/system/test_wave8_final_acceptance.py`
-- [ ] T121 [US8] Add live soak and offline validation performance tests in `backend/tests/performance/test_wave8_live_soak_offline_validation.py`
-- [ ] T122 [US8] Generate Wave 8 final evidence package in `tools/prod/prod-wave8-final-evidence.ps1`
+- [X] T119 [US8] Add final acceptance orchestration command in `backend/apps/video_analysis/management/commands/run_maturity_acceptance.py`
+- [X] T120 [US8] Add full acceptance system tests in `backend/tests/system/test_wave8_final_acceptance.py`
+- [X] T121 [US8] Add live soak and offline validation performance tests in `backend/tests/performance/test_wave8_live_soak_offline_validation.py`
+- [X] T122 [US8] Generate Wave 8 final evidence package in `tools/prod/prod-wave8-final-evidence.ps1`
 
 ### Phase 11: Polish And Cross-Cutting Closure
 
@@ -483,3 +483,4 @@ flowchart TD
 - Evidence policy: mock vs real, CPU vs GPU, synthetic vs production telemetry, live vs offline labels on every acceptance report.
 - XFail policy: implemented strict xfail scaffolds removed, converted to passing tests, or formally deferred with rationale.
 - Paper policy: every paper/thesis maturity claim links to implementation evidence and does not exceed validated state.
+

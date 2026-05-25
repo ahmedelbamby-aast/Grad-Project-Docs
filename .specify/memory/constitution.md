@@ -193,6 +193,13 @@ checks MUST operate under the deployed account's permissions. Docker MAY be
 used in development or controlled testing but MUST NOT be an unstated
 production precondition.
 
+Production relational persistence authority is PostgreSQL only. SQLite MUST
+NOT be used as a production runtime database, benchmark database, acceptance
+database, migration validation authority, or fallback execution database. Any
+path that passes under SQLite but has not been validated against PostgreSQL is
+non-authoritative and MUST NOT be used to claim runtime readiness, maturity
+closure, compatibility, or scientific reproducibility.
+
 #### 1.8 Runtime Determinism Doctrine
 
 Runtime choices MUST be explicit, versioned, diagnosable, and stable for the
@@ -939,6 +946,14 @@ Raw observations, derived transforms, behavioral features, anomaly candidates,
 operator adjudications, and UI render artifacts MUST remain distinguishable in
 storage and exports.
 
+PostgreSQL is the canonical relational store for governed runtime state,
+typed temporal sequence state, event ledgers, forensic lineage, benchmark
+records, acceptance manifests and schema authority. SQLite-backed execution is
+constitutionally forbidden for production maturity work because it does not
+exercise the deployed transaction semantics, locking behavior, concurrency
+behavior, indexing strategy, JSON/query behavior, migration characteristics or
+operational failure modes that govern this platform in production.
+
 #### 10.2 Persistence, Event Identity, and Idempotency
 
 Durable persistence is authoritative for accepted operational and scientific
@@ -951,6 +966,14 @@ Events MUST carry correlation identifiers spanning ingest, queue task, Triton
 request, track/sequence, behavior output, artifact, API event and benchmark run
 where applicable. Database and artifact writes MUST define transaction and
 partial-write recovery behavior.
+
+Every migration, schema constraint, query path, idempotency guarantee and
+acceptance test that touches durable state MUST be reviewed and validated
+against PostgreSQL semantics. A test, script or documented workflow that
+silently swaps to SQLite, creates an ad hoc SQLite database, or presents
+SQLite as an accepted execution path is invalid. Repository examples, CI
+settings, developer bootstrap scripts and agent instructions MUST present
+PostgreSQL as the single authoritative relational backend for this system.
 
 #### 10.3 Artifact Lifecycle, Retention, and Compaction
 

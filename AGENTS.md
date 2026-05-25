@@ -3,6 +3,12 @@
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
 
+## Database Authority
+- PostgreSQL is the only authoritative relational database for this repository.
+- SQLite is not an accepted runtime, test, migration, benchmark, or acceptance backend.
+- Agents must not switch tests or scripts to SQLite for convenience, speed, or local fallback.
+- Any change touching persistence, migrations, ORM queries, constraints, transactions, or evidence storage must be validated against PostgreSQL semantics.
+
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
 - Active feature plan: [specs/010-behavioral-maturity-closure/plan.md](specs/010-behavioral-maturity-closure/plan.md)
@@ -38,6 +44,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   - no sudo
   - Triton-only inference on NVIDIA GPU
   - dual Triton endpoint profiles configured, one active production mode at a time
+  - backend runtime env authority is `backend/.env`; repo-root `.env` must not participate in backend startup
+  - PostgreSQL-backed persistence only; SQLite-backed execution is invalid in prod and invalid for production evidence
 - Current commonly used app ports:
   - Backend: `127.0.0.1:8011`
   - Frontend: `127.0.0.1:5174`
@@ -76,11 +84,17 @@ This file defines how agents should execute tests quickly and safely in this rep
 3. Confirm backend/model-serving health:
    - `http://127.0.0.1:8011/api/v1/health/`
    - `http://127.0.0.1:8011/api/v1/health/model-serving/`
+   - interpret `redis=degraded` separately from `redis=unhealthy`; auth-challenge is a degraded state, not a process-down state
+   - if runtime values disagree with `backend/.env`, treat repo-root `.env` as drift to be removed from prod startup assumptions
 4. Confirm ports:
    - `ss -ltnp | egrep '39100|39000|8011|5174|6379|5432|55432'`
+   - confirm backend DB settings point to PostgreSQL, not SQLite
 5. Run focused tests before full suites:
    - `backend/tests/unit/video_analysis/test_tasks_detection_cadence.py`
    - `backend/tests/unit/scripts/test_benchmark_export_csv.py`
+   - `backend/tests/unit/pipeline/test_runtime_mode_authority.py`
+   - `backend/tests/contract/test_runtime_mode_contract.py`
+   - `backend/tests/system/test_wave1_runtime_policy.py`
    - scaffold integration/system tests (xfail markers are expected until converted)
 
 ## Notes About `xfail` Scaffold Tests
@@ -150,3 +164,4 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Keep tests isolated: no shared mutable cross-test state.
 - Mock external dependencies in E2E where practical to reduce flakiness.
 - Keep coverage collection enabled, but enforce thresholds only through explicit configured gates.
+- Do not introduce SQLite-only test shortcuts or fallback database settings; keep test and runtime behavior aligned with PostgreSQL.
