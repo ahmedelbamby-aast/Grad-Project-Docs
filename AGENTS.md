@@ -90,7 +90,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   - Frontend: `127.0.0.1:5174`
   - Triton (offline profile mode): `39100/39101/39102`
   - Triton (live profile mode, only when selected): `39000/39001/39002`
-  - Redis: `6379`
+  - App Redis/Celery broker: `6380` (user-space Redis)
+  - System Redis: `6379` may require auth and must not be assumed usable for app workers
   - PostgreSQL may run non-default in this environment (check with `ss -ltnp` and `.env`)
 
 ## Windows Connection + Tooling Workflow
@@ -126,7 +127,7 @@ This file defines how agents should execute tests quickly and safely in this rep
    - interpret `redis=degraded` separately from `redis=unhealthy`; auth-challenge is a degraded state, not a process-down state
    - if runtime values disagree with `backend/.env`, treat repo-root `.env` as drift to be removed from prod startup assumptions
 4. Confirm ports:
-   - `ss -ltnp | egrep '39100|39000|8011|5174|6379|5432|55432'`
+   - `ss -ltnp | egrep '39100|39000|8011|5174|6379|6380|5432|55432'`
    - confirm backend DB settings point to PostgreSQL, not SQLite
 5. Run focused tests before full suites:
    - `backend/tests/unit/video_analysis/test_tasks_detection_cadence.py`

@@ -206,5 +206,7 @@
 
 - Authenticated GitHub Actions inspection requires a newly rotated token configured locally as `GITHUB_TOKEN` in ignored `.local/secrets/github.env`; the credential disclosed in chat is not used.
 - The self-hosted GPU CI runner requires configured PostgreSQL CI secrets with a `CREATEDB`-capable role before runtime GPU workflow execution can be considered valid.
-- Production remains on deployed SHA `7385843`; the current local closure changes must be reviewed, versioned, synchronized to production, and re-probed before worker startup or production evidence generation.
-- Production GPU/runtime evidence cannot be generated while no Celery worker topology is active and measured GPU utilization remains `0%`.
+- Production is now synchronized to closure SHA `0c2f31b709ca9a492fbd937c217b353544273e8e`; local and prod worktrees were clean immediately after sync.
+- Production offline Triton is ready on `39100`, inactive live endpoint remains unreachable on `39000`, backend health returns `200`, and model-serving health returns `200` in snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_011407.txt`.
+- Production Celery worker topology is now active for offline mode: `default_control`, `offline_control`, `offline_person`, `offline_pose`, and `offline_behavior` all respond to Celery inspect through user-space Redis `6380`.
+- Production GPU/runtime benchmark evidence is still not complete: GPU utilization in the fresh health snapshot remains `0%`, and durable Wave 1 through Wave 8 real production evidence packages still need to be regenerated.
