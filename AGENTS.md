@@ -9,6 +9,15 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Agents must not switch tests or scripts to SQLite for convenience, speed, or local fallback.
 - Any change touching persistence, migrations, ORM queries, constraints, transactions, or evidence storage must be validated against PostgreSQL semantics.
 
+### Production PostgreSQL Test-Role Prerequisite
+- Full backend pytest suites require a PostgreSQL role that can create test databases (`CREATEDB`).
+- Current production app role (`exam_user`) may not have enough privileges to create roles or databases.
+- If tests fail with `permission denied to create role` or `permission denied to create database`, agents must not attempt SQLite fallback.
+- Required DBA/bootstrap action (performed by a privileged PostgreSQL role):
+  - Create a dedicated CI/test role (example: `exam_ci_user`) with `LOGIN` + `CREATEDB`.
+  - Grant ownership/privileges for runtime DB access as needed.
+  - Update environment keys consistently (local/prod CI shells) to use the same PostgreSQL host/port and test role for pytest.
+
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
 - Active feature plan: [specs/010-behavioral-maturity-closure/plan.md](specs/010-behavioral-maturity-closure/plan.md)
