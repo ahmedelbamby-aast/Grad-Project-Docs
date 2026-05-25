@@ -254,16 +254,16 @@ flowchart TD
 
 **Independent Test**: Final acceptance fails unless waves 1-7 evidence exists, final profile matrix is reproducible, representative dataset gate is satisfied, and paper claims map to implementation evidence.
 
-- [ ] T109 [P] [US8] Write final acceptance manifest tests in `backend/tests/unit/pipeline/test_final_acceptance_manifest.py`
-- [ ] T110 [P] [US8] Write representative dataset gate tests in `backend/tests/unit/pipeline/test_representative_dataset_gate.py`
-- [ ] T111 [P] [US8] Write xfail closure report tests in `backend/tests/unit/pipeline/test_xfail_closure_report.py`
-- [ ] T112 [P] [US8] Write paper traceability validation tests in `backend/tests/unit/pipeline/test_paper_traceability.py`
-- [ ] T113 [US8] Implement final acceptance run model in `backend/apps/pipeline/models.py` or `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0008_final_acceptance.py`
-- [ ] T114 [US8] Implement profile matrix runner enforcing live/offline mode isolation in `tools/benchmarks/run_maturity_profile_matrix.ps1`
-- [ ] T115 [US8] Implement representative dataset evidence manifest generator in `tools/benchmarks/generate_representative_dataset_manifest.py`
-- [ ] T116 [US8] Implement dynamic batch sign-off report generator in `tools/benchmarks/generate_dynamic_batch_signoff.py`
-- [ ] T117 [US8] Implement xfail closure scanner in `tools/benchmarks/generate_xfail_closure_report.py`
-- [ ] T118 [US8] Implement paper traceability updater in `tools/benchmarks/generate_paper_traceability_report.py`
+- [X] T109 [P] [US8] Write final acceptance manifest tests in `backend/tests/unit/pipeline/test_final_acceptance_manifest.py`
+- [X] T110 [P] [US8] Write representative dataset gate tests in `backend/tests/unit/pipeline/test_representative_dataset_gate.py`
+- [X] T111 [P] [US8] Write xfail closure report tests in `backend/tests/unit/pipeline/test_xfail_closure_report.py`
+- [X] T112 [P] [US8] Write paper traceability validation tests in `backend/tests/unit/pipeline/test_paper_traceability.py`
+- [X] T113 [US8] Implement final acceptance run model in `backend/apps/pipeline/models.py` or `backend/apps/video_analysis/models.py` and migration `backend/apps/video_analysis/migrations/0008_final_acceptance.py`
+- [X] T114 [US8] Implement profile matrix runner enforcing live/offline mode isolation in `tools/benchmarks/run_maturity_profile_matrix.ps1`
+- [X] T115 [US8] Implement representative dataset evidence manifest generator in `tools/benchmarks/generate_representative_dataset_manifest.py`
+- [X] T116 [US8] Implement dynamic batch sign-off report generator in `tools/benchmarks/generate_dynamic_batch_signoff.py`
+- [X] T117 [US8] Implement xfail closure scanner in `tools/benchmarks/generate_xfail_closure_report.py`
+- [X] T118 [US8] Implement paper traceability updater in `tools/benchmarks/generate_paper_traceability_report.py`
 - [X] T119 [US8] Add final acceptance orchestration command in `backend/apps/video_analysis/management/commands/run_maturity_acceptance.py`
 - [X] T120 [US8] Add full acceptance system tests in `backend/tests/system/test_wave8_final_acceptance.py`
 - [X] T121 [US8] Add live soak and offline validation performance tests in `backend/tests/performance/test_wave8_live_soak_offline_validation.py`
@@ -273,41 +273,41 @@ flowchart TD
 
 **Purpose**: Documentation, code hygiene, CI/CD, and final PR readiness across all waves.
 
-- [ ] T123 [P] Update source-mirrored docs for backend runtime modules in `docs/backend/apps/pipeline/`, `docs/backend/apps/tracking/`, `docs/backend/apps/behavior/`, and `docs/backend/apps/contracts/`
-- [ ] T124 [P] Update frontend source-mirrored docs for forensic and runtime UI in `docs/frontend/src/pages/`, `docs/frontend/src/api/`, and `docs/frontend/src/types/`
-- [ ] T125 [P] Update module READMEs in `backend/apps/pipeline/README.md`, `backend/apps/tracking/README.md`, `backend/apps/behavior/README.md`, `backend/apps/contracts/README.md`, and `frontend/src/api/README.md`
-- [ ] T126 [P] Add CI maturity job definitions in `.github/workflows/maturity-closure.yml`
-- [ ] T127 [P] Add production evidence retention and soft-purge runbook in `docs/production/temporal_sequence_retention.md`
-- [ ] T128 [P] Add behavioral ontology and anomaly semantics documentation in `docs/production/behavioral_ontology_v1.md`
-- [ ] T129 Run backend unit, integration, contract, resilience, performance, and system suites using `backend/tests/` and store outputs under `ci_evidence/production/final_test_gate_results.md`
-- [ ] T130 Run frontend unit, WebSocket, forensic UX, and E2E suites using `frontend/src/` tests and store outputs under `ci_evidence/production/frontend_test_gate_results.md`
-- [ ] T131 Run native Linux GPU/Triton acceptance validation using `tools/prod/` and store outputs under `ci_evidence/production/gpu_triton_acceptance.md`
-- [ ] T132 Create final PR review packet linking tasks, tests, evidence, risk, rollback, and paper traceability in `ci_evidence/production/final_pr_review_packet.md`
+- [X] T123 [P] Update source-mirrored docs for backend runtime modules in `docs/backend/apps/pipeline/`, `docs/backend/apps/tracking/`, `docs/backend/apps/behavior/`, and `docs/backend/apps/contracts/`
+- [X] T124 [P] Update frontend source-mirrored docs for forensic and runtime UI in `docs/frontend/src/pages/`, `docs/frontend/src/api/`, and `docs/frontend/src/types/`
+- [X] T125 [P] Update module READMEs in `backend/apps/pipeline/README.md`, `backend/apps/tracking/README.md`, `backend/apps/behavior/README.md`, `backend/apps/contracts/README.md`, and `frontend/src/api/README.md`
+- [X] T126 [P] Add CI maturity job definitions in `.github/workflows/maturity-closure.yml`
+- [X] T127 [P] Add production evidence retention and soft-purge runbook in `docs/production/temporal_sequence_retention.md`
+- [X] T128 [P] Add behavioral ontology and anomaly semantics documentation in `docs/production/behavioral_ontology_v1.md`
+- [X] T129 Run backend unit, integration, contract, resilience, performance, and system suites using `backend/tests/` and store outputs under `ci_evidence/production/final_test_gate_results.md`
+- [X] T130 Run frontend unit, WebSocket, forensic UX, and E2E suites using `frontend/src/` tests and store outputs under `ci_evidence/production/frontend_test_gate_results.md`
+- [X] T131 Run native Linux GPU/Triton acceptance validation using `tools/prod/` and store outputs under `ci_evidence/production/gpu_triton_acceptance.md`
+- [X] T132 Create final PR review packet linking tasks, tests, evidence, risk, rollback, and paper traceability in `ci_evidence/production/final_pr_review_packet.md`
 
 ### Phase 12: Live Benchmark Runtime Remediation Addendum
 
 **Purpose**: Close concrete live benchmark failure classes: Triton timeout spikes, low GPU occupancy with high wall latency, duplicate fallback dispatches, unresolved partial-batch indexes, Celery/DB state divergence, retry amplification, readiness mismatch, missing inference-path attribution, and benchmark causality gaps.
 
-- [ ] T133 [P] [US2] Implement authoritative retry taxonomy and ceilings in `backend/apps/pipeline/retry_policy.py` and tests in `backend/tests/unit/pipeline/test_retry_policy.py`
-- [ ] T134 [US2] Persist retry lineage with request ID, parent request ID, retry reason, retry type, inference path, original batch ID, queue wait, and GPU wait in `backend/apps/pipeline/runtime_ingestion.py` and `backend/apps/video_analysis/models.py`
-- [ ] T135 [US4] Implement partial-batch salvage with successful-item preservation, unresolved-index isolation, failed-item tagging, and duplicate dispatch accounting in `backend/apps/pipeline/inference_runtime.py`
-- [ ] T136 [US4] Implement per-item retry isolation and unresolved-index origin propagation in `backend/apps/pipeline/pose_streams.py` and `backend/apps/pipeline/inference_runtime.py`
-- [ ] T137 [P] [US6] Add Triton queue telemetry collection for queue delay, dynamic batch wait, model execution time, and timeout spikes in `backend/apps/pipeline/triton_queue_telemetry.py`
-- [ ] T138 [P] [US6] Add GPU utilization and duty-cycle instrumentation in `backend/apps/pipeline/gpu_telemetry.py` and `tools/prod/prod-gpu-utilization-analysis.ps1`
-- [ ] T139 [US6] Add latency decomposition instrumentation for queue_wait, orchestration, serialization, triton_queue, gpu_compute, fallback_overhead, and persistence in `backend/apps/pipeline/latency_decomposition.py`
-- [ ] T140 [US2] Implement Celery/DB reconciliation watchdog and terminal-state repair command in `backend/apps/video_analysis/management/commands/reconcile_runtime_workflows.py`
-- [ ] T141 [US2] Implement atomic terminal-state finalization for queued, dispatched, processing, partial_failure, failed, completed, and degraded_completed in `backend/apps/video_analysis/tasks.py`
-- [ ] T142 [US7] Propagate structured request lineage through request, queue, Triton, fallback, persistence, artifact, and forensic trace in `backend/apps/pipeline/request_lineage.py`
-- [ ] T143 [US4] Propagate inference-path attribution fields in pose artifacts and runtime telemetry in `backend/apps/pipeline/inference_runtime.py` and `backend/apps/video_analysis/services/pose_quality.py`
-- [ ] T144 [US8] Add dynamic batching tuning and sign-off harness in `tools/benchmarks/tune_triton_dynamic_batching.py`
-- [ ] T145 [US2] Implement queue starvation detection and queue collapse prevention in `backend/apps/pipeline/queue_telemetry.py` and `backend/apps/pipeline/backpressure.py`
-- [ ] T146 [US1] Harden runtime mode validator against active-mode ambiguity and forced Triton not-ready contradictions in `backend/apps/pipeline/runtime_mode.py`
-- [ ] T147 [US1] Implement Triton repository, model version, and TensorRT engine lineage validator in `backend/apps/pipeline/triton_repository_validator.py`
-- [ ] T148 [US4] Implement `config.pbtxt` schema and model warmup validator in `backend/apps/pipeline/pose_runtime_validator.py`
-- [ ] T149 [US6] Implement fallback amplification detector and retry recursion detector in `backend/apps/pipeline/retry_amplification.py`
-- [ ] T150 [US6] Implement benchmark causality exporter correlating retries, timeouts, queues, GPU idle windows, fallback amplification, and Triton pressure in `tools/benchmarks/export_benchmark_causality.py`
-- [ ] T151 [P] [US6] Add flamegraph/perf-style orchestration overhead report generation in `tools/benchmarks/export_orchestration_overhead.py`
-- [ ] T152 [US8] Generate runtime remediation evidence bundle in `tools/prod/prod-runtime-remediation-evidence.ps1`
+- [X] T133 [P] [US2] Implement authoritative retry taxonomy and ceilings in `backend/apps/pipeline/retry_policy.py` and tests in `backend/tests/unit/pipeline/test_retry_policy.py`
+- [X] T134 [US2] Persist retry lineage with request ID, parent request ID, retry reason, retry type, inference path, original batch ID, queue wait, and GPU wait in `backend/apps/pipeline/runtime_ingestion.py` and `backend/apps/video_analysis/models.py`
+- [X] T135 [US4] Implement partial-batch salvage with successful-item preservation, unresolved-index isolation, failed-item tagging, and duplicate dispatch accounting in `backend/apps/pipeline/inference_runtime.py`
+- [X] T136 [US4] Implement per-item retry isolation and unresolved-index origin propagation in `backend/apps/pipeline/pose_streams.py` and `backend/apps/pipeline/inference_runtime.py`
+- [X] T137 [P] [US6] Add Triton queue telemetry collection for queue delay, dynamic batch wait, model execution time, and timeout spikes in `backend/apps/pipeline/triton_queue_telemetry.py`
+- [X] T138 [P] [US6] Add GPU utilization and duty-cycle instrumentation in `backend/apps/pipeline/gpu_telemetry.py` and `tools/prod/prod-gpu-utilization-analysis.ps1`
+- [X] T139 [US6] Add latency decomposition instrumentation for queue_wait, orchestration, serialization, triton_queue, gpu_compute, fallback_overhead, and persistence in `backend/apps/pipeline/latency_decomposition.py`
+- [X] T140 [US2] Implement Celery/DB reconciliation watchdog and terminal-state repair command in `backend/apps/video_analysis/management/commands/reconcile_runtime_workflows.py`
+- [X] T141 [US2] Implement atomic terminal-state finalization for queued, dispatched, processing, partial_failure, failed, completed, and degraded_completed in `backend/apps/video_analysis/tasks.py`
+- [X] T142 [US7] Propagate structured request lineage through request, queue, Triton, fallback, persistence, artifact, and forensic trace in `backend/apps/pipeline/request_lineage.py`
+- [X] T143 [US4] Propagate inference-path attribution fields in pose artifacts and runtime telemetry in `backend/apps/pipeline/inference_runtime.py` and `backend/apps/video_analysis/services/pose_quality.py`
+- [X] T144 [US8] Add dynamic batching tuning and sign-off harness in `tools/benchmarks/tune_triton_dynamic_batching.py`
+- [X] T145 [US2] Implement queue starvation detection and queue collapse prevention in `backend/apps/pipeline/queue_telemetry.py` and `backend/apps/pipeline/backpressure.py`
+- [X] T146 [US1] Harden runtime mode validator against active-mode ambiguity and forced Triton not-ready contradictions in `backend/apps/pipeline/runtime_mode.py`
+- [X] T147 [US1] Implement Triton repository, model version, and TensorRT engine lineage validator in `backend/apps/pipeline/triton_repository_validator.py`
+- [X] T148 [US4] Implement `config.pbtxt` schema and model warmup validator in `backend/apps/pipeline/pose_runtime_validator.py`
+- [X] T149 [US6] Implement fallback amplification detector and retry recursion detector in `backend/apps/pipeline/retry_amplification.py`
+- [X] T150 [US6] Implement benchmark causality exporter correlating retries, timeouts, queues, GPU idle windows, fallback amplification, and Triton pressure in `tools/benchmarks/export_benchmark_causality.py`
+- [X] T151 [P] [US6] Add flamegraph/perf-style orchestration overhead report generation in `tools/benchmarks/export_orchestration_overhead.py`
+- [X] T152 [US8] Generate runtime remediation evidence bundle in `tools/prod/prod-runtime-remediation-evidence.ps1`
 
 #### Runtime Remediation Task Register
 
