@@ -204,9 +204,12 @@
 
 ## Current Execution Blockers
 
-- Authenticated GitHub Actions inspection requires a newly rotated token configured locally as `GITHUB_TOKEN` in ignored `.local/secrets/github.env`; the credential disclosed in chat is not used.
+- Authenticated GitHub Actions inspection is now available from dev through ignored `.local/secrets/github.env`; do not expose the token in logs, docs, or chat.
+- Latest authenticated CI inspection for SHA `39bffa82562d51ccf741e9fcadd66ca0209e07df` observed success for `maturity-closure`, `CI Bootstrap (Stage 1 — Quality Gate)`, `CI Runtime GPU`, and `Sync Docs To Grad-Project-Docs`.
 - The self-hosted GPU CI runner requires configured PostgreSQL CI secrets with a `CREATEDB`-capable role before runtime GPU workflow execution can be considered valid.
-- Production is now synchronized to closure SHA `0c2f31b709ca9a492fbd937c217b353544273e8e`; local and prod worktrees were clean immediately after sync.
+- Production is now synchronized to closure SHA `39bffa82562d51ccf741e9fcadd66ca0209e07df`; local and prod worktrees were clean immediately after sync.
 - Production offline Triton is ready on `39100`, inactive live endpoint remains unreachable on `39000`, backend health returns `200`, and model-serving health returns `200` in snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_011407.txt`.
 - Production Celery worker topology is now active for offline mode: `default_control`, `offline_control`, `offline_person`, `offline_pose`, and `offline_behavior` all respond to Celery inspect through user-space Redis `6380`.
-- Production GPU/runtime benchmark evidence is still not complete: GPU utilization in the fresh health snapshot remains `0%`, and durable Wave 1 through Wave 8 real production evidence packages still need to be regenerated.
+- Wave 1 runtime policy evidence is now partially closed with authoritative prod manifest `ci_evidence/production/wave1/manifest.json` generated from snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_020240.txt` and offline policy transcript `ci_evidence/production/wave1/triton_policy_offline_20260526_020242.txt`; manifest fields include `evidence_origin=real`, `runtime_environment=prod`, `runtime_mode=offline`, `db_backend=postgresql`, and git SHA `39bffa82562d51ccf741e9fcadd66ca0209e07df`.
+- Production GPU/runtime benchmark evidence is still not complete: GPU utilization in the fresh health snapshot remains `0%`, and durable Wave 2 through Wave 8 real production evidence packages still need to be regenerated.
+- Production wave evidence wrappers previously hid remote SSH failures; wrappers now fail closed on non-zero remote exit and empty authority-manifest output. Wave 1 additionally writes the authority manifest in the same remote shell that captures endpoint policy to avoid cross-SSH path drift.
