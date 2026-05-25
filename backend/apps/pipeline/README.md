@@ -83,3 +83,7 @@ Notes:
 | Consumers | Detections, video analysis, tracking |
 | Dependencies | Model repository, Triton, OpenVINO, ONNXRuntime |
 | Failure behavior | Timeouts, fallback, or degraded inference status are returned |
+
+## Maturity Closure Notes
+- Runtime mode and evidence contracts are enforced for wave-driven closure.
+

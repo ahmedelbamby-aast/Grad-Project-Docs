@@ -22,3 +22,7 @@ flowchart TD
 ```
 
 The flow mirrors the Ultralytics-aligned tracking path: detections enter the tracker, stable result contracts are emitted, and rendering consumes only contract fields.
+
+## Maturity Closure Notes
+- Runtime mode and evidence contracts are enforced for wave-driven closure.
+

@@ -40,3 +40,7 @@ Centralised HTTP client and per-resource API functions for communicating with th
 - `/video-analysis/runtime/profiles/`
 
 Job-scoped telemetry APIs remain under `/video-analysis/jobs/{job_id}/telemetry/*` and are expected to be PII-safe, bounded, and role-gated by backend policy.
+
+## Maturity Closure Notes
+- Runtime mode and evidence contracts are enforced for wave-driven closure.
+
