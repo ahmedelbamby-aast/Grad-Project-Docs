@@ -51,10 +51,35 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Runtime constraints:
   - no Docker
   - no sudo
+  - CUDA runtime authority: **CUDA 12.8**
+  - TensorRT runtime authority must be pinned and rebuilt against CUDA 12.8-compatible stack
   - Triton-only inference on NVIDIA GPU
   - dual Triton endpoint profiles configured, one active production mode at a time
   - backend runtime env authority is `backend/.env`; repo-root `.env` must not participate in backend startup
   - PostgreSQL-backed persistence only; SQLite-backed execution is invalid in prod and invalid for production evidence
+
+## Production Toolchain Pinning (Mandatory)
+- Triton production default binary MUST be pinned to:
+  - `/home/bamby/services/triton/v265/tritonserver/tritonserver/bin/tritonserver`
+- Python command in production shells MUST resolve consistently to backend venv:
+  - `/home/bamby/grad_project/backend/.venv/bin/python`
+- Agents must ensure both `~/.bashrc` and `~/.profile` export stable user-path resolution for:
+  - Python (`PATH` includes backend venv `bin`)
+  - Triton (`TRITON_SERVER_BIN` and optional `PATH` prepend)
+  - pip user cache (`PIP_CACHE_DIR=/home/bamby/.cache/pip`)
+- Duplicate or conflicting shell-export lines in `~/.bashrc` / `~/.profile` are considered drift and must be cleaned.
+
+### Required Prod Shell Exports
+- `export PATH="/home/bamby/grad_project/backend/.venv/bin:$PATH"`
+- `export TRITON_SERVER_BIN="/home/bamby/services/triton/v265/tritonserver/tritonserver/bin/tritonserver"`
+- `export PIP_CACHE_DIR="/home/bamby/.cache/pip"`
+- Optional convenience alias:
+  - `alias python="/home/bamby/grad_project/backend/.venv/bin/python"`
+
+### TensorRT Engine Compatibility Rule
+- If runtime error contains serialization/version mismatch (for example engine version tag mismatch), treat all affected `.engine`/`model.plan` artifacts as incompatible.
+- Rebuild required engines with the active production TensorRT stack, then refresh Triton model repository artifacts before reloading Triton.
+- Rebuild success is not enough unless Triton model load status is `READY` for required models.
 - Current commonly used app ports:
   - Backend: `127.0.0.1:8011`
   - Frontend: `127.0.0.1:5174`
@@ -105,6 +130,14 @@ This file defines how agents should execute tests quickly and safely in this rep
    - `backend/tests/contract/test_runtime_mode_contract.py`
    - `backend/tests/system/test_wave1_runtime_policy.py`
    - scaffold integration/system tests (xfail markers are expected until converted)
+6. Validate toolchain pinning:
+   - `which python` resolves to backend venv python
+   - `echo $TRITON_SERVER_BIN` points to pinned binary
+   - `python -c "import tensorrt as trt; print(trt.__version__)"` runs in venv
+7. Reload Triton and verify model readiness:
+   - start selected mode only (`live` or `offline`)
+   - `curl` active `/v2/health/ready` returns `200`
+   - inactive mode endpoint remains unreachable
 
 ## Notes About `xfail` Scaffold Tests
 - Some tests are intentionally marked `xfail(strict=True)` as implementation scaffolds.

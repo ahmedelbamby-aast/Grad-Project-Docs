@@ -200,6 +200,17 @@ path that passes under SQLite but has not been validated against PostgreSQL is
 non-authoritative and MUST NOT be used to claim runtime readiness, maturity
 closure, compatibility, or scientific reproducibility.
 
+For the current production estate, CUDA authority is fixed at **CUDA 12.8**.
+All GPU-serving dependencies (Triton runtime line, TensorRT runtime/Python,
+engine builds, and backend integration libraries) MUST remain version-compatible
+with CUDA 12.8 unless an explicit migration plan updates this constitution.
+
+Production shell resolution is constitutional runtime authority. User-local
+path pinning in `~/.bashrc` and `~/.profile` MUST provide deterministic
+resolution for Python (backend venv), Triton server binary, and package cache
+location. Conflicting or duplicate exports that create non-deterministic
+runtime behavior are operational drift and MUST be remediated.
+
 #### 1.8 Runtime Determinism Doctrine
 
 Runtime choices MUST be explicit, versioned, diagnosable, and stable for the
@@ -251,6 +262,10 @@ diagnostic manifest. Workloads incompatible with the selected mode MUST be
 rejected, queued for later activation, or explicitly run in a separately
 controlled mode window; they MUST NOT cause a second endpoint to start.
 
+The selected profile MUST bind to one declared Triton binary path for the run.
+That binary path and effective dependency chain MUST be captured in startup
+metadata for reproducibility and incident forensics.
+
 #### 2.3 Startup Validation Rules
 
 Before backend workers accept production inference work, an automated preflight
@@ -268,6 +283,8 @@ required check passes:
 | Queue gate | Only allowed mode routes are enabled; worker queues and concurrency declared | Cross-mode consumption or uncontrolled queue |
 | Schema gate | Contract, event, artifact and feature versions configured | Unversioned payload/persistence |
 | Telemetry gate | Readiness and failure emission stores/probes are writable | Readiness cannot be measured |
+| Toolchain gate | `python` resolves to backend venv; Triton resolves to pinned binary; TensorRT import/version check passes | Ambiguous path, wrong interpreter/binary, or incompatible TensorRT runtime |
+| Engine compatibility gate | Required models load `READY` with runtime-compatible serialized plans | Version-tag/serialization mismatch or model load failure |
 
 An invalid configuration MUST terminate startup or keep affected workers out of
 service. Logging a warning and continuing is prohibited when a required
