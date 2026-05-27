@@ -14,28 +14,33 @@ runtime reconciliation, benchmark causality, observability and CI/CD gates.
 
 ## Technical Context
 
-**Language/Version**: Existing backend/frontend/runtime stack  
-**Primary Dependencies**: Existing video, tracking, pose, queue, telemetry and evidence services  
-**Storage**: PostgreSQL only for durable relational authority  
-**Testing**: Existing backend, frontend, system, contract, evidence and CI gates  
-**Target Platform**: Native Linux production with validated GPU runtime where applicable  
-**Project Type**: Behavioral intelligence platform extension  
-**Performance Goals**: Bounded live latency, bounded queue growth, deterministic offline replay and attributable GPU/resource usage  
-**Constraints**: No silent fallback, no placeholder behavior, no accusation semantics, no production claims without runtime evidence  
-**Scale/Scope**: Live RTSP and offline classroom processing with future graph/transformer expansion  
-**Runtime Scenarios**: Live RTSP semantic reasoning and offline behavioral processing are both mandatory  
-**Inference/Tracking Reference**: Existing detector, tracking, RTMPose and future governed behavior model contracts  
-**Runtime Authority**: Production Triton-only route for governed model inference; heuristic paths explicitly labeled and non-scientific until validated  
-**Temporal/Identity Authority**: Source-time windows, canonical identity continuity, lifecycle/ReID confidence and invalid-window suppression  
-**Evidence/Schema Authority**: Decision traces, episode lineage, temporal reasoning audit, interaction graph audit and immutable evidence packages  
-**Deployment Topology**: Existing production native Linux topology; no Docker/sudo production assumption  
-**Runtime Reconciliation**: Task, queue, database, artifact, telemetry and frontend convergence checks for every behavioral record  
-**Lineage/Fingerprints**: Evidence, model, runtime, deployment, benchmark, dataset, telemetry and artifact digest lineage  
+**Language/Version**: Existing backend/frontend/runtime stack
+**Primary Dependencies**: Existing video, tracking, pose, queue, telemetry and evidence services
+**Storage**: PostgreSQL only for durable relational authority
+**Testing**: Existing backend, frontend, system, contract, evidence and CI gates
+**Target Platform**: Native Linux production with validated GPU runtime where applicable
+**Project Type**: Behavioral intelligence platform extension
+**Performance Goals**: Bounded live latency, bounded queue growth, deterministic offline replay and attributable GPU/resource usage
+**Constraints**: No silent fallback, no placeholder behavior, no accusation semantics, no production claims without runtime evidence
+**Scale/Scope**: Live RTSP and offline classroom processing with future graph/transformer expansion
+**Runtime Scenarios**: Live RTSP semantic reasoning and offline behavioral processing are both mandatory
+**Inference/Tracking Reference**: Existing detector, tracking, RTMPose and future governed behavior model contracts
+**Runtime Authority**: Production Triton-only route for governed model inference; heuristic paths explicitly labeled and non-scientific until validated
+**Temporal/Identity Authority**: Source-time windows, canonical identity continuity, lifecycle/ReID confidence and invalid-window suppression
+**Evidence/Schema Authority**: Decision traces, episode lineage, temporal reasoning audit, interaction graph audit and immutable evidence packages
+**Deployment Topology**: Existing production native Linux topology; no Docker/sudo production assumption
+**Runtime Reconciliation**: Task, queue, database, artifact, telemetry and frontend convergence checks for every behavioral record
+**Lineage/Fingerprints**: Evidence, model, runtime, deployment, benchmark, dataset, telemetry and artifact digest lineage
 **Budgets/SLOs**: Feature-specific latency, queue, retry, timeout, degradation, drift and rollback thresholds
-**Runtime Anti-Fragility**: Retry ceilings, queue collapse containment, dead-letter routing, stale-state eviction, worker crash recovery and fail-closed lineage policy  
-**GPU Truth**: GPU busy percent, queue saturation, effective batch size, batch collapse, model starvation, decode/inference/orchestration ratios and raw event traces  
-**Scientific Governance**: Temporal replay determinism, uncertainty propagation, graph contamination prevention, baseline drift quarantine and benchmark causality  
-**Frontend Governance**: Truth-state, uncertainty, degraded-state, stale-runtime, replay-mismatch and interaction-ambiguity rendering  
+**Runtime Anti-Fragility**: Retry ceilings, queue collapse containment, dead-letter routing, stale-state eviction, worker crash recovery and fail-closed lineage policy
+**GPU Truth**: GPU busy percent, queue saturation, effective batch size, batch collapse, model starvation, decode/inference/orchestration ratios and raw event traces
+**Scientific Governance**: Temporal replay determinism, uncertainty propagation, graph contamination prevention, baseline drift quarantine and benchmark causality
+**Frontend Governance**: Truth-state, uncertainty, degraded-state, stale-runtime, replay-mismatch and interaction-ambiguity rendering
+**Clarified Access Model**: Broad authenticated staff access to BSIL views and exports with audit events
+**Clarified Review Model**: Governed false-positive/false-negative review labels for validation datasets only; no direct production threshold mutation
+**Clarified Retention Model**: Full raw retention for accepted BSIL raw media, lineage, exports and telemetry unless superseded by governed migration
+**Clarified Escalation Model**: High-confidence episodes create human review tasks only; no automatic accusation, penalty or enforcement action
+**Clarified Confidence Model**: Governed confidence bands: `advisory`, `review-needed`, `high-confidence`, `degraded`, `invalid`
 
 ## Constitution Check
 
@@ -105,6 +110,13 @@ runtime reconciliation, benchmark causality, observability and CI/CD gates.
 > xfails, synthetic runtime truth and benchmark summaries without raw runtime
 > backing are rejected.
 
+> **Clarified UX, Review, Retention and Escalation Gate**: PASS REQUIRED.
+> BSIL must implement broad authenticated staff visibility with access audit,
+> governed review labels that feed validation datasets only, full raw
+> retention for accepted evidence, human-reviewed escalation for
+> high-confidence episodes and governed confidence-band rendering across UI
+> and evidence exports.
+
 ## Project Structure
 
 ```text
@@ -139,6 +151,9 @@ specs/011-bsil-semantic-runtime/
 5. Define adaptive anomaly accumulation and baseline drift visibility.
 6. Define decision lineage, replay/debug artifacts and reconstruction rules.
 7. Define scientific dataset governance, benchmark evidence and CI gates.
+8. Define broad authenticated access audit, governed review labels, full raw
+   evidence retention, human-reviewed escalation and confidence-band
+   rendering.
 
 ## Architectural Expansion Section
 
@@ -288,6 +303,12 @@ interpretation while preventing false confidence.
   propagation and reviewer-visible ambiguity;
 - contextual weighting must be versioned and environment-sensitive without
   hidden self-modifying behavior.
+- every semantic state, behavioral state, episode, interaction edge and
+  anomaly candidate must map to exactly one governed confidence band:
+  `advisory`, `review-needed`, `high-confidence`, `degraded` or `invalid`;
+- high-confidence does not authorize automated accusation or enforcement; it
+  only makes the output eligible for human review task creation when all
+  lineage and runtime gates pass.
 
 ### D. Online State Engine
 
@@ -314,6 +335,9 @@ rebuild and replay consistency.
 - crash recovery rebuilds from PostgreSQL lineage and replayable events;
 - idempotent state rebuild prevents duplicate episodes or transitions;
 - replay consistency is a release gate.
+- human review task creation must be idempotent, replay-safe and tied to the
+  episode lineage record so duplicate workers cannot create duplicate review
+  tasks.
 
 ### E. Future Intelligence Readiness
 
@@ -407,6 +431,22 @@ Required governance artifacts:
   variance, confidence intervals and failed-run accounting;
 - representative dataset manifests for live, offline, crowded,
   occlusion/re-entry and long-duration scenarios.
+
+Clarification-driven governance additions:
+
+- all authenticated staff users may view semantic states, behavioral episodes,
+  anomaly candidates and evidence exports, and every access must emit an audit
+  event with actor, scope, artifact/reference and timestamp;
+- reviewer false-positive and false-negative labels are governed validation
+  data only and must not directly mutate production baselines, thresholds or
+  adaptive behavior;
+- accepted BSIL evidence uses full raw retention for raw media, lineage,
+  exports and telemetry unless a later governed retention migration supersedes
+  the policy;
+- high-confidence behavioral episodes create human review tasks and must not
+  issue automatic accusations, penalties or direct enforcement actions;
+- UI, API, WebSocket and evidence exports must carry the same governed
+  confidence band without contradiction.
 
 ## Hardening Strategy Inside the Plan
 
@@ -547,6 +587,12 @@ fingerprinting, Triton model fingerprinting, GPU fingerprint lineage, CI
 artifact signature validation and production-vs-dev plus synthetic-vs-real
 separation.
 
+Accepted BSIL evidence must use full raw retention. Raw media, decision
+lineage, exports, review labels and telemetry remain retained indefinitely
+unless a later constitution-governed retention migration defines a replacement
+policy, migration procedure, digest preservation strategy and scientific
+impact assessment.
+
 Reused artifacts, stale benchmark evidence, generated fake runtime summaries,
 evidence without raw traces and benchmark summaries without replay references
 are acceptance failures.
@@ -614,6 +660,20 @@ telemetry-truth indicators and confidence decomposition. Accusatory UI
 language is forbidden. Frontend state must reconcile against backend,
 persistence and runtime truth before showing valid behavioral output.
 
+Clarified frontend access and confidence rules:
+
+- all authenticated staff users can view BSIL semantic states, behavioral
+  episodes, anomaly candidates and evidence exports;
+- every view/export action must write an audit event;
+- confidence must be rendered as one governed band:
+  `advisory`, `review-needed`, `high-confidence`, `degraded` or `invalid`;
+- numeric confidence may be shown only as supporting detail and cannot replace
+  the governed band;
+- high-confidence episodes must render as review tasks, not as accusations or
+  direct enforcement actions;
+- reviewer labels for false positives and false negatives must be presented
+  as validation feedback, not as direct threshold edits.
+
 ## Future Scalability Strategy
 
 The default runtime profile remains lightweight. Heavy inference paths are
@@ -628,210 +688,223 @@ neural network, multimodal or VLM complexity onto lightweight deployments.
 ### Wave 1 - Pose Decision Intelligence
 
 **Objectives**: Normalize pose confidence, derive posture/motion semantics and
-emit deterministic semantic pose states.  
-**Architectural scope**: Pose Decision Engine plus semantic output contracts.  
+emit deterministic semantic pose states.
+**Architectural scope**: Pose Decision Engine plus semantic output contracts.
 **Files/modules impacted**: `backend/apps/behavior/*`,
 `backend/apps/video_analysis/*`, `backend/apps/pipeline/*`,
-`frontend/src/*`, `scripts/ci/*`, `ci_evidence/*`.  
+`frontend/src/*`, `scripts/ci/*`, `ci_evidence/*`.
 **Runtime impact**: Adds semantic processing stage after validated pose
-output; no new production fallback authority.  
-**DB impact**: Adds semantic pose state and confidence decomposition records.  
-**API impact**: Adds read-only semantic state and uncertainty fields.  
+output; no new production fallback authority.
+**DB impact**: Adds semantic pose state and confidence decomposition records.
+**API impact**: Adds read-only semantic state and uncertainty fields.
 **WebSocket impact**: Adds truth-state semantic updates with confidence and
-uncertainty.  
+uncertainty.
 **CI impact**: Adds schema, lineage, no-placeholder and replay unit/contract
-checks.  
+checks.
 **Production impact**: Development-first, then staging; production acceptance
-requires real live/offline evidence.  
+requires real live/offline evidence.
 **Evidence requirements**: semantic trace exports, pose lineage audit and
-low-confidence suppression cases.  
+low-confidence suppression cases.
 **Benchmark requirements**: semantic latency, queue wait and orchestration
-overhead decomposition.  
+overhead decomposition.
 **Rollback strategy**: Disable semantic output admission and continue pose
-analytics without marking semantic behavior valid.  
+analytics without marking semantic behavior valid.
 **Acceptance criteria**: 95% accepted semantic outputs include lineage,
-confidence, uncertainty and runtime attribution.  
+confidence, uncertainty and runtime attribution.
 **Explicit non-goals**: no anomaly maturity, no graph reasoning, no learned
 behavior model claim.
 
 ### Wave 2 - Temporal Understanding Engine
 
 **Objectives**: Add sliding windows, temporal aggregation, state transitions,
-decay, cooldown and replay determinism.  
+decay, cooldown and replay determinism.
 **Architectural scope**: Temporal Behavior Engine and Online State Engine
-foundation.  
+foundation.
 **Files/modules impacted**: `backend/apps/behavior/*`,
 `backend/apps/tracking/*`, `backend/apps/pipeline/*`,
-`backend/apps/runtime/*`, `frontend/src/*`, `tools/prod/*`.  
+`backend/apps/runtime/*`, `frontend/src/*`, `tools/prod/*`.
 **Runtime impact**: Adds bounded state memory and temporal queues per runtime
-mode.  
-**DB impact**: Adds temporal reasoning windows and state transition history.  
-**API impact**: Adds state timeline and invalid-window visibility.  
+mode.
+**DB impact**: Adds temporal reasoning windows and state transition history.
+**API impact**: Adds state timeline and invalid-window visibility.
 **WebSocket impact**: Adds live state transitions with truth-state and replay
-metadata.  
+metadata.
 **CI impact**: Adds deterministic replay, timestamp authority and spike
-suppression tests.  
-**Production impact**: Requires RTSP reconnect and crash recovery validation.  
+suppression tests.
+**Production impact**: Requires RTSP reconnect and crash recovery validation.
 **Evidence requirements**: temporal replay audit, spike-only rejection and
-state-decay examples.  
-**Benchmark requirements**: aggregation latency, memory use and queue age.  
+state-decay examples.
+**Benchmark requirements**: aggregation latency, memory use and queue age.
 **Rollback strategy**: Stop temporal state admission and mark active windows
-invalidated/superseded.  
+invalidated/superseded.
 **Acceptance criteria**: no frame-level spike creates sustained state; replay
-matches within 1 frame or 50 ms.  
+matches within 1 frame or 50 ms.
 **Explicit non-goals**: no multi-person graph, no adaptive baseline.
 
 ### Wave 3 - Behavioral Semantics and Episode Lifecycle
 
 **Objectives**: Convert temporal states into explainable episodes and
-non-accusatory behavioral summaries.  
+non-accusatory behavioral summaries.
 **Architectural scope**: Behavioral Semantics Layer and Episode Lifecycle
-Engine.  
+Engine.
 **Files/modules impacted**: `backend/apps/behavior/*`,
 `backend/apps/anomalies/*`, `backend/apps/forensics/*`,
-`frontend/src/*`, `ci_evidence/*`.  
-**Runtime impact**: Adds episode generation, suppression and supersession
-events.  
+`frontend/src/*`, `ci_evidence/*`.
+**Runtime impact**: Adds episode generation, suppression, supersession events
+and idempotent human review task creation for high-confidence episodes.
 **DB impact**: Adds behavioral episode, causal chain and immutable update
-history.  
-**API impact**: Adds episode read models with confidence decomposition.  
-**WebSocket impact**: Adds episode lifecycle updates.  
+history.
+**API impact**: Adds episode read models with confidence decomposition,
+governed confidence band and review-task eligibility.
+**WebSocket impact**: Adds episode lifecycle updates and review-needed/
+high-confidence band transitions.
 **CI impact**: Adds no-accusation-language, causal-chain and mutation-safety
-tests.  
-**Production impact**: Requires reviewer-visible uncertainty and invalidation.  
-**Evidence requirements**: episode lineage report and suppression examples.  
+tests.
+**Production impact**: Requires reviewer-visible uncertainty and invalidation.
+**Evidence requirements**: episode lineage report, suppression examples,
+review-task creation trace and no-automatic-enforcement proof.
 **Benchmark requirements**: episode creation/update latency and artifact write
-latency.  
+latency.
 **Rollback strategy**: Supersede generated episodes and disable episode
-promotion while preserving raw semantic/temporal evidence.  
+promotion while preserving raw semantic/temporal evidence.
 **Acceptance criteria**: zero accepted episodes from missing or invalid
-evidence.  
+evidence; high-confidence episodes create human review tasks only.
 **Explicit non-goals**: no scientific anomaly effectiveness claim.
 
 ### Wave 4 - Multi-Person Interaction Graph
 
 **Objectives**: Add identity-gated interaction edges and temporal graph
-context.  
-**Architectural scope**: Interaction Graph Runtime.  
+context.
+**Architectural scope**: Interaction Graph Runtime.
 **Files/modules impacted**: `backend/apps/behavior/*`,
 `backend/apps/tracking/*`, `backend/apps/cameras/*`,
-`backend/apps/forensics/*`, `frontend/src/*`.  
+`backend/apps/forensics/*`, `frontend/src/*`.
 **Runtime impact**: Adds graph cache and graph reasoning queues per runtime
-mode.  
-**DB impact**: Adds interaction edge lifecycle and graph audit persistence.  
-**API impact**: Adds graph context endpoints/read models.  
-**WebSocket impact**: Adds interaction ambiguity and suppression updates.  
+mode.
+**DB impact**: Adds interaction edge lifecycle and graph audit persistence.
+**API impact**: Adds graph context endpoints/read models.
+**WebSocket impact**: Adds interaction ambiguity and suppression updates.
 **CI impact**: Adds graph consistency, identity fragmentation and invalid
-window propagation tests.  
+window propagation tests.
 **Production impact**: Requires crowded, crossing, occlusion and re-entry
-validation.  
-**Evidence requirements**: interaction graph audit exports.  
-**Benchmark requirements**: graph update latency and edge count distribution.  
+validation.
+**Evidence requirements**: interaction graph audit exports.
+**Benchmark requirements**: graph update latency and edge count distribution.
 **Rollback strategy**: Disable graph promotion and suppress interaction claims
-without affecting single-person temporal states.  
+without affecting single-person temporal states.
 **Acceptance criteria**: no strong interaction under unstable identity
-continuity.  
+continuity.
 **Explicit non-goals**: no GNN inference path.
 
 ### Wave 5 - Adaptive Baseline and Anomaly Accumulation
 
 **Objectives**: Add bounded, explainable contextual baselines and anomaly
-accumulation.  
-**Architectural scope**: Adaptive Baseline Runtime and anomaly integration.  
+accumulation.
+**Architectural scope**: Adaptive Baseline Runtime and anomaly integration.
 **Files/modules impacted**: `backend/apps/anomalies/*`,
 `backend/apps/behavior/*`, `backend/apps/runtime/*`,
-`backend/apps/forensics/*`, `frontend/src/*`.  
-**Runtime impact**: Adds baseline update, quarantine and drift telemetry.  
-**DB impact**: Adds baseline snapshots, threshold shifts and drift states.  
-**API impact**: Adds anomaly candidate context and baseline provenance.  
+`backend/apps/forensics/*`, `frontend/src/*`.
+**Runtime impact**: Adds baseline update, quarantine, governed review-label
+ingestion and drift telemetry.
+**DB impact**: Adds baseline snapshots, threshold shifts and drift states.
+**API impact**: Adds anomaly candidate context, baseline provenance and
+validation-label feedback surfaces.
 **WebSocket impact**: Adds anomaly candidate truth-state and baseline drift
-indicators.  
+indicators.
 **CI impact**: Adds baseline reproducibility, drift quarantine and
-contamination tests.  
+contamination tests.
 **Production impact**: Requires scientific validation before any maturity
-claim.  
-**Evidence requirements**: uncertainty audit, false-positive/false-negative
-review and baseline replay report.  
+claim.
+**Evidence requirements**: uncertainty audit, governed false-positive/
+false-negative review labels and baseline replay report.
 **Benchmark requirements**: anomaly scoring latency and threshold-change
-variance.  
+variance.
 **Rollback strategy**: Freeze baseline, supersede affected anomaly candidates
-and revert to last valid snapshot.  
-**Acceptance criteria**: every threshold shift is reconstructable.  
+and revert to last valid snapshot.
+**Acceptance criteria**: every threshold shift is reconstructable and no
+review label directly mutates production thresholds or baselines.
 **Explicit non-goals**: no unsupervised self-modifying production behavior.
 
 ### Wave 6 - Decision Lineage, Replay and Forensic Review
 
 **Objectives**: Make every semantic, temporal, episode, graph and anomaly
-decision reconstructable.  
-**Architectural scope**: Decision Lineage & Replay Engine.  
+decision reconstructable.
+**Architectural scope**: Decision Lineage & Replay Engine.
 **Files/modules impacted**: `backend/apps/forensics/*`,
 `backend/apps/behavior/*`, `backend/apps/anomalies/*`,
-`tools/prod/*`, `scripts/ci/*`, `ci_evidence/*`.  
-**Runtime impact**: Adds replay jobs and artifact authenticity checks.  
-**DB impact**: Adds lineage indexes and replay references.  
-**API impact**: Adds forensic trace lookup surfaces.  
-**WebSocket impact**: Adds replay mismatch and stale artifact indicators.  
-**CI impact**: Adds artifact digest, replay determinism and raw trace checks.  
-**Production impact**: Enables production sign-off evidence packages.  
-**Evidence requirements**: decision trace, temporal audit, episode lineage and
-graph audit artifacts.  
-**Benchmark requirements**: replay cost and trace size.  
+`tools/prod/*`, `scripts/ci/*`, `ci_evidence/*`.
+**Runtime impact**: Adds replay jobs and artifact authenticity checks.
+**DB impact**: Adds lineage indexes, replay references, access audit events,
+review labels and full-raw-retention evidence references.
+**API impact**: Adds forensic trace lookup surfaces and authenticated staff
+export/view audit boundaries.
+**WebSocket impact**: Adds replay mismatch and stale artifact indicators.
+**CI impact**: Adds artifact digest, replay determinism and raw trace checks.
+**Production impact**: Enables production sign-off evidence packages.
+**Evidence requirements**: decision trace, temporal audit, episode lineage,
+graph audit artifacts, access audit trail and retained raw media/export/
+telemetry references.
+**Benchmark requirements**: replay cost and trace size.
 **Rollback strategy**: Invalidate affected artifacts and regenerate from raw
-trace.  
+trace.
 **Acceptance criteria**: accepted decisions are reconstructable from raw
-lineage.  
+lineage and retained under the full raw retention policy.
 **Explicit non-goals**: no UI-only forensic proof.
 
 ### Wave 7 - GPU/Queue Causality and Runtime Telemetry
 
 **Objectives**: Attribute latency, queue wait, GPU utilization and runtime
-degradation truth.  
+degradation truth.
 **Architectural scope**: Runtime Telemetry Expansion and GPU/Queue Causality
-Instrumentation.  
+Instrumentation.
 **Files/modules impacted**: `backend/apps/runtime/*`,
 `backend/apps/pipeline/*`, `backend/apps/video_analysis/*`,
-`tools/prod/*`, `scripts/ci/*`, `ci_evidence/*`.  
-**Runtime impact**: Adds per-stage runtime event traces and budget alerts.  
-**DB impact**: Adds benchmark/run telemetry records or artifact links.  
-**API impact**: Adds telemetry status read models where needed.  
-**WebSocket impact**: Adds runtime truth and degraded-state status updates.  
-**CI impact**: Adds fake metric, 0% GPU contradiction and raw-trace checks.  
-**Production impact**: Requires production runtime snapshot before claims.  
+`tools/prod/*`, `scripts/ci/*`, `ci_evidence/*`.
+**Runtime impact**: Adds per-stage runtime event traces and budget alerts.
+**DB impact**: Adds benchmark/run telemetry records or artifact links.
+**API impact**: Adds telemetry status read models where needed.
+**WebSocket impact**: Adds runtime truth and degraded-state status updates.
+**CI impact**: Adds fake metric, 0% GPU contradiction and raw-trace checks.
+**Production impact**: Requires production runtime snapshot before claims.
 **Evidence requirements**: GPU, queue, decode, orchestration, batching and
-model execution reports.  
+model execution reports.
 **Benchmark requirements**: repeated runs with confidence intervals and
-pipeline decomposition.  
+pipeline decomposition.
 **Rollback strategy**: Block performance claims; do not roll back functional
-behavior unless runtime budgets are breached.  
-**Acceptance criteria**: no benchmark summary without raw event traces.  
+behavior unless runtime budgets are breached.
+**Acceptance criteria**: no benchmark summary without raw event traces.
 **Explicit non-goals**: no optimization without measured bottleneck.
 
 ### Wave 8 - Scientific Validation and Production Closure
 
 **Objectives**: Validate representative datasets, soak, failure injection,
-CI/CD parity, drift detection and final maturity evidence.  
+CI/CD parity, drift detection and final maturity evidence.
 **Architectural scope**: Dataset governance, benchmark integrity, CI/CD
-runtime reconciliation and production readiness closure.  
+runtime reconciliation and production readiness closure.
 **Files/modules impacted**: `ci_evidence/*`, `scripts/ci/*`,
 `tools/prod/*`, `.specify/*`, `AGENTS.md`, `constitution.md`,
-`backend/apps/*`, `frontend/src/*`.  
+`backend/apps/*`, `frontend/src/*`.
 **Runtime impact**: Runs controlled production validation and evidence
-regeneration.  
+regeneration.
 **DB impact**: Verifies migrations, indexes, reconciliation and PostgreSQL
-authority.  
-**API impact**: Freezes accepted contract versions.  
-**WebSocket impact**: Validates frontend/backend runtime truth consistency.  
+authority.
+**API impact**: Freezes accepted contract versions including confidence bands,
+review-label feedback and access audit semantics.
+**WebSocket impact**: Validates frontend/backend runtime truth consistency and
+confidence-band consistency.
 **CI impact**: Blocks hidden xfails, skipped gates, placeholders and CI/prod
-mismatch.  
+mismatch.
 **Production impact**: Requires drift-free profile and rollback-ready
-deployment.  
+deployment.
 **Evidence requirements**: final immutable evidence package with raw traces,
-digests and representative datasets.  
+digests, representative datasets, full raw retention references, governed
+review labels and access audit evidence.
 **Benchmark requirements**: final repeated-run report separating runtime
-performance, scientific validity and operational stability.  
+performance, scientific validity and operational stability.
 **Rollback strategy**: Freeze maturity claim, supersede invalid artifacts and
-roll back deployed changes if runtime safety is affected.  
-**Acceptance criteria**: all BSIL gates pass with no fake maturity vectors.  
+roll back deployed changes if runtime safety is affected.
+**Acceptance criteria**: all BSIL gates pass with no fake maturity vectors;
+confidence bands match across API, WebSocket, UI and evidence exports.
 **Explicit non-goals**: no closure by artifact presence or CI green alone.
 
 ## File-Level Execution Plan
@@ -839,17 +912,17 @@ roll back deployed changes if runtime safety is affected.
 | Area | Evolution | Responsibility boundary | Anti-patterns to avoid |
 | --- | --- | --- | --- |
 | `backend/apps/behavior/*` | Own semantic pose state, temporal state, episodes, graph context and behavior contracts | Behavioral logic and schemas only; no raw runtime orchestration ownership | god service, direct inference fallback, unversioned ontology |
-| `backend/apps/anomalies/*` | Add adaptive baseline, anomaly accumulation, drift quarantine and false-positive review | Anomaly candidate scoring and baseline governance | hidden self-modifying thresholds, scientific claims without datasets |
+| `backend/apps/anomalies/*` | Add adaptive baseline, anomaly accumulation, drift quarantine and governed false-positive/false-negative review labels | Anomaly candidate scoring, validation-label ingestion and baseline governance | hidden self-modifying thresholds, review labels directly mutating production baselines, scientific claims without datasets |
 | `backend/apps/tracking/*` | Provide identity continuity, fragmentation, re-entry and merge/split lineage | Identity authority inputs for behavior and graph gates | local track IDs as canonical truth |
 | `backend/apps/pipeline/*` | Route semantic, temporal, graph and anomaly work through mode-isolated queues | Orchestration, admission, retry, DLQ and runtime reconciliation | implicit queue ownership, retry recursion |
 | `backend/apps/video_analysis/*` | Continue source media, pose and temporal sequence materialization feeding BSIL | Frame/pose source authority and source-time envelopes | pose overlay treated as behavior |
 | `backend/apps/runtime/*` | Add runtime anti-fragility, GPU/queue causality and drift checks | Runtime truth and telemetry authority | fake health, unavailable-as-zero metrics |
-| `backend/apps/forensics/*` | Add decision lineage lookup, replay traces and evidence authenticity | Forensic reconstruction and audit surfaces | UI-only evidence, mutable trace history |
+| `backend/apps/forensics/*` | Add decision lineage lookup, replay traces, evidence authenticity, access audit and full raw retention references | Forensic reconstruction, audit surfaces and retained evidence traceability | UI-only evidence, mutable trace history, unaudited evidence access |
 | `backend/apps/cameras/*` | Expose RTSP reconnect, camera/source health and live source truth to BSIL | Camera/source authority and reconnect state | reconnect loops without telemetry |
-| `frontend/src/*` | Render truth states, confidence decomposition, uncertainty, ambiguity and stale/replay indicators | Review and operator presentation | accusatory language, frontend-only truth repair |
+| `frontend/src/*` | Render truth states, governed confidence bands, confidence decomposition, uncertainty, ambiguity, review tasks and stale/replay indicators | Authenticated staff presentation and auditable view/export surfaces | accusatory language, frontend-only truth repair, numeric-only confidence display |
 | `tools/prod/*` | Validate production runtime, workers, queues, Triton, evidence and drift | Production operational evidence collection | dev assumptions, malformed artifacts |
 | `scripts/ci/*` | Enforce lineage, no fallback, PostgreSQL-only, artifact authenticity and benchmark causality gates | CI eligibility and regression prevention | CI green equals production-ready |
-| `ci_evidence/*` | Store immutable evidence snapshots, raw traces, reports, manifests and digests | Evidence authority | placeholder folders, reused stale artifacts |
+| `ci_evidence/*` | Store immutable evidence snapshots, raw traces, reports, manifests, digests, review-label summaries and full raw retention references | Evidence authority | placeholder folders, reused stale artifacts, retained-evidence ambiguity |
 | `.specify/*` | Keep spec/plan/task governance aligned with constitution and feature scope | Planning and governance memory | template regressions, stale feature pointer |
 | `AGENTS.md` | Reference active BSIL plan and production rules when the phase becomes active | Agent execution guidance | conflicting runtime instructions |
 | `constitution.md` | Remain binding authority; update only if BSIL reveals new general law | Constitutional governance | weakening existing maturity gates |
@@ -877,6 +950,11 @@ The plan explicitly forbids:
 - CI-green equals production-ready assumptions;
 - direct database writes from inference paths;
 - frontend state that masks backend/runtime failure.
+- numeric-only confidence without governed bands;
+- automatic accusations, penalties or enforcement from BSIL output alone;
+- review labels directly changing production baselines or thresholds;
+- unaudited broad staff access to behavioral evidence;
+- evidence retention ambiguity for accepted BSIL raw media and telemetry.
 
 ## Acceptance + Evidence Strategy
 
@@ -884,18 +962,22 @@ The plan explicitly forbids:
 | --- | --- |
 | Development acceptance | unit/contract tests, heuristic labels, local replay, no placeholders |
 | Staging acceptance | PostgreSQL-backed integration, queue isolation, replay determinism, artifact digests |
-| Production acceptance | live/offline production runtime evidence, drift-free topology, rollback criteria |
+| Production acceptance | live/offline production runtime evidence, drift-free topology, rollback criteria, access audit and confidence-band consistency |
 | Behavioral validation | semantic confidence, temporal state, episode and graph evidence with uncertainty |
 | Runtime causality | task, queue, inference, GPU/CPU, DB, artifact and UI reconciliation |
 | Temporal consistency | source-time ordering, replay validation, invalid-window suppression |
 | Identity continuity | fragmentation, re-entry, merge/split and confidence gates |
 | Live RTSP resilience | reconnect, dropped frames, backlog and degraded-state evidence |
 | Long-duration soak | minimum 8-hour soak for maturity closure and 30-minute live datasets |
+| Review workflow acceptance | human review task creation for high-confidence episodes and governed validation labels |
+| Retention acceptance | full raw retention references for raw media, lineage, exports and telemetry |
 
 Evidence artifacts must include freshness timestamp, schema version, source
 manifest, artifact digest, runtime topology fingerprint, worker topology
 fingerprint, model/config digest, dataset provenance hash, raw runtime traces,
-replay validation result and benchmark run identifiers.
+replay validation result, benchmark run identifiers, confidence band, access
+audit references, review-label references where applicable and full raw
+retention references.
 
 Representative validation requires at least three offline classroom datasets,
 at least two live RTSP datasets, crowded interaction coverage,
@@ -911,230 +993,238 @@ reconciliation checks and anti-regression gates.
 ### 1. Semantic Runtime Core
 
 **Objectives**: Define semantic pose states, attention categories, engagement,
-posture, hand activity, desk interaction, confidence and uncertainty.  
+posture, hand activity, desk interaction, confidence, uncertainty and governed
+confidence bands.
 **Risks**: heuristic labels presented as truth, missing pose lineage, low
-confidence promoted to valid state.  
+confidence promoted to valid state.
 **Runtime gates**: lineage required, confidence required, invalid-pose
-suppression, heuristic labeling.  
+suppression, heuristic labeling.
 **Evidence requirements**: semantic traces over representative clear, partial
-and occluded pose sequences.  
+and occluded pose sequences with band assignment evidence.
 **Rollback conditions**: missing lineage, confidence decomposition absent,
-semantic output generated from fallback payload.  
+semantic output generated from fallback payload.
 **Benchmark expectations**: semantic latency and orchestration overhead
-reported separately.  
-**Reconciliation checks**: semantic task state, durable state, artifact and UI
-truth-state converge.  
+reported separately.
+**Reconciliation checks**: semantic task state, durable state, artifact, UI
+truth-state and confidence band converge.
 **Anti-regression rules**: no placeholder semantic outputs and no deterministic
 behavioral truth language.
 
 ### 2. Temporal State Engine
 
 **Objectives**: Implement memory windows, smoothing, hysteresis, cooldown,
-decay, spike suppression and long-duration continuity.  
-**Risks**: one-frame escalation, temporal contamination, replay drift.  
+decay, spike suppression and long-duration continuity.
+**Risks**: one-frame escalation, temporal contamination, replay drift.
 **Runtime gates**: frame ordering, timestamp hierarchy, invalid-window
-exclusion and uncertainty propagation.  
+exclusion and uncertainty propagation.
 **Evidence requirements**: temporal replay audit, sustained-state examples,
-spike-only rejection and continuity-gap handling.  
+spike-only rejection and continuity-gap handling.
 **Rollback conditions**: replay invalid, timestamp invalid or state mutation
-without lineage.  
-**Benchmark expectations**: aggregation latency and window counts by run.  
+without lineage.
+**Benchmark expectations**: aggregation latency and window counts by run.
 **Reconciliation checks**: transition events match durable state and replay
-results.  
+results.
 **Anti-regression rules**: no accepted state without replay-safe evidence.
 
 ### 3. Episode Lifecycle Engine
 
 **Objectives**: Create, extend, close, suppress and supersede behavioral
-episodes with immutable causal evidence chains.  
-**Risks**: irreversible mutation, missing evidence, accusation semantics.  
+episodes with immutable causal evidence chains and human review task routing
+for high-confidence episodes.
+**Risks**: irreversible mutation, missing evidence, accusation semantics.
 **Runtime gates**: causal chain completeness, start/end timestamps,
-rollback-safe update records.  
-**Evidence requirements**: episode lineage report and suppression cases.  
+rollback-safe update records and no automatic enforcement from BSIL output.
+**Evidence requirements**: episode lineage report, suppression cases and
+human review task trace.
 **Rollback conditions**: episode includes unresolved lineage or invalid
-window contamination.  
-**Benchmark expectations**: episode update cost and artifact write latency.  
+window contamination.
+**Benchmark expectations**: episode update cost and artifact write latency.
 **Reconciliation checks**: episode state, task terminal state, artifact digest
-and frontend status converge.  
-**Anti-regression rules**: no episode from missing evidence.
+and frontend status converge.
+**Anti-regression rules**: no episode from missing evidence and no direct
+accusation/penalty from high-confidence output.
 
 ### 4. Interaction Graph Runtime
 
 **Objectives**: Produce interaction edges, synchronized attention context,
-motion synchronization and crowd context.  
+motion synchronization and crowd context.
 **Risks**: false association, graph propagation across invalid windows,
-identity split/merge contamination.  
+identity split/merge contamination.
 **Runtime gates**: identity continuity confidence, edge lifecycle, edge decay
-and suppression lineage.  
+and suppression lineage.
 **Evidence requirements**: interaction graph audit over crowded, crossing,
-occlusion and re-entry samples.  
+occlusion and re-entry samples.
 **Rollback conditions**: graph invalid, interaction inheritance after
-fragmentation or unstable identity continuity.  
-**Benchmark expectations**: graph update latency and edge count distribution.  
+fragmentation or unstable identity continuity.
+**Benchmark expectations**: graph update latency and edge count distribution.
 **Reconciliation checks**: edge records, graph cache, artifact and UI graph
-state match.  
+state match.
 **Anti-regression rules**: no strong interaction claim under unstable identity.
 
 ### 5. Adaptive Baseline Runtime
 
 **Objectives**: Establish session/person/context baselines, bounded threshold
-adaptation and drift visibility.  
-**Risks**: uncontrolled drift, contaminated baseline, anomaly inflation.  
+adaptation, governed review-label feedback and drift visibility.
+**Risks**: uncontrolled drift, contaminated baseline, anomaly inflation.
 **Runtime gates**: baseline snapshot, update lineage, drift budget, reset
-policy and quarantine state.  
+policy, validation-label separation and quarantine state.
 **Evidence requirements**: baseline reproducibility report and drift
-quarantine cases.  
+quarantine cases.
 **Rollback conditions**: drift budget exceeded, update not reconstructable or
-baseline contamination detected.  
+baseline contamination detected.
 **Benchmark expectations**: anomaly scoring latency and threshold-change
-counts.  
+counts.
 **Reconciliation checks**: baseline version, anomaly score, threshold context
-and evidence artifacts align.  
-**Anti-regression rules**: no hidden self-modifying anomaly behavior.
+and evidence artifacts align.
+**Anti-regression rules**: no hidden self-modifying anomaly behavior and no
+review label directly mutating production thresholds.
 
 ### 6. Decision Lineage & Replay Engine
 
 **Objectives**: Persist decision traces and deterministic replay for semantic
-states, temporal windows, episodes, interactions and anomaly candidates.  
-**Risks**: non-reconstructable behavior, mutable evidence, stale traces.  
-**Runtime gates**: immutable digests, source manifests, runtime fingerprints
-and replay drift limits.  
+states, temporal windows, episodes, interactions, anomaly candidates, access
+audit events and review labels.
+**Risks**: non-reconstructable behavior, mutable evidence, stale traces.
+**Runtime gates**: immutable digests, source manifests, runtime fingerprints,
+full raw retention references and replay drift limits.
 **Evidence requirements**: behavioral decision trace, temporal reasoning
-audit, episode lineage and interaction graph audit.  
-**Rollback conditions**: missing raw trace, replay mismatch or stale artifact.  
-**Benchmark expectations**: replay time and trace size by scenario.  
+audit, episode lineage and interaction graph audit.
+**Rollback conditions**: missing raw trace, replay mismatch or stale artifact.
+**Benchmark expectations**: replay time and trace size by scenario.
 **Reconciliation checks**: raw trace, derived artifact and durable record
-cross-link.  
-**Anti-regression rules**: no maturity claim without replay-backed evidence.
+cross-link.
+**Anti-regression rules**: no maturity claim without replay-backed evidence,
+auditable access and retained raw evidence references.
 
 ### 7. Runtime Telemetry Expansion
 
 **Objectives**: Emit semantic, temporal, episode, graph, confidence,
-uncertainty, queue, failure and reconciliation telemetry.  
-**Risks**: fake health, unavailable-as-zero metrics, hidden degraded states.  
-**Runtime gates**: truth-state metrics and failure taxonomy coverage.  
-**Evidence requirements**: dashboard snapshots plus raw metric exports.  
-**Rollback conditions**: telemetry invalid or degraded path unlabeled.  
-**Benchmark expectations**: telemetry overhead bounded and reported.  
-**Reconciliation checks**: telemetry state matches runtime and persistence.  
+uncertainty, queue, failure and reconciliation telemetry.
+**Risks**: fake health, unavailable-as-zero metrics, hidden degraded states.
+**Runtime gates**: truth-state metrics and failure taxonomy coverage.
+**Evidence requirements**: dashboard snapshots plus raw metric exports.
+**Rollback conditions**: telemetry invalid or degraded path unlabeled.
+**Benchmark expectations**: telemetry overhead bounded and reported.
+**Reconciliation checks**: telemetry state matches runtime and persistence.
 **Anti-regression rules**: no silent failure.
 
 ### 8. GPU/Queue Causality Instrumentation
 
 **Objectives**: Attribute decode, orchestration, queue wait, tensor transfer,
-model execution, batching and persistence cost.  
+model execution, batching and persistence cost.
 **Risks**: fake GPU utilization, constant causality metrics, hidden CPU
-bottleneck.  
-**Runtime gates**: raw runtime event traces and GPU/queue decomposition.  
+bottleneck.
+**Runtime gates**: raw runtime event traces and GPU/queue decomposition.
 **Evidence requirements**: GPU busy percent, effective batch size, batch
-collapse, model starvation and queue saturation reports.  
+collapse, model starvation and queue saturation reports.
 **Rollback conditions**: 0% GPU utilization under heavy workload claim or
-missing raw traces.  
-**Benchmark expectations**: repeated-run statistics with confidence intervals.  
+missing raw traces.
+**Benchmark expectations**: repeated-run statistics with confidence intervals.
 **Reconciliation checks**: benchmark run ID links to GPU, queue and artifact
-events.  
+events.
 **Anti-regression rules**: no synthetic decomposition values.
 
 ### 9. Long-Running Stability & Soak Validation
 
 **Objectives**: Prove endurance under live, offline, degraded and reconnect
-conditions.  
+conditions.
 **Risks**: memory leak, queue leak, stale cache, worker crash, GPU thermal
-instability.  
+instability.
 **Runtime gates**: 8-hour soak for maturity, 30-minute live samples, complete
-offline samples.  
+offline samples.
 **Evidence requirements**: memory, Redis growth, queue age, cache pruning,
-worker recycling and GPU thermal reports.  
+worker recycling and GPU thermal reports.
 **Rollback conditions**: unbounded growth, repeated worker crash or degraded
-duration breach.  
+duration breach.
 **Benchmark expectations**: stability confidence intervals and variance
-thresholds.  
+thresholds.
 **Reconciliation checks**: no orphan tasks, duplicate events or stale windows
-after soak.  
+after soak.
 **Anti-regression rules**: no short-run-only maturity closure.
 
 ### 10. Scientific Dataset Governance
 
 **Objectives**: Govern representative datasets, labels, splits, uncertainty,
-false-positive and false-negative review.  
-**Risks**: dataset leakage, synthetic-only evidence, invalid labels.  
-**Runtime gates**: dataset provenance hashes, label provenance, exclusion
-rules and split policy.  
+false-positive and false-negative review.
+**Risks**: dataset leakage, synthetic-only evidence, invalid labels.
+**Runtime gates**: dataset provenance hashes, governed review-label
+provenance, exclusion rules and split policy.
 **Evidence requirements**: at least three offline and two live datasets plus
-crowded, occlusion/re-entry and long-duration coverage.  
-**Rollback conditions**: dataset provenance invalid or label protocol missing.  
+crowded, occlusion/re-entry and long-duration coverage.
+**Rollback conditions**: dataset provenance invalid or label protocol missing.
 **Benchmark expectations**: separated runtime, scientific and operational
-metrics.  
-**Reconciliation checks**: dataset manifests link to artifacts and results.  
-**Anti-regression rules**: no scientific claim without dataset evidence.
+metrics.
+**Reconciliation checks**: dataset manifests link to artifacts and results.
+**Anti-regression rules**: no scientific claim without dataset evidence; no
+review label promoted directly into production adaptive behavior.
 
 ### 11. Benchmark Integrity & Statistical Validation
 
-**Objectives**: Produce realistic repeated-run benchmark reports.  
-**Risks**: self-baselining, candidate-only pass, stale benchmark reuse.  
+**Objectives**: Produce realistic repeated-run benchmark reports.
+**Risks**: self-baselining, candidate-only pass, stale benchmark reuse.
 **Runtime gates**: baseline/candidate causality, raw traces, variance and
-confidence intervals.  
+confidence intervals.
 **Evidence requirements**: benchmark provenance, run manifests and failure
-accounting.  
-**Rollback conditions**: benchmark invalid, stale or missing replay reference.  
+accounting.
+**Rollback conditions**: benchmark invalid, stale or missing replay reference.
 **Benchmark expectations**: repeated runs with comparable workload and
-reported variance.  
-**Reconciliation checks**: benchmark summaries match raw event traces.  
+reported variance.
+**Reconciliation checks**: benchmark summaries match raw event traces.
 **Anti-regression rules**: no benchmark summary without raw backing.
 
 ### 12. CI/CD Runtime Reconciliation
 
 **Objectives**: Align CI, production topology, model/config repositories,
-queues, migrations and worker routing.  
-**Risks**: green CI but broken production behavior.  
-**Runtime gates**: parity checks, production validation and drift detection.  
+queues, migrations and worker routing.
+**Risks**: green CI but broken production behavior.
+**Runtime gates**: parity checks, production validation and drift detection.
 **Evidence requirements**: CI artifact signatures, environment fingerprints
-and production runtime evidence.  
-**Rollback conditions**: CI/runtime mismatch or production drift unresolved.  
+and production runtime evidence.
+**Rollback conditions**: CI/runtime mismatch or production drift unresolved.
 **Benchmark expectations**: CI benchmark eligibility separated from
-production benchmark acceptance.  
+production benchmark acceptance.
 **Reconciliation checks**: branch/hash, dependency lock, migrations and runtime
-profile match.  
+profile match.
 **Anti-regression rules**: CI green is not production-ready automatically.
 
 ### 13. Production Drift Detection
 
 **Objectives**: Detect changes in environment, runtime profile, workers,
-models, queues, dependencies, GPU runtime and evidence paths.  
-**Risks**: untracked override, stale worker route, wrong model artifact.  
-**Runtime gates**: topology fingerprints and startup/runtime drift checks.  
-**Evidence requirements**: drift snapshot before acceptance.  
-**Rollback conditions**: unreconciled drift in any authoritative profile.  
-**Benchmark expectations**: drift-free profile required before benchmark run.  
-**Reconciliation checks**: fingerprint deltas explained or reverted.  
+models, queues, dependencies, GPU runtime and evidence paths.
+**Risks**: untracked override, stale worker route, wrong model artifact.
+**Runtime gates**: topology fingerprints and startup/runtime drift checks.
+**Evidence requirements**: drift snapshot before acceptance.
+**Rollback conditions**: unreconciled drift in any authoritative profile.
+**Benchmark expectations**: drift-free profile required before benchmark run.
+**Reconciliation checks**: fingerprint deltas explained or reverted.
 **Anti-regression rules**: no environment drift tolerance.
 
 ### 14. Failure Injection & Chaos Validation
 
 **Objectives**: Verify fail-closed behavior for runtime, queue, lineage,
-timestamp, graph, baseline and telemetry failures.  
-**Risks**: hidden fallback, retry amplification, orphan state.  
-**Runtime gates**: failure taxonomy emits telemetry and acceptance behavior.  
+timestamp, graph, baseline and telemetry failures.
+**Risks**: hidden fallback, retry amplification, orphan state.
+**Runtime gates**: failure taxonomy emits telemetry and acceptance behavior.
 **Evidence requirements**: injected failure reports and reconciliation
-snapshots.  
+snapshots.
 **Rollback conditions**: any injected critical failure continues as valid
-behavioral output.  
-**Benchmark expectations**: degraded overhead and recovery time reported.  
-**Reconciliation checks**: terminal failure states converge after injection.  
+behavioral output.
+**Benchmark expectations**: degraded overhead and recovery time reported.
+**Reconciliation checks**: terminal failure states converge after injection.
 **Anti-regression rules**: no silent degraded path.
 
 ### 15. Production Readiness Closure
 
 **Objectives**: Close BSIL only when runtime, evidence, science, CI,
-observability, deployment and rollback gates pass.  
-**Risks**: maturity theater, placeholder evidence, unresolved xfails.  
-**Runtime gates**: all constitutional and BSIL acceptance gates pass.  
+observability, deployment and rollback gates pass.
+**Risks**: maturity theater, placeholder evidence, unresolved xfails.
+**Runtime gates**: all constitutional and BSIL acceptance gates pass.
 **Evidence requirements**: immutable final evidence snapshot with digests and
-raw traces.  
+raw traces.
 **Rollback conditions**: any critical gate failure, hidden xfail, unresolved
-reconciliation or invalid evidence.  
+reconciliation or invalid evidence.
 **Benchmark expectations**: final benchmark report separates runtime
-performance, scientific validity and operational stability.  
-**Reconciliation checks**: task, database, queue, artifact, telemetry, UI and
-production topology converge.  
+performance, scientific validity and operational stability.
+**Reconciliation checks**: task, database, queue, artifact, telemetry, UI,
+confidence band, access audit, review label and production topology converge.
 **Anti-regression rules**: no fake maturity closure.

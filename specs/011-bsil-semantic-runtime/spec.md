@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "Behavioral Semantic Intelligence Layer (BSIL) - Pose Decision, Temporal Behavioral State, and Multi-Person Reasoning Runtime"
 
+## Clarifications
+
+### Session 2026-05-27
+
+- Q: Which access model governs BSIL semantic states, episodes, anomaly candidates and evidence exports? → A: Broad authenticated access
+- Q: How should reviewer adjudication feedback affect BSIL anomaly validation and adaptive behavior? → A: Governed review labels
+- Q: What retention policy applies to BSIL raw media, lineage, exports and telemetry? → A: Full raw retention
+- Q: How should high-confidence BSIL episodes trigger operational escalation? → A: Human-reviewed escalation
+- Q: Which confidence representation governs BSIL UI and evidence outputs? → A: Confidence bands
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Interpret Pose Semantics Safely (Priority: P1)
@@ -13,7 +23,8 @@ An operations reviewer needs the platform to convert validated pose sequences
 into understandable semantic pose states, such as attention direction,
 engagement level, posture fatigue, hand activity and desk interaction, while
 clearly exposing confidence and uncertainty instead of presenting deterministic
-behavioral truth.
+behavioral truth. Confidence must be represented with governed bands:
+`advisory`, `review-needed`, `high-confidence`, `degraded` and `invalid`.
 
 **Why this priority**: Semantic pose interpretation is the first behavioral
 layer above pose/tracking analytics and must be safe before temporal or
@@ -94,6 +105,9 @@ replay-safe and non-accusatory.
 3. **Given** missing evidence or unresolved runtime reconciliation, **When**
    episode generation is requested, **Then** no production-valid episode is
    emitted.
+4. **Given** a high-confidence episode satisfies review criteria, **When** it
+   is accepted by the runtime, **Then** it creates a human review task and does
+   not create an automatic accusation or direct operational penalty.
 
 ---
 
@@ -175,6 +189,9 @@ audit, queue pressure, reconciliation and GPU attribution.
 3. **Given** repeated representative runs, **When** benchmark evidence is
    generated, **Then** baseline/candidate causality, variance, confidence and
    failure accounting are present.
+4. **Given** a reviewer labels a false positive or false negative, **When**
+   the label is accepted, **Then** it is stored as governed validation-dataset
+   feedback and does not directly update production thresholds or baselines.
 
 ### Edge Cases
 
@@ -185,9 +202,12 @@ audit, queue pressure, reconciliation and GPU attribution.
 - An offline run has deterministic frame order but missing source timestamps.
 - A live stream produces queue backlog, dropped frames or stale telemetry.
 - An adaptive baseline drifts after a classroom activity change.
+- Reviewer adjudication labels conflict with current anomaly scores or
+  baseline behavior.
 - A semantic rule produces low confidence for all participants in a crowded
   scene.
 - A behavioral episode has evidence from both valid and degraded intervals.
+- A high-confidence episode is generated while no reviewer is available.
 - CI passes unit checks while runtime reconciliation evidence is missing.
 
 ### Mandatory Runtime Scenarios *(video/inference features)*
@@ -205,7 +225,12 @@ audit, queue pressure, reconciliation and GPU attribution.
 - **Frontend-Backend Wiring**: Reviewer surfaces show semantic states,
   episodes, interaction context, confidence, uncertainty and truth states
   (`unknown`, `unavailable`, `degraded`, `valid`) without accusation language.
-  UI status must match backend and persistence truth.
+  UI status must match backend and persistence truth. All authenticated staff
+  users may view semantic states, episodes, anomaly candidates and evidence
+  exports, with access events recorded for audit. UI and evidence surfaces
+  must render confidence bands (`advisory`, `review-needed`,
+  `high-confidence`, `degraded`, `invalid`) alongside numeric confidence when
+  numeric scores are available.
 - **Backend-Inference Wiring**: Production inference authority remains
   Triton-only for governed model inference. Lightweight heuristic semantic
   rules are allowed only when labeled heuristic, lineage-backed and excluded
@@ -224,7 +249,9 @@ audit, queue pressure, reconciliation and GPU attribution.
 - **Evidence Lineage**: Evidence snapshots must include artifact digests,
   runtime/dependency/GPU fingerprints, dataset and telemetry provenance, and
   explicit mock/real, CPU/GPU, synthetic/production, dev/prod and
-  fallback/canonical distinctions.
+  fallback/canonical distinctions. Raw media, lineage, exports and telemetry
+  produced for accepted BSIL evidence must be retained indefinitely unless a
+  later governed retention migration supersedes this policy.
 
 ## Requirements *(mandatory)*
 
@@ -295,6 +322,23 @@ audit, queue pressure, reconciliation and GPU attribution.
   transformer, graph neural network, multimodal, VLM-assisted, distributed
   inference and adaptive orchestration layers without requiring those heavy
   paths for all deployments.
+- **FR-022**: The system MUST allow authenticated staff users to view BSIL
+  semantic states, behavioral episodes, anomaly candidates and evidence
+  exports while recording access audit events for those views.
+- **FR-023**: The system MUST allow reviewer false-positive and false-negative
+  labels to be stored as governed validation-dataset feedback, and MUST NOT
+  allow those labels to directly update production baselines, thresholds or
+  adaptive behavior.
+- **FR-024**: The system MUST retain BSIL raw media, lineage records, evidence
+  exports and telemetry indefinitely for accepted evidence unless a later
+  governed retention migration explicitly supersedes this policy.
+- **FR-025**: The system MUST route high-confidence behavioral episodes to
+  human review tasks for operational escalation and MUST NOT issue automatic
+  accusations, penalties or direct enforcement actions from BSIL output alone.
+- **FR-026**: The system MUST assign every semantic state, behavioral state,
+  episode, interaction edge and anomaly candidate to one governed confidence
+  band: `advisory`, `review-needed`, `high-confidence`, `degraded` or
+  `invalid`.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -314,10 +358,14 @@ audit, queue pressure, reconciliation and GPU attribution.
   and suppression state.
 - **BehavioralConfidenceBreakdown**: A decomposition of confidence by pose
   quality, temporal support, identity continuity, interaction support,
-  runtime validity and baseline stability.
+  runtime validity and baseline stability, including the governed confidence
+  band assigned to the output.
 - **DecisionLineageRecord**: A reconstructable record linking source data,
   runtime path, semantic decisions, temporal reasoning, interactions,
   anomaly scoring, persistence and artifacts.
+- **BehavioralReviewLabel**: A governed reviewer label for false-positive,
+  false-negative or validation feedback, scoped to a decision lineage record
+  and excluded from direct production threshold mutation.
 
 ### Assumptions
 
@@ -329,6 +377,9 @@ audit, queue pressure, reconciliation and GPU attribution.
   model maturity claims.
 - Production acceptance requires real representative datasets and cannot rely
   on mock, placeholder, synthetic-only or dev-only evidence.
+- Accepted BSIL evidence uses full raw retention: raw media, lineage, exports
+  and telemetry are retained indefinitely unless superseded by a governed
+  retention migration.
 - Runtime complexity is deployment-profile aware: lightweight semantic
   reasoning is the default, while transformer or graph-heavy inference is
   activated only when validated need and evidence exist.
@@ -630,6 +681,8 @@ Required UI rules:
 
 - truth-state rendering for `unknown`, `unavailable`, `degraded`, `valid`,
   suppressed and invalidated outputs;
+- governed confidence-band rendering for `advisory`, `review-needed`,
+  `high-confidence`, `degraded` and `invalid` outputs;
 - degraded-state, stale-runtime, replay-mismatch and telemetry-truth
   indicators;
 - uncertainty visualization and confidence decomposition rendering;
@@ -637,7 +690,9 @@ Required UI rules:
 - forbidden accusatory UI language for semantic, behavioral, episode or
   anomaly outputs;
 - frontend-backend reconciliation checks so UI state cannot remain successful
-  when backend, persistence or runtime evidence is degraded or failed.
+  when backend, persistence or runtime evidence is degraded or failed;
+- all authenticated staff users may view semantic states, behavioral episodes,
+  anomaly candidates and evidence exports, and each access must be auditable.
 
 ## Future Scalability Strategy
 
@@ -696,3 +751,5 @@ default.
   aggregation latency, queue decomposition, state transitions, interaction
   metrics, confidence distributions, uncertainty and false escalation metrics
   for every accepted run.
+- **SC-012**: 100% of accepted BSIL outputs expose one governed confidence
+  band, and UI/evidence exports render the same band without contradiction.
