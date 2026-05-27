@@ -130,24 +130,24 @@ replay are all deterministic and auditable.
 
 ### Tests and Evidence for User Story 3
 
-- [ ] T063 [P] [US3] Add behavioral episode lifecycle tests in `backend/tests/unit/behavior/test_episode_lifecycle.py`
-- [ ] T064 [P] [US3] Add causal evidence chain validation tests in `backend/tests/unit/behavior/test_episode_lineage.py`
-- [ ] T065 [P] [US3] Add no-accusation vocabulary tests in `backend/tests/unit/behavior/test_no_accusation_language.py`
-- [ ] T066 [P] [US3] Add high-confidence human review task tests in `backend/tests/integration/behavior/test_episode_review_tasks.py`
-- [ ] T067 [P] [US3] Add duplicate event suppression tests in `backend/tests/integration/behavior/test_episode_idempotency.py`
-- [ ] T068 [US3] Add episode lineage fixture manifest in `ci_evidence/bsil/episode_fixture_manifest.json`
+- [X] T063 [P] [US3] Add behavioral episode lifecycle tests in `backend/tests/unit/behavior/test_episode_lifecycle.py`
+- [X] T064 [P] [US3] Add causal evidence chain validation tests in `backend/tests/unit/behavior/test_episode_lineage.py`
+- [X] T065 [P] [US3] Add no-accusation vocabulary tests in `backend/tests/unit/behavior/test_no_accusation_language.py`
+- [X] T066 [P] [US3] Add high-confidence human review task tests in `backend/tests/integration/behavior/test_episode_review_tasks.py`
+- [X] T067 [P] [US3] Add duplicate event suppression tests in `backend/tests/integration/behavior/test_episode_idempotency.py`
+- [X] T068 [US3] Add episode lineage fixture manifest in `ci_evidence/bsil/episode_fixture_manifest.json`
 
 ### Implementation for User Story 3
 
-- [ ] T069 [P] [US3] Implement episode lifecycle state machine in `backend/apps/behavior/episodes/lifecycle.py`
-- [ ] T070 [P] [US3] Implement causal evidence chain assembly in `backend/apps/behavior/episodes/evidence_chain.py`
-- [ ] T071 [P] [US3] Implement episode confidence-band and escalation eligibility rules in `backend/apps/behavior/episodes/confidence.py`
-- [ ] T072 [US3] Implement human review task creation with idempotency in `backend/apps/behavior/episodes/review_tasks.py`
-- [ ] T073 [US3] Persist episode records, supersession history, and review task references in `backend/apps/behavior/repositories.py`
-- [ ] T074 [US3] Emit episode lifecycle and human-review telemetry in `backend/apps/runtime/bsil_metrics.py`
-- [ ] T075 [US3] Add behavioral episode and review task read endpoints in `backend/apps/behavior/views.py`
-- [ ] T076 [US3] Render episode cards, review-needed state, and no-accusation wording in `frontend/src/features/bsil/BehavioralEpisodePanel.tsx`
-- [ ] T077 [US3] Add episode lineage export command in `backend/apps/behavior/management/commands/export_bsil_episode_lineage.py`
+- [X] T069 [P] [US3] Implement episode lifecycle state machine in `backend/apps/behavior/episodes/lifecycle.py`
+- [X] T070 [P] [US3] Implement causal evidence chain assembly in `backend/apps/behavior/episodes/evidence_chain.py`
+- [X] T071 [P] [US3] Implement episode confidence-band and escalation eligibility rules in `backend/apps/behavior/episodes/confidence.py`
+- [X] T072 [US3] Implement human review task creation with idempotency in `backend/apps/behavior/episodes/review_tasks.py`
+- [X] T073 [US3] Persist episode records, supersession history, and review task references in `backend/apps/behavior/repositories.py`
+- [X] T074 [US3] Emit episode lifecycle and human-review telemetry in `backend/apps/runtime/bsil_metrics.py`
+- [X] T075 [US3] Add behavioral episode and review task read endpoints in `backend/apps/behavior/views.py`
+- [X] T076 [US3] Render episode cards, review-needed state, and no-accusation wording in `frontend/src/features/bsil/BehavioralEpisodePanel.tsx`
+- [X] T077 [US3] Add episode lineage export command in `backend/apps/behavior/management/commands/export_bsil_episode_lineage.py`
 
 ## Phase 6: User Story 4 - Reason About Multi-Person Interaction Context (Priority: P2)
 
@@ -160,23 +160,23 @@ record edge lifecycle lineage.
 
 ### Tests and Evidence for User Story 4
 
-- [ ] T078 [P] [US4] Add interaction edge lifecycle tests in `backend/tests/unit/behavior/test_interaction_edge_lifecycle.py`
-- [ ] T079 [P] [US4] Add identity continuity gate tests in `backend/tests/unit/behavior/test_interaction_identity_gates.py`
-- [ ] T080 [P] [US4] Add invalid-window graph propagation tests in `backend/tests/unit/behavior/test_graph_contamination.py`
-- [ ] T081 [P] [US4] Add graph replay determinism tests in `backend/tests/integration/behavior/test_interaction_graph_replay.py`
-- [ ] T082 [P] [US4] Add crowded/crossing/occlusion fixture manifest in `ci_evidence/bsil/interaction_graph_fixture_manifest.json`
+- [X] T078 [P] [US4] Add interaction edge lifecycle tests in `backend/tests/unit/behavior/test_interaction_edge_lifecycle.py`
+- [X] T079 [P] [US4] Add identity continuity gate tests in `backend/tests/unit/behavior/test_interaction_identity_gates.py`
+- [X] T080 [P] [US4] Add invalid-window graph propagation tests in `backend/tests/unit/behavior/test_graph_contamination.py`
+- [X] T081 [P] [US4] Add graph replay determinism tests in `backend/tests/integration/behavior/test_interaction_graph_replay.py`
+- [X] T082 [P] [US4] Add crowded/crossing/occlusion fixture manifest in `ci_evidence/bsil/interaction_graph_fixture_manifest.json`
 
 ### Implementation for User Story 4
 
-- [ ] T083 [P] [US4] Implement interaction edge lifecycle and decay semantics in `backend/apps/behavior/graph/edges.py`
-- [ ] T084 [P] [US4] Implement synchronized gaze and peer attention detection in `backend/apps/behavior/graph/attention_edges.py`
-- [ ] T085 [P] [US4] Implement motion synchronization and crowd context scoring in `backend/apps/behavior/graph/context.py`
-- [ ] T086 [P] [US4] Implement identity merge/split and fragmentation gates in `backend/apps/behavior/graph/identity_gates.py`
-- [ ] T087 [US4] Persist interaction edges and graph audit records in `backend/apps/behavior/repositories.py`
-- [ ] T088 [US4] Emit graph edge, ambiguity, suppression, and contamination telemetry in `backend/apps/runtime/bsil_metrics.py`
-- [ ] T089 [US4] Add interaction graph read endpoint in `backend/apps/behavior/views.py`
-- [ ] T090 [US4] Render interaction graph, ambiguity state, and suppression reasons in `frontend/src/features/bsil/InteractionGraphPanel.tsx`
-- [ ] T091 [US4] Add interaction graph audit export command in `backend/apps/behavior/management/commands/export_bsil_interaction_graph_audit.py`
+- [X] T083 [P] [US4] Implement interaction edge lifecycle and decay semantics in `backend/apps/behavior/graph/edges.py`
+- [X] T084 [P] [US4] Implement synchronized gaze and peer attention detection in `backend/apps/behavior/graph/attention_edges.py`
+- [X] T085 [P] [US4] Implement motion synchronization and crowd context scoring in `backend/apps/behavior/graph/context.py`
+- [X] T086 [P] [US4] Implement identity merge/split and fragmentation gates in `backend/apps/behavior/graph/identity_gates.py`
+- [X] T087 [US4] Persist interaction edges and graph audit records in `backend/apps/behavior/repositories.py`
+- [X] T088 [US4] Emit graph edge, ambiguity, suppression, and contamination telemetry in `backend/apps/runtime/bsil_metrics.py`
+- [X] T089 [US4] Add interaction graph read endpoint in `backend/apps/behavior/views.py`
+- [X] T090 [US4] Render interaction graph, ambiguity state, and suppression reasons in `frontend/src/features/bsil/InteractionGraphPanel.tsx`
+- [X] T091 [US4] Add interaction graph audit export command in `backend/apps/behavior/management/commands/export_bsil_interaction_graph_audit.py`
 
 ## Phase 7: User Story 5 - Apply Adaptive Anomaly Accumulation (Priority: P3)
 
