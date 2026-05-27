@@ -220,46 +220,46 @@ contradictions.
 
 ### Tests and Evidence for User Story 6
 
-- [ ] T106 [P] [US6] Add evidence authenticity validation tests in `backend/tests/contract/test_bsil_evidence_authenticity.py`
-- [ ] T107 [P] [US6] Add access audit tests for broad authenticated staff views in `backend/tests/integration/behavior/test_bsil_access_audit.py`
-- [ ] T108 [P] [US6] Add full raw retention reference tests in `backend/tests/integration/forensics/test_bsil_retention.py`
-- [ ] T109 [P] [US6] Add runtime reconciliation acceptance tests in `backend/tests/system/test_bsil_runtime_reconciliation.py`
-- [ ] T110 [P] [US6] Add GPU/queue causality and raw trace tests in `backend/tests/system/test_bsil_gpu_queue_causality.py`
-- [ ] T111 [P] [US6] Add long-running soak evidence validation tests in `backend/tests/system/test_bsil_soak_evidence.py`
-- [ ] T112 [P] [US6] Add CI guard tests for no fake maturity vectors in `backend/tests/unit/scripts/test_verify_bsil_acceptance.py`
+- [X] T106 [P] [US6] Add evidence authenticity validation tests in `backend/tests/contract/test_bsil_evidence_authenticity.py`
+- [X] T107 [P] [US6] Add access audit tests for broad authenticated staff views in `backend/tests/integration/behavior/test_bsil_access_audit.py`
+- [X] T108 [P] [US6] Add full raw retention reference tests in `backend/tests/integration/forensics/test_bsil_retention.py`
+- [X] T109 [P] [US6] Add runtime reconciliation acceptance tests in `backend/tests/system/test_bsil_runtime_reconciliation.py`
+- [X] T110 [P] [US6] Add GPU/queue causality and raw trace tests in `backend/tests/system/test_bsil_gpu_queue_causality.py`
+- [X] T111 [P] [US6] Add long-running soak evidence validation tests in `backend/tests/system/test_bsil_soak_evidence.py`
+- [X] T112 [P] [US6] Add CI guard tests for no fake maturity vectors in `backend/tests/unit/scripts/test_verify_bsil_acceptance.py`
 
 ### Implementation for User Story 6
 
-- [ ] T113 [P] [US6] Implement BSIL evidence manifest validator in `backend/apps/forensics/bsil_evidence_validator.py`
-- [ ] T114 [P] [US6] Implement BSIL access audit writer in `backend/apps/forensics/bsil_access_audit.py`
-- [ ] T115 [P] [US6] Implement full raw retention reference writer in `backend/apps/forensics/bsil_retention.py`
-- [ ] T116 [P] [US6] Implement runtime reconciliation checker in `backend/apps/runtime/bsil_reconciliation.py`
-- [ ] T117 [P] [US6] Implement GPU/queue causality exporter in `backend/apps/runtime/bsil_causality.py`
-- [ ] T118 [P] [US6] Implement BSIL benchmark report generator in `tools/benchmarks/bsil_benchmark_report.py`
-- [ ] T119 [P] [US6] Implement CI acceptance verifier in `scripts/ci/verify_bsil_acceptance.py`
-- [ ] T120 [US6] Add production BSIL final evidence helper in `tools/prod/prod-bsil-final-evidence.ps1`
-- [ ] T121 [US6] Add final BSIL acceptance management command in `backend/apps/behavior/management/commands/run_bsil_acceptance.py`
-- [ ] T122 [US6] Store final BSIL evidence manifest schema in `ci_evidence/bsil/final_acceptance_manifest.schema.json`
+- [X] T113 [P] [US6] Implement BSIL evidence manifest validator in `backend/apps/forensics/bsil_evidence_validator.py`
+- [X] T114 [P] [US6] Implement BSIL access audit writer in `backend/apps/forensics/bsil_access_audit.py`
+- [X] T115 [P] [US6] Implement full raw retention reference writer in `backend/apps/forensics/bsil_retention.py`
+- [X] T116 [P] [US6] Implement runtime reconciliation checker in `backend/apps/runtime/bsil_reconciliation.py`
+- [X] T117 [P] [US6] Implement GPU/queue causality exporter in `backend/apps/runtime/bsil_causality.py`
+- [X] T118 [P] [US6] Implement BSIL benchmark report generator in `tools/benchmarks/bsil_benchmark_report.py`
+- [X] T119 [P] [US6] Implement CI acceptance verifier in `scripts/ci/verify_bsil_acceptance.py`
+- [X] T120 [US6] Add production BSIL final evidence helper in `tools/prod/prod-bsil-final-evidence.ps1`
+- [X] T121 [US6] Add final BSIL acceptance management command in `backend/apps/behavior/management/commands/run_bsil_acceptance.py`
+- [X] T122 [US6] Store final BSIL evidence manifest schema in `ci_evidence/bsil/final_acceptance_manifest.schema.json`
 
 ## Phase 9: Polish and Cross-Cutting Closure
 
 **Purpose**: Final alignment, documentation, dashboards, CI wiring, and
 production readiness preparation across all stories.
 
-- [ ] T123 [P] Update BSIL API documentation in `docs/backend/architecture/bsil-runtime.md`
-- [ ] T124 [P] Update BSIL observability dashboard documentation in `docs/backend/architecture/observability-runbook.md`
-- [ ] T125 [P] Update production topology and queue routing documentation in `docs/backend/architecture/deployment-topology.md`
-- [ ] T126 [P] Update frontend BSIL review UX notes in `frontend/src/features/bsil/README.md`
-- [ ] T127 [P] Add BSIL workflow to CI configuration in `.github/workflows/bsil-maturity.yml`
-- [ ] T128 [P] Add BSIL production evidence paths to `.gitignore`
-- [ ] T129 [P] Add BSIL evidence package README in `ci_evidence/bsil/README.md`
-- [ ] T130 Run focused backend BSIL unit tests and record output in `ci_evidence/bsil/backend_unit_tests.txt`
-- [ ] T131 Run BSIL contract and integration tests and record output in `ci_evidence/bsil/backend_contract_integration_tests.txt`
-- [ ] T132 Run BSIL system acceptance tests and record output in `ci_evidence/bsil/backend_system_tests.txt`
-- [ ] T133 Run frontend BSIL unit tests and record output in `ci_evidence/bsil/frontend_unit_tests.txt`
-- [ ] T134 Run BSIL CI verifiers and record output in `ci_evidence/bsil/ci_verifier_results.txt`
-- [ ] T135 Verify no hidden xfails, skipped runtime gates, placeholder artifacts, SQLite evidence paths, or unsupported fallback paths remain using `scripts/ci/verify_bsil_acceptance.py`
-- [ ] T136 Produce final BSIL maturity report in `ci_evidence/bsil/bsil_maturity_report.md`
+- [X] T123 [P] Update BSIL API documentation in `docs/backend/architecture/bsil-runtime.md`
+- [X] T124 [P] Update BSIL observability dashboard documentation in `docs/backend/architecture/observability-runbook.md`
+- [X] T125 [P] Update production topology and queue routing documentation in `docs/backend/architecture/deployment-topology.md`
+- [X] T126 [P] Update frontend BSIL review UX notes in `frontend/src/features/bsil/README.md`
+- [X] T127 [P] Add BSIL workflow to CI configuration in `.github/workflows/bsil-maturity.yml`
+- [X] T128 [P] Add BSIL production evidence paths to `.gitignore`
+- [X] T129 [P] Add BSIL evidence package README in `ci_evidence/bsil/README.md`
+- [X] T130 Run focused backend BSIL unit tests and record output in `ci_evidence/bsil/backend_unit_tests.txt`
+- [X] T131 Run BSIL contract and integration tests and record output in `ci_evidence/bsil/backend_contract_integration_tests.txt`
+- [X] T132 Run BSIL system acceptance tests and record output in `ci_evidence/bsil/backend_system_tests.txt`
+- [X] T133 Run frontend BSIL unit tests and record output in `ci_evidence/bsil/frontend_unit_tests.txt`
+- [X] T134 Run BSIL CI verifiers and record output in `ci_evidence/bsil/ci_verifier_results.txt`
+- [X] T135 Verify no hidden xfails, skipped runtime gates, placeholder artifacts, SQLite evidence paths, or unsupported fallback paths remain using `scripts/ci/verify_bsil_acceptance.py`
+- [X] T136 Produce final BSIL maturity report in `ci_evidence/bsil/bsil_maturity_report.md`
 
 ## Dependencies and Execution Order
 
