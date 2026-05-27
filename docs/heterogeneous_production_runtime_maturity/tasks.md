@@ -49,7 +49,7 @@
 - [x] T015 [P] [US1] Update `tools/prod/prod-stash-hygiene.ps1` to write reviewed stash summaries without exposing secrets
 - [x] T016 [US1] Add branch parity output fields to `tools/prod/write-evidence-manifest.py`
 - [x] T017 [P] [US1] Add local tests for branch parity manifest formatting in `backend/tests/unit/scripts/test_production_branch_parity_manifest.py`
-- [ ] T018 [US1] Run `tools/prod/prod-hash-parity.ps1` and save output to `ci_evidence/production/runtime_maturity/phase1_hash_parity.md`
+- [x] T018 [US1] Run `tools/prod/prod-hash-parity.ps1` and save output to `ci_evidence/production/runtime_maturity/phase1_hash_parity.md`
 - [x] T019 [US1] Run `tools/prod/prod-stash-hygiene.ps1` and save reviewed output to `ci_evidence/production/runtime_maturity/phase1_stash_hygiene.md`
 
 ## Phase 4: User Story 2 - Runtime Contract Lock
