@@ -98,23 +98,23 @@ transitions within the replay drift budget.
 
 ### Tests and Evidence for User Story 2
 
-- [ ] T046 [P] [US2] Add temporal window contract tests in `backend/tests/unit/behavior/test_temporal_window_contracts.py`
-- [ ] T047 [P] [US2] Add spike suppression and hysteresis tests in `backend/tests/unit/behavior/test_temporal_spike_suppression.py`
-- [ ] T048 [P] [US2] Add semantic decay, cooldown, and uncertainty propagation tests in `backend/tests/unit/behavior/test_temporal_decay.py`
-- [ ] T049 [P] [US2] Add replay determinism tests in `backend/tests/integration/behavior/test_temporal_replay_determinism.py`
-- [ ] T050 [P] [US2] Add Redis cache vs PostgreSQL authority reconciliation tests in `backend/tests/integration/behavior/test_online_state_reconciliation.py`
-- [ ] T051 [US2] Add temporal reasoning audit fixture manifest in `ci_evidence/bsil/temporal_reasoning_fixture_manifest.json`
+- [X] T046 [P] [US2] Add temporal window contract tests in `backend/tests/unit/behavior/test_temporal_window_contracts.py`
+- [X] T047 [P] [US2] Add spike suppression and hysteresis tests in `backend/tests/unit/behavior/test_temporal_spike_suppression.py`
+- [X] T048 [P] [US2] Add semantic decay, cooldown, and uncertainty propagation tests in `backend/tests/unit/behavior/test_temporal_decay.py`
+- [X] T049 [P] [US2] Add replay determinism tests in `backend/tests/integration/behavior/test_temporal_replay_determinism.py`
+- [X] T050 [P] [US2] Add Redis cache vs PostgreSQL authority reconciliation tests in `backend/tests/integration/behavior/test_online_state_reconciliation.py`
+- [X] T051 [US2] Add temporal reasoning audit fixture manifest in `ci_evidence/bsil/temporal_reasoning_fixture_manifest.json`
 
 ### Implementation for User Story 2
 
-- [ ] T052 [P] [US2] Implement temporal window builder in `backend/apps/behavior/temporal/windows.py`
-- [ ] T053 [P] [US2] Implement behavior state machine transitions in `backend/apps/behavior/temporal/state_machine.py`
-- [ ] T054 [P] [US2] Implement hysteresis, cooldown, smoothing, and decay rules in `backend/apps/behavior/temporal/decay.py`
-- [ ] T055 [P] [US2] Implement timestamp authority and frame ordering checks in `backend/apps/behavior/temporal/time_authority.py`
-- [ ] T056 [US2] Implement online state cache TTL and stale-window eviction in `backend/apps/behavior/temporal/cache.py`
-- [ ] T057 [US2] Implement crash-safe state rebuild from durable lineage in `backend/apps/behavior/temporal/rebuild.py`
+- [X] T052 [P] [US2] Implement temporal window builder in `backend/apps/behavior/temporal/windows.py`
+- [X] T053 [P] [US2] Implement behavior state machine transitions in `backend/apps/behavior/temporal/state_machine.py`
+- [X] T054 [P] [US2] Implement hysteresis, cooldown, smoothing, and decay rules in `backend/apps/behavior/temporal/decay.py`
+- [X] T055 [P] [US2] Implement timestamp authority and frame ordering checks in `backend/apps/behavior/temporal/time_authority.py`
+- [X] T056 [US2] Implement online state cache TTL and stale-window eviction in `backend/apps/behavior/temporal/cache.py`
+- [X] T057 [US2] Implement crash-safe state rebuild from durable lineage in `backend/apps/behavior/temporal/rebuild.py`
 - [X] T058 [US2] Persist temporal windows and behavioral states through `backend/apps/behavior/repositories.py`
-- [ ] T059 [US2] Emit temporal aggregation, stale-window, replay-drift, and invalid-window telemetry in `backend/apps/runtime/bsil_metrics.py`
+- [X] T059 [US2] Emit temporal aggregation, stale-window, replay-drift, and invalid-window telemetry in `backend/apps/runtime/bsil_metrics.py`
 - [X] T060 [US2] Add temporal state read endpoint in `backend/apps/behavior/views.py`
 - [X] T061 [US2] Render temporal state timeline and replay mismatch indicators in `frontend/src/features/bsil/TemporalStateTimeline.tsx`
 - [X] T062 [US2] Add temporal reasoning audit export command in `backend/apps/behavior/management/commands/export_bsil_temporal_audit.py`
