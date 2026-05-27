@@ -18,6 +18,10 @@ isolation, but cannot close production or scientific maturity gates.
 Acceptance tasks MUST include runtime reconciliation, immutable evidence
 lineage, artifact authenticity, xfail/drift/debt checks and rollback criteria
 for every production or maturity claim.
+For active heterogeneous runtime maturity work, tasks MUST include branch/hash
+parity, production stash/tree hygiene, production preflight, explicit replay
+policy validation, fresh lifecycle execution, GPU telemetry, causality export,
+evidence manifest validation and final merge-back closure.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -92,6 +96,11 @@ Examples of foundational tasks (adjust based on your project):
       provenance requirements
 - [ ] T016 [P] Define xfail registry, runtime-drift detection, technical debt
       budget, rollback criteria and acceptance veto conditions
+- [ ] T017 [P] Define heterogeneous production authority boundaries, including
+      local contract-only validation versus native Linux RTX 5090 production
+      evidence requirements
+- [ ] T018 [P] Define replay policy behavior and failed-lineage rejection for
+      lifecycle, benchmark and acceptance evidence
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -216,6 +225,13 @@ Examples of foundational tasks (adjust based on your project):
       execution paths remain
 - [ ] TXXX [P] Verify rollback criteria, production freeze criteria and
       emergency remediation records for the accepted capability
+- [ ] TXXX [P] Verify branch/hash parity, production stash/tree hygiene and
+      merge-back record for `release/prod-runtime-stabilization` when the
+      runtime maturity plan applies
+- [ ] TXXX [P] Verify final runtime maturity evidence package under
+      `ci_evidence/production/runtime_maturity/final/` includes accepted job
+      ID, replay policy, Git SHA, env fingerprint, model hashes, queue
+      topology, GPU trace and causality export
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 

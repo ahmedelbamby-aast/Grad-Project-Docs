@@ -1,22 +1,24 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 2.0.0 -> 2.1.0
-Bump rationale: MINOR - Adds binding anti-regression governance, runtime-truth
-reconciliation, evidence-integrity, benchmark-science, CI/CD, deployment,
-rollback, xfail, technical-debt, and forensic traceability requirements without
-removing the existing production behavioral intelligence doctrine.
+Version change: 2.1.0 -> 2.2.0
+Bump rationale: MINOR - Adds the active Heterogeneous Production Runtime
+Maturity governance model, explicitly separating Windows/Docker development
+validation from native Linux RTX 5090 production authority, and adds binding
+rules for replay policy, branch synchronization, runtime preflight and
+production closure evidence.
 
 Modified principles:
-- Production runtime authority -> Runtime-truth and reconciliation authority.
-- Evidence-based acceptance -> Evidence-integrity and artifact-authenticity
-  acceptance.
-- Benchmark/scientific acceptance -> Statistical rigor and lineage-enforced
-  scientific validity.
-- Compliance review -> CI/CD, deployment, rollback, xfail, and technical-debt
-  veto authority.
+- Production runtime authority -> Heterogeneous production runtime authority.
+- Evidence-based acceptance -> Replay and production evidence integrity.
+- Benchmark/scientific acceptance -> RTX 5090 production authority for
+  throughput and inference claims.
+- Compliance review -> Branch parity, preflight, lifecycle, GPU telemetry,
+  causality and final closure evidence gates.
 
 Added sections:
+- Heterogeneous Production Runtime Maturity Constitution
+- Heterogeneous Runtime Maturity Compliance Gates
 - Foundational System Doctrine
 - Production Runtime Constitution
 - Temporal Truth Constitution
@@ -81,6 +83,8 @@ Follow-up TODOs:
   until it is reconciled against the new anti-regression matrix.
 - Implementation gaps identified by this constitution are acceptance blockers
   for affected maturity claims; they are not placeholder governance text.
+- The active runtime maturity plan remains not completed until real production
+  evidence is captured under `ci_evidence/production/runtime_maturity/final/`.
 -->
 
 # Production Behavioral Intelligence Platform Constitution
@@ -1698,6 +1702,163 @@ behavioral intelligence candidates. They remain subject to this constitution;
 model sophistication never waives truth, identity, evidence or operational
 safety.
 
+### 16. Heterogeneous Production Runtime Maturity Constitution
+
+#### 16.1 Heterogeneous Runtime Governance
+
+Development and production are intentionally heterogeneous and MUST NOT be
+forced into false environment symmetry. Windows, Docker and RTX 3050 Ti local
+development MAY validate code behavior, contracts, schemas, replay logic, queue
+routing logic, env parsing and non-GPU causality exports. Native Linux,
+no-Docker, no-sudo RTX 5090 production is the only authority for GPU execution,
+inference truth, throughput claims, lifecycle acceptance and final evidence.
+
+Rationale: Local hardware, OS, process model, CUDA/PyTorch stack and VRAM limits
+cannot prove production behavior on the RTX 5090 server.
+
+#### 16.2 Production Runtime Authority
+
+Production authority MUST be isolated to a committed Git SHA deployed on the
+production branch, `backend/.env` as the only backend runtime environment
+authority, PostgreSQL relational state, Redis broker/cache behavior, Celery
+orchestration, Triton inference and evidence under `ci_evidence/production/...`.
+Repo-root `.env` MUST NOT participate in backend production startup.
+
+Rationale: Hidden environment files, dirty runtime state and unreviewed
+production-only changes detach evidence from the code and configuration that
+produced it.
+
+#### 16.3 PostgreSQL-Only Persistence
+
+PostgreSQL is the only accepted relational backend for runtime, tests,
+migrations, benchmarks, acceptance and evidence. SQLite fallback is forbidden.
+Any persistence, ORM, transaction, migration, constraint or evidence-storage
+change MUST be validated against PostgreSQL semantics. If tests fail because a
+PostgreSQL role lacks `CREATEDB`, agents MUST surface the required DBA/bootstrap
+action and MUST NOT switch to SQLite.
+
+Rationale: SQLite success does not prove PostgreSQL locking, transaction,
+constraint, JSON-field or concurrency semantics.
+
+#### 16.4 Triton-Only Production Inference
+
+Production MUST run with `INFERENCE_STRATEGY=triton_only`. Local Ultralytics,
+PyTorch CUDA, OpenCV DNN GPU, ONNX Runtime, OpenVINO or direct application model
+inference paths MUST fail closed in production. No fallback from Triton to local
+CUDA or CPU is valid for production claims. Triton is the compatibility boundary
+between application code and production GPU execution.
+
+Rationale: RTX 5090 `sm_120` compatibility exposed that local CUDA/PyTorch
+execution can be invalid while Triton remains the governed serving boundary.
+
+#### 16.5 Single Active Triton Endpoint Policy
+
+Live and offline Triton endpoint profiles MAY both be configured, but exactly
+one profile MAY be production-active at a time. The active mode MUST be selected
+by `TRITON_EXECUTION_MODE=live` or `TRITON_EXECUTION_MODE=offline` in
+`backend/.env`. The inactive endpoint MUST be unreachable and MUST NOT receive
+production inference traffic, scheduler requests, Celery routing or
+production-ready health status.
+
+Rationale: Dual configured profiles without single-active enforcement create
+cross-talk, fake health and evidence that cannot be tied to one runtime mode.
+
+#### 16.6 Production Preflight Before Work
+
+Production MUST fail before processing any video when runtime contract checks
+fail. Required preflight evidence includes native Linux/no-Docker/no-sudo
+runtime shape, backend venv Python path, RTX 5090 GPU identity and compatibility,
+TensorRT runtime and engine digest compatibility, pinned Triton binary, active
+endpoint readiness, inactive endpoint unreachability, required model configs and
+artifact hashes, `backend/.env` fingerprint, Celery route/worker/concurrency and
+prefetch policy, PostgreSQL authority, Redis reachability and evidence output
+paths.
+
+Rationale: Expensive or authoritative work must not begin against stale engines,
+wrong endpoints, wrong env files, ambiguous queues or invalid model artifacts.
+
+#### 16.7 Replay and Evidence Integrity
+
+`runtime_ingest_video` MUST use an explicit replay policy. `reuse-success` MAY
+reuse only a previous completed successful job. `fail-on-existing` MUST reject
+any existing replay key. `new-attempt` MUST create a fresh job linked to replay
+lineage. Failed replay lineage MUST NEVER be accepted as production evidence.
+Benchmark and acceptance runs MUST default to fresh validation or successful
+replay only. Evidence MUST include job ID, replay key, replay policy, source
+hash, Git SHA, env fingerprint, runtime profile, model artifact hashes, queue
+topology, GPU trace and causality export.
+
+Rationale: Reusing failed lineage as `"replayed": true` can convert an old
+failure into apparent acceptance and hide current runtime drift.
+
+#### 16.8 Branch and Sync Governance
+
+Runtime stabilization MUST use the short-lived
+`release/prod-runtime-stabilization` branch. A permanent production-only fork is
+forbidden. All production fixes MUST merge back into the active development
+branch after sign-off. Production deploy acceptance requires local HEAD equals
+origin HEAD, production HEAD equals origin HEAD, the production tracked working
+tree has no unexplained changes and production stash entries are reviewed,
+archived and dropped only when understood.
+
+Rationale: Production-only hotfixes and stale dirty trees make evidence
+unreviewable and detach deployed behavior from source control.
+
+#### 16.9 Validation Hierarchy
+
+Local validation MAY gate code correctness, but MUST NOT certify production GPU
+behavior. Production validation MUST include real upload lifecycle through
+canonical API admission, Celery, Triton, PostgreSQL and evidence export; GPU
+utilization and saturation checks; TensorRT/Triton readiness; live/offline
+endpoint isolation; queue and worker telemetry; dynamic batching evidence; and
+long-running runtime stability evidence. CI MAY certify production GPU behavior
+only when running on a production-equivalent self-hosted GPU lane with durable
+production evidence.
+
+Rationale: The risk being validated determines the valid test environment; a
+dev smoke test cannot certify production GPU acceptance.
+
+#### 16.10 Operational Safety
+
+Production startup MUST prefer fail-closed behavior over degraded inference when
+authority contracts are violated. Developers MAY keep inconsistent local
+CUDA/PyTorch stacks because production never trusts local inference paths. Weak
+local GPUs are acceptable because local tests are not throughput gates. No-sudo
+production MUST remain viable through user-space pinning of Python, Triton,
+TensorRT artifacts, environment files and evidence scripts.
+
+Rationale: Reliability comes from narrowing authority and failing closed, not
+pretending every machine is equivalent.
+
+#### 16.11 Evidence and Closure
+
+Runtime maturity closure requires packaged evidence under
+`ci_evidence/production/runtime_maturity/final/`, final hash parity, final
+production stash/tree hygiene, successful preflight, successful fresh lifecycle
+job, GPU telemetry for the accepted job, causality export for the accepted job,
+an evidence manifest tied to Git SHA, env fingerprint, model hashes, queue
+topology, replay metadata and runtime profile, and merge of
+`release/prod-runtime-stabilization` back into the active development branch.
+
+Rationale: Closure is reproducible only when evidence, branch state, runtime
+state and accepted job lineage all identify the same governed execution.
+
+#### 16.12 Heterogeneous Runtime Maturity Compliance Gates
+
+| Principle | Required gate |
+| --- | --- |
+| Heterogeneous runtime governance | Local evidence labeled contract-only; production GPU claims tied to RTX 5090 evidence |
+| Production runtime authority | Git SHA, `backend/.env` fingerprint, PostgreSQL, Redis, Celery, Triton and evidence-root manifest |
+| PostgreSQL-only persistence | PostgreSQL DSN/test role and no SQLite fallback in runtime, tests, migration, benchmark or evidence paths |
+| Triton-only inference | `INFERENCE_STRATEGY=triton_only`, local inference rejection tests and production preflight proof |
+| Single active endpoint | Active endpoint ready, inactive endpoint unreachable and no inactive queue/scheduler traffic |
+| Production preflight | OS, Python, GPU, TensorRT, Triton, model, env, queue, storage and evidence checks captured before work |
+| Replay integrity | Explicit replay policy tests and rejection of failed replay lineage for acceptance |
+| Branch and sync governance | Local/origin/production hash parity plus reviewed stash/tree hygiene |
+| Validation hierarchy | Local contract tests separated from production lifecycle/GPU/queue/causality evidence |
+| Operational safety | Fail-closed paths and no-sudo user-space pinning verified |
+| Evidence and closure | Final package under `ci_evidence/production/runtime_maturity/final/` with accepted job manifest and merge record |
+
 ## Governance
 
 This constitution is the binding engineering, runtime and scientific maturity
@@ -1752,4 +1913,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.1.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-27
+**Version**: 2.2.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-27

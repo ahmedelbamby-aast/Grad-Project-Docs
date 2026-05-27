@@ -28,10 +28,23 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Active feature plan: [specs/011-bsil-semantic-runtime/plan.md](specs/011-bsil-semantic-runtime/plan.md)
 <!-- SPECKIT END -->
 
-## Current Active Optimization Plan
-- **Active plan name:** `Linux Production Optimization Execution Phases (RTX 5090)`
-- Plan file: [docs/linux_production_optimization_execution_phases.md](docs/linux_production_optimization_execution_phases.md)
-- **Production policy update:** Triton uses **dual configured endpoint profiles** (live and offline), but production runs **one active mode at a time** selected by `.env` (`TRITON_EXECUTION_MODE=live` or `TRITON_EXECUTION_MODE=offline`). The inactive endpoint profile must not receive production inference traffic, scheduler requests, Celery routing, or production-ready health status.
+## Current Active Production Runtime Plan
+- **Active plan name:** `Heterogeneous Production Runtime Maturity Plan`
+- Plan file: [docs/heterogeneous_production_runtime_maturity_plan.md](docs/heterogeneous_production_runtime_maturity_plan.md)
+- Tasks file: [docs/heterogeneous_production_runtime_maturity/tasks.md](docs/heterogeneous_production_runtime_maturity/tasks.md)
+- Evidence root: [ci_evidence/production/runtime_maturity/](ci_evidence/production/runtime_maturity/)
+- Local workflow: [.github/workflows/prod-runtime-maturity.yml](.github/workflows/prod-runtime-maturity.yml)
+- Production evidence helper: [tools/prod/prod-runtime-maturity-evidence.ps1](tools/prod/prod-runtime-maturity-evidence.ps1)
+- **Status:** Active, not completed.
+- **Branch target:** `release/prod-runtime-stabilization`
+- This is the current controlling plan for production runtime work. Agents must treat it as the source of truth when it conflicts with older optimization notes.
+- **Production policy update:** Development and production are intentionally heterogeneous. Local Windows/Docker/RTX 3050 Ti may validate code behavior and contracts, but only native Linux/no-Docker/RTX 5090 production validation can certify inference execution, GPU evidence, throughput claims, and final lifecycle acceptance.
+- **Triton policy:** Production must use `INFERENCE_STRATEGY=triton_only`. Triton uses **dual configured endpoint profiles** (live and offline), but production runs **one active mode at a time** selected by `backend/.env` (`TRITON_EXECUTION_MODE=live` or `TRITON_EXECUTION_MODE=offline`). The inactive endpoint profile must not receive production inference traffic, scheduler requests, Celery routing, or production-ready health status.
+
+## Superseded Optimization Context
+- Previous plan name: `Linux Production Optimization Execution Phases (RTX 5090)`
+- Previous plan file: [docs/linux_production_optimization_execution_phases.md](docs/linux_production_optimization_execution_phases.md)
+- The previous plan remains useful for phase history and implementation details, but it is no longer the current top-level plan.
 
 ## Current Phase Status (handover snapshot)
 - M0: partially completed (sync/hygiene repeatedly applied; local untracked `tmp/*` still exists on dev laptop).

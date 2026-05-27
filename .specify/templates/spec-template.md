@@ -102,6 +102,13 @@
   behavior ontology/feature version, and invalid-window rules]
 - **Deployment Boundary**: [Describe dev/test assumptions and production
   native Linux, NVIDIA GPU, no-Docker, no-sudo, single-active-mode rules]
+- **Heterogeneous Authority Boundary**: [Describe which checks are local
+  contract-only and which checks require native Linux RTX 5090 production
+  evidence; include Git SHA, `backend/.env`, PostgreSQL, Redis, Celery,
+  Triton, and evidence-root authority]
+- **Replay Policy**: [For lifecycle, benchmark, or acceptance flows, specify
+  `reuse-success`, `fail-on-existing`, or `new-attempt`; failed replay lineage
+  MUST NOT count as acceptance evidence]
 - **Runtime Reconciliation**: [Describe task, queue, database, artifact,
   telemetry and frontend state convergence, including mismatch handling]
 - **Evidence Lineage**: [Describe immutable evidence snapshots, artifact
@@ -167,3 +174,7 @@
 - **SC-011**: [No hidden xfails, unbounded technical debt, environment drift,
   unsupported fallback paths or production claims based on dev-only runs remain
   for the accepted scope]
+- **SC-012**: [For production runtime maturity work, final acceptance evidence
+  is packaged under `ci_evidence/production/runtime_maturity/final/` and ties
+  one accepted job ID to Git SHA, env fingerprint, runtime profile, model
+  hashes, queue topology, replay metadata, GPU trace and causality export]

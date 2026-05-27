@@ -49,6 +49,12 @@
 > inactive-profile validation. Local/mock inference cannot close a
 > production gate.
 
+> **Heterogeneous Runtime Maturity Gate**: Plans MUST separate local
+> Windows/Docker contract validation from native Linux RTX 5090 production
+> authority. Production claims MUST name the committed Git SHA,
+> `backend/.env` fingerprint, PostgreSQL authority, Redis/Celery route,
+> Triton profile, evidence root and accepted production job lineage.
+
 > **Temporal and Identity Truth Gate**: Any plan touching frames,
 > tracks, pose, behavior, events, artifacts, or replay MUST define
 > source/ingest/queue/inference/persistence timestamps, gap and drift
@@ -94,6 +100,12 @@
 > distinguish mock/real, CPU/GPU, synthetic/production, dev/prod and
 > fallback/canonical execution. Placeholder evidence, temporary-path-only
 > manifests and SQLite-backed evidence are forbidden.
+
+> **Replay and Closure Gate**: Lifecycle or benchmark plans MUST define
+> explicit replay policy (`reuse-success`, `fail-on-existing`, or
+> `new-attempt`), reject failed replay lineage for acceptance, and define
+> final closure evidence under `ci_evidence/production/runtime_maturity/final/`
+> when the active runtime maturity plan applies.
 
 > **XFail, Drift and Debt Gate**: Hidden xfails, untracked runtime overrides,
 > environment drift tolerance and unbounded technical debt MUST block closure.
