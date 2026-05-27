@@ -25,7 +25,7 @@ implemented acceptance and read surfaces expose these truth states:
 | --- | --- | --- |
 | `valid` | Reconciliation or raw GPU/queue causality accepted. | Retain evidence with its digest and runtime mode. |
 | `invalidated` | Reconciliation or causality rejected a mismatch, synthetic trace, bad attribution, or cross-mode route. | Block maturity claims and investigate failure reasons. |
-| `unavailable` | A required surface is not implemented or cannot be authoritative; currently returned by the BSIL access-audit stub. | Treat production closure as blocked. |
+| `unavailable` | A query surface cannot report authoritative state; currently returned by the BSIL access-audit read endpoint. | Use retained audit evidence for acceptance; do not claim the query is available. |
 | `degraded` / `invalid` confidence bands | Behavioral output is impaired or fails lineage/runtime gates. | Display the cause; do not promote it as accepted evidence. |
 
 PostgreSQL remains durable telemetry/evidence authority. Redis cache values,
@@ -105,8 +105,8 @@ flowchart LR
    non-PostgreSQL.
 4. For GPU claims, inspect raw queue and Triton/NVIDIA GPU attribution before
    reading summarized latency or utilization values.
-5. Treat the access-audit `unavailable` response as a blocking incomplete
-   maturity surface until implemented.
+5. Require a valid PostgreSQL-backed access-audit evidence manifest; the
+   unavailable read endpoint is not evidence.
 
 ---
 

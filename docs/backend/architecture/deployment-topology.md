@@ -136,7 +136,8 @@ The helper loads `backend/.env` on production and invokes
 `backend/.venv/bin/python backend/manage.py run_bsil_acceptance`. The command
 validates fresh PostgreSQL-backed evidence, task/database/queue/artifact/
 telemetry/frontend reconciliation, and raw Triton/NVIDIA GPU queue causality,
-then writes `ci_evidence/bsil/production/final/final_acceptance_manifest.json`.
+plus a valid PostgreSQL-backed access-audit manifest, then writes
+`ci_evidence/bsil/production/final/final_acceptance_manifest.json`.
 
 ## Related Documents
 

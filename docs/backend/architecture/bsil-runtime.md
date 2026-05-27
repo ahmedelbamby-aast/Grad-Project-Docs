@@ -33,9 +33,10 @@ Anomaly-side BSIL records are routed through `/api/v1/anomalies/`:
 | `/api/v1/anomalies/bsil/review-labels/` | Review-label record view set |
 
 `GET /api/v1/behavior/bsil/access-audit/` is currently an explicit
-`501 Not Implemented` truth surface with `truth_state="unavailable"`. It
-blocks production maturity until the audit writer and reconciliation are
-wired; documentation must not represent access auditing as complete.
+`501 Not Implemented` query surface with `truth_state="unavailable"`.
+Acceptance does not use that query as proof: it requires a PostgreSQL-backed,
+digest-addressed access-audit evidence manifest containing recorded audit
+events.
 
 ## Truth and Confidence
 
@@ -62,6 +63,7 @@ The final acceptance command is implemented by
 | Evidence manifest | Fresh immutable raw-trace-backed evidence with PostgreSQL authority |
 | Runtime reconciliation | Task, database, queue, artifact, telemetry, and frontend components converge |
 | GPU/queue causality | Raw non-synthetic trace, one mode, mode-correct queue, and Triton/NVIDIA attribution |
+| Access audit | PostgreSQL-backed valid audit manifest with at least one digest-addressed event collection |
 
 Production acceptance evaluation runs through:
 
