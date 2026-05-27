@@ -67,7 +67,7 @@
 - [x] T026 [P] [US2] Add preflight tests for Triton-only production enforcement in `backend/tests/unit/pipeline/test_production_inference_strategy.py`
 - [x] T027 [P] [US2] Add endpoint active/inactive contract tests in `backend/tests/contract/test_runtime_mode_contract.py`
 - [x] T028 [US2] Run focused local tests for env, strategy, runtime mode, and queue policy and save output to `ci_evidence/production/runtime_maturity/phase2_local_tests.md`
-- [ ] T029 [US2] Run `tools/prod/prod-runtime-preflight.sh` on production and save output to `ci_evidence/production/runtime_maturity/phase2_prod_preflight.md`
+- [x] T029 [US2] Run `tools/prod/prod-runtime-preflight.sh` on production and save output to `ci_evidence/production/runtime_maturity/phase2_prod_preflight.md`
 
 ## Phase 5: User Story 3 - Replay and Lifecycle Integrity
 
