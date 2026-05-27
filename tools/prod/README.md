@@ -96,6 +96,27 @@ Wave 5 behavior evidence:
 - run `.\tools\prod\prod-wave5-behavior-evidence.ps1` from Windows to generate
   `ci_evidence/production/wave5/<timestamp>/` artifacts on production.
 
+## 2.1) Canonical local-video operational ingestion
+
+Run a production-local video through the same authenticated upload admission and
+Celery dispatch path used by the frontend:
+
+```powershell
+.\tools\prod\prod-runtime-ingest-video.ps1 `
+  -VideoPath "/home/bamby/grad_project/Raw Data/<video>.mp4" `
+  -ActorUsername "<teacher-or-admin-user>" `
+  -RuntimeProfile offline `
+  -PipelineMode full_frame `
+  -ReplayKey "acceptance:<video>:v1" `
+  -Wait `
+  -OutputPath "/home/bamby/grad_project/ci_evidence/production/runtime/runtime_ingest_summary.json"
+```
+
+The command stores the video by invoking `VideoAnalysisJobListCreateView` and
+lets `_enqueue_process_video_upload` choose the governed Celery queue. It does
+not call the inference task inline. Use an existing teacher/admin account and
+the active `offline` runtime profile.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash
