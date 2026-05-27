@@ -30,3 +30,23 @@ No BSIL capability is accepted when:
 | Scientific evidence | representative datasets, repeated runs and false-positive/negative review pass |
 | Reconciliation | task, DB, queue, artifact, telemetry and frontend state converge |
 
+## Human-Reviewed Escalation Gate
+
+High-confidence BSIL episodes may only create human review tasks. Acceptance
+is blocked if any BSIL output creates an automatic accusation, penalty,
+enforcement action, user sanction or irreversible operational decision. Review
+task creation MUST be idempotent, linked to the episode lineage record,
+auditable, replay-safe and visible in evidence exports.
+
+## Debt, XFail and Drift Registry Gate
+
+BSIL closure requires a registry of accepted technical debt, xfails and
+runtime drift. Each entry MUST include owner, scope, affected requirement,
+risk, expiry condition, blocking threshold and current evidence. Hidden
+xfails, unowned debt, stale drift exceptions, skipped runtime gates or
+unbounded deferrals block maturity closure.
+
+The registry MUST explicitly state when no entries exist. A clean registry is
+evidence only when CI/static scans verify no hidden xfail markers, placeholder
+artifacts, SQLite evidence paths, unsupported fallback routes or drift
+exceptions remain.

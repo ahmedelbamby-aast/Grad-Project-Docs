@@ -24,6 +24,8 @@
 | Interaction graph | active identities, edges, confidence, suppressions, crowded-scene metrics |
 | Semantic confidence | confidence distributions, uncertainty reasons, occlusion impact |
 | Evidence and reconciliation | artifacts, digests, task/DB/queue convergence, stale/degraded states |
+| Confidence bands | advisory, review-needed, high-confidence, degraded and invalid counts by output type and runtime mode |
+| Review workflow | high-confidence episode review tasks, reviewer labels, false-positive/false-negative trends and access-audit volume |
 
 ## Alerting Rules
 
@@ -32,3 +34,5 @@
 - Queue budget breach creates degraded runtime state.
 - Confidence decomposition absence blocks accepted behavioral output.
 - Baseline drift budget breach freezes adaptive anomaly maturity claims.
+- Confidence band contradiction between API, WebSocket, UI or evidence export
+  blocks acceptance for the affected output scope.

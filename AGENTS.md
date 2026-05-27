@@ -25,7 +25,7 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
-- Active feature plan: [specs/010-behavioral-maturity-closure/plan.md](specs/010-behavioral-maturity-closure/plan.md)
+- Active feature plan: [specs/011-bsil-semantic-runtime/plan.md](specs/011-bsil-semantic-runtime/plan.md)
 <!-- SPECKIT END -->
 
 ## Current Active Optimization Plan

@@ -32,3 +32,16 @@ production operation.
 - Every degraded, fallback, timeout, dropped frame or rejected interval MUST
   emit telemetry and lineage.
 
+## Staff Access Audit Policy
+
+Authenticated staff users may view BSIL semantic states, behavioral episodes,
+anomaly candidates, interaction context and evidence exports. This broad staff
+visibility is permitted only when every access emits an audit event containing
+user identity, authenticated role, action, target object type, target ID,
+lineage or artifact digest, timestamp, source IP or session context and export
+scope when applicable.
+
+Access audit events are production evidence. They MUST be PostgreSQL-backed,
+retained with the associated evidence package, visible to forensic review and
+included in reconciliation when evidence exports are used for maturity,
+scientific or operational claims.

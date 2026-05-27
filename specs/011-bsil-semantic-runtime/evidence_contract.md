@@ -25,3 +25,17 @@
 - Placeholder-only, temporary-path-only, stale, dev-only-for-production,
   SQLite-backed or fallback-generated evidence is rejected.
 
+## Full Raw Retention Policy
+
+Accepted BSIL evidence MUST retain the full raw materials needed to reproduce
+the decision path. This includes raw media or live-capture manifests, frame
+references, pose/keypoint streams, temporal windows, queue/runtime events,
+telemetry exports, replay inputs, decision lineage, reviewer labels, access
+audit events and generated evidence artifacts.
+
+Retention is indefinite for accepted BSIL evidence unless a later governed
+retention migration explicitly supersedes this policy and records the
+replacement location, digest mapping, migration command, reviewer approval and
+replay equivalence result. Summaries, thumbnails, derived metrics or HTML
+reports cannot replace raw retained evidence for production or scientific
+claims.

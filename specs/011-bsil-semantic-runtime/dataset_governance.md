@@ -21,3 +21,15 @@
 - Scientific maturity claims require repeated runs, variance, confidence,
   baseline/candidate causality and limitations.
 
+## Governed Review-Label Policy
+
+Reviewer labels for false-positive, false-negative, ambiguous, invalid,
+confirmed-observation or excluded-window outcomes are validation data, not
+runtime authority. A review label MUST reference the decision lineage record,
+review task, reviewer identity, label vocabulary version, evidence snapshot
+digest, timestamp and rationale category.
+
+Review labels MUST NOT directly mutate production baselines, thresholds,
+adaptive behavior, confidence-band mapping or episode state. They may enter
+future validation datasets only through a governed dataset manifest update
+that records provenance, split assignment, leakage controls and approval.
