@@ -37,3 +37,12 @@ Use this checklist with [docs/heterogeneous_production_runtime_maturity_plan.md]
 - Fresh lifecycle job succeeds through canonical API admission, Celery, Triton, PostgreSQL, and evidence export.
 - Replayed failed lineage is rejected for acceptance.
 - Final evidence package references one accepted job ID, Git SHA, env fingerprint, runtime profile, model artifact hashes, queue topology, GPU trace, and causality export.
+
+## Final Evidence Package Validation
+
+- `phase4_evidence_manifest.json` exists and uses `schema_version=production-wave-evidence.v1`.
+- `runtime_maturity.job.job_id` matches the accepted lifecycle job.
+- `runtime_maturity.job.replay_policy` is `reuse-success` for successful replay validation or `new-attempt` for a fresh linked attempt.
+- `runtime_maturity.artifacts.gpu_trace`, `queue_topology`, `causality_export`, and `model_artifact_hashes` all include SHA-256 references.
+- `runtime_maturity.branch_parity.local_head`, `origin_head`, and `production_head` match before final merge.
+- `final/hash_parity.md`, `final/prod_hygiene.md`, and `final/production_acceptance_summary.md` are captured from production, not local simulation.
