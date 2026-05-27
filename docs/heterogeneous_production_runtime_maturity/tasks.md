@@ -22,7 +22,7 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Create `release/prod-runtime-stabilization` locally from the current active branch and record the starting SHA in `ci_evidence/production/runtime_maturity/startup_branch_state.md`
+- [x] T001 Create `release/prod-runtime-stabilization` locally from the current active branch and record the starting SHA in `ci_evidence/production/runtime_maturity/startup_branch_state.md`
 - [x] T002 [P] Add a production evidence directory convention for this plan in `ci_evidence/production/runtime_maturity/README.md`
 - [x] T003 [P] Add a short operator checklist for this plan in `docs/production/runtime_maturity_operator_checklist.md`
 - [x] T004 Update production helper documentation to name `release/prod-runtime-stabilization` as the target stabilization branch in `docs/heterogeneous_production_runtime_maturity_plan.md`
