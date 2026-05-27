@@ -189,23 +189,23 @@ production behavior directly from reviewer feedback.
 
 ### Tests and Evidence for User Story 5
 
-- [ ] T092 [P] [US5] Add baseline snapshot and drift tests in `backend/tests/unit/anomalies/test_bsil_baselines.py`
-- [ ] T093 [P] [US5] Add adaptive threshold reconstruction tests in `backend/tests/unit/anomalies/test_bsil_thresholds.py`
-- [ ] T094 [P] [US5] Add governed review label tests in `backend/tests/unit/anomalies/test_bsil_review_labels.py`
-- [ ] T095 [P] [US5] Add baseline contamination and quarantine tests in `backend/tests/integration/anomalies/test_bsil_baseline_quarantine.py`
-- [ ] T096 [P] [US5] Add false-positive and false-negative review fixture manifest in `ci_evidence/bsil/review_label_fixture_manifest.json`
+- [X] T092 [P] [US5] Add baseline snapshot and drift tests in `backend/tests/unit/anomalies/test_bsil_baselines.py`
+- [X] T093 [P] [US5] Add adaptive threshold reconstruction tests in `backend/tests/unit/anomalies/test_bsil_thresholds.py`
+- [X] T094 [P] [US5] Add governed review label tests in `backend/tests/unit/anomalies/test_bsil_review_labels.py`
+- [X] T095 [P] [US5] Add baseline contamination and quarantine tests in `backend/tests/integration/anomalies/test_bsil_baseline_quarantine.py`
+- [X] T096 [P] [US5] Add false-positive and false-negative review fixture manifest in `ci_evidence/bsil/review_label_fixture_manifest.json`
 
 ### Implementation for User Story 5
 
-- [ ] T097 [P] [US5] Implement baseline snapshot versioning in `backend/apps/anomalies/bsil_baselines.py`
-- [ ] T098 [P] [US5] Implement adaptive threshold and hysteresis rules in `backend/apps/anomalies/bsil_thresholds.py`
-- [ ] T099 [P] [US5] Implement baseline drift detection and quarantine in `backend/apps/anomalies/bsil_drift.py`
-- [ ] T100 [P] [US5] Implement governed review label ingestion in `backend/apps/anomalies/bsil_review_labels.py`
-- [ ] T101 [US5] Persist baseline snapshots, threshold shifts, drift states, and review labels in `backend/apps/anomalies/models.py`
-- [ ] T102 [US5] Add anomaly candidate and review-label endpoints in `backend/apps/anomalies/views.py`
-- [ ] T103 [US5] Emit baseline drift, threshold shift, and false-positive/false-negative telemetry in `backend/apps/runtime/bsil_metrics.py`
-- [ ] T104 [US5] Render anomaly candidates, baseline provenance, drift state, and review labels in `frontend/src/features/bsil/AnomalyReviewPanel.tsx`
-- [ ] T105 [US5] Add baseline replay export command in `backend/apps/anomalies/management/commands/export_bsil_baseline_replay.py`
+- [X] T097 [P] [US5] Implement baseline snapshot versioning in `backend/apps/anomalies/bsil_baselines.py`
+- [X] T098 [P] [US5] Implement adaptive threshold and hysteresis rules in `backend/apps/anomalies/bsil_thresholds.py`
+- [X] T099 [P] [US5] Implement baseline drift detection and quarantine in `backend/apps/anomalies/bsil_drift.py`
+- [X] T100 [P] [US5] Implement governed review label ingestion in `backend/apps/anomalies/bsil_review_labels.py`
+- [X] T101 [US5] Persist baseline snapshots, threshold shifts, drift states, and review labels in `backend/apps/anomalies/models.py`
+- [X] T102 [US5] Add anomaly candidate and review-label endpoints in `backend/apps/anomalies/views.py`
+- [X] T103 [US5] Emit baseline drift, threshold shift, and false-positive/false-negative telemetry in `backend/apps/runtime/bsil_metrics.py`
+- [X] T104 [US5] Render anomaly candidates, baseline provenance, drift state, and review labels in `frontend/src/features/bsil/AnomalyReviewPanel.tsx`
+- [X] T105 [US5] Add baseline replay export command in `backend/apps/anomalies/management/commands/export_bsil_baseline_replay.py`
 
 ## Phase 8: User Story 6 - Validate Scientific and Operational Evidence (Priority: P3)
 
