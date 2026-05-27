@@ -66,26 +66,26 @@ and confidence rules pass.
 
 ### Tests and Evidence for User Story 1
 
-- [ ] T029 [P] [US1] Add semantic pose schema unit tests in `backend/tests/unit/behavior/test_semantic_pose_contracts.py`
-- [ ] T030 [P] [US1] Add pose lineage and missing-lineage rejection tests in `backend/tests/unit/behavior/test_semantic_pose_lineage.py`
-- [ ] T031 [P] [US1] Add confidence-band assignment tests in `backend/tests/unit/behavior/test_confidence_bands.py`
-- [ ] T032 [P] [US1] Add occlusion, partial-pose, and low-confidence degradation tests in `backend/tests/unit/behavior/test_pose_degradation.py`
-- [ ] T033 [P] [US1] Add semantic trace artifact validation tests in `backend/tests/contract/test_bsil_semantic_trace_contract.py`
-- [ ] T034 [US1] Add representative semantic pose fixture manifest in `ci_evidence/bsil/semantic_pose_fixture_manifest.json`
+- [X] T029 [P] [US1] Add semantic pose schema unit tests in `backend/tests/unit/behavior/test_semantic_pose_contracts.py`
+- [X] T030 [P] [US1] Add pose lineage and missing-lineage rejection tests in `backend/tests/unit/behavior/test_semantic_pose_lineage.py`
+- [X] T031 [P] [US1] Add confidence-band assignment tests in `backend/tests/unit/behavior/test_confidence_bands.py`
+- [X] T032 [P] [US1] Add occlusion, partial-pose, and low-confidence degradation tests in `backend/tests/unit/behavior/test_pose_degradation.py`
+- [X] T033 [P] [US1] Add semantic trace artifact validation tests in `backend/tests/contract/test_bsil_semantic_trace_contract.py`
+- [X] T034 [US1] Add representative semantic pose fixture manifest in `ci_evidence/bsil/semantic_pose_fixture_manifest.json`
 
 ### Implementation for User Story 1
 
-- [ ] T035 [P] [US1] Implement pose confidence normalization in `backend/apps/behavior/pose_decision/confidence.py`
-- [ ] T036 [P] [US1] Implement joint reliability and missing-keypoint policy in `backend/apps/behavior/pose_decision/joint_reliability.py`
-- [ ] T037 [P] [US1] Implement head attention, gaze category, and body orientation derivation in `backend/apps/behavior/pose_decision/attention.py`
-- [ ] T038 [P] [US1] Implement posture, hand activity, desk interaction, and motion energy derivation in `backend/apps/behavior/pose_decision/semantics.py`
-- [ ] T039 [US1] Implement semantic transition event creation in `backend/apps/behavior/pose_decision/transitions.py`
-- [ ] T040 [US1] Implement semantic pose orchestration service with fail-closed lineage checks in `backend/apps/behavior/services/semantic_pose_service.py`
-- [ ] T041 [US1] Persist semantic pose states through repository boundary in `backend/apps/behavior/repositories.py`
-- [ ] T042 [US1] Emit semantic latency, uncertainty, degradation, and band distribution telemetry in `backend/apps/runtime/bsil_metrics.py`
-- [ ] T043 [US1] Expose semantic pose state read endpoint in `backend/apps/behavior/views.py`
-- [ ] T044 [US1] Render semantic states, uncertainty, and confidence bands in `frontend/src/features/bsil/SemanticStatePanel.tsx`
-- [ ] T045 [US1] Add semantic trace export command in `backend/apps/behavior/management/commands/export_bsil_semantic_traces.py`
+- [X] T035 [P] [US1] Implement pose confidence normalization in `backend/apps/behavior/pose_decision/confidence.py`
+- [X] T036 [P] [US1] Implement joint reliability and missing-keypoint policy in `backend/apps/behavior/pose_decision/joint_reliability.py`
+- [X] T037 [P] [US1] Implement head attention, gaze category, and body orientation derivation in `backend/apps/behavior/pose_decision/attention.py`
+- [X] T038 [P] [US1] Implement posture, hand activity, desk interaction, and motion energy derivation in `backend/apps/behavior/pose_decision/semantics.py`
+- [X] T039 [US1] Implement semantic transition event creation in `backend/apps/behavior/pose_decision/transitions.py`
+- [X] T040 [US1] Implement semantic pose orchestration service with fail-closed lineage checks in `backend/apps/behavior/services/semantic_pose_service.py`
+- [X] T041 [US1] Persist semantic pose states through repository boundary in `backend/apps/behavior/repositories.py`
+- [X] T042 [US1] Emit semantic latency, uncertainty, degradation, and band distribution telemetry in `backend/apps/runtime/bsil_metrics.py`
+- [X] T043 [US1] Expose semantic pose state read endpoint in `backend/apps/behavior/views.py`
+- [X] T044 [US1] Render semantic states, uncertainty, and confidence bands in `frontend/src/features/bsil/SemanticStatePanel.tsx`
+- [X] T045 [US1] Add semantic trace export command in `backend/apps/behavior/management/commands/export_bsil_semantic_traces.py`
 
 ## Phase 4: User Story 2 - Reason Over Temporal Behavioral State (Priority: P1)
 
@@ -113,11 +113,11 @@ transitions within the replay drift budget.
 - [ ] T055 [P] [US2] Implement timestamp authority and frame ordering checks in `backend/apps/behavior/temporal/time_authority.py`
 - [ ] T056 [US2] Implement online state cache TTL and stale-window eviction in `backend/apps/behavior/temporal/cache.py`
 - [ ] T057 [US2] Implement crash-safe state rebuild from durable lineage in `backend/apps/behavior/temporal/rebuild.py`
-- [ ] T058 [US2] Persist temporal windows and behavioral states through `backend/apps/behavior/repositories.py`
+- [X] T058 [US2] Persist temporal windows and behavioral states through `backend/apps/behavior/repositories.py`
 - [ ] T059 [US2] Emit temporal aggregation, stale-window, replay-drift, and invalid-window telemetry in `backend/apps/runtime/bsil_metrics.py`
-- [ ] T060 [US2] Add temporal state read endpoint in `backend/apps/behavior/views.py`
-- [ ] T061 [US2] Render temporal state timeline and replay mismatch indicators in `frontend/src/features/bsil/TemporalStateTimeline.tsx`
-- [ ] T062 [US2] Add temporal reasoning audit export command in `backend/apps/behavior/management/commands/export_bsil_temporal_audit.py`
+- [X] T060 [US2] Add temporal state read endpoint in `backend/apps/behavior/views.py`
+- [X] T061 [US2] Render temporal state timeline and replay mismatch indicators in `frontend/src/features/bsil/TemporalStateTimeline.tsx`
+- [X] T062 [US2] Add temporal reasoning audit export command in `backend/apps/behavior/management/commands/export_bsil_temporal_audit.py`
 
 ## Phase 5: User Story 3 - Generate Explainable Behavioral Episodes (Priority: P2)
 
