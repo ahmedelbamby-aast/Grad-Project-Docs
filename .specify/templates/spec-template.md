@@ -102,6 +102,11 @@
   behavior ontology/feature version, and invalid-window rules]
 - **Deployment Boundary**: [Describe dev/test assumptions and production
   native Linux, NVIDIA GPU, no-Docker, no-sudo, single-active-mode rules]
+- **Runtime Reconciliation**: [Describe task, queue, database, artifact,
+  telemetry and frontend state convergence, including mismatch handling]
+- **Evidence Lineage**: [Describe immutable evidence snapshots, artifact
+  digests, environment/runtime/dependency/GPU fingerprints, dataset and
+  telemetry provenance, and mock/real CPU/GPU synthetic/production distinctions]
 
 ## Requirements *(mandatory)*
 
@@ -154,3 +159,11 @@
   interval behavior are verified where behavioral claims exist]
 - **SC-008**: [Telemetry and benchmark reports distinguish valid, degraded,
   unavailable and failed outcomes without synthetic success]
+- **SC-009**: [Runtime reconciliation proves task, database, queue, artifact,
+  telemetry and frontend states converge or expose a blocking fault]
+- **SC-010**: [Evidence artifacts are non-placeholder, immutable,
+  digest-addressed, PostgreSQL-backed where relational state is involved, and
+  reproducible from recorded lineage]
+- **SC-011**: [No hidden xfails, unbounded technical debt, environment drift,
+  unsupported fallback paths or production claims based on dev-only runs remain
+  for the accepted scope]

@@ -213,3 +213,69 @@
 - Wave 1 runtime policy evidence is now partially closed with authoritative prod manifest `ci_evidence/production/wave1/manifest.json` generated from snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_020240.txt` and offline policy transcript `ci_evidence/production/wave1/triton_policy_offline_20260526_020242.txt`; manifest fields include `evidence_origin=real`, `runtime_environment=prod`, `runtime_mode=offline`, `db_backend=postgresql`, and git SHA `39bffa82562d51ccf741e9fcadd66ca0209e07df`.
 - Production GPU/runtime benchmark evidence is still not complete: GPU utilization in the fresh health snapshot remains `0%`, and durable Wave 2 through Wave 8 real production evidence packages still need to be regenerated.
 - Production wave evidence wrappers previously hid remote SSH failures; wrappers now fail closed on non-zero remote exit and empty authority-manifest output. Wave 1 additionally writes the authority manifest in the same remote shell that captures endpoint policy to avoid cross-SSH path drift.
+
+## Continuation Update - 2026-05-26 17:16 Africa/Cairo
+
+- Repaired Windows-to-production SSH script transport by stripping stray carriage returns and feeding remote bash scripts through `cmd /c` stdin redirection; `prod-ssh.ps1` now executes multi-line commands without corrupting tokens such as `HEAD`.
+- Regenerated production Wave 2, Wave 3, Wave 5, Wave 6, and Wave 7 authority manifests on production and copied the evidence back locally.
+- Generated a real production offline Triton RTMPose probe artifact at `ci_evidence/production/wave4/wave4_pose_gpu_latency.json` with 20 samples and persisted corresponding `PoseStreamRecord` rows for Wave 5 input provenance.
+- Found Wave 4 was previously fail-open because the wrapper allowed `runtime_gpu` pytest skips and miscaptured `$?`; patched the wrapper to require `RUNTIME_GPU_REQUIRED=1`, set the TensorRT compatibility manifest path, preserve the remote pytest exit code, and write the authority manifest only after pytest passes.
+- Added a `verdict` field to production evidence manifests and made Wave 8 dependency collection reject manifests with `verdict=fail`.
+- Current Wave 4 production evidence is truthfully failed: RTMPose p95 latency is `62.25885171443224 ms` against the configured `45.0 ms` target. The refreshed Wave 4 authority manifest is `verdict=fail`.
+- Refreshed Wave 8 final acceptance now fails closed with `missing_wave_dependencies:wave4` plus missing Wave 8 profile matrix, dynamic batch signoff, live/offline performance reports, paper traceability, and runtime causality/remediation artifacts.
+- Focused local regression after the hardening changes: `12 passed` across `backend/tests/system/test_wave8_final_acceptance.py` and `backend/tests/unit/scripts/test_wave8_benchmark_generators.py`; all `tools/prod/*.ps1` scripts parse; `git diff --check` passes with expected CRLF warnings only.
+
+## Continuation Update - 2026-05-26 17:29 Africa/Cairo
+
+- Identified a production route/version mismatch: code defaults RTMPose to `v2`, while the active CUDA 12 production Triton repository exposes `rtmpose_model` version `1`. Added `MODEL_ROUTE_<TASK>_MODEL_VERSION` / `MODEL_ROUTE_<TASK>_MODEL_NAME` environment overrides while preserving the default `v2` contract, and set production `backend/.env` to `MODEL_ROUTE_POSE_ESTIMATION_MODEL_VERSION=1`.
+- Replaced the slow JSON HTTP Wave 4 probe with a Triton HTTP binary-client RTMPose probe. Fresh production Wave 4 evidence now reports 50 real GPU samples with p95 `3.966954071074724 ms`, mean `1.8951923493295908 ms`, and `transport=tritonclient_http_binary`; Wave 4 authority manifest is back to `verdict=pass`.
+- Generated production runtime causality artifacts under `ci_evidence/production/runtime/`: retry lineage, latency decomposition, GPU telemetry, benchmark causality, workflow integrity, and runtime remediation manifest. The reconciliation command repaired 7 stale `processing` jobs and the workflow report now has `verdict=pass`.
+- Temporarily switched Triton to live mode on `39000` for a live-endpoint binary soak probe, then restored offline mode on `39100`. Live soak evidence reports 50 real GPU samples with p99 `1.463721040636301 ms`; post-run health confirms offline active `200`, live inactive `000`, backend health `200`, model-serving health `200`, and offline Celery workers online.
+- Populated Wave 8 profile, dynamic-batch, offline validation, live soak, xfail, paper traceability, hash sync, and final test-gate artifacts. Wave 8 final acceptance now fails only on representative dataset closure: `live_real_runs_below_minimum` and `coverage_tags_incomplete`.
+- Remaining defensible blocker: generate at least two real live/RTSP representative runs with the missing `rtsp_disconnect_reconnect` coverage tag, then refresh `final_profile_matrix_results.json` and rerun `prod-wave8-final-evidence.ps1`.
+
+## Continuation Update - 2026-05-26 17:42 Africa/Cairo
+
+- User requested skipping live/RTSP connectivity for this closure pass. The final acceptance command now supports a formal `live_rtsp_deferment` contract with `accepted`, `owner`, `rationale`, and `expiry`; deferrable live/RTSP dataset gaps produce `verdict=deferred` instead of a false pass.
+- Production Wave 8 final evidence was regenerated without running a live/RTSP representative connection. The current `ci_evidence/production/wave8/final_acceptance_manifest.json` reports `verdict=deferred`, `failure_reasons=[]`, and deferment reasons `representative_dataset:live_real_runs_below_minimum` plus `representative_dataset:coverage_tags_incomplete`.
+- The Wave 8 package manifest now copies the final acceptance verdict and provenance fields (`evidence_origin=real`, `runtime_environment=prod`, `db_backend=postgresql`) into `ci_evidence/production/wave8/wave8_manifest_20260526_174205.json`.
+- Production remains in offline mode after the run: snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_174154.txt` records `TRITON_EXECUTION_MODE=offline`, active offline Triton URL `127.0.0.1:39100`, inactive live endpoint unreachable, backend up, and five Celery nodes online.
+- Focused local validation after the deferment implementation observed `7 passed` for `backend/tests/system/test_wave8_final_acceptance.py` and `11 passed` for `backend/tests/unit/pipeline/test_services_and_routes_extra.py`.
+
+## Continuation Update - 2026-05-26 17:48 Africa/Cairo
+
+- Copied the generated `dynamic_batch_signoff.json` and Markdown report into `ci_evidence/production/runtime/` locally and on production so the runtime GPU release verifier can validate one durable runtime evidence root directly.
+- Runtime GPU release-gate verification now passes locally and on production against `ci_evidence/production/runtime` with `preflight`, `integration`, and `performance` marked success; the gate validates dynamic batching, benchmark causality, workflow integrity, GPU attribution, and remediation provenance.
+- Confirmed local, origin branch, production HEAD, and production origin branch are all in parity at `820a85f7b3a11ef1f78311ea05a308fc413069e7`.
+- Fresh production snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_174756.txt` confirms offline mode active, Triton ready on `39100`, live endpoint on `39000` unreachable, backend/model-serving health `200`, RTX 5090 visible, and Celery worker nodes online.
+- Local final acceptance re-check against pulled production artifacts writes `verdict=deferred`, `failure_reasons=[]`, and only the formal live/RTSP representative-dataset deferment reasons.
+- Authenticated GitHub Actions inspection is blocked because the ignored token in `.local/secrets/github.env` returns GitHub API `401 Bad credentials`; no token value was printed or written. CI status cannot be refreshed until that token is rotated or replaced.
+- Focused validation now observes `20 passed` across Wave 8 final acceptance, runtime release-gate verifier, and model route override tests; all `tools/prod/*.ps1` parse successfully; `git diff --check` passes with expected LF-to-CRLF warnings only.
+
+## Continuation Update - 2026-05-26 19:08 Africa/Cairo
+
+- User explicitly requested skipping live/RTSP connectivity; no live/RTSP representative run was attempted in this pass.
+- Authenticated GitHub Actions inspection artifact `ci_evidence/production/wave8/github_ci_status_report.json` now reports `authenticated=true` and `all_required_success=true` for SHA `820a85f7b3a11ef1f78311ea05a308fc413069e7` across `CI Runtime GPU`, `Sync Docs To Grad-Project-Docs`, `CI Bootstrap (Stage 1 - Quality Gate)`, and `maturity-closure`.
+- Local runtime GPU release gate passes against `ci_evidence/production/runtime` with causal evidence validation enabled.
+- Fresh production parity check confirms local `HEAD`, origin branch, production `HEAD`, and production origin branch all remain at `820a85f7b3a11ef1f78311ea05a308fc413069e7`.
+- Fresh production health snapshot `backend/artifacts/health_snapshots/health_snapshot_20260526_190802.txt` confirms offline mode active, Triton ready on `39100`, live endpoint unreachable on `39000`, backend health `200`, model-serving health `200`, RTX 5090 visible, and PostgreSQL-only runtime posture preserved.
+- Production Celery status confirms five online offline-mode nodes: `default_control`, `offline_control`, `offline_person`, `offline_pose`, and `offline_behavior`, all using user-space Redis on `127.0.0.1:6380`.
+- Focused non-live validation observes `8 passed` for Wave 8 final acceptance plus the model-route override test, and `9 passed` for Wave 8 benchmark generator plus runtime release-gate verifier unit tests.
+- Full local DB-backed focused suite was not rerun successfully because local PostgreSQL timed out during test database setup; this was not bypassed with SQLite.
+- Superseded by the later dev-network RTSP evidence update: final acceptance no longer carries the formal live/RTSP representative-dataset deferment.
+
+## Continuation Update - 2026-05-26 19:12 Africa/Cairo
+
+- Confirmed production endpoint binding is intentionally active-only for inference routing: in offline mode both `TRITON_URL` and profile routing URLs point to `39100`, while the inactive live health probe still checks fixed port `39000` and remains unreachable.
+- Found and fixed a local acceptance-command hazard where tests using a temporary `--wave-root` but no explicit `--output` could overwrite the checked-in production `wave8/final_acceptance_manifest.json`; the default output now resolves to `<wave8-root>/final_acceptance_manifest.json`.
+- Added regression coverage for the default output behavior so temporary acceptance runs stay inside their own wave evidence root.
+- Restored the real production Wave 8 final acceptance manifest from production after the local overwrite; local artifact again reports `verdict=deferred`, zero failures, and two formal live/RTSP deferment reasons.
+- Revalidated focused non-live slices after the output fix: `9 passed` for Wave 8 final acceptance plus the model-route override test, and `9 passed` for Wave 8 benchmark generator plus runtime release-gate verifier unit tests.
+- Runtime GPU release gate still passes locally against `ci_evidence/production/runtime`; Python compile checks and all `tools/prod/*.ps1` parser checks pass; `git diff --check` passes with expected CRLF warnings only.
+
+## Continuation Update - 2026-05-27 01:05 Africa/Cairo
+
+- RTSP representative coverage is now marked complete from the development network using a real Android H264 stream (`1920x1080`) with credentials redacted in evidence.
+- Wave 8 `final_profile_matrix_results.json` now records `live_real_runs=2`, includes `rtsp_disconnect_reconnect`, and carries `rtsp_coverage_evidence.coverage_environment=dev`.
+- Regenerated `ci_evidence/production/wave8/final_acceptance_manifest.json`; current verdict is `passed` with no failure or deferment reasons.
+- Removed the experimental user-space VPN tooling from production shell state and user service paths; no project plan, evidence, or tracked source file retains that dependency.

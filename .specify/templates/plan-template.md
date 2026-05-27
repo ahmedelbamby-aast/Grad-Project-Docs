@@ -32,6 +32,9 @@
 **Temporal/Identity Authority**: [Timestamp envelope, canonical identity scope, lifecycle/ReID and invalidation rules]
 **Evidence/Schema Authority**: [Telemetry, benchmark, API/WS/artifact/sequence schema versions and evidence outputs]
 **Deployment Topology**: [Dev/test services and production native Linux services; production MUST NOT assume Docker or sudo]
+**Runtime Reconciliation**: [Task/DB/artifact/queue/frontend convergence checks and failure handling]
+**Lineage/Fingerprints**: [Evidence, model, runtime, deployment, benchmark, dataset, telemetry and artifact digest lineage]
+**Budgets/SLOs**: [Latency, queue, retry, timeout, degradation and rollback thresholds]
 
 ## Constitution Check
 
@@ -80,6 +83,22 @@
 > specify both live and offline validation when their behavior spans
 > both modes. Each run occurs in a separate valid active-profile
 > window; N/A requires an explicit rationale.
+
+> **Anti-Regression Runtime Truth Gate**: Runtime claims MUST reconcile
+> process, port, endpoint, queue, GPU, model, telemetry, task, database,
+> artifact and frontend state. Acceptance scripts MUST inspect runtime truth
+> and artifact content, not just booleans or file existence.
+
+> **Evidence Integrity and Lineage Gate**: Evidence MUST be durable,
+> immutable after publication, digest-addressed and reproducible. It MUST
+> distinguish mock/real, CPU/GPU, synthetic/production, dev/prod and
+> fallback/canonical execution. Placeholder evidence, temporary-path-only
+> manifests and SQLite-backed evidence are forbidden.
+
+> **XFail, Drift and Debt Gate**: Hidden xfails, untracked runtime overrides,
+> environment drift tolerance and unbounded technical debt MUST block closure.
+> Formal deferrals require owner, scope, expiry condition and affected
+> constitutional rule.
 
 ## Project Structure
 

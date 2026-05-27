@@ -1,22 +1,20 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.8.1 -> 2.0.0
-Bump rationale: MAJOR - The prior project-wide quality and documentation
-charter is replaced by binding runtime, temporal, identity, scientific,
-contract, and acceptance laws for a production behavioral intelligence
-platform. This redefines production inference authority, maturity closure,
-and the meaning of acceptable evidence.
+Version change: 2.0.0 -> 2.1.0
+Bump rationale: MINOR - Adds binding anti-regression governance, runtime-truth
+reconciliation, evidence-integrity, benchmark-science, CI/CD, deployment,
+rollback, xfail, technical-debt, and forensic traceability requirements without
+removing the existing production behavioral intelligence doctrine.
 
 Modified principles:
-- Generic student monitoring engineering directives -> Production behavioral
-  intelligence system doctrine and runtime authority.
-- Optional/preferred Triton posture -> Triton-only production inference with
-  fail-closed enforcement.
-- General tracking/overlay expectations -> Identity- and temporal-truth
-  preconditions for any behavioral claim.
-- Broad test/documentation rules -> Evidence-based production and scientific
-  acceptance gates.
+- Production runtime authority -> Runtime-truth and reconciliation authority.
+- Evidence-based acceptance -> Evidence-integrity and artifact-authenticity
+  acceptance.
+- Benchmark/scientific acceptance -> Statistical rigor and lineage-enforced
+  scientific validity.
+- Compliance review -> CI/CD, deployment, rollback, xfail, and technical-debt
+  veto authority.
 
 Added sections:
 - Foundational System Doctrine
@@ -32,6 +30,31 @@ Added sections:
 - Security, Stability, and Failure Constitution
 - Acceptance, Validation, and Evidence Constitution
 - Cross-Wave Dependency Constitution
+- Anti-Regression Governance Constitution
+- Runtime Truth Governance
+- Production Evidence Integrity
+- Benchmark Scientific Rigor
+- CI/CD Authority Model
+- Dev/Prod Parity Governance
+- Runtime Reconciliation Guarantees
+- GPU Utilization & Inference Efficiency Governance
+- Queue/Retry/Backpressure Truth Governance
+- Identity & Temporal Integrity Governance
+- Observability Truth Enforcement
+- Feature Closure Requirements
+- Technical Debt Budget Governance
+- XFail Governance Policy
+- Runtime Drift Detection
+- Artifact Authenticity Validation
+- Deployment Safety Rules
+- Production Rollback Governance
+- Forensic Traceability Requirements
+- AI/Behavioral Intelligence Scientific Integrity
+- Future Expansion Safety Rules
+- Definition of Production-Ready
+- Definition of Scientifically Valid
+- No Silent Failure Doctrine
+- Anti-Regression Enforcement Matrix
 - Final Architectural Positioning
 
 Removed sections:
@@ -44,23 +67,20 @@ Templates requiring updates:
 - updated: .specify/templates/spec-template.md
 - updated: .specify/templates/tasks-template.md
 - not present: .specify/templates/commands/*.md
-- updated: docs/backend/architecture/triton-operations.md
-- updated: docs/backend/architecture/data-flow.md
-- updated: docs/backend/architecture/deployment-topology.md
-- updated: docs/backend/architecture/observability-runbook.md
-- updated: docs/ARCHITECTURE.md
-- updated: README.md
-- updated: docs/triton_inference_speed_stabilization_plan.md
-- updated: docs/architecture/runtime-scenario-matrix.md
+- reviewed/no change: docs/backend/architecture/triton-operations.md
+- reviewed/no change: docs/backend/architecture/data-flow.md
+- reviewed/no change: docs/backend/architecture/deployment-topology.md
+- reviewed/no change: docs/backend/architecture/observability-runbook.md
+- reviewed/no change: docs/ARCHITECTURE.md
+- reviewed/no change: README.md
+- reviewed/no change: docs/linux_production_optimization_execution_phases.md
 - reviewed/already aligned: AGENTS.md
-- reviewed/already aligned: docs/linux_production_optimization_execution_phases.md
 
 Follow-up TODOs:
-- Pending alignment review: the in-progress user-owned
-  specs/010-behavioral-maturity-closure/plan.md must be checked against the
-  stricter production inactive-endpoint-unreachable rule before approval.
-- Implementation gaps identified by this constitution must be planned and
-  closed as acceptance work; they are not placeholder governance text.
+- Existing evidence generated before this amendment remains historical only
+  until it is reconciled against the new anti-regression matrix.
+- Implementation gaps identified by this constitution are acceptance blockers
+  for affected maturity claims; they are not placeholder governance text.
 -->
 
 # Production Behavioral Intelligence Platform Constitution
@@ -1216,9 +1236,407 @@ surface without schema authority can be convenient but cannot be authoritative.
 Contract governance is therefore a prerequisite for forensic maturity and
 paper traceability.
 
-### 14. Final Architectural Positioning
+### 14. Anti-Regression Governance Constitution
 
-#### 14.1 Current Maturity
+This section converts historical production-closure failures into permanent
+blocking rules. A maturity claim, release approval, benchmark statement, paper
+result, or production-readiness declaration is invalid when any applicable rule
+below lacks measured, reproducible, durable evidence.
+
+#### 14.1 Runtime Truth Governance
+
+Runtime truth is the measured state of the executing system, not the intended
+configuration. Every runtime claim MUST be backed by recorded process, port,
+endpoint, queue, model, GPU, dependency, environment and telemetry evidence
+captured during the claimed run. A health endpoint, acceptance script or CI job
+MUST NOT infer readiness from configuration files, artifact presence or boolean
+flags alone.
+
+Runtime validation MUST include these layers when applicable:
+
+| Layer | Required proof | Blocks when missing |
+| --- | --- | --- |
+| Process | owning user, command, binary path, PID, start time | deployment readiness |
+| Network | bound active ports, unreachable inactive ports, source reachability | endpoint readiness |
+| Triton | live/ready probes, model `READY`, config digest, canary inference | inference readiness |
+| GPU | device identity, CUDA/TensorRT versions, utilization, memory, errors | GPU maturity |
+| Queue | route binding, consumer identity, backlog, retry/DLQ state | orchestration maturity |
+| Persistence | PostgreSQL transaction and state reconciliation | evidence maturity |
+| Telemetry | fresh probe-backed metrics and unknown/degraded states | observability maturity |
+
+Constitutional blocker: if runtime truth disagrees with declared configuration,
+runtime truth wins and the claim is blocked until reconciled.
+
+#### 14.2 Production Evidence Integrity
+
+Production evidence MUST be durable, immutable after publication, reproducible
+from source manifests, and attributable to a real execution environment.
+Evidence packages MUST include artifact digests, code revision, environment
+fingerprint, runtime profile fingerprint, dependency fingerprint, GPU/runtime
+fingerprint, dataset provenance, telemetry provenance, and command lineage.
+
+Evidence MUST explicitly distinguish:
+
+- mock, simulated, synthetic, replayed, development, staging and production
+  sources;
+- CPU, GPU, Triton, local fallback and unsupported execution paths;
+- live stream, offline processing and generated test fixtures;
+- canonical execution, degraded execution, fallback execution and failed
+  execution;
+- temporary pytest paths, durable evidence directories and archived snapshots.
+
+Placeholder-only directories, empty manifests, copied screenshots without raw
+evidence, manifests pointing only to temporary pytest paths, mutable acceptance
+artifacts, and production claims based on dev-only runs are prohibited.
+
+#### 14.3 Benchmark Scientific Rigor
+
+Benchmark acceptance MUST measure causality between a defined baseline and a
+defined candidate. A benchmark report MUST include workload manifest, source
+media or dataset digest, baseline/candidate code revisions, runtime profiles,
+model/config digests, warmup policy, sample count, failed-run handling,
+variance, confidence interval, effect size where relevant, latency/throughput
+distribution, resource counters, and raw output artifacts.
+
+Mandatory statistical requirements:
+
+- at least two independent real runs for operational smoke comparisons and at
+  least three for maturity closure unless a stricter plan threshold exists;
+- confidence intervals or an explicit non-parametric interval method for
+  repeated performance claims;
+- no self-baselining, no candidate-only pass state, no synthetic-only pass
+  state, and no exclusion of failed runs without recorded rationale;
+- separate reporting for live, offline, CPU, GPU, synthetic, production and
+  degraded windows.
+
+Benchmark artifact presence is never sufficient. Acceptance scripts MUST
+validate run causality, raw metrics, variance, thresholds, failure accounting
+and runtime fingerprints.
+
+#### 14.4 CI/CD Authority Model
+
+CI is authoritative only when it verifies runtime-relevant truth. A green CI
+status MUST NOT override broken production behavior, missing evidence,
+unreconciled runtime state, hidden xfails, failed critical suites, placeholder
+artifacts, SQLite-backed evidence, or degraded production probes.
+
+Required CI layers:
+
+| Layer | Minimum enforcement |
+| --- | --- |
+| Static/schema | explicit contracts, migrations, serializers, artifact schemas |
+| Unit/contract | deterministic behavior and API compatibility |
+| Integration/system | PostgreSQL, queues, telemetry and runtime reconciliation |
+| Runtime gate | native Linux/Triton/GPU evidence for production claims |
+| Evidence gate | artifact digests, non-placeholder content, lineage, environment |
+| Benchmark gate | baseline/candidate causality and statistical report validation |
+| XFail gate | no hidden `xfail`; all strict xfails require formal deferral |
+
+Critical suite failures, missing required evidence, or runtime reconciliation
+gaps are acceptance vetoes even when non-critical CI jobs pass.
+
+#### 14.5 Dev/Prod Parity Governance
+
+Development evidence can support engineering progress but cannot close
+production readiness unless it matches the required production authorities or
+is explicitly scoped as non-production. Any dev/prod difference in OS,
+hardware, CUDA/TensorRT/Triton version, model artifact, environment file,
+queue route, database, port, worker script, dependency lock, timeout, feature
+flag or fallback path MUST be recorded and assessed.
+
+Production runtime authority is `backend/.env`; repo-root `.env` MUST NOT
+participate in backend startup. PostgreSQL is the only relational authority.
+SQLite fallback in evidence paths, benchmark paths, migrations, acceptance
+scripts or runtime claims is constitutionally invalid.
+
+#### 14.6 Runtime Reconciliation Guarantees
+
+The platform MUST reconcile runtime state against persistent state for every
+long-running or asynchronous workflow. A task, DB row, artifact, queue message,
+telemetry event and frontend state MUST converge to one accountable lifecycle
+or expose a reconciliation fault.
+
+Required reconciliation checks include:
+
+- Celery task terminal state versus database processing/completed/failed state;
+- retry attempt lineage versus persisted idempotency key;
+- artifact manifest state versus file existence, digest and schema validity;
+- model-serving health versus actual Triton/model/GPU canary state;
+- frontend status versus backend and persistence truth;
+- runtime mode and queue route versus production environment authority.
+
+`Celery FAILURE` while the database remains `processing`, stale frontend
+success while backend failed, and acceptance scripts validating booleans
+without real runtime proof are blockers.
+
+#### 14.7 GPU Utilization & Inference Efficiency Governance
+
+GPU-backed production claims MUST include attribution for utilization,
+latency, queue wait, batching, model execution and CPU/GPU transfer time.
+Underutilization is not a maturity failure by itself, but unexplained
+underutilization during throughput claims is a benchmark and deployment
+blocker.
+
+Triton batching efficiency validation MUST record batch-size distribution,
+dynamic-batch delay, model instance count, GPU memory, compute utilization,
+request concurrency, rejected/timeout requests and per-stage latency. TensorRT
+engine rebuilds MUST be tied to CUDA/TensorRT fingerprints and Triton
+`READY` evidence before acceptance.
+
+#### 14.8 Queue/Retry/Backpressure Truth Governance
+
+Queue behavior MUST be bounded, observable and lineage-preserving. Every
+retry MUST emit attempt number, parent task, correlation ID, reason, delay,
+queue name, worker identity and terminal outcome. Backpressure MUST expose
+admission decisions, dropped/deferred work, queue age, retry budget burn,
+timeout budget burn and DLQ counts.
+
+Queue collapse resistance and retry amplification tests are mandatory for
+streaming, offline batch, inference and artifact workflows. Silent retry
+loops, unbounded retries, queue mixing between live/offline modes, and
+lineage-free replays are prohibited.
+
+#### 14.9 Identity & Temporal Integrity Governance
+
+Canonical identity continuity and timestamp truth are non-negotiable for
+behavioral claims. Multi-camera identity isolation, crowded-scene temporal
+continuity, occlusion/re-entry handling, source-time drift, frame drops,
+interpolation boundaries and identity switch metrics MUST be measured before
+behavior, anomaly, training-export or forensic claims are accepted.
+
+Unscoped identity keys, local track IDs presented as canonical identity,
+unattributed dropped frames/events, silent interpolation across invalid gaps,
+and temporal windows lacking canonical start/end time are blockers.
+
+#### 14.10 Observability Truth Enforcement
+
+Operational dashboards are mandatory for production capabilities and MUST show
+runtime mode, Triton/model readiness, GPU utilization, queue depth/age,
+latency percentiles, retry/DLQ counts, frame/event drop attribution,
+degradation states, evidence generation state, benchmark lineage and
+frontend/backend consistency.
+
+SLO, latency, queue, retry, timeout and degradation budgets MUST be declared
+per feature or release. A budget breach MUST produce telemetry, evidence and
+an operational decision: accept as degraded with scope, throttle, fail closed,
+rollback or freeze production claims.
+
+#### 14.11 Feature Closure Requirements
+
+A feature wave closes only when code, contracts, tests, runtime validation,
+evidence, observability, rollback plan, deferred-risk record and owner sign-off
+are complete. Issue/task completion, merged code, passing unit tests or
+artifact creation cannot close a feature when runtime truth remains broken.
+
+Live streaming validation MUST cover RTSP connect/disconnect/reconnect, frame
+timeout behavior, latency/backpressure, dropped-frame attribution, source-time
+gaps and recovery. Offline validation MUST cover deterministic decoding,
+replay, batching, artifact persistence and PostgreSQL-backed reconciliation.
+Long-duration soak tests MUST cover leak/drift/backlog behavior for the
+declared operating window.
+
+#### 14.12 Technical Debt Budget Governance
+
+Technical debt MAY be accepted only as a recorded budget item with owner,
+scope, affected constitutional rule, risk, expiry condition and blocking
+threshold. Unbounded debt accumulation, repeated deferrals without runtime
+evidence, or debt that masks production truth is prohibited.
+
+Debt becomes a release blocker when it affects production inference authority,
+evidence integrity, benchmark validity, identity/temporal truth, PostgreSQL
+semantics, CI gates, observability, rollback safety or security boundaries.
+
+#### 14.13 XFail Governance Policy
+
+`xfail` is allowed only for explicit scaffold or deferred behavior with a
+linked requirement, owner, reason, expiry/exit condition and strict marker
+where supported. Hidden xfails, broad xfail patterns, xfails in critical
+production-readiness gates, and xfails that allow maturity closure are
+prohibited.
+
+Every release gate MUST report xfailed tests separately from passed tests.
+When behavior is implemented, the same change set MUST remove the xfail and
+convert the assertion to a normal passing test.
+
+#### 14.14 Runtime Drift Detection
+
+Runtime drift exists when the observed runtime differs from the governed
+profile. Drift detection MUST cover environment variables, `.env` authority,
+shell path resolution, binary paths, model repository digests, TensorRT engine
+digests, Python dependency lock, CUDA/TensorRT versions, queue definitions,
+port bindings, worker commands, database host/role and telemetry exporters.
+
+Detected drift blocks production-readiness claims until either corrected or
+formally accepted as a new governed profile with evidence. Environment drift
+tolerance, untracked runtime overrides and undocumented manual fixes are
+prohibited.
+
+#### 14.15 Artifact Authenticity Validation
+
+Acceptance artifacts MUST be authentic, schema-valid, digest-addressed and
+traceable to their producing command. Validation MUST inspect content, not
+only paths. Minimum checks include non-empty payload, schema version, digest,
+source inputs, runtime fingerprint, code revision, timestamps, producer
+command, environment, and cross-links to raw metrics or logs.
+
+Mutable acceptance evidence MUST be superseded by a new immutable snapshot
+rather than edited in place after publication. Any corrected artifact MUST
+record the superseded digest and reason.
+
+#### 14.16 Deployment Safety Rules
+
+Deployment MUST be deterministic, reversible and traceable. A production
+deployment requires branch/hash parity, dependency fingerprint, environment
+fingerprint, database migration status, active runtime profile, inactive
+profile isolation, worker command inventory, health/canary proof, evidence
+writeability and rollback instructions.
+
+Unsupported fallback execution paths, hidden local inference, production
+Docker/sudo assumptions, unresolved shell export drift, and backend startup
+from repo-root `.env` are deployment blockers.
+
+#### 14.17 Production Rollback Governance
+
+Rollback is mandatory when a deployment causes fatal runtime authority loss,
+data corruption risk, unauthorized exposure, unreconciled queue collapse,
+model-serving failure, repeated SLO breach beyond the declared degradation
+budget, or evidence-integrity failure. Rollback MUST preserve evidence,
+record trigger and scope, stop admission where needed, verify restored runtime
+truth, and mark affected artifacts invalid or requiring reprocessing.
+
+Emergency remediation MAY prioritize containment over full analysis, but MUST
+produce a post-remediation record with root cause, impacted evidence,
+preventive control and reopened validation gates.
+
+#### 14.18 Forensic Traceability Requirements
+
+Every accepted runtime, behavioral, benchmark or production-readiness claim
+MUST be traceable across evidence lineage, model lineage, runtime lineage,
+deployment lineage, benchmark lineage, artifact digests, dataset provenance
+and telemetry provenance. A reviewer MUST be able to reconstruct the path from
+source media or live-capture manifest to frames, detections, pose, identity,
+features, anomaly candidates, persistence rows, API/WS payloads, frontend
+state and evidence artifacts.
+
+Weak operational traceability is a blocker for forensic maturity and paper
+claims.
+
+#### 14.19 AI/Behavioral Intelligence Scientific Integrity
+
+Behavioral intelligence and future AI layers MUST distinguish observation,
+heuristic, learned inference, anomaly candidate and adjudicated outcome.
+Anomaly pipeline causality MUST identify input windows, feature versions,
+model versions, thresholds, calibration data, uncertainty, exclusions and
+operator/adjudication status.
+
+Scientific validity requires dataset provenance, label provenance,
+train/validation/test split policy, leakage controls, quality filters,
+baseline comparison, statistical method, limitations and reproducible rerun
+instructions. Explainability readiness requires each candidate event to expose
+the features, temporal windows and model/run lineage supporting it.
+
+#### 14.20 Future Expansion Safety Rules
+
+Graph intelligence, transformers, contrastive learning, multimodal fusion,
+distributed inference, adaptive orchestration, VLM integration and future
+cognitive AI layers inherit every runtime, identity, temporal, evidence,
+benchmark, queue, observability, deployment and scientific rule in this
+constitution. New model sophistication MUST NOT bypass canonical identity,
+timestamp truth, Triton production authority, telemetry truthfulness,
+benchmark reproducibility or explainability readiness.
+
+Distributed runtime scaling MUST add topology, clock, queue, shard, model,
+GPU and evidence-lineage fingerprints before production claims. Multimodal
+systems MUST record modality provenance, synchronization quality, missingness,
+privacy boundaries and fusion-version lineage.
+
+#### 14.21 Definition of Production-Ready
+
+A capability is production-ready only when all applicable criteria are met:
+
+| Criterion | Measurable acceptance |
+| --- | --- |
+| Runtime | active native Linux Triton/GPU route passes canary; inactive route unreachable |
+| Persistence | PostgreSQL-backed state is reconciled with task/artifact/runtime state |
+| Evidence | immutable non-placeholder snapshot with digests and lineage exists |
+| CI/CD | critical suites and evidence gates pass with no hidden xfails |
+| Observability | dashboards and alerts expose valid/degraded/unavailable states |
+| Resilience | timeout, retry, backpressure, reconnect and rollback behavior verified |
+| Security | secrets, raw media, identity and artifact access controls verified |
+| Parity | dev/prod differences documented and non-blocking |
+| Rollback | tested rollback or fail-closed recovery path exists |
+
+Any critical runtime failure, unreconciled state, fake/placeholder evidence,
+unsupported fallback path, SQLite evidence path, or failed critical suite
+blocks production-ready status.
+
+#### 14.22 Definition of Scientifically Valid
+
+A claim is scientifically valid only when it is reproducible, statistically
+supported, lineage-complete and limitation-aware. Minimum measurable criteria:
+
+- versioned input dataset or live-capture manifest with digests and provenance;
+- canonical timestamp and identity quality eligibility criteria;
+- model, feature, ontology, runtime and dependency versions;
+- baseline/candidate comparison when making improvement claims;
+- repeated runs with variance, confidence interval and failure accounting;
+- explicit mock/synthetic/production distinction;
+- exclusion criteria, uncertainty, limitations and rerun instructions;
+- raw metrics and artifact digests stored durably.
+
+Scientific invalidity is a constitutional blocker for papers, thesis claims,
+model maturity, anomaly effectiveness and comparative performance statements.
+
+#### 14.23 No Silent Failure Doctrine
+
+Every degraded path MUST emit telemetry. Every fallback path MUST emit
+telemetry and be labeled non-canonical unless formally governed. Every retry
+MUST emit lineage. Every runtime inconsistency MUST become observable. Every
+dropped frame, event, queue item, artifact write, inference timeout and
+identity/temporal invalidation MUST be attributable to a cause, scope and
+decision.
+
+Silent retry loops, fake health checks, synthetic readiness, hidden fallback
+execution, KPI masking, unavailable-as-zero metrics and unobserved degraded
+runtime states are prohibited.
+
+#### 14.24 Mandatory Final Sign-Off Requirements
+
+Final maturity sign-off requires named approval records for runtime,
+observability, benchmarks, AI/scientific validity, deployment, CI/CD, forensic
+traceability and operational survivability. Each approval MUST identify
+evidence paths, run identifiers, remaining accepted risks, rollback criteria
+and the constitutional gates reviewed.
+
+An acceptance veto applies when any sign-off domain lacks evidence, contains a
+critical failure, relies on mock/dev-only proof for production claims, hides an
+xfail, bypasses PostgreSQL, uses unsupported fallback execution, or cannot
+reproduce the claimed result.
+
+#### 14.25 Anti-Regression Enforcement Matrix
+
+| Failure class | Detection layer | Blocking layer | Evidence requirement | CI enforcement | Production enforcement | Rollback behavior | Escalation policy |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Fake maturity signaling | Spec/PR/evidence review | Feature closure | mapped gates and real run evidence | fail maturity gate | block sign-off | invalidate claim | owner + reviewer sign-off |
+| Placeholder evidence | Artifact validation | Evidence integrity | non-empty schema-valid digested artifact | fail evidence job | reject manifest | supersede artifact | evidence owner |
+| Synthetic benchmark claim | Benchmark validator | Scientific rigor | real baseline/candidate runs and variance | fail benchmark gate | exclude from SLO claim | rerun benchmark | runtime + research leads |
+| Green CI, broken prod | Runtime reconciliation | CI/CD authority | prod health/canary/reconciliation snapshot | fail release gate | freeze readiness | rollback if deployed | release owner |
+| SQLite fallback | Config/test audit | Data authority | PostgreSQL DSN and transaction proof | fail DB gate | stop affected workflow | invalidate outputs | DBA/runtime owner |
+| Hidden xfail | Test metadata scan | XFail governance | strict xfail registry or removal | fail xfail gate | block closure | none unless deployed | test owner |
+| Silent degradation | Telemetry audit | Observability truth | degraded/fallback metrics and alerts | fail observability gate | mark degraded/fail closed | rollback on budget breach | ops owner |
+| Runtime drift | Fingerprint diff | Deployment safety | env/bin/model/queue/port digests | fail drift gate | stop admission | restore governed profile | deployment owner |
+| Queue retry amplification | Queue telemetry | Queue truth | retry lineage, DLQ, backlog, budget burn | fail resilience gate | throttle/fail closed | drain/rollback | ops + backend owners |
+| Celery/DB mismatch | Reconciliation job | Runtime reconciliation | task, DB and artifact lifecycle join | fail system gate | quarantine workflow | reprocess or rollback | backend owner |
+| GPU underutilization claim | GPU/latency telemetry | GPU efficiency | utilization, batch, latency attribution | fail perf gate | block throughput claim | rerun tuned profile | AI infra owner |
+| Identity/temporal corruption | Sequence quality gate | Scientific integrity | switch/gap/drift metrics and exclusions | fail integrity gate | suppress behavior claim | reprocess affected windows | AI validity owner |
+| Artifact tampering | Digest/audit check | Authenticity | immutable snapshot and supersession record | fail artifact gate | reject artifact | restore prior snapshot | evidence owner |
+| Deployment unsafe | Preflight/canary | Deployment safety | parity, migration, health, rollback proof | fail release gate | stop deployment | rollback immediately | release owner |
+| Unbounded debt | Debt ledger review | Debt budget | owner, expiry, risk and blocking threshold | fail planning gate | freeze affected claim | schedule remediation | tech lead |
+| Unsupported future AI path | Design review | Expansion safety | lineage, modality, runtime and validation plan | fail design gate | block activation | disable feature flag | architecture owner |
+
+### 15. Final Architectural Positioning
+
+#### 15.1 Current Maturity
 
 The implemented system currently provides meaningful video analytics
 infrastructure: ingestion, live/offline workflows, Triton-related runtime
@@ -1234,7 +1652,7 @@ routing assumptions, incomplete single-active-endpoint enforcement, incomplete
 identity/temporal proof, display-oriented pose surfaces, pending dynamic-batch
 and benchmark sign-off work, and unclosed scientific evidence requirements.
 
-#### 14.2 Transitional Architecture State
+#### 15.2 Transitional Architecture State
 
 The transitional system is an evidence-constrained video and pose analytics
 platform moving toward temporal behavioral intelligence. During transition:
@@ -1248,7 +1666,7 @@ platform moving toward temporal behavioral intelligence. During transition:
 - current optimization milestones MUST close their evidence gates rather than
   treating intended architecture as implemented fact.
 
-#### 14.3 Target Production Identity
+#### 15.3 Target Production Identity
 
 The target platform is a native-Linux, Triton-only, single-active-mode,
 GPU-backed behavioral intelligence system that deterministically transforms
@@ -1261,7 +1679,7 @@ what was observed, for whom, over which valid interval, using which source and
 model authority, under which missingness and confidence constraints, according
 to which behavioral definition, and with which reproducible validation.
 
-#### 14.4 Future AI-Readiness Posture
+#### 15.4 Future AI-Readiness Posture
 
 Learned anomaly AI is scientifically valid only after:
 
@@ -1318,7 +1736,15 @@ explicitly state why a rule is not applicable. Review MUST block:
 - unbounded retries, uncontrolled collapse behavior or hidden degradation;
 - synthetic/readiness/benchmark evidence that is not derived from measured
   production-authority execution;
-- maturity claims without reproducible evidence.
+- maturity claims without reproducible evidence;
+- CI success while production runtime reconciliation gaps remain;
+- benchmark pass states without baseline/candidate causality;
+- evidence artifacts that are placeholder-only, mutable, temporary-path-only,
+  synthetic-only, dev-only for production claims, or SQLite-backed;
+- hidden xfails, silent degraded runtime states, unsupported fallback paths,
+  untracked runtime overrides, or environment drift tolerance;
+- task completion claims while the real runtime, persistence or telemetry
+  state remains broken.
 
 Operational SLO numbers, model-quality thresholds, retention changes, access
 policy changes, and behavioral ontology decisions MUST be recorded in the
@@ -1326,4 +1752,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.0.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-25
+**Version**: 2.1.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-27

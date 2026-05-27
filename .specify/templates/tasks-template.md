@@ -15,6 +15,9 @@ active endpoint profile and real media. Temporal, identity, pose, behavioral,
 queue, telemetry, schema, storage, security, benchmark, and failure semantics
 MUST have focused validation and evidence paths. Mocks MAY support unit
 isolation, but cannot close production or scientific maturity gates.
+Acceptance tasks MUST include runtime reconciliation, immutable evidence
+lineage, artifact authenticity, xfail/drift/debt checks and rollback criteria
+for every production or maturity claim.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -82,6 +85,13 @@ Examples of foundational tasks (adjust based on your project):
       serializer fields, telemetry truth, idempotency and retention rules
 - [ ] T013 [P] Define queue isolation, bounded retry/DLQ, backpressure,
       reconnect and failure/degradation evidence contracts
+- [ ] T014 [P] Define runtime reconciliation checks for task, database,
+      queue, artifact, telemetry and frontend state convergence
+- [ ] T015 [P] Define immutable evidence lineage, artifact digest,
+      environment/runtime/dependency/GPU fingerprint and dataset/telemetry
+      provenance requirements
+- [ ] T016 [P] Define xfail registry, runtime-drift detection, technical debt
+      budget, rollback criteria and acceptance veto conditions
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -98,20 +108,23 @@ Examples of foundational tasks (adjust based on your project):
 > **MANDATORY**: Define applicable runtime, integrity, contract, failure, and
 > scientific evidence gates before claiming this story complete
 
-- [ ] T014 [P] [US1] Unit test for [module/function] in tests/unit/test_[name].py
-- [ ] T015 [P] [US1] Contract/schema test for [endpoint/event/artifact] in tests/contract/test_[name].py
-- [ ] T016 [P] [US1] Integrity test for [timestamp/identity/pose/feature/failure semantics] in tests/integration/test_[name].py
-- [ ] T017 [P] [US1] Native Triton live-profile validation with real media and evidence manifest in tests/system/test_[name]_live.py
-- [ ] T018 [P] [US1] Native Triton offline-profile validation with real media and evidence manifest in tests/system/test_[name]_offline.py
+- [ ] T017 [P] [US1] Unit test for [module/function] in tests/unit/test_[name].py
+- [ ] T018 [P] [US1] Contract/schema test for [endpoint/event/artifact] in tests/contract/test_[name].py
+- [ ] T019 [P] [US1] Integrity test for [timestamp/identity/pose/feature/failure semantics] in tests/integration/test_[name].py
+- [ ] T020 [P] [US1] Runtime reconciliation test for task/database/queue/artifact/telemetry/frontend convergence
+- [ ] T021 [P] [US1] Evidence authenticity test for digest, lineage, fingerprint and non-placeholder artifacts
+- [ ] T022 [P] [US1] Native Triton live-profile validation with real media and evidence manifest in tests/system/test_[name]_live.py
+- [ ] T023 [P] [US1] Native Triton offline-profile validation with real media and evidence manifest in tests/system/test_[name]_offline.py
 
 ### Implementation for User Story 1
 
-- [ ] T019 [P] [US1] Create [Entity1] model in src/models/[entity1].py
-- [ ] T020 [P] [US1] Create [Entity2] model in src/models/[entity2].py
-- [ ] T021 [US1] Implement [Service] in src/services/[service].py (depends on T019, T020)
-- [ ] T022 [US1] Implement [endpoint/feature] in src/[location]/[file].py
-- [ ] T023 [US1] Add explicit validation, degradation and rejection paths
-- [ ] T024 [US1] Add probe-backed telemetry and evidence lineage
+- [ ] T024 [P] [US1] Create [Entity1] model in src/models/[entity1].py
+- [ ] T025 [P] [US1] Create [Entity2] model in src/models/[entity2].py
+- [ ] T026 [US1] Implement [Service] in src/services/[service].py (depends on T024, T025)
+- [ ] T027 [US1] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T028 [US1] Add explicit validation, degradation and rejection paths
+- [ ] T029 [US1] Add probe-backed telemetry and evidence lineage
+- [ ] T030 [US1] Add rollback/fail-closed behavior and acceptance veto handling
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -195,6 +208,14 @@ Examples of foundational tasks (adjust based on your project):
       windows and store evidence manifests
 - [ ] TXXX [P] Produce benchmark/statistical reports with real independent
       baseline/candidate runs, variance, confidence and failure accounting
+- [ ] TXXX [P] Verify all maturity evidence is immutable, digest-addressed,
+      lineage-complete, non-placeholder and free of temporary-path-only
+      manifests
+- [ ] TXXX [P] Verify no hidden xfails, unbounded technical debt, untracked
+      runtime overrides, SQLite evidence paths or unsupported fallback
+      execution paths remain
+- [ ] TXXX [P] Verify rollback criteria, production freeze criteria and
+      emergency remediation records for the accepted capability
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
 
