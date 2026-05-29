@@ -109,6 +109,18 @@
 
 > **XFail, Drift and Debt Gate**: Hidden xfails, untracked runtime overrides,
 > environment drift tolerance and unbounded technical debt MUST block closure.
+
+> **Runtime Job Lifecycle and Vector Integrity Gate (§17)**: Any plan that
+> touches asynchronous job processing, embedding/vector persistence, or Celery
+> task orchestration MUST declare: (§17.1) per-stage wall-clock deadline and a
+> scheduled reconciler registered in `beat_schedule` — manual management commands
+> alone do not satisfy this gate; (§17.2) embedding/feature vector dimension and
+> payload-size enforced at the DB write boundary, not only upstream — a wrong-size
+> vector written via `.objects.create()` with no boundary guard blocks closure;
+> (§17.3) stage outcome accounting with error-ratio fail-closed threshold —
+> stages that swallow per-item exceptions without failing the job are forbidden;
+> (§17.4) existence-guarded durable writes with a documented idempotency key —
+> a re-run producing duplicate rows blocks closure.
 > Formal deferrals require owner, scope, expiry condition and affected
 > constitutional rule.
 

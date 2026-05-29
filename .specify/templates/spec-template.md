@@ -178,3 +178,8 @@
   is packaged under `ci_evidence/production/runtime_maturity/final/` and ties
   one accepted job ID to Git SHA, env fingerprint, runtime profile, model
   hashes, queue topology, replay metadata, GPU trace and causality export]
+- **SC-013**: [§17 compliance — for features touching async jobs, vector
+  persistence, or Celery orchestration: per-stage deadline + scheduled
+  reconciler declared (§17.1); vector dimension/payload enforced at DB write
+  boundary (§17.2); stage error-ratio fail-closed threshold declared (§17.3);
+  idempotency key documented and re-run test present (§17.4)]

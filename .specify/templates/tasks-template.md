@@ -22,6 +22,12 @@ For active heterogeneous runtime maturity work, tasks MUST include branch/hash
 parity, production stash/tree hygiene, production preflight, explicit replay
 policy validation, fresh lifecycle execution, GPU telemetry, causality export,
 evidence manifest validation and final merge-back closure.
+Any feature touching asynchronous job processing, embedding/vector persistence,
+or Celery task orchestration MUST include tasks for: (§17.1) per-stage wall-clock
+deadline declared and scheduled reconciler present; (§17.2) vector dimension and
+payload-size contract enforced at the DB write boundary with regression tests;
+(§17.3) stage outcome accounting with error-ratio fail-closed threshold; (§17.4)
+existence-guarded durable writes with documented idempotency key and re-run test.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
