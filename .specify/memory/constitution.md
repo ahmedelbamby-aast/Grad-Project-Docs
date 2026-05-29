@@ -1,12 +1,35 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 2.1.0 -> 2.2.0
-Bump rationale: MINOR - Adds the active Heterogeneous Production Runtime
-Maturity governance model, explicitly separating Windows/Docker development
-validation from native Linux RTX 5090 production authority, and adds binding
-rules for replay policy, branch synchronization, runtime preflight and
-production closure evidence.
+Version change: 2.2.0 -> 2.3.0
+Bump rationale: MINOR - Adds Section 17 (Runtime Job Lifecycle and Vector
+Integrity Constitution) converting recurring production-runtime failures into
+binding, non-bypassable invariants: bounded job lifecycle with an automatic
+reconciler and guaranteed terminal state, a fixed-dimension vector contract
+enforced at the database write boundary, stage outcome accounting with
+fail-closed thresholds, and stage re-entry idempotency. Adds matching rows to
+the Anti-Regression Enforcement Matrix (14.25).
+
+Triggering incident: production lifecycle acceptance job
+c375ea84-0407-4007-8ae8-d2adaf14d9e5 hung in `processing` and timed out without
+reaching a terminal state, blocking maturity closure. Root causes: embedding
+vectors written via `FrameEmbedding.objects.create()` bypassed the model-level
+768-dimension validator; the stale-job reconciler existed only as a manual
+management command and was absent from Celery `beat_schedule`; the embedding
+stage swallowed per-item errors without failing closed.
+
+Remediation governance:
+- New plan: docs/runtime_stability_remediation/plan.md
+- New tasks: docs/runtime_stability_remediation/tasks.md
+- Section 17 gates propagate to Spec Kit templates and AGENTS.md (tracked tasks
+  RS027/RS028); until enforced in production they are explicit gaps, not
+  accepted maturity.
+
+Prior MINOR (2.1.0 -> 2.2.0): Added the Heterogeneous Production Runtime
+Maturity governance model, separating Windows/Docker development validation
+from native Linux RTX 5090 production authority, with binding rules for replay
+policy, branch synchronization, runtime preflight and production closure
+evidence.
 
 Modified principles:
 - Production runtime authority -> Heterogeneous production runtime authority.
@@ -16,7 +39,13 @@ Modified principles:
 - Compliance review -> Branch parity, preflight, lifecycle, GPU telemetry,
   causality and final closure evidence gates.
 
-Added sections:
+Added sections (2.3.0):
+- Runtime Job Lifecycle and Vector Integrity Constitution (Section 17)
+- Anti-Regression Enforcement Matrix rows: Stuck non-terminal job, Vector
+  dimension explosion, Silently swallowed stage errors, Non-idempotent stage
+  re-entry
+
+Added sections (2.2.0):
 - Heterogeneous Production Runtime Maturity Constitution
 - Heterogeneous Runtime Maturity Compliance Gates
 - Foundational System Doctrine
@@ -1637,6 +1666,10 @@ reproduce the claimed result.
 | Deployment unsafe | Preflight/canary | Deployment safety | parity, migration, health, rollback proof | fail release gate | stop deployment | rollback immediately | release owner |
 | Unbounded debt | Debt ledger review | Debt budget | owner, expiry, risk and blocking threshold | fail planning gate | freeze affected claim | schedule remediation | tech lead |
 | Unsupported future AI path | Design review | Expansion safety | lineage, modality, runtime and validation plan | fail design gate | block activation | disable feature flag | architecture owner |
+| Stuck non-terminal job | Scheduled reconciler/watchdog | Bounded job lifecycle (17.1) | deadline + forced-terminal + reconciliation timestamp | fail lifecycle gate | force terminal + alert | reprocess fresh job | backend owner |
+| Vector dimension explosion | DB write-boundary validation | Vector integrity (17.2) | fixed-dimension + payload-size proof at persist boundary | fail schema/DB gate | reject write/fail closed | invalidate oversized rows | backend owner |
+| Silently swallowed stage errors | Stage outcome audit | Fail-closed thresholds (17.3) | created/skipped/error counts + threshold decision | fail stage gate | fail closed (FAILED/partial) | reprocess affected stage | backend owner |
+| Non-idempotent stage re-entry | Re-run/duplicate scan | Stage idempotency (17.4) | existence-guarded write + idempotency key | fail system gate | dedupe on commit | remove duplicate rows | backend owner |
 
 ### 15. Final Architectural Positioning
 
@@ -1859,6 +1892,106 @@ state and accepted job lineage all identify the same governed execution.
 | Operational safety | Fail-closed paths and no-sudo user-space pinning verified |
 | Evidence and closure | Final package under `ci_evidence/production/runtime_maturity/final/` with accepted job manifest and merge record |
 
+### 17. Runtime Job Lifecycle and Vector Integrity Constitution
+
+This section converts a specific recurring production-runtime failure into
+permanent, non-bypassable invariants. The triggering incident was a fresh
+production lifecycle acceptance job that hung in `processing` and timed out
+without reaching a terminal state, with contributing causes in embedding-vector
+sizing, swallowed stage errors and non-automatic stale-job recovery. These
+pillars are concrete and testable; a maturity claim is invalid while any
+applicable pillar lacks an enforcing guard and regression test.
+
+#### 17.1 Bounded Job Lifecycle and Terminal-State Guarantee
+
+Every asynchronous job and every processing stage (`queued`, `processing`,
+`embedding`, and any future stage) MUST have a declared maximum wall-clock
+duration. No job MAY remain in a non-terminal state indefinitely. A job that
+exceeds its stage deadline MUST be forced to a terminal state (`failed` or a
+governed `completed_partial`) with a recorded reason, previous status and
+reconciliation timestamp.
+
+An automatic, periodic reconciler MUST run in production to detect and finalize
+stale active jobs without manual intervention. A manual management command alone
+does not satisfy this pillar; the reconciler MUST be registered in the scheduled
+task system (Celery `beat_schedule` or equivalent) with a bounded interval.
+
+A timeout while waiting for a job is a FAIL, never an acceptance. A lifecycle job
+used as production acceptance evidence MUST reach a terminal status; an
+inconclusive timeout MUST NOT be recorded or interpreted as a pass and MUST NOT
+silently stall a maturity run.
+
+Rationale: a real lifecycle acceptance job hung in `processing` and timed out
+because no stage owned a deadline and the stale-job reconciler was a manual
+command absent from the production scheduler. Nothing was responsible for
+terminal resolution. This pillar reinforces 14.6 (runtime reconciliation) and
+8.2 (task deadline) with a concrete, automatic guarantee.
+
+#### 17.2 Fixed-Dimension Vector Contract
+
+Every persisted embedding or feature vector MUST contain exactly its declared
+dimension (currently 768 for `botsort_crop_embed`) and only numeric values. The
+dimension and value-type contract MUST be enforced at the database write
+boundary, not only in a model validator that the create/save path can bypass.
+A producer that writes via a direct create/insert MUST invoke validation or a
+deterministic coercion before commit.
+
+Producers that emit variable-length or oversized vectors MUST deterministically
+coerce to the declared dimension before persistence, or fail closed. Raw model
+or backbone output and image-derived fallbacks MUST NOT be written at their
+native size. A maximum payload-size guard MUST protect PostgreSQL and the Redis
+cache from vector explosion; a write exceeding the guard MUST be rejected or
+coerced, never stored.
+
+Rationale: a cv2 fallback produced 98,304 values and backbone output produced
+oversized variable-length vectors, while `persist_embedding` wrote through
+`FrameEmbedding.objects.create()`, which does not invoke the model's
+768-dimension validator. The dimension contract held only when an upstream
+coercion helper happened to be called; the write boundary itself was unguarded,
+so any new producer path could write an unbounded payload into the JSONField and
+cache.
+
+#### 17.3 Stage Outcome Accounting and Fail-Closed Thresholds
+
+Every batch or loop processing stage MUST record created, skipped and error
+counts and persist them to durable job metadata as the authoritative stage
+outcome. A stage MUST fail closed (mark the job `failed`, or governed
+`completed_partial` where policy allows) when its error ratio exceeds a declared
+threshold, or when zero required outputs were produced. A stage MUST NOT report
+success while silently swallowing per-item exceptions, and zero successful
+outputs where outputs were required is a stage failure, not a completion.
+
+The error-ratio threshold and partial-completion policy are engineering
+decisions that MUST be declared in the feature plan and validated; this
+constitution fixes the requirement that the threshold exist and be enforced, not
+its numeric value.
+
+Rationale: embedding persistence exceptions were logged and swallowed, so a
+stage that produced nothing could still advance the job. This pillar makes
+14.23 (No Silent Failure) concrete for loop/batch stages.
+
+#### 17.4 Stage Re-Entry Idempotency
+
+Re-running any stage of a job (retry, replay, scheduled reconciliation, or
+manual re-trigger) MUST NOT create duplicate durable records. Each durable write
+MUST be guarded by an existence or idempotency check keyed on its semantic
+identity (for example, a detection that already has an embedding is skipped) so
+reprocessing converges rather than multiplies evidence or inflates telemetry.
+The idempotency key for each durable-write stage MUST be documented.
+
+Rationale: re-running embedding generation re-created embeddings for detections
+that already had them. This pillar makes 10.2 (idempotency) explicit at the
+stage-re-entry boundary that retries and the periodic reconciler exercise.
+
+#### 17.5 Runtime Job Lifecycle and Vector Integrity Compliance Gates
+
+| Principle | Required gate |
+| --- | --- |
+| Bounded job lifecycle (17.1) | Per-stage deadline declared; scheduled reconciler present with bounded interval; forced-terminal proof; timeout never recorded as acceptance |
+| Fixed-dimension vector contract (17.2) | Validation/coercion at the persist boundary; oversized/wrong-dimension write rejected or coerced; payload-size guard on DB and Redis |
+| Stage outcome accounting (17.3) | created/skipped/error counts persisted; declared error-ratio threshold; zero-output and over-threshold stages fail closed |
+| Stage re-entry idempotency (17.4) | Existence-guarded writes; documented idempotency key; re-run produces zero duplicate durable rows |
+
 ## Governance
 
 This constitution is the binding engineering, runtime and scientific maturity
@@ -1913,4 +2046,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.2.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-27
+**Version**: 2.3.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-29
