@@ -11,7 +11,13 @@ python-dotenv==1.0.1
 pydantic==2.10.6
 pydantic-settings==2.10.1
 httpx==0.28.1
-ultralytics==8.3.61
+ultralytics==8.4.56
+# TRT 10.8.0.43 — must match the .engine files built on this version.
+# Do NOT upgrade without rebuilding all .engine artifacts first.
+tensorrt==10.8.0.43
+tensorrt_cu12==10.8.0.43
+tensorrt_cu12_bindings==10.8.0.43
+tensorrt_cu12_libs==10.8.0.43
 torch==2.7.1
 torchvision==0.22.1
 onnx==1.21.0
