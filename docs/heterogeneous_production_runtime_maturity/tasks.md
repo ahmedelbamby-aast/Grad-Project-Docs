@@ -110,19 +110,19 @@
 
 - [x] T049 [US5] Add final evidence package validation to `tools/prod/write-evidence-manifest.py`
 - [x] T050 [P] [US5] Document final acceptance gates in `docs/production/runtime_maturity_operator_checklist.md`
-- [ ] T051 [US5] Package production evidence under `ci_evidence/production/runtime_maturity/final/`
-- [ ] T052 [US5] Run successful replay validation for the accepted job and save output to `ci_evidence/production/runtime_maturity/final/successful_replay_validation.md`
-- [ ] T053 [US5] Verify final local/origin/production hash parity and save output to `ci_evidence/production/runtime_maturity/final/hash_parity.md`
-- [ ] T054 [US5] Verify final production stash and tracked-tree hygiene and save output to `ci_evidence/production/runtime_maturity/final/prod_hygiene.md`
-- [ ] T055 [US5] Merge `release/prod-runtime-stabilization` back into the active development branch and record merge SHA in `ci_evidence/production/runtime_maturity/final/merge_record.md`
+- [x] T051 [US5] Package production evidence under `ci_evidence/production/runtime_maturity/final/`
+- [x] T052 [US5] Run successful replay validation for the accepted job and save output to `ci_evidence/production/runtime_maturity/final/successful_replay_validation.md`
+- [x] T053 [US5] Verify final local/origin/production hash parity and save output to `ci_evidence/production/runtime_maturity/final/hash_parity.md`
+- [x] T054 [US5] Verify final production stash and tracked-tree hygiene and save output to `ci_evidence/production/runtime_maturity/final/prod_hygiene.md`
+- [x] T055 [US5] Merge `release/prod-runtime-stabilization` back into the active development branch and record merge SHA in `ci_evidence/production/runtime_maturity/final/merge_record.md`
 
 ## Final Phase: Polish and Cross-Cutting
 
-- [ ] T056 [P] Update `AGENTS.md` with completed phase status and final evidence paths after sign-off
-- [ ] T057 [P] Update `docs/heterogeneous_production_runtime_maturity_plan.md` with completed phase status and accepted job ID after sign-off
-- [ ] T058 [P] Update `docs/linux_production_optimization_execution_phases.md` only where older instructions conflict with the accepted maturity plan
+- [x] T056 [P] Update `AGENTS.md` with completed phase status and final evidence paths after sign-off
+- [x] T057 [P] Update `docs/heterogeneous_production_runtime_maturity_plan.md` with completed phase status and accepted job ID after sign-off
+- [x] T058 [P] Update `docs/linux_production_optimization_execution_phases.md` only where older instructions conflict with the accepted maturity plan
 - [x] T059 Run the local focused backend suite for runtime authority, replay, queue policy, and causality and save output to `ci_evidence/production/runtime_maturity/final/local_test_summary.md`
-- [ ] T060 Run production preflight, endpoint policy, lifecycle, GPU telemetry, causality export, and evidence manifest validation and save output to `ci_evidence/production/runtime_maturity/final/production_acceptance_summary.md`
+- [x] T060 Run production preflight, endpoint policy, lifecycle, GPU telemetry, causality export, and evidence manifest validation and save output to `ci_evidence/production/runtime_maturity/final/production_acceptance_summary.md`
 
 ## Dependencies
 

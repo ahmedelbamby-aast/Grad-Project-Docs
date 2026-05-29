@@ -197,12 +197,17 @@ Failure prevented: starting workers against wrong endpoints, stale TensorRT engi
    - merge release branch back
    - leave production clean and reproducible
 
-## Phase Status
-- Phase 1, commit and branch stabilization: Not started.
-- Phase 2, contract lock: Not started.
-- Phase 3, replay and lifecycle hardening: Not started.
-- Phase 4, GPU and causality certification: Not started.
-- Phase 5, closure: Not started.
+## Phase Status (updated 2026-05-29)
+- Phase 1, commit and branch stabilization: **COMPLETED** — branch created, hash parity verified, stash reviewed.
+- Phase 2, contract lock: **COMPLETED** — preflight passing, Triton-only enforced, backend/.env authority, queue routes verified.
+- Phase 3, replay and lifecycle hardening: **COMPLETED** — accepted job b1d2311c (status: completed, runtime_used: triton, 2936 detections, 0 errors); replay reuse-success verified.
+- Phase 4, GPU and causality certification: **COMPLETED** — GPU trace captured (peak 11% SM at 100ms), causality exported (4 model calls, 0 failures), manifest generated.
+- Phase 5, closure: **COMPLETED** — evidence packaged, hash parity final, stash reviewed, branch merged to master.
+
+## Accepted Job
+- **Job ID:** `b1d2311c-b0af-44a4-a551-61e58200eb11`
+- **Final SHA:** `af3fce3` (local/origin/production in parity)
+- **Evidence index:** `ci_evidence/production/runtime_maturity/final/evidence_package_index.md`
 
 ## Test Plan
 - Local Windows:

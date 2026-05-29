@@ -1,5 +1,11 @@
 # Linux Production Optimization Execution Phases (RTX 5090)
 
+> **Superseded (2026-05-29):** This plan has been superseded by the
+> [Heterogeneous Production Runtime Maturity Plan](heterogeneous_production_runtime_maturity_plan.md)
+> which is the current top-level controlling plan. This document remains
+> useful as phase history and implementation detail reference.
+> **Maturity closure completed:** accepted job `b1d2311c`, SHA `af3fce3`.
+
 This runbook defines the execution order for production optimization work across:
 - dev laptop (`E:\grad_project`)
 - GitHub (`009-parallel-pose-inference`)
@@ -7,7 +13,7 @@ This runbook defines the execution order for production optimization work across
 
 Constraints:
 - Linux production host: no Docker, no sudo.
-- Triton-only inference on production GPU.
+- Triton-only inference on production GPU — `TRITON_FORCE_DOCKER=False` in backend/.env (native Linux).
 - Do not revert unrelated work from other contributors.
 - Backend runtime entrypoints must source only `backend/.env`; repo-root `.env` must not silently diverge or participate in backend startup on production.
 
