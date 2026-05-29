@@ -180,6 +180,225 @@ This file defines how agents should execute tests quickly and safely in this rep
    - `curl` active `/v2/health/ready` returns `200`
    - inactive mode endpoint remains unreachable
 
+## Triton Startup Guide — Prod Linux Server (RTX 5090, No Docker, No sudo)
+
+This section documents every issue encountered getting Triton running on
+`/home/bamby/grad_project` and the permanent fixes applied. Read this before
+touching Triton on prod.
+
+### Hardware & Software Constraints
+
+| Item | Value |
+|------|-------|
+| GPU | NVIDIA GeForce RTX 5090, 32 GB GDDR7 |
+| CPU | 32 cores |
+| CUDA | 12.8 |
+| Triton binary | `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver` |
+| TRT backends dir | `/home/bamby/services/triton_build_r2502/tritonserver/install/backends` |
+| Model repository | `/home/bamby/grad_project/backend/models/triton_repository_cuda12` |
+| Active TRT version | **10.8.0.43** (python3.11 venv) — must match `.plan` engine build |
+| Serialization version | **239** (what the `.plan` engines were compiled with) |
+| Postgres port | **55432** (non-standard — always check `.env`) |
+
+---
+
+### Issue 1 — `libnvinfer.so.10: cannot open shared object file`
+
+**Symptom:**
+```
+load failed for model 'person_detector': unable to load shared library: libnvinfer.so.10
+```
+
+**Root cause:**
+Non-interactive SSH sessions (`bash -l -s` or `ssh prod-grad "cmd"`) do **not**
+automatically source `~/.bashrc`. The `LD_LIBRARY_PATH` set in `~/.bashrc` was
+never exported into the process that launched Triton via `nohup`, so the
+TensorRT backend plugin (`libtriton_tensorrt.so`) could not find `libnvinfer.so.10`.
+
+The Triton binary RUNPATH is `${ORIGIN}/../lib` (= `install/lib`) and the
+TRT backend RUNPATH is `${ORIGIN}` (= `backends/tensorrt/`). Neither location
+contains `libnvinfer.so.10`. There is no system `ldconfig` entry for it either.
+The library lives only in the Python venvs under `site-packages/tensorrt_libs/`.
+
+**Fix applied (permanent):**
+
+Both `~/.bashrc` and `~/.profile` now export the correct `LD_LIBRARY_PATH`:
+```bash
+export LD_LIBRARY_PATH="/home/bamby/grad_project/.venv/lib/python3.11/site-packages/tensorrt_libs:/home/bamby/services/triton/lib:${LD_LIBRARY_PATH:-}"
+```
+
+A dedicated start script `tools/prod/prod_start_triton.sh` was created that
+`source ~/.bashrc` before calling the Triton binary, so the correct
+`LD_LIBRARY_PATH` is always in scope regardless of how the script is invoked.
+
+**Rule for future agents:**
+Never start Triton with a bare `nohup tritonserver ...` in a non-login shell.
+Always use:
+```bash
+bash -l /home/bamby/grad_project/tools/prod/prod_start_triton.sh
+```
+
+---
+
+### Issue 2 — `Version tag does not match. Current Version: 240, Serialized Engine Version: 239`
+
+**Symptom:**
+```
+IRuntime::deserializeCudaEngine: Error Code 1: Serialization
+(Serialization assertion stdVersionRead == kSERIALIZATION_VERSION failed.
+Version tag does not match. Note: Current Version: 240, Serialized Engine Version: 239)
+load failed for model 'posture_model': unable to load plan file to auto complete config
+```
+
+**Root cause:**
+There are **two Python venvs** with different TensorRT versions:
+
+| Venv | Python | TRT version | Serialization tag |
+|------|--------|-------------|-------------------|
+| `/home/bamby/grad_project/.venv` | 3.11 | **10.8.0.43** | **239** ✅ |
+| `/home/bamby/grad_project/backend/.venv` | 3.12 | **10.16.1.11** | **240** ❌ |
+
+The `.plan` engine files in `triton_repository_cuda12` were compiled with
+TRT 10.8.0.43 (tag 239). Using the backend venv's `libnvinfer.so.10` (tag 240)
+causes a deserialization failure on every model.
+
+**Fix applied (permanent):**
+`LD_LIBRARY_PATH` points to the **python3.11** venv's tensorrt_libs, not the
+python3.12 backend venv. This is now enforced in both shell profiles and in
+`prod_start_triton.sh`.
+
+**Rule for future agents:**
+- Do NOT add `backend/.venv/lib/python3.12/site-packages/tensorrt_libs` to `LD_LIBRARY_PATH`.
+- The correct path is `.venv/lib/python3.11/site-packages/tensorrt_libs`.
+- To verify: `strings /path/to/libnvinfer.so.10 | grep -m1 kSERIALIZATION` or
+  run `/home/bamby/grad_project/.venv/bin/python3 -c "import tensorrt; print(tensorrt.__version__)"`.
+  Must print `10.8.0.43`.
+- If engines are ever rebuilt with a newer TRT, update `LD_LIBRARY_PATH` to
+  point to the matching venv's tensorrt_libs.
+
+---
+
+### Issue 3 — Duplicate Celery Workers Causing Job Stalls and Timeouts
+
+**Symptom:**
+- Video analysis jobs queue successfully but stall indefinitely or hit timeout.
+- `ps aux | grep 'celery -A config'` shows 3× the expected number of processes
+  (e.g., 3 sets of offline workers all consuming from the same queue).
+
+**Root cause:**
+The `prod_start_celery_workers.sh` script was run multiple times without stopping
+the existing workers first. The PID file check (`kill -0 $OLD_PID`) only guards
+against starting a second copy of a single named worker, but if the PID file was
+stale or absent, a new set of workers launched alongside the existing ones.
+Multiple workers competing on the same queue causes race conditions: one picks
+up the task, the others time out waiting, creating apparent stalls.
+
+**Fix applied (permanent):**
+- `prod_stop_celery_workers.sh` must always be run before `prod_start_celery_workers.sh`.
+- `prod_start_triton.sh` now also stops any existing Triton instance before
+  launching a fresh one, preventing accumulation of stale processes.
+
+**Rule for future agents:**
+```bash
+# Always stop before starting — never just start
+bash tools/prod/prod_stop_celery_workers.sh
+bash tools/prod/prod_start_celery_workers.sh
+```
+After starting, verify exactly one set of workers:
+```bash
+ps aux | grep 'celery -A config worker' | grep -v grep | wc -l
+# Expected: 5 parent processes (one per queue) + their child forks
+# If > 15 processes, there are duplicates — stop and restart
+```
+
+---
+
+### Issue 4 — `PYRAMID_WORKER_COUNT=24` Fails Pydantic Validation
+
+**Symptom:**
+```
+pydantic_core.ValidationError: 1 validation error for PipelineConfig
+worker_count: Input should be less than or equal to 16
+```
+Celery workers crash immediately on startup; PID files are created but processes
+exit within seconds.
+
+**Root cause:**
+`PipelineConfig` in `backend/apps/pipeline/config.py` had `le=16` on
+`worker_count`. Setting `PYRAMID_WORKER_COUNT=24` (appropriate for a 32-core
+machine) exceeded this limit.
+
+**Fix applied (permanent):**
+Raised the Pydantic limit from `le=16` to `le=32` in `config.py`. Committed
+and pushed as `f878620`. Both prod and local now accept values up to 32.
+
+**Rule for future agents:**
+If you add `PYRAMID_WORKER_COUNT` to `.env` and workers crash immediately,
+check the Celery log at `backend/logs/celery_*.log` for `ValidationError`
+before assuming a runtime or import problem.
+
+---
+
+### Canonical Triton Start Procedure (after any restart or code change)
+
+```bash
+# 1. Stop all workers and Triton
+bash /home/bamby/grad_project/tools/prod/prod_stop_celery_workers.sh
+
+# 2. Start Triton (sources .bashrc for correct LD_LIBRARY_PATH)
+bash -l /home/bamby/grad_project/tools/prod/prod_start_triton.sh
+
+# 3. Wait for all 6 models to load (~60–90 seconds)
+sleep 70
+
+# 4. Verify Triton ready
+curl -sf http://127.0.0.1:39100/v2/health/ready && echo READY || echo FAILED
+
+# 5. Start Celery workers
+cd /home/bamby/grad_project && bash tools/prod/prod_start_celery_workers.sh
+
+# 6. Full health check
+curl -sf http://127.0.0.1:8011/api/v1/health/ | python3 -m json.tool
+```
+
+### Quick Diagnostic Checklist
+
+```bash
+# Is Triton ready?
+curl -sf http://127.0.0.1:39100/v2/health/ready && echo READY
+
+# Which TRT version is loaded? (must print 10.8.0.43)
+/home/bamby/grad_project/.venv/bin/python3 -c "import tensorrt; print(tensorrt.__version__)"
+
+# Is LD_LIBRARY_PATH pointing to py3.11 venv?
+echo $LD_LIBRARY_PATH | grep 'python3.11'
+
+# How many Celery workers? (expect 5 parents + forks, no duplicates)
+ps aux | grep 'celery -A config worker' | grep -v grep | wc -l
+
+# GPU state
+nvidia-smi --query-gpu=memory.used,memory.free,utilization.gpu --format=csv,noheader
+
+# Are there duplicate workers?
+ps aux | grep 'celery -A config worker' | grep -v grep | \
+  awk '{print $12}' | sort | uniq -c | sort -rn | head -10
+# If any queue name appears more than once → stop all workers and restart
+```
+
+### Key File Locations
+
+| File | Purpose |
+|------|---------|
+| `tools/prod/prod_start_triton.sh` | Permanent Triton launcher (sets LD_LIBRARY_PATH correctly) |
+| `tools/prod/prod_start_celery_workers.sh` | Starts all offline/default workers with tuned limits |
+| `tools/prod/prod_stop_celery_workers.sh` | Stops all workers gracefully |
+| `~/.bashrc` and `~/.profile` | Both export `LD_LIBRARY_PATH` with py3.11 TRT libs |
+| `backend/.env` | Active runtime config authority for all services |
+| `backend/logs/triton.log` | Triton startup and model load log |
+| `backend/logs/celery_*.log` | Per-worker startup and task execution log |
+
+---
+
 ## Notes About `xfail` Scaffold Tests
 - Some tests are intentionally marked `xfail(strict=True)` as implementation scaffolds.
 - `xfailed` is not a regression by itself.
