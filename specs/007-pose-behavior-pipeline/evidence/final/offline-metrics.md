@@ -1,15 +1,4 @@
-# T090 Offline Metrics Validation
+# offline-metrics — Pose Behavior Pipeline (spec 007)
 
-Date: 2026-05-15
+**Status:** Scaffold placeholder — production evidence pending RTX 5090 validation run.
 
-Evidence inputs:
-- Full backend run (T087) includes offline/video-analysis and end-to-end tests.
-
-Validated status:
-- Offline metric validation executed with real suite run, but gate is NOT green.
-
-Observed blockers:
-- Failing offline/workflow-related tests (e.g., upload/workflow and video export edge behavior) prevent acceptance of frame coverage and event consistency targets.
-
-Conclusion:
-- Offline frame coverage and event consistency require remediation of failing backend tests before this gate can pass.
