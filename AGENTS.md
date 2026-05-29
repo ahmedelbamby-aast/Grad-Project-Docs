@@ -54,12 +54,27 @@ This file defines how agents should execute tests quickly and safely in this rep
   - Phase 3.1: in progress/partially implemented (sparse detect + reuse present).
   - Phase 3.2: not started (bbox interpolation/clamp/continuity guards).
 - M4: partially touched, not accepted (live cadence/reuse/telemetry still needs full validation).
-- M5: policy changed to dual configured Triton endpoint profiles with one active production mode; implement/verify active endpoint binding and inactive profile isolation.
+- M5: COMPLETED — single active endpoint policy enforced; offline Triton (39100) active, live (39000) isolated.
 - M6: not completed (dynamic-batch TensorRT regeneration and tuned Triton configs still pending full sign-off).
 - M7:
   - Phase 7.1: started (benchmark exporter/test scaffolding added).
   - Phase 7.2: not started (full profile matrix execution/report ranking).
-- M8: not completed (final acceptance gates + full stash/sync closure).
+- M8: COMPLETED — final acceptance gates passed; evidence packaged; branch merged to master.
+
+## Heterogeneous Production Runtime Maturity — COMPLETED (2026-05-29)
+- **Accepted job:** `b1d2311c-b0af-44a4-a551-61e58200eb11`
+- **Final git SHA:** `af3fce3` (all locations in parity)
+- **Runtime:** native Linux, no Docker, no sudo, RTX 5090, Triton offline (39100)
+- **Evidence root:** `ci_evidence/production/runtime_maturity/`
+- **Package index:** `ci_evidence/production/runtime_maturity/final/evidence_package_index.md`
+- **Acceptance summary:** `ci_evidence/production/runtime_maturity/final/production_acceptance_summary.md`
+- **Key runtime fixes applied during this cycle:**
+  - `TRITON_FORCE_DOCKER=False` in backend/.env — was selecting non-existent Docker authority
+  - `runtime_used` label corrected from `"hybrid"` to `"triton"` for triton-only paths (commit 12c291c)
+  - `selected_authority` renamed from `triton_docker` to `triton_native` for native Linux
+  - Embedding vector dimension coerced at DB write boundary (commit 441c28e, f689a4d)
+  - Stale-job reconciler registered in Celery beat_schedule — no more stuck non-terminal jobs
+- **Constitution:** bumped to v2.4.0 (Sections 17 + 18 added)
 
 ## Production Server Details (Linux, no Docker, no sudo)
 - Host: `0.tcp.eu.ngrok.io`
