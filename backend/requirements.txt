@@ -1,55 +1,60 @@
+# This file is kept in sync with pyproject.toml for pip compatibility.
+# Authoritative dependency management is via uv + pyproject.toml + uv.lock.
+# Install: uv sync --dev   (preferred)
+# Install: pip install -r requirements.txt   (fallback)
+
+# ── Web / API ────────────────────────────────────────────────────────────────
 Django==5.1.5
 channels[daphne]==4.2.2
 djangorestframework==3.15.2
 django-cors-headers==4.4.0
 channels-redis==4.2.1
+django-redis==5.4.0
+
+# ── Task queue ───────────────────────────────────────────────────────────────
 celery==5.4.0
 redis==5.2.1
-django-redis==5.4.0
+
+# ── Database ─────────────────────────────────────────────────────────────────
 psycopg[binary]==3.2.5
+
+# ── Config / validation ──────────────────────────────────────────────────────
 python-dotenv==1.0.1
 pydantic==2.10.6
 pydantic-settings==2.10.1
+
+# ── HTTP client ──────────────────────────────────────────────────────────────
 httpx==0.28.1
+
+# ── ML / inference ───────────────────────────────────────────────────────────
+# ultralytics 8.4.56: first version with A2C2f block (required by trained .pt files)
 ultralytics==8.4.56
-# TensorRT is NOT managed via pip install — the wheel_stub mechanism requires
-# internet access during metadata generation which is unreliable in constrained
-# environments. TRT is pre-installed in backend/.venv at 10.16.1.11 and in
-# the project .venv at 10.8.0.43 (used only as Triton LD_LIBRARY_PATH source).
-# To change TRT version: reinstall venv from scratch with the target TRT stack.
+
+# torch: Linux prod uses CUDA 12.6 wheel; install with:
+#   pip install torch==2.7.1 torchvision==0.22.1 --extra-index-url https://download.pytorch.org/whl/cu126
+# Windows dev uses CPU wheel (uv handles this automatically via pyproject.toml sources).
 torch==2.7.1
 torchvision==0.22.1
+
+# numpy >=2.0 required for ultralytics 8.4.x
+numpy==2.4.4
+
 onnx==1.21.0
 onnxruntime==1.25.1
-openvino
+onnxruntime-gpu==1.25.1
+openvino==2026.1.0
+lap==0.5.13
+
+# TensorRT is NOT managed by pip/uv — wheel_stub requires live internet download.
+# TRT is pre-installed in backend/.venv (10.16.1.11) and .venv py3.11 (10.8.0.43).
+# See agents.md Triton Startup Guide section for the full TRT version rationale.
+
+# ── Media / imaging ──────────────────────────────────────────────────────────
 Pillow==10.4.0
-factory_boy==3.3.1
-pytest==8.3.4
-pytest-django==4.9.0
-pytest-asyncio==0.25.3
-pytest-cov==6.0.0
 imageio==2.27.0
 imageio-ffmpeg==0.6.0
-numpy==2.4.4
-# Triton inference client (T003)
-tritonclient==2.68.0
-grpcio==1.67.1
-# Observability: Prometheus + OpenTelemetry (T003)
-prometheus-client==0.25.0
-opentelemetry-sdk==1.41.1
-opentelemetry-api==1.41.1
-opentelemetry-exporter-otlp==1.41.1
-opentelemetry-exporter-otlp-proto-grpc==1.41.1
-opentelemetry-exporter-otlp-proto-http==1.41.1
-opentelemetry-instrumentation==0.62b1
-opentelemetry-instrumentation-django==0.62b1
-opentelemetry-instrumentation-celery==0.62b1
-opentelemetry-instrumentation-httpx==0.62b1
-opentelemetry-instrumentation-wsgi==0.62b1
-opentelemetry-proto==1.41.1
-opentelemetry-semantic-conventions==0.62b1
-opentelemetry-util-http==0.62b1
-googleapis-common-protos==1.74.0
+
+# ── Async / networking ───────────────────────────────────────────────────────
 aiohttp==3.13.5
 aiohappyeyeballs==2.6.1
 aiosignal==1.4.0
@@ -57,16 +62,46 @@ frozenlist==1.8.0
 multidict==6.7.1
 propcache==0.4.1
 yarl==1.23.0
+
+# ── gRPC / Triton client ─────────────────────────────────────────────────────
+tritonclient==2.68.0
+grpcio==1.67.1
+googleapis-common-protos==1.74.0
+
+# ── Observability ────────────────────────────────────────────────────────────
+prometheus-client==0.25.0
+opentelemetry-api==1.41.1
+opentelemetry-exporter-otlp==1.41.1
+opentelemetry-exporter-otlp-proto-common==1.41.1
+opentelemetry-exporter-otlp-proto-grpc==1.41.1
+opentelemetry-exporter-otlp-proto-http==1.41.1
+opentelemetry-instrumentation==0.62b1
+opentelemetry-instrumentation-celery==0.62b1
+opentelemetry-instrumentation-django==0.62b1
+opentelemetry-instrumentation-httpx==0.62b1
+opentelemetry-instrumentation-wsgi==0.62b1
+opentelemetry-proto==1.41.1
+opentelemetry-sdk==1.41.1
+opentelemetry-semantic-conventions==0.62b1
+opentelemetry-util-http==0.62b1
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
 brotli==1.2.0
-python-rapidjson==1.23
 gevent==26.4.0
-greenlet==3.3.2
 geventhttpclient==2.3.9
-onnxruntime-gpu==1.25.1
+greenlet==3.3.2
 importlib-metadata==8.7.1
+python-rapidjson==1.23
+wrapt==2.1.2
 zipp==3.23.1
 zope-event==6.2
-wrapt==2.1.2
+
+# ── Dev / test ───────────────────────────────────────────────────────────────
+factory_boy==3.3.1
+pytest==8.3.4
+pytest-django==4.9.0
+pytest-asyncio==0.25.3
+pytest-cov==6.0.0
 pytest-xdist==3.8.0
 execnet==2.1.2
 pip-audit==2.9.0
