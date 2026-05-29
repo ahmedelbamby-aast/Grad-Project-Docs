@@ -29,10 +29,17 @@ This file defines how agents should execute tests quickly and safely in this rep
 <!-- SPECKIT END -->
 
 ## Current Active Production Runtime Plan
-- **Active plan name:** `Heterogeneous Production Runtime Maturity Plan`
+- **Active plan name:** `Heterogeneous Production Runtime Maturity Plan` — **COMPLETED 2026-05-29**
 - Plan file: [docs/heterogeneous_production_runtime_maturity_plan.md](docs/heterogeneous_production_runtime_maturity_plan.md)
 - Tasks file: [docs/heterogeneous_production_runtime_maturity/tasks.md](docs/heterogeneous_production_runtime_maturity/tasks.md)
 - Evidence root: [ci_evidence/production/runtime_maturity/](ci_evidence/production/runtime_maturity/)
+- Accepted job: `b1d2311c-b0af-44a4-a551-61e58200eb11` | Final SHA: `af3fce3`
+
+## Runtime Stability Remediation (Completed)
+- **Plan:** [docs/runtime_stability_remediation/plan.md](docs/runtime_stability_remediation/plan.md)
+- **Tasks:** [docs/runtime_stability_remediation/tasks.md](docs/runtime_stability_remediation/tasks.md)
+- **Constitution:** Section 17 (§17.1–§17.4) — Runtime Job Lifecycle and Vector Integrity
+- **Status:** All RS tasks completed and merged to master (SHA `375cc84`)
 - Local workflow: [.github/workflows/prod-runtime-maturity.yml](.github/workflows/prod-runtime-maturity.yml)
 - Production evidence helper: [tools/prod/prod-runtime-maturity-evidence.ps1](tools/prod/prod-runtime-maturity-evidence.ps1)
 - **Status:** Active, not completed.
