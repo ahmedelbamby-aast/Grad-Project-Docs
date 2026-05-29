@@ -83,7 +83,7 @@
 - [x] T035 [P] [US3] Add replay lifecycle contract tests in `backend/tests/contract/test_runtime_ingest_replay_contract.py`
 - [x] T036 [US3] Update production ingest wrapper policy flags in `tools/prod/prod-runtime-ingest-video.ps1`
 - [x] T037 [US3] Run local replay policy tests and save output to `ci_evidence/production/runtime_maturity/phase3_replay_tests.md`
-- [ ] T038 [US3] Run a fresh production real-video lifecycle job and save command output to `ci_evidence/production/runtime_maturity/phase3_fresh_lifecycle_job.md`
+- [x] T038 [US3] Run a fresh production real-video lifecycle job and save command output to `ci_evidence/production/runtime_maturity/phase3_fresh_lifecycle_job.md`
 
 ## Phase 6: User Story 4 - GPU and Causality Certification
 
@@ -98,9 +98,9 @@
 - [x] T043 [US4] Ensure causality export accepts and records the exact job ID in `tools/benchmarks/export_benchmark_causality.py`
 - [x] T044 [P] [US4] Add manifest schema tests for GPU trace, queue topology, model hashes, and replay fields in `backend/tests/unit/scripts/test_production_evidence_manifest.py`
 - [x] T045 [P] [US4] Add causality job-ID integrity tests in `backend/tests/unit/scripts/test_benchmark_causality_job_integrity.py`
-- [ ] T046 [US4] Capture production GPU telemetry during the accepted job and save output under `ci_evidence/production/runtime_maturity/phase4_gpu_trace/`
-- [ ] T047 [US4] Export causality for the accepted job and save output under `ci_evidence/production/runtime_maturity/phase4_causality/`
-- [ ] T048 [US4] Generate a production evidence manifest for the accepted job at `ci_evidence/production/runtime_maturity/phase4_evidence_manifest.json`
+- [x] T046 [US4] Capture production GPU telemetry during the accepted job and save output under `ci_evidence/production/runtime_maturity/phase4_gpu_trace/`
+- [x] T047 [US4] Export causality for the accepted job and save output under `ci_evidence/production/runtime_maturity/phase4_causality/`
+- [x] T048 [US4] Generate a production evidence manifest for the accepted job at `ci_evidence/production/runtime_maturity/phase4_evidence_manifest.json`
 
 ## Phase 7: User Story 5 - Closure and Reproducibility
 
