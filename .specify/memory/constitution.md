@@ -1,7 +1,7 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 2.2.0 -> 2.3.0
+Version change: 2.2.0 -> 2.4.0
 Bump rationale: MINOR - Adds Section 17 (Runtime Job Lifecycle and Vector
 Integrity Constitution) converting recurring production-runtime failures into
 binding, non-bypassable invariants: bounded job lifecycle with an automatic
@@ -9,6 +9,14 @@ reconciler and guaranteed terminal state, a fixed-dimension vector contract
 enforced at the database write boundary, stage outcome accounting with
 fail-closed thresholds, and stage re-entry idempotency. Adds matching rows to
 the Anti-Regression Enforcement Matrix (14.25).
+
+Version change: 2.3.0 -> 2.4.0
+Bump rationale: PATCH - Adds Section 18 (Source Control and CI File
+Visibility Constitution) after a CI gate failure caused by a blanket *.json
+gitignore rule silently excluding a file the CI validation step required.
+Establishes that CI-required files must never be gitignored without an
+explicit tracked exception, and that blanket extension-based exclusions must
+be audited against all CI-verified paths before merging.
 
 Triggering incident: production lifecycle acceptance job
 c375ea84-0407-4007-8ae8-d2adaf14d9e5 hung in `processing` and timed out without
@@ -38,6 +46,10 @@ Modified principles:
   throughput and inference claims.
 - Compliance review -> Branch parity, preflight, lifecycle, GPU telemetry,
   causality and final closure evidence gates.
+
+Added sections (2.4.0):
+- Source Control and CI File Visibility Constitution (Section 18)
+- Anti-Regression Enforcement Matrix row: CI-required file gitignored
 
 Added sections (2.3.0):
 - Runtime Job Lifecycle and Vector Integrity Constitution (Section 17)
@@ -1670,6 +1682,7 @@ reproduce the claimed result.
 | Vector dimension explosion | DB write-boundary validation | Vector integrity (17.2) | fixed-dimension + payload-size proof at persist boundary | fail schema/DB gate | reject write/fail closed | invalidate oversized rows | backend owner |
 | Silently swallowed stage errors | Stage outcome audit | Fail-closed thresholds (17.3) | created/skipped/error counts + threshold decision | fail stage gate | fail closed (FAILED/partial) | reprocess affected stage | backend owner |
 | Non-idempotent stage re-entry | Re-run/duplicate scan | Stage idempotency (17.4) | existence-guarded write + idempotency key | fail system gate | dedupe on commit | remove duplicate rows | backend owner |
+| CI-required file gitignored | .gitignore audit vs CI paths | CI file visibility (18.1) | explicit tracked exception + CI path verification | fail CI validation gate | add exception + commit file | restore file from prior commit | release owner |
 
 ### 15. Final Architectural Positioning
 
@@ -1992,6 +2005,65 @@ stage-re-entry boundary that retries and the periodic reconciler exercise.
 | Stage outcome accounting (17.3) | created/skipped/error counts persisted; declared error-ratio threshold; zero-output and over-threshold stages fail closed |
 | Stage re-entry idempotency (17.4) | Existence-guarded writes; documented idempotency key; re-run produces zero duplicate durable rows |
 
+### 18. Source Control and CI File Visibility Constitution
+
+This section converts a CI gate failure caused by a blanket `*.json` gitignore
+rule into a permanent, non-bypassable rule. A required CI file that does not
+exist on the runner checkout is indistinguishable from a missing artifact; the
+CI gate fails with no actionable trace unless the file is tracked in source
+control.
+
+#### 18.1 CI-Required Files Must Be Tracked
+
+Any file that a CI workflow step verifies (via `test -f`, a JSON parse, a
+schema validation, a pytest path check, or any other existence or content
+assertion) MUST be committed and tracked in the repository. A file that exists
+only on a developer's local machine is not CI-visible and cannot satisfy a CI
+gate.
+
+A file is CI-required if it appears in any of the following contexts:
+- a `test -f` or equivalent existence check in a workflow step;
+- a `json.load`, `Path.read_text`, or equivalent content read in a test that
+  runs in CI;
+- a schema or manifest validation that names an absolute or repo-root-relative
+  path;
+- a pytest fixture or test that resolves the path from `__file__` to a
+  repo-root location.
+
+#### 18.2 Blanket Extension Exclusions Require Explicit CI Exceptions
+
+`.gitignore` rules that exclude files by extension (e.g. `*.json`, `*.jsonl`,
+`*.xml`, `*.csv`) MUST include explicit negation exceptions (`!path/to/file`)
+for every file those rules would exclude that is CI-required under §18.1.
+
+Before merging any commit that adds or modifies a `.gitignore` extension-based
+exclusion rule, the author MUST audit every CI workflow file (`*.yml` in
+`.github/workflows/`) and every test path assertion to confirm that no
+CI-required file is newly excluded. The audit result MUST be recorded in the
+commit message or PR description.
+
+A blanket extension exclusion without a corresponding CI path audit is a merge
+blocker.
+
+#### 18.3 Test Path Resolution Must Be Working-Directory-Independent
+
+Tests that assert file existence or read file content using repo-root-relative
+paths MUST resolve those paths using `Path(__file__).resolve().parents[N]`
+(anchored to the test file's own location) rather than plain `Path("relative/path")`
+(anchored to the process working directory). A plain relative path fails
+silently when pytest is invoked from a different working directory (for
+example, from `backend/` instead of the repository root), producing a
+misleading `FileNotFoundError` that appears to be a missing artifact rather
+than a path resolution bug.
+
+#### 18.4 CI File Visibility Compliance Gates
+
+| Principle | Required gate |
+| --- | --- |
+| CI-required files tracked (18.1) | Every file verified by a CI step is committed; `git ls-files --error-unmatch <path>` exits 0 for each CI-required path |
+| Extension exclusions audited (18.2) | Any new or modified `*.ext` gitignore rule is accompanied by a CI path audit and explicit exceptions for all CI-required matches |
+| Test path resolution (18.3) | Test files assert existence/content via `__file__`-anchored paths, not bare `Path("relative/string")`; verified by grep or linter |
+
 ## Governance
 
 This constitution is the binding engineering, runtime and scientific maturity
@@ -2046,4 +2118,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.3.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-29
+**Version**: 2.4.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-29
