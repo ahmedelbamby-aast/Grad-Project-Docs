@@ -2,7 +2,7 @@
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
-**Branch:** master @ `33a24d1`  
+**Branch:** master @ `dcefea9`  
 **TRT:** 10.16.1.11 | **CUDA:** 12.8 | **Triton:** 2.55.0 | **Python:** 3.12 (backend venv)
 
 ---
@@ -88,6 +88,43 @@ Sample interval: 2 s | 179 samples captured during active processing
 ---
 
 ## 4. Issues Encountered & Fixes Applied
+
+### Issue 6 — Video Jobs Stall After First Batch; Celery Beat Not Running
+
+**Symptom:**
+```
+CommandError: Timed out waiting for job <id>; current status=processing.
+```
+DB shows `processed_frames=173/4541`, `status=processing`, last update stale for 15+ minutes.  
+`pgrep -fa "celery.*beat"` → nothing.
+
+**Root cause (two independent failures):**
+
+1. **Celery beat not started.** The stale-job reconciler (`reconcile_stale_jobs_periodic`) is a Celery Beat periodic task. Without Beat running, stuck jobs remain in `processing` state indefinitely and are never reconciled to `failed`. The `prod_start_celery_workers.sh` script only starts worker processes, not the scheduler.
+
+2. **Celery soft-time-limit (300 s) kills the video task mid-run.** The offline pipeline submits one batch window (~173 frames) to Triton, processes responses, then continues. The total task execution time exceeds the 300 s `--soft-time-limit`. When the task is killed, the remaining ~4 368 frames are never re-queued, leaving the job stuck in `processing`.
+
+**Observable evidence:**
+- Last inference log entry: `2026-05-30 13:46:58` — inference stopped cold mid-job
+- Only 10 Celery task completions recorded in the offline_control log since last restart
+- Job `542533c3` still `processing` at `173/4541` frames, stale 926 s
+
+**Fix — Celery beat:**
+```bash
+# Start beat on prod (runs as background process alongside workers)
+cd /home/bamby/grad_project/backend
+nohup .venv/bin/celery -A config beat -l info \
+  --pidfile=logs/pids/celery_beat.pid \
+  --logfile=logs/celery_beat.log &
+```
+Add to `prod_start_celery_workers.sh` so beat starts with every worker set.
+
+**Fix — soft-time-limit for long videos:**  
+The `--soft-time-limit=300 --time-limit=600` settings are appropriate for live-stream pipeline tasks but too short for offline video jobs (4 541 frames × ~250 ms/frame ≈ 19 min). Either:
+- Raise the time limits for the `offline_control` worker (e.g. soft=1800 hard=2400), or
+- Re-architect the task so it processes frames in chunks and re-enqueues itself (continuation pattern).
+
+**Status:** Identified; not yet fixed. Both fixes are required before long-video offline jobs can complete end-to-end.
 
 ### Issue 1 — TRT Serialization Version Mismatch (tag 239 → 240)
 
@@ -231,13 +268,20 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 
 | Metric | Value | Conditions |
 |---|---|---|
-| Frames processed per second (offline, HTTP, batch=1–4) | ~0.2–0.5 fps average | All 6 models, sequential HTTP |
-| Burst rate (queue drain at job start) | ~50–120 fps | Short burst before queue empties |
-| GPU utilisation (sustained processing) | 1.2% avg / 12% peak | 179 samples @ 2 s interval |
+| Burst rate (first batch window, HTTP) | ~150–160 fps | ~173 frames processed in ~1 s burst |
+| Sustained processing | N/A — job killed by 300 s soft-time-limit | Celery task timeout before second batch |
+| Observed frames processed per full run | 173 / 4 541 (3.8%) | Stopped by `soft-time-limit` |
+| GPU utilisation during burst | 1.2% avg / 12% peak | 179 samples @ 2 s interval |
 | GPU temperature under load | 36 °C | Far below thermal limit (89 °C) |
-| Pipeline theoretical ceiling (HTTP, sequential) | ~0.5 fps | Limited by sum of 6 RTTs |
+| Average board power | 60.1 W | vs 575 W TDP — GPU essentially idle |
+| Pipeline theoretical ceiling (HTTP, sequential) | ~0.5 fps sustained | Limited by sum of 6 × avg RTT per frame |
 | Pipeline theoretical ceiling (gRPC, parallel dispatch) | ~20–50 fps | Estimated; pending implementation |
 | Pipeline theoretical ceiling (gRPC + batch=16) | ~200+ fps | RTX 5090 TFLOPS ceiling |
+
+**Known blockers before a full-video run can complete:**
+1. Celery Beat not running → stale jobs stuck in `processing`
+2. `soft-time-limit=300 s` kills video task mid-run for large videos
+3. Job `--wait` timeout (900 s) in management command exits before job completes
 
 ---
 
@@ -256,6 +300,9 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 
 ## 8. Re-run Checklist (for future benchmark comparisons)
 
+> **Prerequisites before running:** Issues 6a (Celery beat) and 6b (soft-time-limit) must be fixed
+> or the job will stall at ~173 frames. See §4 Issue 6 for fix commands.
+
 ```bash
 # On prod server
 cd /home/bamby/grad_project
@@ -264,15 +311,23 @@ cd /home/bamby/grad_project
 bash tools/prod/prod_trt_guard.sh
 curl -sf http://127.0.0.1:39100/v2/health/ready && echo "Triton OK"
 pgrep -fc "celery -A config worker"  # expect 23
+pgrep -fa "celery.*beat" || echo "WARNING: beat not running — start it first"
 
-# 2. Reset GPU monitor
-echo "ts,util,mem_used,mem_total,temp,power" > backend/logs/gpu_monitor_bench.csv
-nohup bash -c 'for i in $(seq 1 600); do
+# 2. Start beat if not running (required for stale-job reconciler)
+cd backend
+nohup .venv/bin/celery -A config beat -l info \
+  --pidfile=logs/pids/celery_beat.pid \
+  --logfile=logs/celery_beat.log &
+cd ..
+
+# 3. Reset GPU monitor (1 s samples)
+echo "ts,util_pct,mem_used_mib,mem_total_mib,temp_c,power_w" > backend/logs/gpu_monitor_bench.csv
+nohup bash -c 'for i in $(seq 1 3600); do
   nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used,memory.total,temperature.gpu,power.draw \
     --format=csv,noheader,nounits >> /home/bamby/grad_project/backend/logs/gpu_monitor_bench.csv
   sleep 1; done' &
 
-# 3. Submit benchmark job
+# 4. Submit benchmark job (timeout 3600 s for full 4541-frame video)
 cd backend && source .venv/bin/activate
 python manage.py runtime_ingest_video \
   --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
@@ -280,12 +335,13 @@ python manage.py runtime_ingest_video \
   --runtime-profile offline \
   --pipeline-mode full_frame \
   --replay-policy new-attempt \
-  --timeout-seconds 900 \
-  --wait
+  --timeout-seconds 3600 \
+  --wait 2>&1 | tee /home/bamby/grad_project/backend/logs/bench_run_$(date +%Y%m%dT%H%M%S).log
 
-# 4. Analyse
-awk -F',' 'NR>1{s+=$2;n++;if($2>mx)mx=$2} END{printf "avg=%.1f%% peak=%s%% n=%d\n",s/n,mx,n}' \
-  /home/bamby/grad_project/backend/logs/gpu_monitor_bench.csv
+# 5. Analyse GPU telemetry
+awk -F',' 'NR>1{s+=$2;n++;if($2>mx)mx=$2;pw+=$6} END{
+  printf "samples=%d  avg_util=%.1f%%  peak_util=%s%%  avg_power=%.1fW\n",n,s/n,mx,pw/n
+}' /home/bamby/grad_project/backend/logs/gpu_monitor_bench.csv
 ```
 
 ---
