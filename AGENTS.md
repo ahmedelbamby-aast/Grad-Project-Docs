@@ -36,13 +36,15 @@ This file defines how agents should execute tests quickly and safely in this rep
   telemetry layer and shipped behind a flag with fallback.
 - Diagrams: README → *Triton Model Inference End to End lifecycle (Sequential Order)*
   (current) and *Triton Model Inference End to End (Parallel)* (target).
-- Status: **Phase 1b done** (concurrent model dispatch `TRITON_CONCURRENT_MODELS`,
-  default off, VRAM-bounded, equivalence-tested); **Phase 4 progress-throttle done**
-  (`OFFLINE_PROGRESS_UPDATE_EVERY_N`); **Phase 5 dynamic batching already present**
-  in `triton_repository_cuda12` configs. Designed/next (need prod-GPU or model work,
-  not shipped blind): Phase 1a binary tensors, Phase 2 pipeline overlap, Phase 3 gRPC,
-  Phase 4 FK-safe batched writer + offload, Phase 7 ROI/Triton-ensemble. See the plan's
-  "Implementation status & validation boundary" table.
+- Status: **Phases 1b, 2, 4 (throttle), 5 done.** 1b concurrent model dispatch
+  (`TRITON_CONCURRENT_MODELS`, VRAM-bounded); 2 pipeline overlap
+  (`TRITON_OFFLINE_PIPELINE_OVERLAP`, producer/consumer); 4 progress-throttle
+  (`OFFLINE_PROGRESS_UPDATE_EVERY_N`); 5 dynamic batching already in
+  `triton_repository_cuda12` configs. All flag-gated (default off/unchanged),
+  equivalence-tested. Designed/next (need prod-GPU or model work, not shipped blind):
+  Phase 1a binary tensors, Phase 3 gRPC, Phase 4 FK-safe batched writer + offload,
+  Phase 7 ROI/Triton-ensemble. See the plan's "Implementation status & validation
+  boundary" table.
 - Agents must treat this plan as the priority for runtime/inference work and update
   its task checklist + `docs/production_inference_benchmark.md` after each phase.
 

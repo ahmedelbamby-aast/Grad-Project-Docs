@@ -26,7 +26,7 @@ complete from a non-GPU environment.
 | 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`, default 1 = unchanged) | safe, opt-in |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
 | 1a binary tensors | **Designed, not shipped** | cross-cutting (request model + client); HTTP binary-tensor format must be validated against live Triton — do not enable blind |
-| 2 pipeline overlap | **Designed** | producer/consumer restructure of the hot loop; implement + equivalence-test next |
+| 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`, default off) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
 | 3 gRPC transport | **Designed** | new `tritonclient.grpc` path; requires live-Triton validation |
 | 4 batched detection writer / offload | **Designed** | FK-safe bulk writer + dedicated-queue offload |
 | 6 VRAM discipline | **Partly enforced** | per-model in-flight split (1b) + telemetry `peak_gpu_memory_mb`; config caps to confirm |
@@ -88,16 +88,23 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
 **Exit criteria:** telemetry `mean_rtt_per_model_ms` unchanged per model, but
 `p95_frame_latency_ms` drops ~3–5×; GPU util rises materially in `prod_run_benchmark.sh`.
 
-### Phase 2 — Pipeline overlap (double/triple buffering)
+### Phase 2 — Pipeline overlap (double/triple buffering)  — ✅ IMPLEMENTED (2026-05-31, flag default OFF)
 *Impact: high · Effort: medium · Risk: medium*
 
-- Decouple **Stage A** (decode + preprocess, producer threads) → bounded ring
-  buffer → **Stage B** (async dispatch, consumer) → **Stage C** (postprocess /
-  persist). Batch *K* infers while *K+1* preprocesses and *K−1* persists.
-- Touch: restructure `_run_triton_frame_level_inference` around a
-  `queue.Queue(maxsize=…)` producer/consumer (or an `asyncio` pipeline).
-- Flag: `TRITON_PIPELINE_OVERLAP`.
+- `_run_triton_frame_level_inference` now splits the hot loop into
+  `_prepare_decoded_frame` (pure CPU/IO: decode-feed + letterbox + tensor build,
+  **no shared state**) run on a background producer thread, and
+  `_consume_prepared_frame` (enqueue + dispatch + postprocess + callbacks, **owns
+  all mutation**) on the main thread, joined by a bounded `queue.Queue`. Batch *K*
+  inference overlaps batch *K+1* preprocess. Decode is already threaded
+  (`FrameReadPipeline`), so with overlap on there are three stages: decode →
+  preprocess → dispatch.
+- Flag: `TRITON_OFFLINE_PIPELINE_OVERLAP` (default off). Falls back to the inline
+  prepare→consume path (identical code, no thread) when disabled.
+- Verified: `test_concurrent_model_dispatch.py` asserts overlap == sequential and
+  overlap+concurrent == sequential.
 - Expected: hides preprocess + postprocess behind inference → 1.3–2×.
+- **Enable on prod:** `echo 'TRITON_OFFLINE_PIPELINE_OVERLAP=1' >> backend/.env`.
 
 ### Phase 3 — gRPC transport
 *Impact: medium–high · Effort: medium · Risk: medium*
@@ -225,7 +232,7 @@ ground truth after each phase.
 
 - [ ] P1a binary tensors (`TRITON_BINARY_TENSORS`) + unit test
 - [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — done (flag default off, awaiting prod validation)**
-- [ ] P2 producer/consumer pipeline overlap (`TRITON_PIPELINE_OVERLAP`)
+- [x] **P2 producer/consumer pipeline overlap (`TRITON_OFFLINE_PIPELINE_OVERLAP`) + equivalence test — done (default off)**
 - [ ] P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`)
 - [x] **P4 throttled progress writes (`OFFLINE_PROGRESS_UPDATE_EVERY_N`) — done (default 1 = unchanged)**
 - [ ] P4 batched detection writer (FK-safe) + offload pose/embeddings/render to dedicated queues
