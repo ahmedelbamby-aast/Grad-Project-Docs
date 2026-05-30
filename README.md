@@ -167,6 +167,213 @@ drives the stale-job reconciler and periodic maintenance. Under
 are **development-only** — production inference is native-Linux, GPU-backed,
 **Triton-only**, with exactly one active live or offline endpoint profile at a time.
 
+## Triton Model Inference End to End lifecycle (Sequential Order )
+
+This is the **currently implemented** offline inference lifecycle, in the real
+execution order: trigger → Celery task boot → runtime-policy decision → the
+Triton-only frame pipeline (threaded decode → preprocess → async batch queue →
+Triton/TensorRT) → per-frame side effects (DB progress, WebSocket overlay,
+telemetry) → post-detection stages (tracking → pose → embeddings/ReID →
+persistence → render) → telemetry session flush. The hybrid local path is shown
+dashed; it is development-only and bypassed in production.
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
+flowchart TD
+    %% ---------- Trigger ----------
+    subgraph Trigger["1 · Trigger"]
+        CLI["manage.py runtime_ingest_video / prod_run_benchmark.sh"]
+        API["POST /api/v1/video-analysis/jobs/ (upload)"]
+    end
+    CLI --> ENQ
+    API --> ENQ
+    ENQ["Celery enqueue → process_video_upload\n(queue: offline_control)"]
+
+    %% ---------- Task boot ----------
+    subgraph Boot["2 · Task boot (Celery worker, prefork)"]
+        SIG["task_prerun signal →\nTelemetrySession.start() bound via ContextVar"]
+        VAL["validate video · read enabled-model toggles (Redis)"]
+        POL["evaluate_runtime_policy(path=offline)\nINFERENCE_STRATEGY, triton_ready, allow_local_fallback"]
+    end
+    ENQ --> SIG --> VAL --> POL
+    POL --> SHADOW["Triton shadow precheck\n(1 frame → orchestrator, per model)"]
+    SHADOW --> BR{"allow_local_fallback?"}
+
+    %% ---------- Triton-only path ----------
+    BR -- "False (triton_only / prod)" --> TRP
+    subgraph TRP["3 · _run_triton_frame_level_inference  (PRODUCTION PATH)"]
+        ORCHB["build InferenceOrchestrator\n+ ModelRouteService + TritonClient"]
+        DEC["FrameReadPipeline (background thread)\ndisk read + cv2 decode"]
+        PRE["letterbox 640x640 · BGR→RGB · NCHW float32"]
+        CAD{"detect this frame?\nOFFLINE_DETECT_EVERY_N_FRAMES"}
+        REUSE["reuse last person boxes\n(TTL frames) + interpolate"]
+        QUE["pending_frames queue\n_flush_pending: batch (TARGET_BATCH)\nmax_concurrency / max_inflight"]
+        DISP["concurrent dispatch → Triton\n(dynamic batching, HTTP/gRPC)"]
+        DECODE["decode YOLO output0 → DetectionBox\n(per model: person/posture/gaze x3)"]
+        FD["FrameDetections[frame_index]"]
+        ORCHB --> DEC --> PRE --> CAD
+        CAD -- "skip" --> REUSE --> FD
+        CAD -- "run" --> QUE --> DISP --> DECODE --> FD
+    end
+
+    %% ---------- Triton serving ----------
+    subgraph TS["Triton Inference Server (GPU, native Linux)"]
+        TR["HTTP 39100 / gRPC 39101"]
+        ENG["TensorRT .plan engines (FP16, batch 1..8..32)\nperson_detector · posture_model\ngaze_horizontal/vertical/depth · rtmpose"]
+        TR --> ENG
+    end
+    DISP <-->|"infer() RTT"| TR
+
+    %% ---------- Per-frame side effects ----------
+    FD --> CB["on_frame_inferred callback"]
+    CB --> DBP["DB: VideoAnalysisJob.update\nprocessed_frames · progress_percent"]
+    CB --> WS["WebSocket 'overlay_frame'\n(video-analysis group)"]
+    CB --> TFRAME["TelemetrySession.record_frame(FrameMeta)"]
+    DISP --> TCALL["TelemetrySession.record_model_call\n(ModelCallMeta: model, rtt_ms, status)"]
+
+    %% ---------- Post-detection stages ----------
+    FD --> TRACK
+    subgraph POST["4 · Post-detection (per job)"]
+        TRACK["_assign_tracking_ids\nByteTrack / BoT-SORT"]
+        POSE["PoseRuntime → rtmpose ROI keypoints\n+ pose quality"]
+        EMB["embeddings: extract_crop → vector\nReID find_best_match (cosine)"]
+        PERSIST["persist: Detection · BoundingBox · StudentTrack"]
+        RENDER["render_aggregated_video\n(annotated + pose overlays)"]
+        TRACK --> POSE --> EMB --> PERSIST --> RENDER
+    end
+
+    %% ---------- Stores ----------
+    subgraph DATA["Stores"]
+        PG[("PostgreSQL\njobs · detections · tracks\ntelemetry_*")]
+        REDIS[("Redis\ntoggles · tracking IDs · embeddings\nCelery broker/result")]
+        FILES[("Filesystem\ndata/videos · predict/input_frames/*.jpg\nlogs/telemetry/*.json · rendered mp4")]
+    end
+    DBP --> PG
+    EMB --> REDIS
+    TRACK --> REDIS
+    PERSIST --> PG
+    RENDER --> FILES
+    DEC --> FILES
+
+    %% ---------- Session end ----------
+    RENDER --> END["task_postrun signal →\nTelemetrySession.end()"]
+    END --> SINK["writer: JSON-first + PostgreSQL\n(db_commit_failed fallback)"]
+    SINK --> PG
+    SINK --> FILES
+    TFRAME -.-> END
+    TCALL -.-> END
+
+    %% ---------- Hybrid fallback (non-prod) ----------
+    BR -- "True (hybrid / dev only)" --> HYB["run_multi_model_inference_streaming\nLOCAL TensorRT/OpenVINO engines (multi_model.py)\n→ same on_frame_complete callback"]
+    HYB -. "merges into" .-> TRACK
+
+    classDef prod fill:#5B21B6,stroke:#A78BFA,color:#EDE9FE;
+    classDef store fill:#1E3A8A,stroke:#60A5FA,color:#DBEAFE;
+    class TRP,TS prod;
+    class DATA store;
+```
+
+> **Known limitation (sequential):** within a frame-batch the 5–6 models are
+> dispatched one after another (`for task_key in task_keys`), so per-batch
+> latency is the **sum** of model RTTs; frame-batches and post-stages also run
+> serially, and tensors are JSON-encoded. These are the targets of the
+> parallelization plan below.
+
+## Triton Model Inference End to End (Parallel )
+
+This is the **intended parallelized** design (see
+[docs/inference_parallelization_plan.md](docs/inference_parallelization_plan.md),
+the project's current **highest-priority** performance plan). It overlaps the
+decode/preprocess, dispatch, and post/persist stages (double/triple buffering),
+**fans out all models concurrently** with `asyncio.gather` so per-batch latency
+is the **max** model RTT instead of the sum, sends **binary tensors over gRPC**
+(no JSON `.tolist()`), lets **Triton dynamic batching** coalesce concurrent
+requests into large GPU batches, **batches DB writes**, and **offloads** pose /
+embeddings / render to dedicated Celery queue workers.
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
+flowchart TD
+    ENQ["process_video_upload (offline_control)\nTelemetrySession.start()"] --> PROD
+
+    %% ---------- Stage A: produce (threads) ----------
+    subgraph PROD["Stage A · Decode + Preprocess (thread pool, runs ahead)"]
+        DEC["FrameReadPipeline\ndisk read + cv2 decode"]
+        PRE["letterbox 640 · NCHW float32\nBINARY tensor bytes (no JSON .tolist)"]
+        DEC --> PRE
+    end
+    PRE --> RB[("bounded prepared-frame ring buffer\n(backpressure decouples A from B)")]
+
+    %% ---------- Stage B: concurrent dispatch ----------
+    RB --> BATCH["Stage B · accumulate batch (TARGET_BATCH=32)"]
+    BATCH --> FORK{{"asyncio.gather — fan out ALL models concurrently"}}
+    FORK --> M1["person_detector"]
+    FORK --> M2["posture_model"]
+    FORK --> M3["gaze_horizontal"]
+    FORK --> M4["gaze_vertical"]
+    FORK --> M5["gaze_depth"]
+    FORK --> M6["rtmpose"]
+    M1 --> TR
+    M2 --> TR
+    M3 --> TR
+    M4 --> TR
+    M5 --> TR
+    M6 --> TR
+
+    subgraph GPU["Triton (gRPC 39101 · HTTP/2 multiplexed)"]
+        TR["dynamic batching coalesces\nconcurrent requests"]
+        ENGV["TensorRT FP16 engines (batch 1..8..32)\nGPU saturated (>50% util)"]
+        TR --> ENGV
+    end
+    TR --> JOIN{{"join — batch latency = MAX(model RTT), not SUM"}}
+    JOIN --> DECODE["decode outputs → FrameDetections"]
+
+    %% ---------- Stage C: parallel post / persist ----------
+    DECODE --> TRACK["Stage C · tracking (ByteTrack / BoT-SORT)"]
+    TRACK --> DBW["batched DB writer\nbulk_create Detections/BBoxes\nprogress throttled every N frames"]
+    subgraph OFFLOAD["Offloaded to dedicated Celery queues (parallel workers)"]
+        POSEW["pipeline.offline.rtmpose_model.worker → pose"]
+        EMBW["pipeline.offline.behavior.worker → embeddings / ReID"]
+        RENW["render worker → annotated mp4"]
+    end
+    TRACK --> POSEW
+    TRACK --> EMBW
+    TRACK --> RENW
+
+    %% ---------- Telemetry (off hot path) ----------
+    subgraph TEL["Telemetry (async, off the hot path)"]
+        RTT["record_model_call (per-model rtt_ms)"]
+        FRM["record_frame (stage latencies)"]
+    end
+    M1 -.-> RTT
+    DECODE -.-> FRM
+
+    subgraph DATA["Stores"]
+        PG[("PostgreSQL")]
+        REDIS[("Redis · tracks · embeddings")]
+        FILES[("Filesystem · frames · telemetry JSON · mp4")]
+    end
+    DBW --> PG
+    EMBW --> REDIS
+    POSEW --> FILES
+    RENW --> FILES
+
+    DBW --> ENDS["TelemetrySession.end() → JSON-first + PostgreSQL"]
+    ENDS --> PG
+    ENDS --> FILES
+
+    classDef par fill:#5B21B6,stroke:#A78BFA,color:#EDE9FE;
+    classDef store fill:#1E3A8A,stroke:#60A5FA,color:#DBEAFE;
+    class PROD,GPU,OFFLOAD par;
+    class DATA store;
+```
+
+> Stages A/B/C run **overlapped**: while batch *K* is inferring (B), batch *K+1*
+> is decoding/preprocessing (A) and batch *K−1* is persisting (C). Expected
+> trajectory: today ~0.5–5 fps (GPU ~1%) → Phase 1 (binary + concurrent models)
+> ~15–40 fps → Phase 3 (gRPC) ~40–80 fps → Phase 4–5 (batched DB + GPU batching)
+> 100+ fps with GPU >50%. Every phase is measured via the telemetry layer.
+
 ## Repository Layout
 
 ```text
