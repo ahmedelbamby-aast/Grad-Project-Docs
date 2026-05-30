@@ -14,6 +14,27 @@ Related diagrams: README → *Triton Model Inference End to End lifecycle
 (Sequential Order)* (current) and *Triton Model Inference End to End (Parallel)*
 (target).
 
+### Implementation status & validation boundary (2026-05-31)
+
+Per the constitution's evidence/reproducibility pillars, nothing is marked "done"
+that has not been validated, and hardware/model-dependent work is **not** claimed
+complete from a non-GPU environment.
+
+| Phase | State | Notes |
+|---|---|---|
+| 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`, default off) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
+| 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`, default 1 = unchanged) | safe, opt-in |
+| 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
+| 1a binary tensors | **Designed, not shipped** | cross-cutting (request model + client); HTTP binary-tensor format must be validated against live Triton — do not enable blind |
+| 2 pipeline overlap | **Designed** | producer/consumer restructure of the hot loop; implement + equivalence-test next |
+| 3 gRPC transport | **Designed** | new `tritonclient.grpc` path; requires live-Triton validation |
+| 4 batched detection writer / offload | **Designed** | FK-safe bulk writer + dedicated-queue offload |
+| 6 VRAM discipline | **Partly enforced** | per-model in-flight split (1b) + telemetry `peak_gpu_memory_mb`; config caps to confirm |
+| 7 ROI sharing + Triton ensemble | **Designed (model work)** | needs ROI-classifier models + a Triton ensemble graph / retraining — not code-only |
+
+The remaining phases are sequenced below with concrete designs so they can be
+implemented and validated on the production GPU one at a time.
+
 ---
 
 ## 1. Current state (what is and isn't parallel)
@@ -206,9 +227,9 @@ ground truth after each phase.
 - [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — done (flag default off, awaiting prod validation)**
 - [ ] P2 producer/consumer pipeline overlap (`TRITON_PIPELINE_OVERLAP`)
 - [ ] P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`)
-- [ ] P4 batched DB writer (FK-safe) + throttled progress
-- [ ] P4 offload pose/embeddings/render to dedicated queues
-- [ ] P5 Triton `config.pbtxt` dynamic-batching tuning
+- [x] **P4 throttled progress writes (`OFFLINE_PROGRESS_UPDATE_EVERY_N`) — done (default 1 = unchanged)**
+- [ ] P4 batched detection writer (FK-safe) + offload pose/embeddings/render to dedicated queues
+- [x] **P5 dynamic batching present in `triton_repository_cuda12` configs** — tune `max_batch_size`/`preferred_batch_size` on prod
 - [ ] P6 VRAM discipline (instance_group/batch caps, telemetry peak_gpu_memory gate)
 - [ ] P7 ROI sharing + Triton ensemble (shared on-GPU tensors) + temporal behaviour reuse
 - [ ] Per-phase benchmark + telemetry comparison recorded in
