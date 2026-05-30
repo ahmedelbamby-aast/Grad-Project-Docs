@@ -109,22 +109,28 @@ DB shows `processed_frames=173/4541`, `status=processing`, last update stale for
 - Only 10 Celery task completions recorded in the offline_control log since last restart
 - Job `542533c3` still `processing` at `173/4541` frames, stale 926 s
 
-**Fix — Celery beat:**
+**Fix — Celery beat (APPLIED):**
+Beat now starts and stops as part of every worker set. `prod_start_celery_workers.sh`
+calls `prod_start_celery_beat.sh` at the end (unless `CELERY_BEAT_DISABLED=1`), and
+`prod_stop_celery_workers.sh` calls `prod_stop_celery_beat.sh`. Both beat scripts are
+idempotent and refuse to launch a second scheduler. Manual control:
 ```bash
-# Start beat on prod (runs as background process alongside workers)
-cd /home/bamby/grad_project/backend
-nohup .venv/bin/celery -A config beat -l info \
-  --pidfile=logs/pids/celery_beat.pid \
-  --logfile=logs/celery_beat.log &
+bash tools/prod/prod_start_celery_beat.sh   # idempotent single scheduler
+bash tools/prod/prod_stop_celery_beat.sh    # graceful stop + pkill safety net
 ```
-Add to `prod_start_celery_workers.sh` so beat starts with every worker set.
 
-**Fix — soft-time-limit for long videos:**  
-The `--soft-time-limit=300 --time-limit=600` settings are appropriate for live-stream pipeline tasks but too short for offline video jobs (4 541 frames × ~250 ms/frame ≈ 19 min). Either:
-- Raise the time limits for the `offline_control` worker (e.g. soft=1800 hard=2400), or
-- Re-architect the task so it processes frames in chunks and re-enqueues itself (continuation pattern).
+**Fix — soft-time-limit for long videos (APPLIED):**
+The `process_video_upload` task default soft/hard limits were raised from 600/660 s to
+**1800/1920 s** in `backend/config/settings/base.py` (env-overridable via
+`VIDEO_UPLOAD_TASK_SOFT_TIME_LIMIT_SECONDS` / `VIDEO_UPLOAD_TASK_TIME_LIMIT_SECONDS`,
+already `1800/1860` in `.env.example`). The worker-level fallback in
+`prod_start_celery_workers.sh` was raised from `300/600` to `1800/2400`. A 4 541-frame
+video (~19 min over the sequential HTTP pipeline) now completes within the soft limit.
+The continuation/chunking re-architecture remains a future optimisation but is no longer
+required for end-to-end completion.
 
-**Status:** Identified; not yet fixed. Both fixes are required before long-video offline jobs can complete end-to-end.
+**Status:** **RESOLVED 2026-05-30.** Both blockers fixed in code/config. Run the
+automated benchmark with `bash tools/prod/prod_run_benchmark.sh` (see §8).
 
 ### Issue 1 — TRT Serialization Version Mismatch (tag 239 → 240)
 
@@ -278,10 +284,10 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 | Pipeline theoretical ceiling (gRPC, parallel dispatch) | ~20–50 fps | Estimated; pending implementation |
 | Pipeline theoretical ceiling (gRPC + batch=16) | ~200+ fps | RTX 5090 TFLOPS ceiling |
 
-**Known blockers before a full-video run can complete:**
-1. Celery Beat not running → stale jobs stuck in `processing`
-2. `soft-time-limit=300 s` kills video task mid-run for large videos
-3. Job `--wait` timeout (900 s) in management command exits before job completes
+**Blockers before a full-video run can complete — all resolved 2026-05-30:**
+1. ~~Celery Beat not running → stale jobs stuck in `processing`~~ — beat now auto-starts with workers (`prod_start_celery_beat.sh`).
+2. ~~`soft-time-limit=300 s` kills video task mid-run for large videos~~ — raised to 1800 s soft / 1920 s hard (task) and 1800/2400 s (worker fallback).
+3. ~~Job `--wait` timeout (900 s) in management command exits before job completes~~ — `prod_run_benchmark.sh` submits with `--timeout-seconds 3600`.
 
 ---
 
@@ -300,8 +306,18 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 
 ## 8. Re-run Checklist (for future benchmark comparisons)
 
-> **Prerequisites before running:** Issues 6a (Celery beat) and 6b (soft-time-limit) must be fixed
-> or the job will stall at ~173 frames. See §4 Issue 6 for fix commands.
+> **Blockers resolved 2026-05-30.** Beat auto-starts with the workers and the
+> offline soft-time-limit is now 1800 s, so the former ~173-frame stall is fixed.
+> The one-shot runner below performs every step (pre-flight, beat ensure, GPU
+> monitor, job submit, telemetry summary):
+>
+> ```bash
+> cd /home/bamby/grad_project
+> bash tools/prod/prod_start_celery_workers.sh   # also starts beat
+> bash tools/prod/prod_run_benchmark.sh          # full automated benchmark
+> ```
+>
+> The manual steps below are retained for reference / custom runs.
 
 ```bash
 # On prod server

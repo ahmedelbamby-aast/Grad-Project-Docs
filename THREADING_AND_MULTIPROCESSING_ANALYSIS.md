@@ -7,6 +7,28 @@
 
 ---
 
+## Implementation Status (updated 2026-05-30)
+
+This analysis predates the migration to **Triton-only** production inference. The
+async **Triton offline batch queue** (`pending_frames` + `_flush_pending` +
+`max_concurrency`/`max_inflight` + dynamic batching in
+`backend/apps/video_analysis/tasks.py::_run_triton_frame_level_inference`,
+driven by `TRITON_OFFLINE_BATCH_QUEUE_*`) already implements the concurrent /
+batched **CPU-, I/O-, and GPU-bound** dispatch this doc proposed via process
+pools. The proposed scaffolds were reconciled against that reality:
+
+| Proposed scaffold | Outcome | Reason |
+|---|---|---|
+| Frame reading pipeline (`frame_pipeline.py`) | **WIRED** into the Triton decode loop, gated by `TRITON_OFFLINE_THREADED_DECODE` (default on) with inline fallback | Decouples disk read + cv2 decode from preprocess + dispatch — the one remaining serial I/O cost |
+| Parallel multi-model inference (`multi_model_parallel.py`) | **REMOVED** | Wrapped the local ultralytics path, which is skipped by policy under `triton_only`; inert in production and Windows dev (sequential fallback) |
+| DB write buffer (`db_buffer.py`) | **REMOVED** | Only batched `Frame`+`Detection`; the real persistence path has `Detection → BoundingBox → StudentTrack` FK/get-or-create dependencies it could not express safely |
+
+Net result: concurrency is provided by the Triton batch queue (already active) +
+threaded decode (newly wired); the obsolete scaffolds were deleted to keep the
+codebase free of dead, architecture-mismatched code.
+
+---
+
 ## Project Overview
 
 The **Exam Monitoring Dashboard** is a real-time surveillance system with:

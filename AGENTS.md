@@ -149,15 +149,27 @@ This file defines how agents should execute tests quickly and safely in this rep
 - `tools/prod/prod-stash-hygiene.ps1`
 - `tools/prod/prod-sync-env-keys.ps1`
 
-## Known Open Issues (2026-05-30)
-- **Celery beat not running on prod.** The stale-job reconciler (`reconcile_stale_jobs_periodic`) and all other periodic tasks are disabled. Long offline video jobs stall after the first batch (soft-time-limit=300s kills the task) and remain stuck in `processing` forever. Start beat before any video test:
-  ```bash
-  cd /home/bamby/grad_project/backend
-  nohup .venv/bin/celery -A config beat -l info \
-    --pidfile=logs/pids/celery_beat.pid --logfile=logs/celery_beat.log &
-  ```
-- **Celery soft-time-limit=300s too short for large offline videos.** Raise to 1800s for `offline_control` worker, or refactor video task to use continuation/chunking pattern.
-- **Full benchmark run never completed end-to-end.** See `docs/production_inference_benchmark.md` for details and the re-run checklist.
+## Known Open Issues (2026-05-30) — ALL RESOLVED
+
+- **~~Celery beat not running on prod.~~ RESOLVED 2026-05-30.** Beat is now a managed
+  part of the worker lifecycle. `prod_start_celery_workers.sh` starts it via
+  `tools/prod/prod_start_celery_beat.sh` (skippable with `CELERY_BEAT_DISABLED=1`), and
+  `prod_stop_celery_workers.sh` stops it via `tools/prod/prod_stop_celery_beat.sh`. Both
+  beat scripts are idempotent and refuse to launch a second scheduler. The stale-job
+  reconciler (`reconcile_stale_jobs_periodic`) and all periodic tasks now run. Manual
+  control is also exposed through `tools/prod/prod-workers.ps1 -Action beat-start|beat-stop|beat-status`.
+- **~~Celery soft-time-limit=300s too short for large offline videos.~~ RESOLVED 2026-05-30.**
+  `VIDEO_UPLOAD_TASK_SOFT_TIME_LIMIT_SECONDS` default raised 600→**1800** and
+  `VIDEO_UPLOAD_TASK_TIME_LIMIT_SECONDS` default 660→**1920** in
+  `backend/config/settings/base.py` (env-overridable; `.env.example` already uses 1800/1860).
+  The worker-level fallback in `prod_start_celery_workers.sh` was raised from 300/600 to
+  **1800/2400** seconds. Long offline videos now complete within the soft limit.
+- **~~Full benchmark run never completed end-to-end.~~ RESOLVED 2026-05-30 (unblocked + automated).**
+  Both blockers above are fixed, so the benchmark can complete. A one-shot runner
+  `tools/prod/prod_run_benchmark.sh` performs the full re-run checklist (pre-flight, beat
+  ensure, GPU monitor, job submit with `--timeout-seconds 3600`, telemetry summary). See
+  `docs/production_inference_benchmark.md` §8. Final throughput certification still requires
+  executing this runner on the prod RTX 5090 host.
 
 ## Production Startup/Validation Checklist (for next agents)
 1. Confirm branch and hash parity:
@@ -583,7 +595,7 @@ class TelemetrySession:
 - **Writer:** `writer.py` — atomic JSON-first + PostgreSQL dual-sink; JSON fallback with `db_commit_failed: true` on DB error
 - **Metrics:** `metrics.py` — `percentile`, `mean`, `latency_summary`, `per_model_summary`
 - **Migration:** `migrations/0001_initial.py` — verified with `sqlmigrate`, outputs clean PostgreSQL DDL
-- **Tests:** `backend/tests/unit/telemetry/test_telemetry_layer.py` — 26 tests, all passing
+- **Tests:** `backend/tests/unit/telemetry/` — `test_telemetry_layer.py` (layer unit tests) + `test_integration.py` (wiring); **41 tests, all passing** (verified 2026-05-30)
 - **Django app registered:** `apps.telemetry` added to `INSTALLED_APPS` in `config/settings/base.py`
 - **JSON output directory:** `backend/logs/telemetry/`
 
