@@ -196,8 +196,8 @@ touching Triton on prod.
 | Triton binary | `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver` |
 | TRT backends dir | `/home/bamby/services/triton_build_r2502/tritonserver/install/backends` |
 | Model repository | `/home/bamby/grad_project/backend/models/triton_repository_cuda12` |
-| Active TRT version | **10.8.0.43** (python3.11 venv) — must match `.plan` engine build |
-| Serialization version | **239** (what the `.plan` engines were compiled with) |
+| Active TRT version | **10.16.1.11** (backend/.venv python3.12) — must match `.plan` engine build |
+| Serialization version | **240** (what the `.plan` engines were compiled with) |
 | Postgres port | **55432** (non-standard — always check `.env`) |
 
 ---
@@ -240,41 +240,34 @@ bash -l /home/bamby/grad_project/tools/prod/prod_start_triton.sh
 
 ---
 
-### Issue 2 — `Version tag does not match. Current Version: 240, Serialized Engine Version: 239`
+### Issue 2 — TRT serialization version mismatch (RESOLVED — engines rebuilt for TRT 10.16.1.11)
 
-**Symptom:**
+**Historical symptom:**
 ```
 IRuntime::deserializeCudaEngine: Error Code 1: Serialization
 (Serialization assertion stdVersionRead == kSERIALIZATION_VERSION failed.
-Version tag does not match. Note: Current Version: 240, Serialized Engine Version: 239)
-load failed for model 'posture_model': unable to load plan file to auto complete config
+Version tag does not match.)
 ```
 
-**Root cause:**
-There are **two Python venvs** with different TensorRT versions:
+**Root cause & resolution:**
+The project was upgraded from TRT 10.8.0.43 (serial tag 239) to TRT 10.16.1.11 (serial tag 240).
+All `.plan` engines were rebuilt with TRT 10.16.1.11 and deployed to `triton_repository_cuda12`.
+The legacy py3.11 `.venv` is no longer used. The single authoritative venv is `backend/.venv` (Python 3.12).
 
-| Venv | Python | TRT version | Serialization tag |
-|------|--------|-------------|-------------------|
-| `/home/bamby/grad_project/.venv` | 3.11 | **10.8.0.43** | **239** ✅ |
-| `/home/bamby/grad_project/backend/.venv` | 3.12 | **10.16.1.11** | **240** ❌ |
+**Current state:**
+- `LD_LIBRARY_PATH` → `backend/.venv/lib/python3.12/site-packages/tensorrt_libs` (TRT 10.16.1.11, tag 240)
+- All `.plan` engines in `triton_repository_cuda12` compiled with TRT 10.16.1.11
+- Engine/TRT version locked in `backend/models/tensorrt_builds/latest_compat.json`
 
-The `.plan` engine files in `triton_repository_cuda12` were compiled with
-TRT 10.8.0.43 (tag 239). Using the backend venv's `libnvinfer.so.10` (tag 240)
-causes a deserialization failure on every model.
-
-**Fix applied (permanent):**
-`LD_LIBRARY_PATH` points to the **python3.11** venv's tensorrt_libs, not the
-python3.12 backend venv. This is now enforced in both shell profiles and in
-`prod_start_triton.sh`.
+**Guard mechanism (prevents recurrence):**
+`prod_trt_guard.sh` compares the installed TRT version against `latest_compat.json` and
+blocks `prod_start_triton.sh` if they diverge. After any `uv sync`, `prod_post_sync.sh`
+also warns if engines need a rebuild.
 
 **Rule for future agents:**
-- Do NOT add `backend/.venv/lib/python3.12/site-packages/tensorrt_libs` to `LD_LIBRARY_PATH`.
-- The correct path is `.venv/lib/python3.11/site-packages/tensorrt_libs`.
-- To verify: `strings /path/to/libnvinfer.so.10 | grep -m1 kSERIALIZATION` or
-  run `/home/bamby/grad_project/.venv/bin/python3 -c "import tensorrt; print(tensorrt.__version__)"`.
-  Must print `10.8.0.43`.
-- If engines are ever rebuilt with a newer TRT, update `LD_LIBRARY_PATH` to
-  point to the matching venv's tensorrt_libs.
+- After any TRT version change run: `bash tools/prod/prod-rebuild-tensorrt-engines.sh`
+- Never start Triton if `prod_trt_guard.sh` returns non-zero.
+- `backend/models/tensorrt_builds/latest_compat.json` is the single source of truth for which TRT version the active engines require.
 
 ---
 
@@ -367,11 +360,14 @@ curl -sf http://127.0.0.1:8011/api/v1/health/ | python3 -m json.tool
 # Is Triton ready?
 curl -sf http://127.0.0.1:39100/v2/health/ready && echo READY
 
-# Which TRT version is loaded? (must print 10.8.0.43)
-/home/bamby/grad_project/.venv/bin/python3 -c "import tensorrt; print(tensorrt.__version__)"
+# Which TRT version is loaded? (must print 10.16.1.11)
+/home/bamby/grad_project/backend/.venv/bin/python3 -c "import tensorrt; print(tensorrt.__version__)"
 
-# Is LD_LIBRARY_PATH pointing to py3.11 venv?
-echo $LD_LIBRARY_PATH | grep 'python3.11'
+# Is LD_LIBRARY_PATH pointing to backend py3.12 venv?
+echo $LD_LIBRARY_PATH | grep 'python3.12'
+
+# Does installed TRT match compiled engines?
+bash /home/bamby/grad_project/tools/prod/prod_trt_guard.sh
 
 # How many Celery workers? (expect 5 parents + forks, no duplicates)
 ps aux | grep 'celery -A config worker' | grep -v grep | wc -l
@@ -389,10 +385,16 @@ ps aux | grep 'celery -A config worker' | grep -v grep | \
 
 | File | Purpose |
 |------|---------|
-| `tools/prod/prod_start_triton.sh` | Permanent Triton launcher (sets LD_LIBRARY_PATH correctly) |
+| `tools/prod/prod_start_triton.sh` | Permanent Triton launcher — calls TRT guard before launch |
 | `tools/prod/prod_start_celery_workers.sh` | Starts all offline/default workers with tuned limits |
 | `tools/prod/prod_stop_celery_workers.sh` | Stops all workers gracefully |
-| `~/.bashrc` and `~/.profile` | Both export `LD_LIBRARY_PATH` with py3.11 TRT libs |
+| `tools/prod/prod_trt_guard.sh` | TRT version guard — blocks Triton if engines are stale |
+| `tools/prod/prod-rebuild-tensorrt-engines.sh` | Full engine rebuild + Triton restart workflow |
+| `tools/prod/prod_post_sync.sh` | Run after every `uv sync` — installs TRT + warns if rebuild needed |
+| `tools/prod/prod_update_bashrc.sh` | Idempotently fixes `~/.bashrc` and `~/.profile` paths |
+| `tools/prod/prod_disk_cleanup.sh` | Purge `__pycache__`, probe engines, stale rollbacks, old logs |
+| `backend/models/tensorrt_builds/latest_compat.json` | Source of truth: TRT version the active engines require |
+| `~/.bashrc` and `~/.profile` | Managed by `prod_update_bashrc.sh` — TRT 10.16.1.11 / py3.12 paths |
 | `backend/.env` | Active runtime config authority for all services |
 | `backend/logs/triton.log` | Triton startup and model load log |
 | `backend/logs/celery_*.log` | Per-worker startup and task execution log |
