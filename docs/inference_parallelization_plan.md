@@ -25,7 +25,7 @@ complete from a non-GPU environment.
 | 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`, default off) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
 | 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`, default 1 = unchanged) | safe, opt-in |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
-| 1a binary tensors | **Designed, not shipped** | cross-cutting (request model + client); HTTP binary-tensor format must be validated against live Triton — do not enable blind |
+| 1a binary tensors | **Implemented** (flag `TRITON_BINARY_TENSORS`, default off) | encoder unit-tested; client auto-falls back to JSON on a binary error. Enable + validate on the GPU host (live Triton) before trusting throughput |
 | 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`, default off) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
 | 3 gRPC transport | **Designed** | new `tritonclient.grpc` path; requires live-Triton validation |
 | 4 batched detection writer / offload | **Designed** | FK-safe bulk writer + dedicated-queue offload |
@@ -230,7 +230,7 @@ ground truth after each phase.
 
 ## 5. Task checklist
 
-- [ ] P1a binary tensors (`TRITON_BINARY_TENSORS`) + unit test
+- [x] **P1a binary tensors (`TRITON_BINARY_TENSORS`) + encoder unit test — done (default off; client falls back to JSON; validate on GPU host)**
 - [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — done (flag default off, awaiting prod validation)**
 - [x] **P2 producer/consumer pipeline overlap (`TRITON_OFFLINE_PIPELINE_OVERLAP`) + equivalence test — done (default off)**
 - [ ] P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`)
