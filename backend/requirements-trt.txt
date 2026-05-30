@@ -1,0 +1,16 @@
+# TensorRT packages for Linux production — NOT managed by uv lock.
+# wheel_stub mechanism requires live internet access during metadata generation,
+# which fails when uv lock runs on Windows. Install manually after uv sync:
+#
+#   uv pip install -r requirements-trt.txt
+#
+# or use the wrapper script:
+#
+#   bash tools/prod/prod_post_sync.sh
+#
+# WARNING: upgrading TRT requires rebuilding all .engine files in
+# backend/models/*/weights/ before restarting workers. See agents.md.
+
+tensorrt-cu12==10.16.1.11
+tensorrt-cu12-bindings==10.16.1.11
+tensorrt-cu12-libs==10.16.1.11
