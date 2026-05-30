@@ -49,12 +49,20 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
     `_ingest_decoded_frame` (stop materializing a Python list).
   - Flag: `TRITON_BINARY_TENSORS` (default on, fallback to JSON on encode error).
   - Expected: 3–8× lower per-call CPU; removes the dominant bottleneck.
-- **1b. Concurrent models.** Replace the sequential `for task_key in task_keys`
-  with a single `asyncio.gather` across all task keys (models are independent —
-  each consumes the same full 640×640 frame).
-  - Touch: `_process_batch_items` / `_infer_task_batch` in `tasks.py`.
-  - Flag: `TRITON_CONCURRENT_MODELS` (default on), bounded by `max_inflight`.
+- **1b. Concurrent models — ✅ IMPLEMENTED (2026-05-31, flag default OFF).**
+  `_process_batch_items` now builds per-task inputs then dispatches every model in
+  a **single event loop** via `asyncio.gather`, mapping results back per task
+  (person_detection keeps its detect-cadence index map). Falls back to the
+  sequential loop on any error.
+  - Flag: `TRITON_CONCURRENT_MODELS` (default **off** until validated on the prod GPU).
+  - **VRAM guard:** the global `TRITON_MAX_INFLIGHT_REQUESTS` budget is split across
+    active models (`per_model_conc = max_inflight // n_models`), so client-side
+    in-flight requests — and thus peak GPU activation memory — do **not** scale with
+    model count.
+  - Verified: `tests/unit/video_analysis/test_concurrent_model_dispatch.py` asserts
+    the concurrent path yields identical detections to sequential.
   - Expected: per-batch inference latency → `max(model RTT)` instead of `sum` ≈ 3–5×.
+  - **Enable on prod:** `echo 'TRITON_CONCURRENT_MODELS=1' >> backend/.env` then restart workers + benchmark.
 
 **Exit criteria:** telemetry `mean_rtt_per_model_ms` unchanged per model, but
 `p95_frame_latency_ms` drops ~3–5×; GPU util rises materially in `prod_run_benchmark.sh`.
@@ -104,6 +112,66 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
 
 ---
 
+### Phase 6 — VRAM discipline (keep memory flat as concurrency rises)
+*Impact: enables the above safely · Effort: low–medium · Risk: low*
+
+Parallelism must not balloon VRAM. Key facts and levers:
+
+- **Concurrency ≠ more engines.** Triton loads each engine **once**; concurrent
+  client requests queue at Triton and are executed by its scheduler. Peak
+  activation VRAM is bounded by **Triton's batch size × instance count**, not by
+  how many requests the client has in flight.
+- **Cap client in-flight globally.** `TRITON_MAX_INFLIGHT_REQUESTS` split across
+  models (Phase 1b) keeps total in-flight ≈ one budget regardless of model count.
+- **Single instance per model.** Keep `instance_group { count: 1 }` in each
+  `config.pbtxt` unless the GPU has clear headroom; each extra instance duplicates
+  weights + activation scratch.
+- **Bounded dynamic batch.** `max_batch_size` + `preferred_batch_size` set the
+  activation ceiling; pick the largest batch that fits, not "unlimited".
+- **Reuse the CUDA/pinned pools** already configured in `prod_start_triton.sh`
+  (`--cuda-memory-pool-byte-size`, `--pinned-memory-pool-byte-size`) so allocations
+  are recycled instead of growing.
+- **Never run the hybrid/local path in prod.** It loads ~5 GB of local TensorRT
+  engines on top of Triton's ~21 GB; `triton_only` avoids that entirely.
+- **FP16 today; INT8 later.** Engines are FP16. INT8 (with calibration) would cut
+  weight + activation VRAM further and raise throughput — a follow-up, not a blocker.
+- **Watch it:** the telemetry session records `peak_gpu_memory_mb`; the benchmark's
+  GPU CSV tracks `memory.used`. Gate any concurrency increase on these staying flat.
+
+### Phase 7 — Trade information *between* models and layers (biggest structural win)
+*Impact: very high · Effort: high · Risk: medium–high (model/graph changes)*
+
+Today every model re-receives the **whole 640×640 frame** over the wire and runs
+independently — no information is shared between models or pipeline layers. The
+high-value redesign is to make stages feed each other:
+
+1. **ROI sharing (detector → behaviour models).** Run `person_detector` first,
+   then feed **person crops** (e.g. 192×256) to posture/gaze/pose instead of the
+   full frame. Smaller inputs = far less compute, less activation VRAM, and many
+   persons batch into one call. `rtmpose` is already ROI-based; converting the
+   gaze/posture heads to ROI classifiers is the model-side change that unlocks this.
+2. **Triton ensemble / BLS — share tensors on the GPU.** Build a Triton
+   **ensemble** (or Business-Logic-Scripting) graph: `preprocess → person_detector
+   → crop → {posture, gaze×3, rtmpose}`. The frame is uploaded **once** and lives
+   on the GPU; downstream models read the **same device tensors** and the detector's
+   ROIs without host round-trips. This collapses 5–6 network calls per frame into
+   **one** and eliminates repeated host→device copies — the cleanest "models trading
+   information" architecture, and a large bandwidth + VRAM-copy saving.
+3. **GPU-side preprocessing.** Move letterbox/normalize into a DALI/ensemble step so
+   the CPU never builds tensors (also kills the JSON/`.tolist()` cost at the source).
+4. **Temporal reuse across layers (cache, don't recompute).**
+   - Tracking → embeddings: compute a ReID embedding only for **new/changed
+     track_ids** (cache by `track_id` in Redis — partially done) instead of every
+     person every frame.
+   - Detection cadence + box reuse (already implemented) extends to **behaviour
+     reuse**: for a static track, reuse last posture/gaze label for a TTL window.
+   - Pass tracking IDs into the renderer/telemetry so per-student timelines are
+     assembled without re-scanning detections.
+
+These turn the pipeline from "N independent full-frame inferences" into a single
+**shared-tensor graph with cached temporal state** — the durable path to GPU
+saturation at low VRAM.
+
 ## 3. Expected trajectory
 
 | After | Offline throughput (4 541-frame classroom clip) | GPU util |
@@ -135,11 +203,13 @@ ground truth after each phase.
 ## 5. Task checklist
 
 - [ ] P1a binary tensors (`TRITON_BINARY_TENSORS`) + unit test
-- [ ] P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test
+- [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — done (flag default off, awaiting prod validation)**
 - [ ] P2 producer/consumer pipeline overlap (`TRITON_PIPELINE_OVERLAP`)
 - [ ] P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`)
 - [ ] P4 batched DB writer (FK-safe) + throttled progress
 - [ ] P4 offload pose/embeddings/render to dedicated queues
 - [ ] P5 Triton `config.pbtxt` dynamic-batching tuning
+- [ ] P6 VRAM discipline (instance_group/batch caps, telemetry peak_gpu_memory gate)
+- [ ] P7 ROI sharing + Triton ensemble (shared on-GPU tensors) + temporal behaviour reuse
 - [ ] Per-phase benchmark + telemetry comparison recorded in
       `docs/production_inference_benchmark.md`

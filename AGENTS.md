@@ -28,6 +28,20 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Active feature plan: [specs/011-bsil-semantic-runtime/plan.md](specs/011-bsil-semantic-runtime/plan.md)
 <!-- SPECKIT END -->
 
+## ⭐ Highest-Priority Plan — Inference Pipeline Parallelization
+- **This is the current top-priority engineering plan for the project.**
+- Plan: [docs/inference_parallelization_plan.md](docs/inference_parallelization_plan.md)
+- Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
+  throughput from single-digit fps toward 100+ fps, every phase measured by the
+  telemetry layer and shipped behind a flag with fallback.
+- Diagrams: README → *Triton Model Inference End to End lifecycle (Sequential Order)*
+  (current) and *Triton Model Inference End to End (Parallel)* (target).
+- Status: **Phase 1b done** — concurrent model dispatch (`TRITON_CONCURRENT_MODELS`,
+  default off, VRAM-bounded, equivalence-tested). Next: Phase 1a binary tensors,
+  Phase 2 pipeline overlap, Phase 3 gRPC, Phase 6 VRAM discipline, Phase 7 ROI/Triton-ensemble.
+- Agents must treat this plan as the priority for runtime/inference work and update
+  its task checklist + `docs/production_inference_benchmark.md` after each phase.
+
 ## Current Active Production Runtime Plan
 - **Active plan name:** `Heterogeneous Production Runtime Maturity Plan` — **COMPLETED 2026-05-29**
 - Plan file: [docs/heterogeneous_production_runtime_maturity_plan.md](docs/heterogeneous_production_runtime_maturity_plan.md)
