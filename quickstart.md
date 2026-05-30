@@ -689,6 +689,113 @@ Optional helper scripts:
 3. Confirm the dashboard loads
 4. Visit `/video-analysis` and `/camera-feed` to verify both offline and live surfaces
 
+## 8a. How To Use The System
+
+Once the stack is running and you are logged in, the system supports two primary
+workflows — **offline video analysis** and **live camera monitoring** — plus
+**runtime/telemetry analytics** over both. All UI paths below are SPA routes
+under the dev URL `http://localhost:5173`; all API paths are under
+`http://localhost:8000/api/v1/` and require an authenticated session/token from
+`POST /api/v1/auth/` (the SPA attaches this automatically).
+
+### Usage flow at a glance
+
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
+flowchart TD
+    Login["Sign in"] --> Choose{"Analyze what?"}
+    Choose -->|Recorded file| Upload["/video-analysis → upload + toggle models"]
+    Choose -->|Live camera| AddCam["/cameras → register RTSP/ONVIF camera"]
+    Upload --> Job["process_video_upload job queued"]
+    Job --> Watch["Watch progress (WS overlay) on /video-analysis/:jobId"]
+    Watch --> Results["Results: detections · rendered video · telemetry summary"]
+    AddCam --> Feed["/camera-feed → live WHEP video + overlays"]
+    Feed --> Session["/sessions → monitoring session · anomalies · predictions"]
+    Results --> Runtime["/runtime → latency / RTT / drop-rate analytics"]
+    Session --> Runtime
+    Runtime --> Health["/health → service + model-serving status"]
+```
+
+### A) Offline video analysis (from the UI)
+
+1. Open **`/video-analysis`**.
+2. **Upload** a video file and select which models to run (person detection,
+   sitting/standing posture, attention/gaze, hand-raising). This creates a job
+   via `POST /api/v1/video-analysis/jobs/` and enqueues `process_video_upload`.
+3. You are taken to **`/video-analysis/:jobId`**. Progress streams live over the
+   `video-analysis` WebSocket group (per-frame overlay + processed/total counts).
+4. When the job reaches a terminal status, review:
+   - **Detections / results** — `GET /jobs/{job_id}/results/`
+   - **Rendered/annotated video** — `GET /jobs/{job_id}/video/rendered/` (or `/video/annotated/`, `/video/pose/`)
+   - **Per-frame data** — `GET /jobs/{job_id}/frames/at/?t=<seconds>`
+   - **Telemetry summary** — `GET /jobs/{job_id}/telemetry/summary/` (latency, per-model RTT, drop rate)
+5. Toggle which model overlays are visible with `POST /jobs/{job_id}/visibility/`,
+   or re-render with `POST /jobs/{job_id}/rerender/`, retry with `POST /jobs/{job_id}/retry/`.
+
+### B) Offline video analysis (from the CLI / for benchmarking)
+
+Run a full offline job headlessly and wait for completion:
+
+```bash
+cd backend && source .venv/bin/activate   # Windows: .\.venv\Scripts\activate
+python manage.py runtime_ingest_video \
+  --video "/abs/path/to/video.mp4" \
+  --actor-username <username> \
+  --runtime-profile offline \
+  --pipeline-mode full_frame \
+  --timeout-seconds 3600 \
+  --wait
+```
+
+On a production host, the one-shot benchmark wrapper also captures GPU telemetry
+and prints a latency summary:
+
+```bash
+bash tools/prod/prod_run_benchmark.sh        # defaults to the sample classroom video
+```
+
+Each run is recorded by the telemetry layer to PostgreSQL **and** a JSON file at
+`backend/logs/telemetry/<session_id>_<source>_<timestamp>.json`. Tuning knobs
+that affect offline throughput live in `.env`: `TRITON_OFFLINE_BATCH_QUEUE_*`
+(batch size / concurrency), `TRITON_OFFLINE_THREADED_DECODE` (background frame
+decode), and `OFFLINE_DETECT_EVERY_N_FRAMES` (detector cadence).
+
+### C) Live camera monitoring
+
+1. Open **`/cameras`** and register a camera (RTSP URL or ONVIF device-service
+   URL). The backend encrypts the URL and registers the stream with go2rtc.
+   - ONVIF helpers: `POST /api/v1/cameras/onvif/resolve/`, `/onvif/test/`, `/{camera_id}/onvif/sync/`.
+2. Open **`/camera-feed`** to watch the live WebRTC (WHEP) video. Inference
+   overlays stream over the `cameras` / `detections` WebSocket groups, fed by the
+   `run_live_stream_inference` Celery task.
+3. Open **`/sessions`** to manage a monitoring session, and **`/anomalies`** /
+   **`/predictions`** to triage flagged behavior in real time.
+4. Live cadence/reuse tuning lives in `.env`: `LIVE_DETECT_EVERY_N_FRAMES`,
+   `LIVE_REUSE_LAST_BOXES_TTL_FRAMES`.
+
+### D) Runtime analytics & telemetry
+
+- **`/runtime`** surfaces aggregated latency, per-model RTT, queue depth, drop
+  events, and per-student timelines via the `runtime/*` APIs
+  (e.g. `GET /api/v1/video-analysis/runtime/summary/`,
+  `/runtime/queue-telemetry/`, `/runtime/model-events/`).
+- Per-job telemetry: `GET /jobs/{job_id}/telemetry/summary/` and
+  `/telemetry/timeline/`; compare runs with `/jobs/{job_id}/benchmark-comparison/`.
+- Query the raw tables directly for fleet-wide trends, e.g. p95 latency for the
+  last 10 sessions — see `backend/apps/telemetry/README.md` for ready-made SQL.
+
+### E) Health & administration
+
+- **`/health`** (UI) / `GET /api/v1/health/` and `GET /api/v1/health/model-serving/`
+  report service, Redis, DB, and Triton readiness.
+- Admin surfaces: **`/admin/reviews`** and **`/admin/audit-log`** (backed by
+  `/api/v1/admin/*`) for label review and audit history.
+
+> Tip: in production the Celery **beat** scheduler must be running for long
+> offline jobs to be reconciled correctly. It is started automatically by
+> `tools/prod/prod_start_celery_workers.sh`; verify with
+> `pgrep -fc 'celery -A config beat'`.
+
 ## 9. Recommended Verification Commands
 
 ### Backend

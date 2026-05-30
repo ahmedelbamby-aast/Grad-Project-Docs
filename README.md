@@ -51,122 +51,121 @@ The flowchart shows how the root project documentation fans out into the archite
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'lineColor': '#A78BFA'}}}%%
 flowchart LR
-    subgraph Client["Client"]
-        SPA["React 19 SPA (Vite)"]
-        Hooks["WS + WHEP hooks"]
+    subgraph Client["Client (React 19 SPA / Vite)"]
+        SPA["Pages: dashboard · video-analysis · camera-feed · sessions · runtime · anomalies · health"]
+        Hooks["WebSocket + WHEP hooks"]
     end
 
-    subgraph Edge["Gateway / Edge"]
-        NGINX["Nginx"]
+    subgraph Edge["Gateway / Edge (Nginx)"]
         REST["/api/v1/*"]
         WS["/ws/*"]
         WHEP["/whep/{camera_id}/"]
     end
 
     subgraph Backend["Backend (Django ASGI + Channels)"]
-        API["REST app surfaces (accounts/cameras/sessions/video-analysis/health/...)"]
+        API["REST surfaces: auth · cameras · sessions · video-analysis · anomalies · behavior · health · admin"]
+        VA["VideoAnalysis + runtime analytics + per-job telemetry APIs"]
         CAM["CameraService + StreamGateway"]
-        SESS["Session orchestration"]
-        VA["VideoAnalysis API + runtime analytics APIs"]
-        CH["WebSocket groups (detections/anomalies/health/cameras/video-analysis)"]
+        CH["WS groups: detections · anomalies · health · cameras · video-analysis · sessions"]
     end
 
-    subgraph Async["Async Orchestration (Celery)"]
-        WORKER["Celery workers + beat"]
-        LIVE["run_live_stream_inference"]
-        OFFLINE["process_video_upload"]
-        POST["run_detection_and_tracking → generate_embeddings → run_reid_pipeline"]
+    subgraph Async["Async Orchestration (Celery prefork + beat)"]
+        OFFLINE["process_video_upload (offline)"]
+        LIVE["run_live_stream_inference (live)"]
+        BEAT["beat: stale-job reconciler · metrics flush · camera health"]
     end
 
-    subgraph AI["Inference / Tracking Plane"]
-        POLICY["Runtime policy + client factory"]
-        TRITON["Triton Inference Server (HTTP/gRPC/metrics)"]
-        LOCAL["Local inference runtimes (OpenVINO / ONNX / TensorRT / Ultralytics)"]
-        MULTI["Multi-model inference (person/posture/gaze/hand)"]
-        TRACK["ByteTrack/BoT-SORT + ReID cache"]
-        POSE["RTMPose ROI pose branch (PoseRuntime boundary)"]
+    subgraph Offline["Offline Frame Pipeline (_run_triton_frame_level_inference)"]
+        DECODE["FrameReadPipeline (threaded decode)"]
+        PREP["letterbox + preprocess"]
+        BQ["async batch queue (max_concurrency · max_inflight · dynamic batching)"]
+        TRACKO["ByteTrack / BoT-SORT + ReID cache"]
+    end
+
+    subgraph AI["Inference Plane — Triton-only in production"]
+        ORCH["InferenceOrchestrator + ModelRouteService"]
+        TRITON["Triton Inference Server (HTTP/gRPC · TensorRT .plan engines)"]
+        MODELS6["person_detector · posture · gaze x3 · rtmpose"]
+        LOCAL["Local adapters (OpenVINO / ONNX / Ultralytics) — DEV ONLY"]
     end
 
     subgraph Stream["Streaming Layer"]
         GO2RTC["go2rtc relay (API + WHEP)"]
-        MEDIAMTX["gst_mediamtx gateway path (optional/canary)"]
-        CAMSRC["RTSP/ONVIF camera sources"]
+        CAMSRC["RTSP / ONVIF cameras"]
+    end
+
+    subgraph Tel["Telemetry Layer (apps.telemetry)"]
+        TS["TelemetrySession (Celery signals + ContextVar)"]
+        SINK["dual sink: PostgreSQL + JSON file (JSON-first fallback)"]
     end
 
     subgraph Data["Data / Storage"]
-        PG["PostgreSQL"]
-        REDIS["Redis (channel layer + Celery broker/result + toggles + tracking IDs + embeddings)"]
-        FILES["Filesystem artifacts (data/videos, data/sessions, inference_audit.json)"]
-        MODELS["Model artifacts (backend/models + triton_repository)"]
+        PG["PostgreSQL: jobs · detections · tracks · telemetry_sessions/videos/frames/model_calls/students"]
+        REDIS["Redis: channel layer · Celery broker/result · toggles · tracking IDs · embeddings"]
+        FILES["Filesystem: data/videos · data/sessions · logs/telemetry/*.json · inference_audit.json"]
+        ART["Model artifacts: triton_repository_cuda12 (.plan)"]
     end
 
-    subgraph Ops["Ops / Deployment Topology"]
+    subgraph Ops["Ops / Deployment"]
         HEALTH["/api/v1/health + model-serving checks"]
-        OBS["Prometheus + OpenTelemetry instrumentation"]
-        SYSD["infra/systemd/triton-server.service (production native Linux)"]
-        DCOMPOSE["docker-compose.dev.yml triton profile (development)"]
-        EXPORT["rtmpose_exporter + model conversion scripts"]
+        BENCH["prod_run_benchmark.sh · runtime_ingest_video"]
+        SYSD["systemd / tools/prod (Triton + Celery + beat lifecycle)"]
     end
 
     SPA --> Hooks
-    SPA --> NGINX
-    NGINX --> REST --> API
-    NGINX --> WS --> CH
-    NGINX --> WHEP --> GO2RTC
+    SPA --> REST --> API
+    SPA --> WS --> CH
+    Hooks --> WHEP --> GO2RTC
 
-    API --> CAM
-    API --> SESS
     API --> VA
-    API --> WORKER
+    API --> CAM
+    VA --> OFFLINE
+    CAM --> LIVE
     CH --> REDIS
 
-    SESS --> WORKER
-    WORKER --> LIVE
-    WORKER --> OFFLINE
-    OFFLINE --> POST
-
-    LIVE --> POLICY
-    OFFLINE --> POLICY
-    POLICY --> TRITON
-    POLICY --> LOCAL
-    LOCAL --> MULTI
-    MULTI --> TRACK
-    MULTI --> POSE
+    OFFLINE --> DECODE --> PREP --> BQ --> ORCH
+    OFFLINE --> TRACKO
+    LIVE --> ORCH
+    ORCH --> TRITON --> MODELS6
+    ORCH -. dev fallback .-> LOCAL
 
     CAMSRC -->|RTSP/ONVIF| CAM
     CAM --> GO2RTC
-    CAM --> MEDIAMTX
-    LIVE -->|reads stream URL from selected gateway| GO2RTC
-    LIVE -->|provider abstraction path| MEDIAMTX
+    LIVE -->|reads stream URL| GO2RTC
+
+    OFFLINE --> TS
+    LIVE --> TS
+    ORCH --> TS
+    TS --> SINK
+    SINK --> PG
+    SINK --> FILES
 
     API --> PG
-    VA --> PG
-    LIVE --> PG
     OFFLINE --> PG
-    WORKER --> REDIS
-    TRACK --> REDIS
-    LIVE --> FILES
-    OFFLINE --> FILES
+    LIVE --> PG
+    TRACKO --> REDIS
+    BEAT --> PG
+    TRITON --> ART
 
-    LOCAL --> MODELS
-    TRITON --> MODELS
-    EXPORT --> MODELS
     HEALTH --> TRITON
     HEALTH --> API
-    OBS --> API
+    BENCH --> OFFLINE
     SYSD --> TRITON
-    DCOMPOSE --> TRITON
 ```
 
-This diagram reflects the transitional implemented runtime contracts in code:
-session/camera APIs launch Celery live/offline pipelines, inference routing
-still contains Triton and local adapter surfaces, stream transport is mediated
-by the relay gateway layer, and runtime/analysis events are persisted and
-exposed through the video-analysis runtime APIs. Under
-`.specify/memory/constitution.md` v2.0.0, local adapters are development or
-explicitly non-production paths only: production inference is native-Linux,
-GPU-backed, Triton-only, and operates with exactly one active live or offline
-endpoint profile at a time.
+This diagram reflects the **currently implemented** runtime contracts in code.
+Video-analysis and camera APIs launch Celery `process_video_upload` (offline) and
+`run_live_stream_inference` (live) pipelines. The offline pipeline decodes frames
+on a background thread (`FrameReadPipeline`), preprocesses them, and feeds an
+**async batch queue** that dispatches concurrent, dynamically-batched requests to
+Triton through the `InferenceOrchestrator` + `ModelRouteService`. Every run is
+captured by the **telemetry layer** (`apps.telemetry`) via Celery signals and a
+ContextVar, written atomically to PostgreSQL tables and a JSON file. Tracking
+(ByteTrack/BoT-SORT) and ReID embeddings are cached in Redis; Celery **beat**
+drives the stale-job reconciler and periodic maintenance. Under
+`.specify/memory/constitution.md`, the local OpenVINO/ONNX/Ultralytics adapters
+are **development-only** — production inference is native-Linux, GPU-backed,
+**Triton-only**, with exactly one active live or offline endpoint profile at a time.
 
 ## Repository Layout
 
