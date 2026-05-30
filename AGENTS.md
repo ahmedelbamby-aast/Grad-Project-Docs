@@ -149,6 +149,16 @@ This file defines how agents should execute tests quickly and safely in this rep
 - `tools/prod/prod-stash-hygiene.ps1`
 - `tools/prod/prod-sync-env-keys.ps1`
 
+## Known Open Issues (2026-05-30)
+- **Celery beat not running on prod.** The stale-job reconciler (`reconcile_stale_jobs_periodic`) and all other periodic tasks are disabled. Long offline video jobs stall after the first batch (soft-time-limit=300s kills the task) and remain stuck in `processing` forever. Start beat before any video test:
+  ```bash
+  cd /home/bamby/grad_project/backend
+  nohup .venv/bin/celery -A config beat -l info \
+    --pidfile=logs/pids/celery_beat.pid --logfile=logs/celery_beat.log &
+  ```
+- **Celery soft-time-limit=300s too short for large offline videos.** Raise to 1800s for `offline_control` worker, or refactor video task to use continuation/chunking pattern.
+- **Full benchmark run never completed end-to-end.** See `docs/production_inference_benchmark.md` for details and the re-run checklist.
+
 ## Production Startup/Validation Checklist (for next agents)
 1. Confirm branch and hash parity:
    - local: `git rev-parse HEAD`
@@ -469,3 +479,123 @@ ps aux | grep 'celery -A config worker' | grep -v grep | \
 - Mock external dependencies in E2E where practical to reduce flakiness.
 - Keep coverage collection enabled, but enforce thresholds only through explicit configured gates.
 - Do not introduce SQLite-only test shortcuts or fallback database settings; keep test and runtime behavior aligned with PostgreSQL.
+
+---
+
+## Telemetry & Metrics Layer
+
+### Status: **IMPLEMENTED** — all integration points wired. Run `python manage.py migrate` on prod to apply the DB migration.
+
+### Mandate
+
+Every run — whether a pytest/benchmark test, an RTSP live video streaming session, or an offline video-processing job — **must** route its timing and quality signals through a single, dedicated telemetry layer. No ad-hoc `time.time()` calls, no scattered log lines. One layer, one contract, one sink.
+
+### Scope of collection
+
+The layer must compute and record metrics at **four granularities**:
+
+| Granularity | Key metrics |
+|---|---|
+| **Session** | total wall time, total frames processed, mean/p50/p95/p99 frame latency, mean/p95 end-to-end RTT per model call, drop rate, GPU utilisation summary, peak GPU memory, Triton model load time |
+| **Video** | video ID/name, source type (`rtsp` \| `offline` \| `test`), fps observed vs. target fps, total frames, processing duration, per-video latency stats, detection count, model call count |
+| **Frame** | frame index, timestamp (wall + stream PTS if available), pre-process latency, inference latency (per model: detector, embedder, classifier), post-process latency, total pipeline latency, detection count |
+| **Student** (if applicable) | student ID, frames tracked, average confidence, embedding distance stats, recognition latency, first-seen / last-seen timestamps within the session |
+
+### Required metrics per model call (RTT)
+
+For every Triton HTTP/gRPC call record:
+- `model_name` — which model was called (`person_detector`, `face_embedder`, `face_classifier`, etc.)
+- `request_sent_at` — monotonic timestamp before sending
+- `response_received_at` — monotonic timestamp after receiving
+- `rtt_ms` — round-trip time in milliseconds
+- `input_shape` — shape of the tensor sent
+- `status` — `ok` | `timeout` | `error`
+- `error_detail` — filled only on non-ok status
+
+### Persistence contract
+
+Each run must produce **both** of the following outputs atomically at session end (or on graceful shutdown):
+
+1. **PostgreSQL rows** — written to dedicated telemetry tables:
+   - `telemetry_sessions` — one row per run
+   - `telemetry_videos` — one row per video within the run
+   - `telemetry_frames` — one row per processed frame (may be batched for efficiency)
+   - `telemetry_model_calls` — one row per Triton model call
+   - `telemetry_students` — one row per student tracked per session (if applicable)
+
+2. **JSON file** — one file per run, written to `backend/logs/telemetry/` with filename:
+   ```
+   <session_id>_<source_type>_<YYYYMMDD_HHMMSS>.json
+   ```
+   Schema mirrors the DB tables above; top-level keys: `session`, `videos`, `frames`, `model_calls`, `students`.
+   The file must be written even if the DB write fails — file is the guaranteed fallback record.
+
+### Integration points
+
+The layer must integrate at these locations without polluting business logic:
+
+- **Triton client wrapper** (`backend/apps/pipeline/triton_client.py` or equivalent) — wrap every `infer()` call to record RTT automatically.
+- **Frame pipeline entry/exit** (`backend/apps/pipeline/` frame processing loop) — inject telemetry context at frame intake and flush at frame completion.
+- **Celery task boundaries** (`backend/apps/video_analysis/tasks.py` or equivalent) — record session start/end and bind session ID to the task context.
+- **RTSP stream manager** — record stream open time, first frame arrival time, and any reconnect events.
+- **Test harness** — benchmark and integration tests must call `TelemetrySession.start()` / `.end()` so test runs are also captured in the same schema.
+
+### API contract (internal)
+
+```python
+# backend/apps/telemetry/session.py  (canonical module path)
+
+class TelemetrySession:
+    def __init__(self, source_type: Literal["rtsp", "offline", "test"], metadata: dict): ...
+    def start(self) -> str: ...          # returns session_id (UUID)
+    def record_frame(self, frame_meta: FrameMeta) -> None: ...
+    def record_model_call(self, call_meta: ModelCallMeta) -> None: ...
+    def record_student(self, student_meta: StudentMeta) -> None: ...
+    def end(self) -> SessionSummary: ...  # flushes DB + JSON atomically
+    def __enter__(self): ...
+    def __exit__(self, *_): ...
+```
+
+- `TelemetrySession` must be thread-safe and safe to use from Celery async tasks.
+- Frame records may be buffered in memory and flushed in batches of ≤ 500 rows to avoid DB write amplification on high-fps streams.
+- The JSON file must be written **before** the DB transaction commits; if the transaction rolls back, the JSON file is retained with a `db_commit_failed: true` flag so data is never silently lost.
+
+### Code and documentation standards
+
+- All telemetry code lives under `backend/apps/telemetry/` — no telemetry logic outside this package.
+- Public functions and classes must have a one-line docstring stating *what* they measure.
+- DB migrations for the five telemetry tables must be added as a numbered Alembic migration file.
+- A `README.md` inside `backend/apps/telemetry/` must document: the table schema, the JSON file schema, how to query common metrics (e.g., "p95 inference latency for the last 10 sessions"), and the integration checklist.
+- Unit tests for the layer must cover: session lifecycle, frame batching, model-call recording, JSON file write, DB failure fallback.
+
+### Rules for next agents
+
+1. **Implement this layer before continuing any other runtime work.** All M-phase tasks that produce latency or throughput numbers must route through it.
+2. The layer must work for **all three run modes**: test (`pytest`), RTSP live streaming, and offline video processing. If a mode is not yet wired up, add a `TODO(telemetry): wire <mode>` comment at the integration point and note it in the session-end JSON under `unwired_sources`.
+3. Never write a duplicate telemetry sink. If a metrics reporter already exists, refactor it to call this layer instead of running in parallel.
+4. After wiring all integration points, update this section's status to **IMPLEMENTED** and record the canonical module paths, migration file name, and the git SHA of the implementing commit.
+
+### Implemented (2026-05-30)
+
+- **Package:** `backend/apps/telemetry/`
+- **Models:** `models.py` — five DB tables (`telemetry_sessions`, `telemetry_videos`, `telemetry_frames`, `telemetry_model_calls`, `telemetry_students`)
+- **Public API:** `session.py` — `TelemetrySession`, `FrameMeta`, `ModelCallMeta`, `StudentMeta`, `VideoSummary`, `SessionSummary`
+- **Writer:** `writer.py` — atomic JSON-first + PostgreSQL dual-sink; JSON fallback with `db_commit_failed: true` on DB error
+- **Metrics:** `metrics.py` — `percentile`, `mean`, `latency_summary`, `per_model_summary`
+- **Migration:** `migrations/0001_initial.py` — verified with `sqlmigrate`, outputs clean PostgreSQL DDL
+- **Tests:** `backend/tests/unit/telemetry/test_telemetry_layer.py` — 26 tests, all passing
+- **Django app registered:** `apps.telemetry` added to `INSTALLED_APPS` in `config/settings/base.py`
+- **JSON output directory:** `backend/logs/telemetry/`
+
+### Integration wiring — COMPLETE (2026-05-30)
+
+| Integration point | File | How it works |
+|---|---|---|
+| Celery task lifecycle | `backend/apps/telemetry/celery_integration.py` | `task_prerun` / `task_postrun` signals auto-start/end sessions for `process_video_upload`, `run_live_stream_inference`, `ingest_runtime_event_task` |
+| ContextVar propagation | `backend/apps/telemetry/context.py` | Same-thread access to active session without threading it through every call; mirrors `pipeline/logging_context.py` pattern |
+| Triton client RTT | `backend/apps/pipeline/services/triton_client.py` | `_try_record_telemetry()` called at both `infer()` exit paths; reads ContextVar, records `ModelCallMeta` |
+| Offline frame recording | `backend/apps/video_analysis/tasks.py` | `_tel_record_frame()` helper called inside `_on_frame_complete` (multi-model path) and `_on_triton_frame_inferred` (Triton-only path) |
+| Live stream frame recording | `backend/apps/video_analysis/tasks.py` | `_tel_record_frame()` helper called inside live `_on_frame_complete` after `stage_timings` is computed |
+
+**Migration**: Apply `backend/apps/telemetry/migrations/0001_initial.py` with `python manage.py migrate` before first production run.
+**JSON output**: `backend/logs/telemetry/<session_id>_<source_type>_<YYYYMMDD_HHMMSS>.json`
