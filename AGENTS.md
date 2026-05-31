@@ -131,8 +131,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   `74572801-b257-4229-b37c-1e8ba5952b4e`) reached `75/4541` with worker RSS
   near ~2 GiB, confirming the memory fix, but throughput stayed near `0.4 fps`.
   The next CPU hot-path fix adds vectorized YOLO decode and
-  `TRITON_YOLO_MAX_DECODE_CANDIDATES=1000` before NMS so dense low-confidence
-  anchors cannot dominate one CPU core.
+  `TRITON_YOLO_MAX_DECODE_CANDIDATES=100` before NMS so dense low-confidence
+  anchors cannot dominate one CPU core; the 100-candidate prod probe reached a
+  90-second window throughput of `1.111 fps` with worker RSS near ~1.7 GiB.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

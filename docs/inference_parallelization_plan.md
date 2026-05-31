@@ -101,7 +101,7 @@ Completion scope:
   history-wide tracking recomputation with incremental tracking plus tracked
   person-box cache refresh for sparse-detection reuse.
 - Follow-up CPU hot-path optimization adds vectorized YOLO output decode and
-  `TRITON_YOLO_MAX_DECODE_CANDIDATES=1000` before NMS. This preserves the
+  `TRITON_YOLO_MAX_DECODE_CANDIDATES=100` before NMS. This preserves the
   highest-confidence candidate set while preventing low-confidence raw anchors
   from making crop-frame NMS dominate one CPU core on dense classroom frames.
 - Operational safeguards from the failed subjective run are codified:
@@ -123,7 +123,7 @@ complete from a non-GPU environment.
 | 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`; optimized prod default `25`) | first/last frame still persisted |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
 | 5a true client-side batch requests | **Implemented** (`TRITON_TRUE_BATCH_REQUESTS`; optimized prod default `1`) | same-model crop tensors stack into one Triton request, capped by `TRITON_MODEL_BATCH_SIZE_OVERRIDES`, then split back to per-crop responses |
-| 5b CPU decode/NMS bound | **Implemented** (`TRITON_YOLO_MAX_DECODE_CANDIDATES`; optimized prod default `1000`) | vectorized YOLO coordinate decode and top-confidence candidate cap before NMS to protect dense crop fanout |
+| 5b CPU decode/NMS bound | **Implemented** (`TRITON_YOLO_MAX_DECODE_CANDIDATES`; optimized prod default `100`) | vectorized YOLO coordinate decode and top-confidence candidate cap before NMS to protect dense crop fanout |
 | 1a binary tensors | **Implemented** (flag `TRITON_BINARY_TENSORS`; optimized prod default `1`) | encoder unit-tested; client auto-falls back to JSON on a binary error |
 | 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`; optimized prod default `1`) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
 | 3 gRPC transport | **Implemented and bug-fixed (optimized prod default `grpc`, HTTP fallback retained; prod validation pending)** | request timeout is sent as int microseconds and client deadline as seconds |
