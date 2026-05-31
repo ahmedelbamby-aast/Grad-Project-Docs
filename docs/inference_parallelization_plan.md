@@ -44,6 +44,12 @@ Completion scope:
   ~100 GB RSS with `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=16`; the optimized
   crop-frame default is now `1` so batches are bounded by one frame's person
   crops instead of many frames of crops/responses.
+- Follow-up production run started 2026-05-31 20:36 EEST:
+  replay key `parallel-crop-frame-20260531T203638`, job
+  `17518cbe-c320-4880-8265-62df0add1ae3`. The memory-bounded flow is active
+  with `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1`; first observation showed worker
+  RSS around 20-26 GB, but GPU samples remained near 0%, so the run is diagnostic
+  and not final acceptance evidence.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs

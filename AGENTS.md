@@ -70,6 +70,13 @@ This file defines how agents should execute tests quickly and safely in this rep
   crop-frame worker reached ~100 GB RSS. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES`
   is now set to `1` for optimized crop-frame production runs to bound retained
   person-crop payloads and response lists.
+- Follow-up run (started 2026-05-31 20:36 EEST): replay key
+  `parallel-crop-frame-20260531T203638`, job
+  `17518cbe-c320-4880-8265-62df0add1ae3`, log
+  `backend/logs/parallel_flow_parallel-crop-frame-20260531T203638.log`.
+  Memory is bounded compared with the prior attempt (~20-26 GB RSS observed),
+  but GPU utilization samples remain near 0%; treat this as diagnostic until it
+  completes and the bottleneck is reviewed.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
