@@ -75,6 +75,12 @@ Completion scope:
   `window_fps=0.400`, `frame_signal_contract=per_frame_signals_with_person_box_reuse`,
   GPU utilization sample `62%`, and `contract_status=pending_persistence`
   because DB `Frame`/`Detection` rows are written in Step 3 after frame inference.
+- Replacement production run started 2026-05-31 21:47 EEST after
+  `TRITON_NUMPY_OUTPUTS=1`: replay key
+  `parallel-per-frame-signals-crop-frame-20260531T214740`, job
+  `e8071c5a-8fb7-4c23-882d-621f8469c097`. First probe: `25/4541`,
+  `window_fps=0.400`, `TRITON_NUMPY_OUTPUTS=True`, and active worker RSS near
+  12 GiB instead of the previous >100 GiB spike.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs

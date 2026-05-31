@@ -97,6 +97,13 @@ This file defines how agents should execute tests quickly and safely in this rep
   First 60-second probe showed `25/4541` frames, window throughput `0.400 fps`,
   `frame_signal_contract=per_frame_signals_with_person_box_reuse`, GPU sample
   up to `62%`, and DB frame rows pending until Step 3 persistence.
+- Active replacement run after NumPy-output fix (started 2026-05-31 21:47 EEST):
+  replay key `parallel-per-frame-signals-crop-frame-20260531T214740`, job
+  `e8071c5a-8fb7-4c23-882d-621f8469c097`, log
+  `backend/logs/parallel_flow_parallel-per-frame-signals-crop-frame-20260531T214740.log`.
+  First probe confirmed `TRITON_NUMPY_OUTPUTS=True`, `25/4541` frames,
+  `window_fps=0.400`, and the active worker RSS stayed near 12 GiB instead of
+  the prior >100 GiB crop-fanout spike.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
