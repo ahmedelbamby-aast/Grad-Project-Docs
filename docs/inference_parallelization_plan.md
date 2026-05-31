@@ -1,6 +1,6 @@
 # Inference Pipeline Parallelization Plan
 
-**Status:** IMPLEMENTATION COMPLETE — **production benchmark certification pending.**
+**Status:** IMPLEMENTATION COMPLETE — **ROI-320 production benchmark partial; final GPU-utilization acceptance pending.**
 **Owner:** runtime/inference
 **Created:** 2026-05-30
 **Scope:** offline Triton inference path (`process_video_upload` →
@@ -107,6 +107,20 @@ Completion scope:
   Production probe `parallel-per-frame-signals-nms100-crop-frame-20260531T230706`
   reached `425/4541` frames with a 120-second window of `1.042 fps`, overall
   `1.000 fps`, and worker RSS near ~1.6 GiB.
+- ROI-320 production benchmark completed on 2026-06-01:
+  replay key `roi320-running-crop-frame-20260601T012133`, job
+  `77650001-3c4b-4b0a-94aa-b4eb899b90df`, video
+  `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`.
+  The run rebuilt posture/gaze TensorRT engines for `320x320` crop behavior
+  inputs and completed `4541/4541` frames with `4541` frame rows, `72751`
+  detections, `72751` boxes, `57` tracks, and no stale reconciler error.
+  Throughput improved from the investigation baseline `~0.975 fps` to
+  `1.309 fps`; telemetry wall for main upload/inference was `3000.32 s`;
+  behavior RTT improved to mean `102.393 ms` posture, `137.843 ms`
+  horizontal gaze, `119.100 ms` vertical gaze, and `155.837 ms` depth gaze.
+  However average GPU utilization was only `3.95%` with peak `34%`, lower than
+  the certified bottleneck baseline (`13.5%` average, `38%` peak). Therefore the
+  ROI phase is a measured partial success and is **not final acceptance**.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
@@ -133,6 +147,7 @@ complete from a non-GPU environment.
 | 4 batched detection writer / offload | **Implemented (optimized prod default on; partial offload)** | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes per frame with per-row fallback; `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages off inline execution. Render remains inline until a render-worker contract is added |
 | 6 VRAM discipline | **Implemented (config + prod launcher safeguards; prod validation pending)** | per-model in-flight split (1b), tracked `config.pbtxt` single-instance guard, Triton `nofile`/log guard, telemetry `peak_gpu_memory_mb` remains prod gate |
 | 7 crop-frame mode first-class | **Implemented (prod CLI/benchmark default now `crop_frame`; DB/API compatibility default unchanged)** | `crop_frame` is first-class in API/CLI/frontend and reuses the Triton frame batch/concurrent dispatch after `person_detection` crops; no retraining. Triton ensemble remains optional |
+| 8 ROI-native crop behavior input | **Implemented and production-benchmarked; partial acceptance only** | `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` reduced tensor volume and improved throughput/RTT, but GPU utilization regressed to `3.95%` average, so final acceptance remains open |
 
 The remaining work is validation sequencing on the production GPU, not additional
 application implementation.
@@ -379,6 +394,7 @@ ground truth after each phase.
 - [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — implemented, optional, not the default for per-frame-signal runs**
 - [x] **Production helper suite added — cancel active jobs, enable optimized defaults, probe flow evidence, verify per-frame signals, and run `combined.mp4` benchmark**
 - [x] **P7c decision — ensemble/BLS classified as future advanced Triton model-repo work, not required for this plan's repo-side completion**
+- [ ] **P8 ROI-native crop behavior input (`TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`) — code, deploy, and production benchmark complete; not accepted because GPU utilization regressed despite FPS/RTT/traffic wins**
 - [x] **CI focused gate added — `.github/workflows/inference-parallelization.yml` runs transport, batching, crop-frame, docs, and prod-helper syntax checks**
 - [x] **Per-phase benchmark workflow documented; fresh production telemetry comparison remains a prod-only evidence gate in `docs/production_inference_benchmark.md`**
 
@@ -511,9 +527,9 @@ value the `.plan` engine's profile supports (engines built `[1,8,32]`).
 
 ### 2026-06-01 Controlled Optimization Execution — ROI behavior candidate
 
-Status: **implemented locally, production validation pending**. This is not a
-completed optimization until a production `combined.mp4` benchmark shows measured
-improvement.
+Status: **production benchmark completed; partial acceptance only**. This is not
+a completed optimization because the production `combined.mp4` benchmark improved
+throughput/RTT/traffic but did not improve GPU utilization.
 
 - Code path: `TRITON_CROP_BEHAVIOR_INPUT_SIZE` lets `crop_frame` preprocess
   posture/gaze crops at a smaller square input size instead of hardcoding
@@ -529,11 +545,26 @@ improvement.
 - Lifecycle fix: long-running progress updates now explicitly refresh
   `updated_at`, and final `completed` status clears stale reconciliation errors.
 
-Expected candidate effect before production measurement: behavior input traffic
-drops by `75%` when moving crops from `640x640` to `320x320`; YOLO output tensor
-traffic drops by `75%` because anchors drop from `8400` to `2100`; request count
-is unchanged unless paired with larger model batch overrides. Acceptance still
-requires production FPS/GPU/RTT/traffic deltas.
+Production candidate result:
+
+| Metric | Baseline | ROI-320 production result | Delta |
+|---|---:|---:|---:|
+| Full job throughput | `~0.975 fps` | `1.309 fps` | `+34.3%` |
+| Main upload/inference wall | `~70 min` | `3000.32 s` (`50.01 min`) | `-28.6%` |
+| Mean frame latency | `728.229 ms` | `394.122 ms` | `-45.9%` |
+| Behavior input traffic | `380.1 MB/frame` | `~95.0 MB/frame` | `-75.0%` |
+| Dense YOLO output traffic | `81.8 MB/frame` | `~20.5 MB/frame` | `-75.0%` |
+| Avg GPU utilization | `13.5%` | `3.95%` | **regressed** |
+| Peak GPU utilization | `38%` | `34%` | **regressed** |
+
+Evidence: `docs/production_inference_benchmark.md` §10, replay key
+`roi320-running-crop-frame-20260601T012133`, job
+`77650001-3c4b-4b0a-94aa-b4eb899b90df`.
+
+Measured outcome: ROI-native input size is worth keeping as a reversible traffic
+and latency reduction, but it does not solve RTX 5090 starvation. The next
+accepted optimization must remove Python/Triton request-boundary cost and request
+fragmentation; a plain smaller input size is insufficient for final acceptance.
 
 ### Phase 7d (optional) — Triton ensemble / BLS
 

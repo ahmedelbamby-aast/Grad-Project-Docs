@@ -384,6 +384,7 @@ Initial production execution:
 | 2026-05-31 22:48 EEST | `parallel-per-frame-signals-looptrack-crop-frame-20260531T224816` | `74572801-b257-4229-b37c-1e8ba5952b4e` | Cancelled at `225/4541`. Job-scoped async/gRPC loop + incremental crop tracking on commit `2c3f6a7` kept worker RSS near ~2 GiB instead of ~37 GiB, confirming the memory fix. Throughput remained near `0.4 fps`, pointing to CPU decode/NMS over dense crop fanout. |
 | 2026-05-31 23:04 EEST | `parallel-per-frame-signals-nms300-crop-frame-20260531T230406` | `2416537a-7466-487e-b2c9-959dd8698b1b` | Cancelled at `75/4541` after testing `TRITON_YOLO_MAX_DECODE_CANDIDATES=300`. Window throughput improved to `0.544 fps`; worker RSS stayed ~1.6 GiB. |
 | 2026-05-31 23:07 EEST | `parallel-per-frame-signals-nms100-crop-frame-20260531T230706` | `80027072-a9d4-4be7-9099-4354acd1170b` | Active validation of `TRITON_YOLO_MAX_DECODE_CANDIDATES=100`. Probe at `125/4541`: 90-second window throughput `1.111 fps`, overall `0.925 fps`, worker RSS ~1.7 GiB. Later probe at `425/4541`: 120-second window `1.042 fps`, overall `1.000 fps`, worker RSS ~1.6 GiB, one active job, per-frame-signal contract active. |
+| 2026-06-01 01:21 EEST | `roi320-running-crop-frame-20260601T012133` | `77650001-3c4b-4b0a-94aa-b4eb899b90df` | Completed `4541/4541` on the required `combined.mp4` video with `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`. DB rows: `4541` frames, `72751` detections, `72751` boxes, `57` tracks, no stale error. Throughput improved to `1.309 fps` over the DB created/completed window and behavior RTT fell materially, but GPU average utilization regressed to `3.95%`; therefore this is a measured partial success, not final acceptance. |
 
 ### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
 
@@ -435,6 +436,7 @@ process counts.
 | `tools/prod/prod_post_sync.sh` | Post-`uv sync` TRT install + guard check |
 | `tools/prod/prod_cancel_video_jobs.sh` | Stops workers, marks active video jobs terminal, purges the video queue, and stops waiting ingest commands before a new benchmark |
 | `tools/prod/prod_enable_parallel_flow.sh` | Idempotently applies optimized parallel-flow defaults to `backend/.env`; default profile is `per-frame-signals` |
+| `tools/prod/prod_enable_roi_crop_behavior.sh` | Rebuilds posture/gaze TensorRT engines and Triton configs for smaller crop-frame behavior input sizes; production candidate used `320` |
 | `tools/prod/prod_parallel_flow_probe.sh` | Prints env/runtime/job/model-call evidence for the optimized flow |
 | `tools/prod/prod_verify_per_frame_signals.sh` | Verifies the accuracy-first contract and DB frame completeness for a job |
 | `tools/prod/prod_run_parallel_flow_benchmark.sh` | Chained cancel → enable → restart → probe → benchmark runner for `combined.mp4` |
@@ -550,4 +552,66 @@ Full report:
 
 ---
 
-*Generated from production run on 2026-05-30. Update this file after each major pipeline change or hardware migration.*
+## 10. 2026-06-01 ROI-320 Crop-Frame Production Benchmark
+
+**Status:** production benchmark completed; final optimization acceptance **not**
+granted because average GPU utilization did not improve.
+
+**Candidate:** `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` with rebuilt posture/gaze
+TensorRT engines and matching Triton configs. The test video is
+`/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `roi320-running-crop-frame-20260601T012133` |
+| Job ID | `77650001-3c4b-4b0a-94aa-b4eb899b90df` |
+| Main log | `backend/logs/roi320-running-crop-frame-20260601T012133.orchestrator.log` |
+| Benchmark log | `backend/logs/bench_run_20260601T012134.log` |
+| Summary JSON | `backend/logs/bench_summary_20260601T012134.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260601T012134.csv` |
+| Telemetry JSON | `backend/logs/telemetry/bec68852-9776-4aee-aca1-20e4df6b078d_offline_20260531_222139.json` |
+| Completion | `status=completed`, `processed_frames=4541`, `total_frames=4541`, `error_message=""` |
+| DB rows | `4541` frames, `72751` detections, `72751` boxes, `57` tracks |
+
+Measured comparison:
+
+| Metric | Baseline | ROI-320 candidate | Delta |
+|---|---:|---:|---:|
+| Full job throughput | `~0.975 fps` | `1.309 fps` | `+34.3%` |
+| Full job elapsed | `~70 min` | `57.82 min` DB created→completed | `-17.4%` |
+| Main upload/inference wall | `~70 min` | `50.01 min` telemetry wall | `-28.6%` |
+| Mean frame latency | `728.229 ms` profiler | `394.122 ms` telemetry | `-45.9%` |
+| Behavior input tensor size | `640x640` | `320x320` | `-75.0% pixels/sample` |
+| Estimated behavior input traffic | `380.1 MB/frame` | `~95.0 MB/frame` | `-75.0%` |
+| Estimated dense YOLO output traffic | `81.8 MB/frame` | `~20.5 MB/frame` | `-75.0%` |
+| Avg GPU utilization | `13.5%` | `3.95%` | **regressed** |
+| Peak GPU utilization | `38%` | `34%` | **regressed** |
+| GPU memory | previous memory-stable run ~`1.6 GiB` worker RSS | `15663 MiB` GPU memory in candidate monitor | not accepted as a utilization win |
+| Stale reconciler outcome | false `reconciled_stale_processing_state` retained | completed with empty `error_message` | fixed |
+
+Per-model RTT from the production telemetry session:
+
+| Model | Baseline behavior RTT | ROI-320 mean RTT | ROI-320 p95 RTT |
+|---|---:|---:|---:|
+| `person_detector` | not primary bottleneck | `13.499 ms` | `14.973 ms` |
+| `posture_model` | `192-212 ms/request` | `102.393 ms` | `135.143 ms` |
+| `gaze_horizontal_model` | `192-212 ms/request` | `137.843 ms` | `174.109 ms` |
+| `gaze_vertical_model` | `192-212 ms/request` | `119.100 ms` | `153.553 ms` |
+| `gaze_depth_model` | `192-212 ms/request` | `155.837 ms` | `191.294 ms` |
+| `rtmpose_model` | not in original behavior RTT sample | `40.882 ms` | `75.485 ms` |
+
+Conclusion: the ROI-320 change reduced behavior tensor volume and improved
+throughput/RTT/total time, and the stale-job lifecycle fix passed the long-run
+validation. It did **not** increase RTX 5090 utilization. The remaining
+optimization target must therefore reduce the still-measured Python/Triton
+request boundary and request count instead of treating smaller crop tensors as
+the final fix.
+
+Acceptance state: **partial production success; final GPU-utilization acceptance
+failed.**
+
+---
+
+*Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

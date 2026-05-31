@@ -44,15 +44,20 @@ This file defines how agents should execute tests quickly and safely in this rep
   `TRITON_CROP_BEHAVIOR_INPUT_SIZE` path plus
   `tools/prod/prod_enable_roi_crop_behavior.sh`, which rebuilds posture/gaze
   TensorRT engines and matching Triton configs before enabling smaller
-  crop-frame behavior tensors. This is **not accepted complete** until the
-  production `combined.mp4` benchmark proves FPS/GPU/RTT/traffic improvement.
+  crop-frame behavior tensors. Production benchmark
+  `roi320-running-crop-frame-20260601T012133` (job
+  `77650001-3c4b-4b0a-94aa-b4eb899b90df`) completed `4541/4541` frames on
+  `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
+  with no stale reconciler error and improved throughput/RTT/traffic, but
+  average GPU utilization regressed to `3.95%` (peak `34%`). This phase is
+  **partial production success only, not final acceptance**.
 - Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
   throughput from single-digit fps toward 100+ fps, every phase measured by the
   telemetry layer and shipped behind a flag with fallback.
 - Diagrams: README → *Triton Model Inference End to End lifecycle (Sequential Order)*
   (current) and *Triton Model Inference End to End (Parallel)* (target).
-- Status: **Repo implementation complete; production benchmark certification
-  pending.** Implemented and flag-gated: P1a binary tensors
+- Status: **Repo implementation complete; ROI-320 production benchmark partial,
+  final GPU-utilization certification pending.** Implemented and flag-gated: P1a binary tensors
   (`TRITON_BINARY_TENSORS`), P1b concurrent model dispatch
   (`TRITON_CONCURRENT_MODELS`, VRAM-bounded), P2 pipeline overlap
   (`TRITON_OFFLINE_PIPELINE_OVERLAP`), P3 gRPC transport
