@@ -113,7 +113,11 @@ This file defines how agents should execute tests quickly and safely in this rep
   reached `50/4541` with one active job, proving the stale-redelivery guard, but
   was cancelled because true-batch splitting still copied per-crop NumPy output
   slices and RSS climbed to ~34.5 GiB. Follow-up no-copy split keeps batch-output
-  views instead of contiguous per-crop copies.
+  views instead of contiguous per-crop copies. A later no-copy run
+  `parallel-per-frame-signals-nocopy-crop-frame-20260531T222447` still showed
+  worker RSS high-water growth (~33 GiB by `50/4541`), so
+  `OFFLINE_TRIM_PROCESS_MEMORY=1` now calls Python GC + Linux `malloc_trim(0)`
+  after each offline frame batch to return freed NumPy/gRPC buffers to the OS.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

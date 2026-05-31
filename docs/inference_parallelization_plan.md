@@ -71,8 +71,10 @@ Completion scope:
   one Triton request up to model caps from `TRITON_MODEL_BATCH_SIZE_OVERRIDES`,
   then split back into per-crop responses. Follow-up no-copy refinement keeps
   Triton NumPy outputs and split per-crop outputs as views instead of allocating
-  contiguous copies for every crop. `--profile max-throughput` is retained for
-  old behaviour-reuse benchmarks.
+  contiguous copies for every crop. When RSS still held freed NumPy/gRPC buffers
+  after dense batches, `OFFLINE_TRIM_PROCESS_MEMORY=1` was added to run Python GC
+  plus Linux `malloc_trim(0)` after each offline frame batch. `--profile
+  max-throughput` is retained for old behaviour-reuse benchmarks.
 - Active production run started 2026-05-31 21:39 EEST:
   replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
   `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`. The run is using commit `a1770e5f`
