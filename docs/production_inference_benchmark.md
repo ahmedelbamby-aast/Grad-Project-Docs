@@ -363,6 +363,13 @@ bash tools/prod/prod_cancel_video_jobs.sh --all-active
 bash tools/prod/prod_enable_parallel_flow.sh --dry-run
 ```
 
+Initial production execution:
+
+| Timestamp | Replay key | Job ID | Result |
+|---|---|---|---|
+| 2026-05-31 20:26 EEST | `parallel-crop-frame-20260531T202607` | `22b6d969-5789-4c53-a6e0-da63d9c10cc5` | Failed before inference because `TRITON_LIVE_URL` pointed at inactive `39000`; fixed in commit `9ed0a922`. |
+| 2026-05-31 20:28 EEST | `parallel-crop-frame-20260531T202819` | `5801ef31-050f-4e20-a58e-d98122c5e920` | Running. First probe verified optimized env active, Triton HTTP/gRPC ready, `nofile=65535`, `TRITON_PROTOCOL_PREFERENCE=grpc`, binary tensors/concurrent models/pipeline overlap/batched writes/reuse enabled. At `25/4541` frames, 30-second window throughput was `0.800 fps`, model-call telemetry had `4` ok events and max effective batch size `4`. |
+
 ### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
 
 **Recorded:** 2026-05-31

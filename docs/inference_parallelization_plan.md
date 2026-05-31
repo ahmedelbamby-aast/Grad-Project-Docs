@@ -36,6 +36,11 @@ Completion scope:
   `prod_parallel_flow_probe.sh`, and `prod_run_parallel_flow_benchmark.sh`.
   The chained benchmark default is `crop_frame` on
   `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`.
+- Production run started 2026-05-31 20:28 EEST:
+  replay key `parallel-crop-frame-20260531T202819`, job
+  `5801ef31-050f-4e20-a58e-d98122c5e920`. First probe confirmed optimized
+  env/runtime flags active, Triton HTTP+gRPC ready, and model-call telemetry
+  arriving. This is a running benchmark, not final acceptance evidence yet.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs

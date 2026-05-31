@@ -60,6 +60,13 @@ This file defines how agents should execute tests quickly and safely in this rep
   with gRPC, binary tensors, concurrent model dispatch, pipeline overlap, batched
   DB writes, post-stage offload, embedding reuse, and behaviour reuse enabled in
   `backend/.env`.
+- Current production benchmark run (started 2026-05-31 20:28 EEST):
+  replay key `parallel-crop-frame-20260531T202819`, job
+  `5801ef31-050f-4e20-a58e-d98122c5e920`, log
+  `backend/logs/parallel_flow_parallel-crop-frame-20260531T202819.log`.
+  First probe showed status `processing`, `25/4541` frames, 30-second window
+  throughput `0.800 fps`, gRPC model-call telemetry present, and max effective
+  batch size `4`. This is still running and is not final acceptance evidence.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
