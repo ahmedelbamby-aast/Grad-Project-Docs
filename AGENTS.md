@@ -126,6 +126,13 @@ This file defines how agents should execute tests quickly and safely in this rep
   full-history tracking rescans with incremental tracking; sparse person-box
   reuse now preserves assigned track IDs while behaviour/gaze predictions remain
   fresh per frame.
+  Follow-up validation
+  `parallel-per-frame-signals-looptrack-crop-frame-20260531T224816` (job
+  `74572801-b257-4229-b37c-1e8ba5952b4e`) reached `75/4541` with worker RSS
+  near ~2 GiB, confirming the memory fix, but throughput stayed near `0.4 fps`.
+  The next CPU hot-path fix adds vectorized YOLO decode and
+  `TRITON_YOLO_MAX_DECODE_CANDIDATES=1000` before NMS so dense low-confidence
+  anchors cannot dominate one CPU core.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

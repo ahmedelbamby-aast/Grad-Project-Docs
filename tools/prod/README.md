@@ -145,7 +145,7 @@ Default target:
 
 - video: `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
 - pipeline mode: `crop_frame`
-- profile: `per-frame-signals` (`stride=1`; person-box reuse allowed; no reused behaviour/gaze/embedding predictions; true Triton batches for crop fanout)
+- profile: `per-frame-signals` (`stride=1`; person-box reuse allowed; no reused behaviour/gaze/embedding predictions; true Triton batches for crop fanout; YOLO decode candidate cap before NMS)
 - timeout: `7200`
 
 Individual helper scripts:
