@@ -509,15 +509,54 @@ value the `.plan` engine's profile supports (engines built `[1,8,32]`).
 
 ### Phase 7c (optional) — Triton ensemble / BLS
 
+### 2026-06-01 Controlled Optimization Execution — ROI behavior candidate
+
+Status: **implemented locally, production validation pending**. This is not a
+completed optimization until a production `combined.mp4` benchmark shows measured
+improvement.
+
+- Code path: `TRITON_CROP_BEHAVIOR_INPUT_SIZE` lets `crop_frame` preprocess
+  posture/gaze crops at a smaller square input size instead of hardcoding
+  `640x640`.
+- Engine/config path: `backend/scripts/build_tensorrt_engines.py
+  --behavior-imgsz <size>` exports/builds posture/gaze engines with matching
+  TensorRT profiles and writes Triton configs with matching input/output dims.
+- Prod helper: `tools/prod/prod_enable_roi_crop_behavior.sh --input-size 320`
+  rebuilds posture/gaze engines, writes configs, and updates `backend/.env`.
+- Benchmark helper: `tools/prod/prod_run_parallel_flow_benchmark.sh
+  --roi-behavior-input-size 320` chains the ROI build/enable step before restart
+  and benchmark.
+- Lifecycle fix: long-running progress updates now explicitly refresh
+  `updated_at`, and final `completed` status clears stale reconciliation errors.
+
+Expected candidate effect before production measurement: behavior input traffic
+drops by `75%` when moving crops from `640x640` to `320x320`; YOLO output tensor
+traffic drops by `75%` because anchors drop from `8400` to `2100`; request count
+is unchanged unless paired with larger model batch overrides. Acceptance still
+requires production FPS/GPU/RTT/traffic deltas.
+
+### Phase 7d (optional) — Triton ensemble / BLS
+
+**STATUS UPDATE (2026-06-01):** evidence now justifies server-side BLS/ensemble
+work only if it removes the measured boundary cost. See
+[`docs/crop_frame_rtx5090_bottleneck_investigation.md`](crop_frame_rtx5090_bottleneck_investigation.md).
+Production job `80027072-a9d4-4be7-9099-4354acd1170b` and two bounded profilers
+showed behavior/gaze client RTT around `192-212 ms` per true-batch request while
+Triton server success time was only `14.87-19.70 ms`. The current path transfers
+about `380 MB/frame` of behavior input plus about `82 MB/frame` of dense YOLO
+outputs through Python/gRPC for a `19.33` crops/frame sample. A plain ensemble
+that still returns raw `output0` tensors is not sufficient.
+
 **DEV/REPO:** author an `ensemble` model (`platform: "ensemble"` + `ensemble_scheduling`)
 plus a Python **BLS** backend for the crop step
-(`preprocess → person_detector → crop → {posture, gaze×3, rtmpose}`) under the model
-repository. No retraining — same engines.
+(`preprocess → person_detector → crop → {posture, gaze×3, rtmpose} → NMS`) under the model
+repository. No retraining — same engines. The required output contract is compact
+detections, not raw YOLO grids.
 
 **CI-CD:** none (graph lives in the model repo, validated on prod).
 
 **PROD:** deploy the ensemble dir to `triton_repository_cuda12`; reload Triton;
 route the offline path to call the single ensemble model; benchmark — target one
-network call per frame and a large GPU-util jump.
+network call per frame, compact detection outputs, and a large GPU-util jump.
 
 **ROLLBACK:** route back to per-model calls; the ensemble model can stay loaded but unused.

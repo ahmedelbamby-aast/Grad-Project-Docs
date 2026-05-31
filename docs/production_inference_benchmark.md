@@ -511,4 +511,43 @@ bash tools/prod/prod_run_benchmark.sh \
 
 ---
 
+## 9. 2026-06-01 Crop-Frame Bottleneck Certification
+
+Production job `80027072-a9d4-4be7-9099-4354acd1170b` on
+`Raw Data/Diverse Classroom Enviroments/combined.mp4` completed `4541/4541`
+frames and produced `4541` Frame rows, `24348` Detection rows, `24348`
+BoundingBox rows, and `24182` embeddings.
+
+The final DB row still retained `error_message=reconciled_stale_processing_state`.
+This is a lifecycle false positive: the stale reconciler marked the job failed at
+`20:39:25 UTC` because long Step 2 progress updates did not refresh `updated_at`;
+the original worker continued, persisted rows at `21:37:55-21:38:18 UTC`,
+rendered, embedded, and completed at `21:42:56 UTC`.
+
+Measured bottleneck:
+
+| Evidence | Result |
+|---|---:|
+| Full benchmark GPU samples | avg util `13.5%`, peak `38%` |
+| 60-frame profiler GPU samples | avg util `15.49%`, peak `37%` |
+| 120-frame profiler mean frame time | `728.229 ms` |
+| 120-frame behavior/gaze inference wall time | `666.353 ms/frame` |
+| 60-frame behavior input crossing gRPC | `380.1 MB/frame` |
+| Estimated dense behavior output crossing gRPC | `81.8 MB/frame` |
+| Behavior client RTT | `192-212 ms/request` |
+| Behavior Triton server success time | `14.87-19.70 ms/execution` |
+| Mean person crops in profiler | `19.33/frame` |
+| Mean persisted person box size | `69.27 x 74.55 px` |
+| Crop expansion ratio to `640x640` | `81.42x` in profiler |
+
+Conclusion: the RTX 5090 remains mostly idle because the worker sends many large
+`640x640` FP32 crop batches and receives dense YOLO grids through Python/gRPC,
+then synchronizes at frame boundaries. Decode, crop slicing, DB persistence,
+Triton readiness, and OOM are not the bottleneck for this run.
+
+Full report:
+[`docs/crop_frame_rtx5090_bottleneck_investigation.md`](crop_frame_rtx5090_bottleneck_investigation.md).
+
+---
+
 *Generated from production run on 2026-05-30. Update this file after each major pipeline change or hardware migration.*

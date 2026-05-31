@@ -32,6 +32,20 @@ This file defines how agents should execute tests quickly and safely in this rep
 - **This remains the top-priority runtime/performance plan, but the repo-side
   implementation is now signed complete as of 2026-05-31.**
 - Plan: [docs/inference_parallelization_plan.md](docs/inference_parallelization_plan.md)
+- Latest bottleneck investigation:
+  [docs/crop_frame_rtx5090_bottleneck_investigation.md](docs/crop_frame_rtx5090_bottleneck_investigation.md).
+  Production job `80027072-a9d4-4be7-9099-4354acd1170b` eventually completed
+  `4541/4541` frames, but was falsely marked stale mid-run because progress
+  writes used `QuerySet.update()` without refreshing `updated_at`. The real
+  crop-frame throughput limiter is the Python/gRPC boundary around many
+  `640x640` person-crop behavior/gaze requests, not decode, crop slicing, DB
+  persistence, Triton readiness, or GPU OOM.
+- Optimization execution started 2026-06-01: code now contains a guarded
+  `TRITON_CROP_BEHAVIOR_INPUT_SIZE` path plus
+  `tools/prod/prod_enable_roi_crop_behavior.sh`, which rebuilds posture/gaze
+  TensorRT engines and matching Triton configs before enabling smaller
+  crop-frame behavior tensors. This is **not accepted complete** until the
+  production `combined.mp4` benchmark proves FPS/GPU/RTT/traffic improvement.
 - Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
   throughput from single-digit fps toward 100+ fps, every phase measured by the
   telemetry layer and shipped behind a flag with fallback.

@@ -140,6 +140,7 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_NUMPY_OUTPUTS` | `true` | `apps.pipeline.services.triton_client.TritonClient` |
 | `TRITON_TRUE_BATCH_REQUESTS` | `true` | `apps.video_analysis.services.inference_orchestrator.InferenceOrchestrator` |
 | `TRITON_YOLO_MAX_DECODE_CANDIDATES` | `100` | `apps.video_analysis.tasks._decode_yolo_output0` |
+| `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `640` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `TRITON_MODEL_BATCH_SIZE_OVERRIDES` | `object-models=8,pose=16` | `apps.video_analysis.tasks._effective_task_batch_size` |
 | `TRITON_OFFLINE_THREADED_DECODE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `TRITON_OFFLINE_DECODE_QUEUE_SIZE` | `4` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
