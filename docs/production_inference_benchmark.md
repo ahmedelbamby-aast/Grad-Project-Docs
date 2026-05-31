@@ -427,7 +427,7 @@ process counts.
 | `tools/prod/prod_update_bashrc.sh` | Idempotently fixes `~/.bashrc`/`~/.profile` LD_LIBRARY_PATH |
 | `tools/prod/prod_disk_cleanup.sh` | Purges `__pycache__`, probe engines, stale rollbacks, old logs |
 | `tools/prod/prod_post_sync.sh` | Post-`uv sync` TRT install + guard check |
-| `tools/prod/prod_cancel_video_jobs.sh` | Stops workers and marks active video jobs terminal before a new benchmark |
+| `tools/prod/prod_cancel_video_jobs.sh` | Stops workers, marks active video jobs terminal, purges the video queue, and stops waiting ingest commands before a new benchmark |
 | `tools/prod/prod_enable_parallel_flow.sh` | Idempotently applies optimized parallel-flow defaults to `backend/.env`; default profile is `per-frame-signals` |
 | `tools/prod/prod_parallel_flow_probe.sh` | Prints env/runtime/job/model-call evidence for the optimized flow |
 | `tools/prod/prod_verify_per_frame_signals.sh` | Verifies the accuracy-first contract and DB frame completeness for a job |

@@ -114,7 +114,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
   (default `1024`); `prod_start_celery_workers.sh` reads worker time limits,
   worker concurrency, and guardrails from `backend/.env`; `prod_cancel_video_jobs.sh`
-  stops old active jobs before a new benchmark; `prod_parallel_flow_probe.sh`
+  stops old active jobs, purges the video queue, and terminates waiting ingest
+  commands before a new benchmark; `prod_parallel_flow_probe.sh`
   verifies env/runtime/DB/model-call telemetry; `prod_verify_per_frame_signals.sh`
   checks the per-frame signal contract and DB frame completeness;
   `prod_run_benchmark.sh` accepts `--pipeline-mode`; `prod-runtime-ingest-video.ps1` accepts `crop_frame`; and

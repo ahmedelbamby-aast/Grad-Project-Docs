@@ -133,7 +133,7 @@ bash tools/prod/prod_run_benchmark.sh --pipeline-mode crop_frame --timeout 14400
 ## 2.2) Optimized parallel-flow benchmark helpers
 
 For the production parallelization run, use the chained helper. It cancels active
-jobs, enables the optimized `backend/.env` defaults, restarts Triton/workers,
+jobs, purges stale video-queue messages, enables the optimized `backend/.env` defaults, restarts Triton/workers,
 probes the flow, runs the benchmark, and probes the resulting job:
 
 ```bash
