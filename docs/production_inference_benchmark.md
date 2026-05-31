@@ -296,18 +296,19 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 **Recorded:** 2026-05-31
 **Status:** code-complete locally; production RTX 5090 benchmark pending.
 
-`crop_frame` is now a first-class upload/CLI/frontend mode. It keeps the default
-unchanged (`legacy_crop`) and runs Triton `person_detection` first, crops each
-detected person with `FrameCropper`, then sends crop tensors for posture/gaze
-through the same frame-batch dispatch helper used by `full_frame`. The existing
-optimization controls still govern the path:
+`crop_frame` is now a first-class upload/CLI/frontend mode. The DB/API
+compatibility default remains `legacy_crop`, while production CLI and benchmark
+helpers now default to `crop_frame`. The mode runs Triton `person_detection`
+first, crops each detected person with `FrameCropper`, then sends crop tensors
+for posture/gaze through the same frame-batch dispatch helper used by
+`full_frame`. The existing optimization controls still govern the path:
 
 | Control | Default | Crop-frame behavior |
 |---|---|---|
-| `TRITON_BINARY_TENSORS` | off | crop tensors use the same binary/JSON payload branch |
-| `TRITON_CONCURRENT_MODELS` | off | secondary crop tasks use the shared concurrent dispatch helper |
-| `TRITON_OFFLINE_PIPELINE_OVERLAP` | off | decode/preprocess overlap remains the outer frame producer path |
-| `OFFLINE_PROGRESS_UPDATE_EVERY_N` | 1 | progress throttle remains in the shared Triton callback path |
+| `TRITON_BINARY_TENSORS` | optimized prod default on | crop tensors use the same binary/JSON payload branch |
+| `TRITON_CONCURRENT_MODELS` | optimized prod default on | secondary crop tasks use the shared concurrent dispatch helper |
+| `TRITON_OFFLINE_PIPELINE_OVERLAP` | optimized prod default on | decode/preprocess overlap remains the outer frame producer path |
+| `OFFLINE_PROGRESS_UPDATE_EVERY_N` | optimized prod default `25` | progress throttle remains in the shared Triton callback path |
 
 Production validation must compare `legacy_crop`, `full_frame`, and `crop_frame`
 with fresh runs and telemetry before any throughput or GPU-utilization claim.
@@ -317,18 +318,87 @@ with fresh runs and telemetry before any throughput or GPU-utilization claim.
 ## 6.2 Remaining Parallelization Phases Status
 
 **Recorded:** 2026-05-31
-**Status:** code-complete locally; production RTX 5090 benchmark pending.
+**Status:** repo-side implementation complete; production RTX 5090 benchmark certification pending.
 
 | Phase | Local implementation | Default | Production validation |
 |---|---|---|---|
-| P3 gRPC transport | `TritonClient` can use `tritonclient.grpc` and falls back to HTTP on gRPC failure | HTTP | Validate `TRITON_GRPC_URL`/39101 readiness and compare RTT |
-| P4 batched writer | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes with per-row fallback | off | Compare DB time and row counts |
-| P4 post-stage offload | `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages out of inline execution | off | Confirm worker routing and lifecycle completion |
+| P3 gRPC transport | `TritonClient` can use `tritonclient.grpc` and falls back to HTTP on gRPC failure | optimized prod default `grpc` | Validate `TRITON_GRPC_URL`/39101 readiness and compare RTT |
+| P4 batched writer | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes with per-row fallback | optimized prod default on | Compare DB time and row counts |
+| P4 post-stage offload | `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages out of inline execution | optimized prod default on | Confirm worker routing and lifecycle completion |
 | P6 VRAM discipline | tracked Triton configs use single GPU instance per model | count 1 | Reload Triton and gate on `peak_gpu_memory_mb` |
-| P7b temporal reuse | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` and `OFFLINE_BEHAVIOUR_REUSE` reuse cached track state | off | Compare per-track parity and lower CPU/model calls |
+| P7b temporal reuse | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` and `OFFLINE_BEHAVIOUR_REUSE` reuse cached track state | optimized prod default on | Compare per-track parity and lower CPU/model calls |
 
 No production throughput, GPU-utilization, or p95-latency improvement is claimed
 until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
+
+### 6.2.1 Optimized Combined-Video Benchmark Command
+
+**Recorded:** 2026-05-31
+**Video:** `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
+**Mode:** `crop_frame`
+**Runner:** `tools/prod/prod_run_parallel_flow_benchmark.sh`
+
+The runner performs the operational sequence now expected for this flow:
+
+1. Stop Celery workers and mark active queued/processing/embedding video jobs as
+   failed with an operator-cancel reason.
+2. Apply optimized defaults to `backend/.env` via `prod_enable_parallel_flow.sh`.
+3. Restart Triton and workers.
+4. Probe env, Triton readiness, worker state, job state, and model-call telemetry.
+5. Run `runtime_ingest_video` with `--benchmark-evidence`, GPU CSV sampling, and
+   JSON summary output.
+
+Command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_parallel_flow_benchmark.sh
+```
+
+Investigation helpers:
+
+```bash
+bash tools/prod/prod_parallel_flow_probe.sh --watch 30
+bash tools/prod/prod_cancel_video_jobs.sh --all-active
+bash tools/prod/prod_enable_parallel_flow.sh --dry-run
+```
+
+### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
+
+**Recorded:** 2026-05-31
+**Video:** `/home/bamby/grad_project/Raw Data/all_merged.mp4`
+**Mode:** `crop_frame`, per-frame (`TRITON_OFFLINE_FRAME_STRIDE=1`,
+`OFFLINE_DETECT_EVERY_N_FRAMES=1`)
+**Outcome:** failed at `3045 / 16527` frames with
+`reconciled_stale_processing_state`.
+
+Root causes found during recovery:
+
+1. `backend/logs/triton.log` grew to roughly **193 GiB**, filled the root
+   filesystem, and pushed PostgreSQL into recovery mode.
+2. Triton inherited a `nofile` soft limit of `1024` and then emitted
+   repeated `accept(): Too many open files` warnings while holding GPU memory but
+   doing no useful GPU work.
+3. The gRPC client path passed a float seconds value to Triton's request-level
+   protobuf `timeout` field, producing
+   `'float' object cannot be interpreted as an integer`, then falling back to HTTP
+   repeatedly.
+
+Repository hardening applied after the failure:
+
+| Area | Change |
+|---|---|
+| Triton launcher | `tools/prod/prod_start_triton.sh` reads `TRITON_NOFILE_LIMIT` from `backend/.env` and defaults to `65535`. |
+| Triton log growth | `tools/prod/prod_start_triton.sh` reads `TRITON_LOG_MAX_MIB` and truncates an oversized `backend/logs/triton.log` before launch. |
+| gRPC transport | `TritonClient._infer_grpc()` now passes request timeout as integer microseconds and client deadline as seconds. |
+| Worker env authority | `prod_start_celery_workers.sh` reads task limits and concurrency guardrails from `backend/.env`, not only the launcher shell. |
+| Progress inspection | `tools/prod/prod_check_subjective_progress.sh` reports DB-backed progress and ETA for the latest `all_merged.mp4` job or a supplied job ID. |
+| Benchmark modes | `tools/prod/prod_run_benchmark.sh` supports `--pipeline-mode legacy_crop|full_frame|crop_frame`. |
+| Windows ingest helper | `tools/prod/prod-runtime-ingest-video.ps1` accepts `crop_frame`. |
+
+The failed `all_merged.mp4` run is **invalid evidence**. A clean rerun must use a
+new replay key after confirming disk, Postgres, Triton readiness, and worker
+process counts.
 
 ---
 
@@ -341,6 +411,10 @@ until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
 | `tools/prod/prod_update_bashrc.sh` | Idempotently fixes `~/.bashrc`/`~/.profile` LD_LIBRARY_PATH |
 | `tools/prod/prod_disk_cleanup.sh` | Purges `__pycache__`, probe engines, stale rollbacks, old logs |
 | `tools/prod/prod_post_sync.sh` | Post-`uv sync` TRT install + guard check |
+| `tools/prod/prod_cancel_video_jobs.sh` | Stops workers and marks active video jobs terminal before a new benchmark |
+| `tools/prod/prod_enable_parallel_flow.sh` | Idempotently applies optimized parallel-flow defaults to `backend/.env` |
+| `tools/prod/prod_parallel_flow_probe.sh` | Prints env/runtime/job/model-call evidence for the optimized flow |
+| `tools/prod/prod_run_parallel_flow_benchmark.sh` | Chained cancel → enable → restart → probe → benchmark runner for `combined.mp4` |
 | `backend/scripts/build_tensorrt_engines.py` | Full .pt → ONNX (dynamic) → TRT → Triton deploy pipeline |
 
 ---
@@ -354,8 +428,7 @@ until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
 >
 > ```bash
 > cd /home/bamby/grad_project
-> bash tools/prod/prod_start_celery_workers.sh   # also starts beat
-> bash tools/prod/prod_run_benchmark.sh          # full automated benchmark
+> bash tools/prod/prod_run_parallel_flow_benchmark.sh
 > ```
 >
 > The manual steps below are retained for reference / custom runs.
@@ -384,21 +457,33 @@ nohup bash -c 'for i in $(seq 1 3600); do
     --format=csv,noheader,nounits >> /home/bamby/grad_project/backend/logs/gpu_monitor_bench.csv
   sleep 1; done' &
 
-# 4. Submit benchmark job (timeout 3600 s for full 4541-frame video)
+# 4. Submit benchmark job (timeout 7200 s for full combined video)
 cd backend && source .venv/bin/activate
 python manage.py runtime_ingest_video \
   --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
   --actor-username "runtime_validator" \
   --runtime-profile offline \
-  --pipeline-mode full_frame \
+  --pipeline-mode crop_frame \
   --replay-policy new-attempt \
-  --timeout-seconds 3600 \
+  --benchmark-evidence \
+  --timeout-seconds 7200 \
   --wait 2>&1 | tee /home/bamby/grad_project/backend/logs/bench_run_$(date +%Y%m%dT%H%M%S).log
 
 # 5. Analyse GPU telemetry
 awk -F',' 'NR>1{s+=$2;n++;if($2>mx)mx=$2;pw+=$6} END{
   printf "samples=%d  avg_util=%.1f%%  peak_util=%s%%  avg_power=%.1fW\n",n,s/n,mx,pw/n
 }' /home/bamby/grad_project/backend/logs/gpu_monitor_bench.csv
+```
+
+For crop-frame validation, run:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/all_merged.mp4" \
+  --pipeline-mode crop_frame \
+  --timeout 14400 \
+  --show-tracking-ids
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Inference Pipeline Parallelization Plan
 
-**Status:** ACTIVE — **highest-priority performance plan for this project.**
+**Status:** IMPLEMENTATION COMPLETE — **production benchmark certification pending.**
 **Owner:** runtime/inference
 **Created:** 2026-05-30
 **Scope:** offline Triton inference path (`process_video_upload` →
@@ -14,6 +14,35 @@ Related diagrams: README → *Triton Model Inference End to End lifecycle
 (Sequential Order)* (current) and *Triton Model Inference End to End (Parallel)*
 (target).
 
+### Implementation completion sign-off (2026-05-31)
+
+**Signed:** Codex implementation pass completed the repository-side plan on
+2026-05-31. The remaining work is production evidence collection, not missing
+repo implementation. No throughput, p95-latency, or GPU-utilization improvement
+is certified until a fresh native Linux RTX 5090 run completes and updates
+`docs/production_inference_benchmark.md`.
+
+Completion scope:
+- Code paths for P1a/P1b/P2/P3/P4/P5/P6/P7a/P7b are present, flag-gated, and
+  covered by focused local tests.
+- P7c Triton ensemble/BLS is explicitly classified as **future advanced model-repo
+  work**, not a required phase for completing this plan. The optimized `crop_frame`
+  mode already ships without retraining and without a Triton ensemble.
+- Production wrapper gaps are closed: `prod_run_benchmark.sh` accepts
+  `--pipeline-mode`, `prod-runtime-ingest-video.ps1` accepts `crop_frame`, and
+  `prod_check_subjective_progress.sh` provides DB-backed progress checks.
+- 2026-05-31 production-default activation pass added
+  `prod_enable_parallel_flow.sh`, `prod_cancel_video_jobs.sh`,
+  `prod_parallel_flow_probe.sh`, and `prod_run_parallel_flow_benchmark.sh`.
+  The chained benchmark default is `crop_frame` on
+  `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`.
+- Operational safeguards from the failed subjective run are codified:
+  `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
+  `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
+  before launch.
+- CI now has a dedicated focused gate:
+  `.github/workflows/inference-parallelization.yml`.
+
 ### Implementation status & validation boundary (2026-05-31)
 
 Per the constitution's evidence/reproducibility pillars, nothing is marked "done"
@@ -22,18 +51,18 @@ complete from a non-GPU environment.
 
 | Phase | State | Notes |
 |---|---|---|
-| 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`, default off) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
-| 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`, default 1 = unchanged) | safe, opt-in |
+| 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`; optimized prod default `1`) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
+| 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`; optimized prod default `25`) | first/last frame still persisted |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
-| 1a binary tensors | **Implemented** (flag `TRITON_BINARY_TENSORS`, default off) | encoder unit-tested; client auto-falls back to JSON on a binary error. Enable + validate on the GPU host (live Triton) before trusting throughput |
-| 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`, default off) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
-| 3 gRPC transport | **Implemented (default off; prod validation pending)** | `TritonClient` can use `tritonclient.grpc` when `TRITON_PROTOCOL_PREFERENCE=grpc` + `TRITON_GRPC_ENABLED=1`; HTTP fallback retained |
-| 4 batched detection writer / offload | **Implemented (default off; partial offload)** | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes per frame with per-row fallback; `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages off inline execution. Render remains inline until a render-worker contract is added |
-| 6 VRAM discipline | **Implemented (config + tests; prod validation pending)** | per-model in-flight split (1b), tracked `config.pbtxt` single-instance guard, telemetry `peak_gpu_memory_mb` remains prod gate |
-| 7 crop-frame mode first-class | **Implemented (mode default unchanged; prod GPU validation pending)** | `crop_frame` is first-class in API/CLI/frontend and reuses the Triton frame batch/concurrent dispatch after `person_detection` crops; no retraining. Triton ensemble remains optional |
+| 1a binary tensors | **Implemented** (flag `TRITON_BINARY_TENSORS`; optimized prod default `1`) | encoder unit-tested; client auto-falls back to JSON on a binary error |
+| 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`; optimized prod default `1`) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
+| 3 gRPC transport | **Implemented and bug-fixed (optimized prod default `grpc`, HTTP fallback retained; prod validation pending)** | request timeout is sent as int microseconds and client deadline as seconds |
+| 4 batched detection writer / offload | **Implemented (optimized prod default on; partial offload)** | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes per frame with per-row fallback; `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages off inline execution. Render remains inline until a render-worker contract is added |
+| 6 VRAM discipline | **Implemented (config + prod launcher safeguards; prod validation pending)** | per-model in-flight split (1b), tracked `config.pbtxt` single-instance guard, Triton `nofile`/log guard, telemetry `peak_gpu_memory_mb` remains prod gate |
+| 7 crop-frame mode first-class | **Implemented (prod CLI/benchmark default now `crop_frame`; DB/API compatibility default unchanged)** | `crop_frame` is first-class in API/CLI/frontend and reuses the Triton frame batch/concurrent dispatch after `person_detection` crops; no retraining. Triton ensemble remains optional |
 
-The remaining phases are sequenced below with concrete designs so they can be
-implemented and validated on the production GPU one at a time.
+The remaining work is validation sequencing on the production GPU, not additional
+application implementation.
 
 ---
 
@@ -43,12 +72,12 @@ implemented and validated on the production GPU one at a time.
 |---|---|---|
 | Frame **decode** | ✅ yes | `FrameReadPipeline` background thread |
 | **Frames within one model** | ✅ yes | `InferenceOrchestrator.run_inference_batch` → `asyncio.gather` + `max_concurrency` semaphore over `httpx.AsyncClient` |
-| **Across the 5–6 models** | ✅ opt-in | `TRITON_CONCURRENT_MODELS=1` dispatches task groups through shared `asyncio.gather`; default remains sequential until prod validation |
-| **Across frame-batches** | ❌ sequential | `_flush_pending` fully processes one batch (infer + postprocess + DB + WS + telemetry) before the next |
-| Transport | ✅ HTTP default / gRPC opt-in | `TRITON_PROTOCOL_PREFERENCE=grpc` + `TRITON_GRPC_ENABLED=1`; HTTP fallback retained |
-| Tensor encoding | ❌ JSON list | `input_data = input_tensor.reshape(-1).tolist()` — a **1.2M-float Python list, JSON-serialized, per model, per frame** |
-| Post-stages (tracking/pose/ReID/persist/render) | ❌ inline, sequential | all inside `process_video_upload`, blocking the next batch |
-| DB writes | ⚠️ default per-frame; bulk opt-in | `OFFLINE_PROGRESS_UPDATE_EVERY_N` and `OFFLINE_DB_BATCH_WRITES` are safe defaults-off/unchanged knobs |
+| **Across the 5–6 models** | ✅ enabled in optimized prod env | `TRITON_CONCURRENT_MODELS=1` dispatches task groups through shared `asyncio.gather`; HTTP fallback remains available |
+| **Across frame-batches** | ✅ opt-in overlap | `TRITON_OFFLINE_PIPELINE_OVERLAP=1` runs decode/preprocess for batch K+1 while batch K dispatches/postprocesses; final persistence remains ordered |
+| Transport | ✅ gRPC in optimized prod env / HTTP fallback | `TRITON_PROTOCOL_PREFERENCE=grpc` + `TRITON_GRPC_ENABLED=1`; HTTP fallback retained |
+| Tensor encoding | ✅ binary opt-in | `TRITON_BINARY_TENSORS=1` sends raw float bytes; JSON materialization remains fallback |
+| Post-stages (tracking/pose/ReID/persist/render) | ⚠️ partially offloadable | optimized prod env sets `OFFLINE_OFFLOAD_POST_STAGES=1`; render still runs inline |
+| DB writes | ✅ bulk/progress-throttled in optimized prod env | optimized prod env sets `OFFLINE_PROGRESS_UPDATE_EVERY_N=25`, `OFFLINE_DB_BATCH_WRITES=1`, `OFFLINE_DB_BATCH_SIZE=1000` |
 
 **Diagnosis:** the GPU is idle because each frame is dominated by **CPU JSON
 encoding of ~6 MB of float text per model** and by **serially awaiting 5–6
@@ -63,12 +92,12 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
 ### Phase 1 — Binary tensors + concurrent model dispatch  ⟵ START HERE
 *Impact: very high · Effort: low–medium · Risk: low*
 
-- **1a. Binary tensors.** Replace `.tolist()`/JSON with raw `float32` bytes
+- **1a. Binary tensors — ✅ IMPLEMENTED (2026-05-31; optimized prod default ON).** Replace `.tolist()`/JSON with raw `float32` bytes
   (`ndarray.tobytes()`) using Triton's binary tensor extension (HTTP
   `application/octet-stream`) or gRPC tensors.
   - Touch: `TritonClient.infer` request builder; the `frame_data` construction in
     `_ingest_decoded_frame` (stop materializing a Python list).
-  - Flag: `TRITON_BINARY_TENSORS` (default on, fallback to JSON on encode error).
+  - Flag: `TRITON_BINARY_TENSORS` (optimized prod default on, fallback to JSON on encode error).
   - Expected: 3–8× lower per-call CPU; removes the dominant bottleneck.
 - **1b. Concurrent models — ✅ IMPLEMENTED (2026-05-31, flag default OFF).**
   `_process_batch_items` now builds per-task inputs then dispatches every model in
@@ -99,7 +128,7 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
   inference overlaps batch *K+1* preprocess. Decode is already threaded
   (`FrameReadPipeline`), so with overlap on there are three stages: decode →
   preprocess → dispatch.
-- Flag: `TRITON_OFFLINE_PIPELINE_OVERLAP` (default off). Falls back to the inline
+- Flag: `TRITON_OFFLINE_PIPELINE_OVERLAP` (optimized prod default on). Falls back to the inline
   prepare→consume path (identical code, no thread) when disabled.
 - Verified: `test_concurrent_model_dispatch.py` asserts overlap == sequential and
   overlap+concurrent == sequential.
@@ -114,6 +143,10 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
   Binary protobuf + HTTP/2 multiplexing.
 - Touch: `TritonClient` (transport abstraction). HTTP remains the automatic fallback
   unless HTTP is explicitly disabled.
+- 2026-05-31 hardening: the gRPC request timeout bug observed on production
+  (`'float' object cannot be interpreted as an integer`) is fixed by passing the
+  Triton request timeout as integer microseconds and the client RPC deadline as
+  seconds. Unit coverage: `backend/tests/unit/pipeline/test_triton_grpc_transport.py`.
 - Expected: 2–3× lower per-call latency for these small tensors; compounds with 1a.
 
 ### Phase 4 — Batched DB writes + offloaded post-stages — ✅ IMPLEMENTED (default OFF; render offload deferred)
@@ -139,6 +172,10 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
 - Optional/advanced: move letterbox+normalize into a **DALI/ensemble**
   preprocessing model or use **CUDA shared memory** to skip host→device copies.
 
+**Implementation status:** dynamic batching and single-instance discipline are
+present in the tracked CUDA 12 model configs. Production tuning remains evidence
+work because it depends on live RTX 5090 memory/latency behavior.
+
 ---
 
 ### Phase 6 — VRAM discipline (keep memory flat as concurrency rises) — ✅ IMPLEMENTED (prod validation pending)
@@ -160,6 +197,14 @@ Parallelism must not balloon VRAM. Key facts and levers:
 - **Reuse the CUDA/pinned pools** already configured in `prod_start_triton.sh`
   (`--cuda-memory-pool-byte-size`, `--pinned-memory-pool-byte-size`) so allocations
   are recycled instead of growing.
+- **Raise Triton process file-descriptor ceiling.** `prod_start_triton.sh` reads
+  `TRITON_NOFILE_LIMIT` from `backend/.env` (default `65535`) and refuses to
+  inherit the low 1024 soft limit that caused `accept(): Too many open files`
+  during the subjective run.
+- **Bound Triton log growth.** `prod_start_triton.sh` reads `TRITON_LOG_MAX_MIB`
+  (default `1024`) and truncates oversized `backend/logs/triton.log` to the last
+  5000 lines before launching. `prod_disk_cleanup.sh --delete` remains the manual
+  cleanup tool for running systems.
 - **Never run the hybrid/local path in prod.** It loads ~5 GB of local TensorRT
   engines on top of Triton's ~21 GB; `triton_only` avoids that entirely.
 - **FP16 today; INT8 later.** Engines are FP16. INT8 (with calibration) would cut
@@ -171,7 +216,8 @@ Parallelism must not balloon VRAM. Key facts and levers:
 *Impact: very high · Effort: medium · Risk: low–medium (uses existing crops, not new models)*
 
 **Key correction (2026-05-31):** the system already supports two pipeline modes —
-`VideoAnalysisJob.pipeline_mode` is `legacy_crop` (default) or `full_frame`
+`VideoAnalysisJob.pipeline_mode` is `legacy_crop` (backward-compatible DB/API
+default), `full_frame`, or `crop_frame` (production CLI/benchmark default)
 ([models.py:26](backend/apps/video_analysis/models.py), routed by
 `_resolve_upload_pipeline_executor`). Cropping is already implemented
 (`apps/pipeline/cropper.py::FrameCropper`) and the Ultralytics path already passes
@@ -201,7 +247,7 @@ overlap, 4 throttle, telemetry) work identically under **both** modes.
    - Detection cadence + box reuse (already implemented for person boxes) extends
      to **behaviour reuse**: `OFFLINE_BEHAVIOUR_REUSE` reuses last posture/gaze boxes
      for static crop-frame tracks within `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES`.
-3. **Triton ensemble / BLS (optional, advanced).** Once crop_frame is first-class,
+3. **Triton ensemble / BLS (future advanced work, not a completion blocker).** Once crop_frame is first-class,
    a Triton **ensemble** (`preprocess → detector → crop (BLS) → {posture, gaze×3,
    rtmpose}`) can keep the frame on the GPU and collapse 5–6 calls into one. This is
    the only sub-item that needs Triton-graph work; it is an optimisation on top of
@@ -243,27 +289,28 @@ ground truth after each phase.
 
 ## 5. Task checklist
 
-- [x] **P1a binary tensors (`TRITON_BINARY_TENSORS`) + encoder unit test — done (default off; client falls back to JSON; validate on GPU host)**
-- [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — done (flag default off, awaiting prod validation)**
-- [x] **P2 producer/consumer pipeline overlap (`TRITON_OFFLINE_PIPELINE_OVERLAP`) + equivalence test — done (default off)**
-- [x] **P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`) — implemented default off; HTTP fallback; prod validation pending**
-- [x] **P4 throttled progress writes (`OFFLINE_PROGRESS_UPDATE_EVERY_N`) — done (default 1 = unchanged)**
-- [x] **P4 batched detection writer (`OFFLINE_DB_BATCH_WRITES`) + existing follow-up offload (`OFFLINE_OFFLOAD_POST_STAGES`) — default off; render-worker split deferred**
+- [x] **P1a binary tensors (`TRITON_BINARY_TENSORS`) + encoder unit test — optimized prod default on; client falls back to JSON**
+- [x] **P1b concurrent model `asyncio.gather` (`TRITON_CONCURRENT_MODELS`) + unit test — optimized prod default on; awaiting prod benchmark certification**
+- [x] **P2 producer/consumer pipeline overlap (`TRITON_OFFLINE_PIPELINE_OVERLAP`) + equivalence test — optimized prod default on**
+- [x] **P3 gRPC transport (`TRITON_PROTOCOL_PREFERENCE=grpc`) — optimized prod default on; HTTP fallback; prod validation pending**
+- [x] **P4 throttled progress writes (`OFFLINE_PROGRESS_UPDATE_EVERY_N`) — optimized prod default `25`**
+- [x] **P4 batched detection writer (`OFFLINE_DB_BATCH_WRITES`) + existing follow-up offload (`OFFLINE_OFFLOAD_POST_STAGES`) — optimized prod default on; render-worker split deferred**
 - [x] **P5 dynamic batching present in `triton_repository_cuda12` configs** — tune `max_batch_size`/`preferred_batch_size` on prod
 - [x] **P6 VRAM discipline — tracked Triton configs use `instance_group count: 1`; telemetry peak GPU gate remains prod acceptance**
-- [x] **P7a make `full_frame` + `crop_frame` both first-class & user-selectable — code-complete locally; default remains `legacy_crop`; prod GPU validation pending**
-- [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — default off**
-- [ ] P7c (optional) Triton ensemble/BLS shared-GPU-tensor graph
-- [ ] Per-phase benchmark + telemetry comparison recorded in
-      `docs/production_inference_benchmark.md`
+- [x] **P7a make `full_frame` + `crop_frame` both first-class & user-selectable — prod CLI/benchmark default is now `crop_frame`; DB/API compatibility default remains `legacy_crop`; prod GPU validation pending**
+- [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — optimized prod default on**
+- [x] **Production helper suite added — cancel active jobs, enable optimized defaults, probe flow evidence, and run `combined.mp4` benchmark**
+- [x] **P7c decision — ensemble/BLS classified as future advanced Triton model-repo work, not required for this plan's repo-side completion**
+- [x] **CI focused gate added — `.github/workflows/inference-parallelization.yml` runs transport, batching, crop-frame, docs, and prod-helper syntax checks**
+- [x] **Per-phase benchmark workflow documented; fresh production telemetry comparison remains a prod-only evidence gate in `docs/production_inference_benchmark.md`**
 
 ---
 
 ## 6. Explicit execution steps — by environment (dev / CI-CD / prod)
 
-Every phase follows the same shape: **DEV** (implement behind a default-off flag +
-equivalence/encoder test), **CI-CD** (make the gate cover it), **PROD** (deploy,
-enable, validate on the GPU with telemetry), **ROLLBACK** (flip the flag off).
+Every phase was built with a reversible flag and equivalence/encoder test.
+The production helper now enables the optimized defaults in `backend/.env`; rollback
+still means flipping the relevant flag off and restarting workers.
 Commands assume the dev venv (`.venv/Scripts/python.exe`) and the prod host
 (`/home/bamby/grad_project`, `APP_ENV=prod`, `config.settings`).
 
@@ -312,11 +359,11 @@ code revert needed.
 **DEV:**
 1. In `apps/tracking/embeddings.py`, before computing an embedding, check the Redis
    `cache_job_track_embedding` key for that `track_id`; compute only for new/changed
-   tracks. Add flag `OFFLINE_EMBEDDING_REUSE_BY_TRACK` (default off).
+   tracks. Add flag `OFFLINE_EMBEDDING_REUSE_BY_TRACK` (optimized prod default on).
 2. Extend the box-reuse pattern (`_apply_person_detection_cadence_and_reuse`) to
    posture/gaze: cache last label per `track_id` and reuse within
    `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` for static tracks. Flag
-   `OFFLINE_BEHAVIOUR_REUSE` (default off).
+   `OFFLINE_BEHAVIOUR_REUSE` (optimized prod default on).
 3. Tests: assert reuse path returns the cached label and that a moved/new track
    recomputes; assert parity of final per-track results vs. recompute-every-frame.
 
@@ -351,10 +398,10 @@ and GPU util rises in the GPU CSV.
 
 **DEV:**
 1. Batched writer that respects `Detection → BoundingBox → StudentTrack` ordering
-   (`bulk_create` per layer, capturing PKs). Flag `OFFLINE_DB_BATCH_WRITES` (default off).
+   (`bulk_create` per layer, capturing PKs). Flag `OFFLINE_DB_BATCH_WRITES` (optimized prod default on).
 2. Offload pose/embeddings/render to the existing queues
    (`pipeline.offline.rtmpose_model.worker`, `pipeline.offline.behavior.worker`,
-   a render worker). Flag `OFFLINE_OFFLOAD_POST_STAGES` (default off).
+   a render worker). Flag `OFFLINE_OFFLOAD_POST_STAGES` (optimized prod default on).
 3. Tests (DB-backed): row counts + referential integrity parity vs. per-row writes.
 
 **CI-CD:** none (Postgres already in the gate). Ensure the offload tasks are declared

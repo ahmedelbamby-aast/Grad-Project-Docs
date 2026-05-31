@@ -123,7 +123,7 @@ sequenceDiagram
 
 The following knobs are read by backend runtime configuration and task orchestration code paths.
 
-| Env knob | Runtime default | Where used |
+| Env knob | Optimized production env default | Where used |
 |---|---|---|
 | `TRITON_MODEL_WARMUP_ENABLED` | `false` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_MODEL_WARMUP_ITERATIONS` | `0` | `core.configuration.ModuleConfigLoader` |
@@ -132,19 +132,21 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_RATE_LIMITER_OFFLINE_PRIORITY` | `1` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_PINNED_MEMORY_POOL_BYTES` | `0` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_CUDA_MEMORY_POOL_BYTES` | `0` | `core.configuration.ModuleConfigLoader` |
-| `TRITON_PROTOCOL_PREFERENCE` | `http` | `core.configuration.ModuleConfigLoader` |
+| `TRITON_NOFILE_LIMIT` | `65535` | `tools/prod/prod_start_triton.sh` |
+| `TRITON_LOG_MAX_MIB` | `1024` | `tools/prod/prod_start_triton.sh` |
+| `TRITON_PROTOCOL_PREFERENCE` | `grpc` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_HTTP_ENABLED` | `true` | `core.configuration.ModuleConfigLoader` |
-| `TRITON_GRPC_ENABLED` | `false` | `core.configuration.ModuleConfigLoader` |
+| `TRITON_GRPC_ENABLED` | `true` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_P95_LATENCY_THRESHOLD_MS` | `120.0` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_P99_LATENCY_THRESHOLD_MS` | `220.0` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_FALLBACK_RATE_THRESHOLD` | `0.05` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_ERROR_RATE_THRESHOLD` | `0.03` | `core.configuration.ModuleConfigLoader` |
-| `OFFLINE_DB_BATCH_WRITES` | `false` | `apps.video_analysis.tasks.process_video_upload` |
-| `OFFLINE_DB_BATCH_SIZE` | `500` | `apps.video_analysis.tasks.process_video_upload` |
-| `OFFLINE_OFFLOAD_POST_STAGES` | `false` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
-| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `false` | `apps.video_analysis.tasks.generate_embeddings` |
-| `OFFLINE_BEHAVIOUR_REUSE` | `false` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
-| `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` | `0` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `OFFLINE_DB_BATCH_WRITES` | `true` | `apps.video_analysis.tasks.process_video_upload` |
+| `OFFLINE_DB_BATCH_SIZE` | `1000` | `apps.video_analysis.tasks.process_video_upload` |
+| `OFFLINE_OFFLOAD_POST_STAGES` | `true` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
+| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `true` | `apps.video_analysis.tasks.generate_embeddings` |
+| `OFFLINE_BEHAVIOUR_REUSE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` | `30` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `OFFLINE_BEHAVIOUR_REUSE_IOU_THRESHOLD` | `0.90` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 
 ## 7. Orchestrator Routing References

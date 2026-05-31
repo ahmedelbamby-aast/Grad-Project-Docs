@@ -72,17 +72,22 @@ cd /home/bamby/grad_project
 bash tools/prod/prod_start_celery_workers.sh
 ```
 
-This starts the following detached workers (queue -> concurrency):
+This starts detached workers for the active `TRITON_EXECUTION_MODE` in
+`backend/.env`. Defaults:
 
-- `pipeline.live.control` -> `1`
-- `pipeline.live.person_detector.worker` -> `1`
-- `pipeline.live.rtmpose_model.worker` -> `1`
-- `pipeline.live.behavior.worker` -> `1`
-- `video_inference` (offline control alias) -> `2`
-- `pipeline.offline.person_detector.worker` -> `2`
-- `pipeline.offline.rtmpose_model.worker` -> `2`
-- `pipeline.offline.behavior.worker` -> `2`
-- `default` -> `1`
+- always: `default` -> `2`
+- live mode: `pipeline.live.control`, `pipeline.live.person_detector.worker`,
+  `pipeline.live.rtmpose_model.worker`, `pipeline.live.behavior.worker` -> `2` each
+- offline mode: `video_inference`, `pipeline.offline.person_detector.worker`,
+  `pipeline.offline.rtmpose_model.worker`, `pipeline.offline.behavior.worker` -> `4` each
+
+The launcher reads worker time limits, concurrency, and guardrails from `backend/.env`
+(`CELERY_TASK_SOFT_TIME_LIMIT`, `CELERY_TASK_TIME_LIMIT`,
+`CELERY_MAX_TASKS_PER_CHILD`, `CELERY_GPU_CONCURRENCY_CAP`,
+`CELERY_NOFILE_LIMIT`, `CELERY_DEFAULT_WORKER_CONCURRENCY`,
+`CELERY_LIVE_WORKER_CONCURRENCY`, `CELERY_OFFLINE_WORKER_CONCURRENCY`) with
+shell environment variables taking precedence.
+Run `prod_stop_celery_workers.sh` before every restart to remove stale children.
 
 Wave 2 queue governance notes:
 - active/inactive control routing is resolved from `apps.pipeline.queue_routes`
@@ -106,7 +111,7 @@ Celery dispatch path used by the frontend:
   -VideoPath "/home/bamby/grad_project/Raw Data/<video>.mp4" `
   -ActorUsername "<teacher-or-admin-user>" `
   -RuntimeProfile offline `
-  -PipelineMode full_frame `
+  -PipelineMode crop_frame `
   -ReplayKey "acceptance:<video>:v1" `
   -Wait `
   -OutputPath "/home/bamby/grad_project/ci_evidence/production/runtime/runtime_ingest_summary.json"
@@ -116,6 +121,46 @@ The command stores the video by invoking `VideoAnalysisJobListCreateView` and
 lets `_enqueue_process_video_upload` choose the governed Celery queue. It does
 not call the inference task inline. Use an existing teacher/admin account and
 the active `offline` runtime profile.
+Supported pipeline modes are `legacy_crop`, `full_frame`, and `crop_frame`.
+
+For one-shot benchmark runs with GPU telemetry:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_benchmark.sh --pipeline-mode crop_frame --timeout 14400
+```
+
+## 2.2) Optimized parallel-flow benchmark helpers
+
+For the production parallelization run, use the chained helper. It cancels active
+jobs, enables the optimized `backend/.env` defaults, restarts Triton/workers,
+probes the flow, runs the benchmark, and probes the resulting job:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_parallel_flow_benchmark.sh
+```
+
+Default target:
+
+- video: `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
+- pipeline mode: `crop_frame`
+- timeout: `7200`
+
+Individual helper scripts:
+
+```bash
+bash tools/prod/prod_cancel_video_jobs.sh --all-active
+bash tools/prod/prod_enable_parallel_flow.sh
+bash tools/prod/prod_parallel_flow_probe.sh --watch 30
+```
+
+For DB-backed progress on the subjective `all_merged.mp4` run:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_check_subjective_progress.sh --watch 30
+```
 
 ## 3) Stop all queue workers started by this repo
 

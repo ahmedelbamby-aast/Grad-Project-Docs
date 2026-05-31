@@ -29,22 +29,46 @@ This file defines how agents should execute tests quickly and safely in this rep
 <!-- SPECKIT END -->
 
 ## ⭐ Highest-Priority Plan — Inference Pipeline Parallelization
-- **This is the current top-priority engineering plan for the project.**
+- **This remains the top-priority runtime/performance plan, but the repo-side
+  implementation is now signed complete as of 2026-05-31.**
 - Plan: [docs/inference_parallelization_plan.md](docs/inference_parallelization_plan.md)
 - Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
   throughput from single-digit fps toward 100+ fps, every phase measured by the
   telemetry layer and shipped behind a flag with fallback.
 - Diagrams: README → *Triton Model Inference End to End lifecycle (Sequential Order)*
   (current) and *Triton Model Inference End to End (Parallel)* (target).
-- Status: **Phases 1b, 2, 4 (throttle), 5 done.** 1b concurrent model dispatch
-  (`TRITON_CONCURRENT_MODELS`, VRAM-bounded); 2 pipeline overlap
-  (`TRITON_OFFLINE_PIPELINE_OVERLAP`, producer/consumer); 4 progress-throttle
-  (`OFFLINE_PROGRESS_UPDATE_EVERY_N`); 5 dynamic batching already in
-  `triton_repository_cuda12` configs. All flag-gated (default off/unchanged),
-  equivalence-tested. Designed/next (need prod-GPU or model work, not shipped blind):
-  Phase 1a binary tensors, Phase 3 gRPC, Phase 4 FK-safe batched writer + offload,
-  Phase 7 ROI/Triton-ensemble. See the plan's "Implementation status & validation
-  boundary" table.
+- Status: **Repo implementation complete; production benchmark certification
+  pending.** Implemented and flag-gated: P1a binary tensors
+  (`TRITON_BINARY_TENSORS`), P1b concurrent model dispatch
+  (`TRITON_CONCURRENT_MODELS`, VRAM-bounded), P2 pipeline overlap
+  (`TRITON_OFFLINE_PIPELINE_OVERLAP`), P3 gRPC transport
+  (`TRITON_PROTOCOL_PREFERENCE=grpc`, fixed request-timeout type bug), P4 progress
+  throttle + batched DB writer/offload (`OFFLINE_PROGRESS_UPDATE_EVERY_N`,
+  `OFFLINE_DB_BATCH_WRITES`, `OFFLINE_OFFLOAD_POST_STAGES`), P5 dynamic batching
+  in tracked Triton configs, P6 VRAM/process discipline, P7a first-class
+  `full_frame`/`crop_frame`, and P7b embedding/behaviour reuse. P7c Triton
+  ensemble/BLS is classified as future advanced model-repository work, not a
+  blocker for this plan's application implementation.
+- Workflow: `.github/workflows/inference-parallelization.yml` is the focused local
+  gate for this plan. It runs transport/config/crop-frame/batch-queue/docs checks
+  and shell syntax checks for production helpers.
+- Optimized production defaults are now applied through
+  `tools/prod/prod_enable_parallel_flow.sh` and chained by
+  `tools/prod/prod_run_parallel_flow_benchmark.sh`. The active benchmark default
+  is `crop_frame` on
+  `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
+  with gRPC, binary tensors, concurrent model dispatch, pipeline overlap, batched
+  DB writes, post-stage offload, embedding reuse, and behaviour reuse enabled in
+  `backend/.env`.
+- Production hardening from the failed `all_merged.mp4` subjective run is now part
+  of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
+  `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
+  (default `1024`); `prod_start_celery_workers.sh` reads worker time limits,
+  worker concurrency, and guardrails from `backend/.env`; `prod_cancel_video_jobs.sh`
+  stops old active jobs before a new benchmark; `prod_parallel_flow_probe.sh`
+  verifies env/runtime/DB/model-call telemetry; `prod_run_benchmark.sh` accepts
+  `--pipeline-mode`; `prod-runtime-ingest-video.ps1` accepts `crop_frame`; and
+  `prod_check_subjective_progress.sh` provides DB-backed progress/ETA.
 - Agents must treat this plan as the priority for runtime/inference work and update
   its task checklist + `docs/production_inference_benchmark.md` after each phase.
 
@@ -371,6 +395,45 @@ and pushed as `f878620`. Both prod and local now accept values up to 32.
 If you add `PYRAMID_WORKER_COUNT` to `.env` and workers crash immediately,
 check the Celery log at `backend/logs/celery_*.log` for `ValidationError`
 before assuming a runtime or import problem.
+
+---
+
+### Issue 5 — Triton Log Exhaustion + Low File-Descriptor Limit
+
+**Symptom:**
+- `backend/logs/triton.log` grows without bound and fills `/`.
+- PostgreSQL enters recovery mode after disk exhaustion.
+- Triton holds GPU memory but reports near-zero GPU utilization while CPU spins.
+- Triton log contains repeated:
+```
+[warn] Error from accept() call: Too many open files
+```
+
+**Root cause:**
+Triton inherited a low `nofile` soft limit (`1024`) and then repeatedly logged
+accept failures. In the `all_merged.mp4` subjective run this produced a
+~193 GiB `triton.log`, exhausted the root filesystem, and caused the job to fail
+with `reconciled_stale_processing_state`.
+
+**Fix applied (permanent repo-side):**
+- `tools/prod/prod_start_triton.sh` reads `TRITON_NOFILE_LIMIT` from
+  `backend/.env` and defaults to `65535`.
+- `tools/prod/prod_start_triton.sh` reads `TRITON_LOG_MAX_MIB` from `backend/.env`
+  and truncates an oversized `backend/logs/triton.log` to the last 5000 lines
+  before launching Triton.
+- `tools/prod/prod_disk_cleanup.sh --delete` remains the manual cleanup tool while
+  services are running.
+
+**Rule for future agents:**
+Before long offline benchmarks, check:
+```bash
+df -h /home/bamby/grad_project
+pid=$(cat /home/bamby/grad_project/backend/logs/triton.pid)
+grep 'Max open files' /proc/$pid/limits
+du -h /home/bamby/grad_project/backend/logs/triton.log
+```
+Do not accept production evidence from a run that occurred while disk was full,
+PostgreSQL was in recovery, or Triton was at its file-descriptor limit.
 
 ---
 
