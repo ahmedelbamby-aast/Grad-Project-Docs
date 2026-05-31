@@ -118,6 +118,14 @@ This file defines how agents should execute tests quickly and safely in this rep
   worker RSS high-water growth (~33 GiB by `50/4541`), so
   `OFFLINE_TRIM_PROCESS_MEMORY=1` now calls Python GC + Linux `malloc_trim(0)`
   after each offline frame batch to return freed NumPy/gRPC buffers to the OS.
+  The trim-enabled run
+  `parallel-per-frame-signals-trim-crop-frame-20260531T223309` (job
+  `a6a06fd6-97e8-4a82-b1ef-2b9fe132d667`) was cancelled at `75/4541` after RSS
+  still climbed to ~37 GiB. Follow-up implementation keeps one job-scoped
+  async/gRPC event loop for all offline Triton calls and replaces crop-frame
+  full-history tracking rescans with incremental tracking; sparse person-box
+  reuse now preserves assigned track IDs while behaviour/gaze predictions remain
+  fresh per frame.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

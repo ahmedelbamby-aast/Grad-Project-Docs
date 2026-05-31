@@ -91,6 +91,15 @@ Completion scope:
   `100/4541` when RSS climbed to ~49 GiB and the crop fanout remained CPU-bound;
   follow-up implementation batches same-model crop requests and scopes gRPC
   client reuse to each dispatch window.
+- Trim-enabled production run started 2026-05-31 22:33 EEST:
+  replay key `parallel-per-frame-signals-trim-crop-frame-20260531T223309`, job
+  `a6a06fd6-97e8-4a82-b1ef-2b9fe132d667`. It preserved the per-frame-signal
+  contract and one-active-job guard, but was cancelled at `75/4541` frames after
+  worker RSS climbed to ~37 GiB and throughput stayed near `0.4 fps`. Follow-up
+  implementation keeps one async/gRPC event loop for the whole offline job
+  instead of creating/closing gRPC channels every frame, and replaces crop-frame's
+  history-wide tracking recomputation with incremental tracking plus tracked
+  person-box cache refresh for sparse-detection reuse.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
@@ -106,7 +115,7 @@ complete from a non-GPU environment.
 
 | Phase | State | Notes |
 |---|---|---|
-| 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`; optimized prod default `1`) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
+| 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`; optimized prod default `1`) | equivalence unit-tested; dispatch now runs on a job-scoped async/gRPC loop to avoid per-frame channel churn; speedup/VRAM to be confirmed on prod GPU |
 | 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`; optimized prod default `25`) | first/last frame still persisted |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
 | 5a true client-side batch requests | **Implemented** (`TRITON_TRUE_BATCH_REQUESTS`; optimized prod default `1`) | same-model crop tensors stack into one Triton request, capped by `TRITON_MODEL_BATCH_SIZE_OVERRIDES`, then split back to per-crop responses |
@@ -160,6 +169,9 @@ Each phase is independently shippable, flag-gated, reversible, and A/B-measurabl
   a **single event loop** via `asyncio.gather`, mapping results back per task
   (person_detection keeps its detect-cadence index map). Falls back to the
   sequential loop on any error.
+  - 2026-05-31 hardening: the offline Triton path now owns one job-scoped async
+    loop for all gRPC calls, so the crop-frame hot loop reuses one transport
+    channel instead of creating/closing gRPC channels every frame.
   - Flag: `TRITON_CONCURRENT_MODELS` (default **off** until validated on the prod GPU).
   - **VRAM guard:** the global `TRITON_MAX_INFLIGHT_REQUESTS` budget is split across
     active models (`per_model_conc = max_inflight // n_models`), so client-side
@@ -355,6 +367,7 @@ ground truth after each phase.
 - [x] **P5a true Triton request batching (`TRITON_TRUE_BATCH_REQUESTS`) — crop fanout now stacks same-model crops into model-capped batch requests before splitting responses**
 - [x] **P6 VRAM discipline — tracked Triton configs use `instance_group count: 1`; telemetry peak GPU gate remains prod acceptance**
 - [x] **P7a make `full_frame` + `crop_frame` both first-class & user-selectable — prod CLI/benchmark default is now `crop_frame`; DB/API compatibility default remains `legacy_crop`; prod GPU validation pending**
+- [x] **P7a crop-frame tracking hot path — incremental tracking replaces full-history `_assign_tracking_ids(all_frames)` rescans; sparse person-box reuse now preserves assigned track IDs**
 - [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — implemented, optional, not the default for per-frame-signal runs**
 - [x] **Production helper suite added — cancel active jobs, enable optimized defaults, probe flow evidence, verify per-frame signals, and run `combined.mp4` benchmark**
 - [x] **P7c decision — ensemble/BLS classified as future advanced Triton model-repo work, not required for this plan's repo-side completion**
