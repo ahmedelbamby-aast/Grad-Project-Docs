@@ -75,8 +75,10 @@ This file defines how agents should execute tests quickly and safely in this rep
   `17518cbe-c320-4880-8265-62df0add1ae3`, log
   `backend/logs/parallel_flow_parallel-crop-frame-20260531T203638.log`.
   Memory is bounded compared with the prior attempt (~20-26 GB RSS observed),
-  but GPU utilization samples remain near 0%; treat this as diagnostic until it
-  completes and the bottleneck is reviewed.
+  but GPU utilization samples remained near 0% and progress stalled at the next
+  crop batch. The run was cancelled at `25/4541`; optimized crop-frame defaults
+  now set `OFFLINE_DETECT_EVERY_N_FRAMES=5` so every frame still receives output
+  while person-box and behaviour reuse reduce repeated model calls.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

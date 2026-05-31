@@ -369,7 +369,7 @@ Initial production execution:
 |---|---|---|---|
 | 2026-05-31 20:26 EEST | `parallel-crop-frame-20260531T202607` | `22b6d969-5789-4c53-a6e0-da63d9c10cc5` | Failed before inference because `TRITON_LIVE_URL` pointed at inactive `39000`; fixed in commit `9ed0a922`. |
 | 2026-05-31 20:28 EEST | `parallel-crop-frame-20260531T202819` | `5801ef31-050f-4e20-a58e-d98122c5e920` | Cancelled by operator at `50/4541` frames after the active crop-frame worker reached ~100 GB RSS. Root cause: `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=16` retained too many frames of person crops/responses in one crop-frame batch. Follow-up default changed to `1`, keeping batching inside each frame's person crops while bounding memory. |
-| 2026-05-31 20:36 EEST | `parallel-crop-frame-20260531T203638` | `17518cbe-c320-4880-8265-62df0add1ae3` | Running with `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1`. First probe showed bounded worker RSS around 20-26 GB, optimized env active, and model-call telemetry present. Throughput remained CPU-bound and GPU samples were near 0%, so this is a live diagnostic benchmark, not acceptance evidence yet. |
+| 2026-05-31 20:36 EEST | `parallel-crop-frame-20260531T203638` | `17518cbe-c320-4880-8265-62df0add1ae3` | Cancelled at `25/4541` frames. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1` bounded memory better than the previous run, but `OFFLINE_DETECT_EVERY_N_FRAMES=1` kept crop-frame CPU-bound and prevented reuse from reducing model calls. Follow-up default changed to `OFFLINE_DETECT_EVERY_N_FRAMES=5` so every frame still gets output while person boxes and behaviour outputs can be reused between inference frames. |
 
 ### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
 
