@@ -86,7 +86,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   in the default profile because every frame must carry fresh current-frame
   signal predictions. Follow-up optimization skips full-frame tensor
   build/serialization on non-detection frames in `crop_frame`, keeping only the
-  original pixels needed for current-frame crop inference.
+  original pixels needed for current-frame crop inference, and avoids the generic
+  `FrameCropper` PNG encode path in favor of direct bounded `xyxy` slicing.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
