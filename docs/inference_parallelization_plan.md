@@ -104,6 +104,9 @@ Completion scope:
   `TRITON_YOLO_MAX_DECODE_CANDIDATES=100` before NMS. This preserves the
   highest-confidence candidate set while preventing low-confidence raw anchors
   from making crop-frame NMS dominate one CPU core on dense classroom frames.
+  Production probe `parallel-per-frame-signals-nms100-crop-frame-20260531T230706`
+  reached `425/4541` frames with a 120-second window of `1.042 fps`, overall
+  `1.000 fps`, and worker RSS near ~1.6 GiB.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
