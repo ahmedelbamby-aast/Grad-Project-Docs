@@ -88,6 +88,13 @@ This file defines how agents should execute tests quickly and safely in this rep
   build/serialization on non-detection frames in `crop_frame`, keeping only the
   original pixels needed for current-frame crop inference, and avoids the generic
   `FrameCropper` PNG encode path in favor of direct bounded `xyxy` slicing.
+- Active per-frame-signal production run (started 2026-05-31 21:39 EEST):
+  replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
+  `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`, log
+  `backend/logs/parallel_flow_parallel-per-frame-signals-crop-frame-20260531T213945.log`.
+  First 60-second probe showed `25/4541` frames, window throughput `0.400 fps`,
+  `frame_signal_contract=per_frame_signals_with_person_box_reuse`, GPU sample
+  up to `62%`, and DB frame rows pending until Step 3 persistence.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

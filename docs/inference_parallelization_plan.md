@@ -66,6 +66,13 @@ Completion scope:
   the generic `FrameCropper` PNG encode path and builds crop tensors directly
   from bounded `xyxy` slices. `--profile max-throughput` is retained for old
   behaviour-reuse benchmarks.
+- Active production run started 2026-05-31 21:39 EEST:
+  replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
+  `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`. The run is using commit `a1770e5f`
+  and the `per-frame-signals` profile. First probe: `25/4541` frames,
+  `window_fps=0.400`, `frame_signal_contract=per_frame_signals_with_person_box_reuse`,
+  GPU utilization sample `62%`, and `contract_status=pending_persistence`
+  because DB `Frame`/`Detection` rows are written in Step 3 after frame inference.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
