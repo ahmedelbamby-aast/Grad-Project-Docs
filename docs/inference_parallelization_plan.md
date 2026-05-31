@@ -256,3 +256,139 @@ ground truth after each phase.
 - [ ] P7c (optional) Triton ensemble/BLS shared-GPU-tensor graph
 - [ ] Per-phase benchmark + telemetry comparison recorded in
       `docs/production_inference_benchmark.md`
+
+---
+
+## 6. Explicit execution steps — by environment (dev / CI-CD / prod)
+
+Every phase follows the same shape: **DEV** (implement behind a default-off flag +
+equivalence/encoder test), **CI-CD** (make the gate cover it), **PROD** (deploy,
+enable, validate on the GPU with telemetry), **ROLLBACK** (flip the flag off).
+Commands assume the dev venv (`.venv/Scripts/python.exe`) and the prod host
+(`/home/bamby/grad_project`, `APP_ENV=prod`, `config.settings`).
+
+### Phase 7a — `full_frame` + `crop_frame` both first-class (NO retraining)
+
+**DEV (local):**
+1. Read the legacy path end-to-end first: `apps/pipeline/cropper.py::FrameCropper`,
+   `apps/tracking/pipeline_mode.py::normalize_pipeline_mode`,
+   `_resolve_upload_pipeline_executor` and the `legacy_crop` branch in
+   `apps/video_analysis/tasks.py` (around line 2293+). Confirm whether `legacy_crop`
+   currently routes to Triton or the local Ultralytics `model.track(...)` path.
+2. Add a crop-frame inference function that mirrors `_run_triton_frame_level_inference`
+   but, after person detection, crops each person (reuse `FrameCropper` / `boxes.xyxy`)
+   and dispatches the **crop tensors** to posture/gaze/pose through the **same**
+   `_process_batch_items` / batch queue. Crops use the model's native input size
+   (e.g. rtmpose 256×192) instead of 640×640.
+3. Make **every** optimisation flag apply under both modes (they read `settings`,
+   so they already will once the crop path calls the shared dispatch): verify
+   `TRITON_BINARY_TENSORS`, `TRITON_CONCURRENT_MODELS`, `TRITON_OFFLINE_PIPELINE_OVERLAP`,
+   `OFFLINE_PROGRESS_UPDATE_EVERY_N`, and telemetry record_frame/record_model_call
+   fire on the crop path too.
+4. Expose the choice: keep `--pipeline-mode {legacy_crop,full_frame}` in
+   `runtime_ingest_video`; surface `pipeline_mode` in the job-create serializer/API
+   (`apps/video_analysis/views.py`, `serializers`) and the SPA upload form so the
+   **user** selects it. Default stays `legacy_crop` (existing default).
+5. Tests (`backend/tests/unit/video_analysis/`): equivalence per mode — run a tiny
+   mock-orchestrator job in `full_frame` and `crop_frame`; assert each produces the
+   expected detections and that flags on==off behaviour holds under both. Run:
+   `.venv/Scripts/python.exe -m pytest tests/unit/video_analysis -q`.
+
+**CI-CD:** no workflow change needed — new tests auto-run under `tests/unit/`. The
+crop path must NOT require model artifacts in unit tests (mock the orchestrator);
+any test that needs real models gets `@pytest.mark.model_artifacts` (excluded from
+the gate). `manage.py check` + docs gate already wired.
+
+**PROD:** `git pull`; pick mode per job via `--pipeline-mode`. No new `.env` flag is
+required (mode lives on the job). Validate **both** modes with
+`tools/prod/prod_run_benchmark.sh` (add a `--pipeline-mode` pass-through) and compare
+`telemetry_sessions` p95 latency + `peak_gpu_memory_mb` between modes.
+
+**ROLLBACK:** set the job's `pipeline_mode` back to `legacy_crop`/`full_frame`; no
+code revert needed.
+
+### Phase 7b — temporal reuse (embeddings per new track, behaviour reuse)
+
+**DEV:**
+1. In `apps/tracking/embeddings.py`, before computing an embedding, check the Redis
+   `cache_job_track_embedding` key for that `track_id`; compute only for new/changed
+   tracks. Add flag `OFFLINE_EMBEDDING_REUSE_BY_TRACK` (default off).
+2. Extend the box-reuse pattern (`_apply_person_detection_cadence_and_reuse`) to
+   posture/gaze: cache last label per `track_id` and reuse within
+   `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` for static tracks. Flag
+   `OFFLINE_BEHAVIOUR_REUSE` (default off).
+3. Tests: assert reuse path returns the cached label and that a moved/new track
+   recomputes; assert parity of final per-track results vs. recompute-every-frame.
+
+**CI-CD:** none (unit tests auto-run). DB-backed reuse tests run in the gate (Postgres
+present); Redis-dependent assertions use the LocMemCache test default or fakeredis.
+
+**PROD:** `git pull`; `echo 'OFFLINE_EMBEDDING_REUSE_BY_TRACK=1' >> backend/.env`,
+`echo 'OFFLINE_BEHAVIOUR_REUSE=1' >> backend/.env`; restart workers; benchmark and
+confirm detection/track parity + lower CPU.
+
+### Phase 3 — gRPC transport
+
+**DEV:**
+1. Add a gRPC client path in `apps/pipeline/services/triton_client.py` using
+   `tritonclient.grpc.aio` (add the dep to `backend/requirements.txt`), selected by
+   `TRITON_PROTOCOL_PREFERENCE=grpc` / `TRITON_GRPC_ENABLED` (already in base/.env).
+   Reuse `_resolve_io_spec`; binary tensors are native to gRPC.
+2. Keep HTTP as the automatic fallback if gRPC connect/infer fails.
+3. Tests: unit-test request construction for gRPC (mock stub); `manage.py check`.
+
+**CI-CD:** add `tritonclient[grpc]` to the installed deps so import-time paths are
+covered; gRPC is import-guarded so the gate (no Triton) still passes. No service needed.
+
+**PROD:** `git pull`; ensure gRPC port reachable (`curl`/`grpcurl` to 39101);
+`echo 'TRITON_PROTOCOL_PREFERENCE=grpc' >> backend/.env`; restart workers; benchmark.
+**This is the main RTT-bound win** — confirm `mean_rtt_per_model_ms` drops sharply
+and GPU util rises in the GPU CSV.
+
+**ROLLBACK:** `TRITON_PROTOCOL_PREFERENCE=http`; restart workers.
+
+### Phase 4 (remaining) — FK-safe batched writer + offload
+
+**DEV:**
+1. Batched writer that respects `Detection → BoundingBox → StudentTrack` ordering
+   (`bulk_create` per layer, capturing PKs). Flag `OFFLINE_DB_BATCH_WRITES` (default off).
+2. Offload pose/embeddings/render to the existing queues
+   (`pipeline.offline.rtmpose_model.worker`, `pipeline.offline.behavior.worker`,
+   a render worker). Flag `OFFLINE_OFFLOAD_POST_STAGES` (default off).
+3. Tests (DB-backed): row counts + referential integrity parity vs. per-row writes.
+
+**CI-CD:** none (Postgres already in the gate). Ensure the offload tasks are declared
+on mode/stage queues per the constitution (live/offline separation).
+
+**PROD:** `git pull`; enable the two flags; restart workers (the offload queues must
+have running workers — they already start via `prod_start_celery_workers.sh`); benchmark.
+
+### Phase 6 — VRAM discipline (Triton config tuning)
+
+**DEV/REPO:** edit `backend/models/triton_repository_cuda12/*/config.pbtxt`: confirm
+`instance_group { count: 1 }` unless GPU headroom is proven (person_detector is
+currently `count: 2`), and raise `max_batch_size`/`preferred_batch_size` only to a
+value the `.plan` engine's profile supports (engines built `[1,8,32]`).
+
+**CI-CD:** none.
+
+**PROD:** copy updated `config.pbtxt` to the prod model repo; **reload Triton**
+(`bash -l tools/prod/prod_start_triton.sh`); wait for READY; benchmark and watch
+`peak_gpu_memory_mb` (must stay within budget) and `avg_util`.
+
+**ROLLBACK:** restore the previous `config.pbtxt` and reload Triton.
+
+### Phase 7c (optional) — Triton ensemble / BLS
+
+**DEV/REPO:** author an `ensemble` model (`platform: "ensemble"` + `ensemble_scheduling`)
+plus a Python **BLS** backend for the crop step
+(`preprocess → person_detector → crop → {posture, gaze×3, rtmpose}`) under the model
+repository. No retraining — same engines.
+
+**CI-CD:** none (graph lives in the model repo, validated on prod).
+
+**PROD:** deploy the ensemble dir to `triton_repository_cuda12`; reload Triton;
+route the offline path to call the single ensemble model; benchmark — target one
+network call per frame and a large GPU-util jump.
+
+**ROLLBACK:** route back to per-model calls; the ensemble model can stay loaded but unused.
