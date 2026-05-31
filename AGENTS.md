@@ -66,7 +66,10 @@ This file defines how agents should execute tests quickly and safely in this rep
   `backend/logs/parallel_flow_parallel-crop-frame-20260531T202819.log`.
   First probe showed status `processing`, `25/4541` frames, 30-second window
   throughput `0.800 fps`, gRPC model-call telemetry present, and max effective
-  batch size `4`. This is still running and is not final acceptance evidence.
+  batch size `4`. This run was cancelled at `50/4541` frames because the active
+  crop-frame worker reached ~100 GB RSS. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES`
+  is now set to `1` for optimized crop-frame production runs to bound retained
+  person-crop payloads and response lists.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

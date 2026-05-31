@@ -40,7 +40,10 @@ Completion scope:
   replay key `parallel-crop-frame-20260531T202819`, job
   `5801ef31-050f-4e20-a58e-d98122c5e920`. First probe confirmed optimized
   env/runtime flags active, Triton HTTP+gRPC ready, and model-call telemetry
-  arriving. This is a running benchmark, not final acceptance evidence yet.
+  arriving. The run was cancelled at `50/4541` frames because the worker reached
+  ~100 GB RSS with `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=16`; the optimized
+  crop-frame default is now `1` so batches are bounded by one frame's person
+  crops instead of many frames of crops/responses.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
