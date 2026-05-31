@@ -291,6 +291,47 @@ RTX 5090 actual GPU compute per batch: **<5 ms**.
 
 ---
 
+## 6.1 Phase 7a Crop-Frame Mode Status
+
+**Recorded:** 2026-05-31
+**Status:** code-complete locally; production RTX 5090 benchmark pending.
+
+`crop_frame` is now a first-class upload/CLI/frontend mode. It keeps the default
+unchanged (`legacy_crop`) and runs Triton `person_detection` first, crops each
+detected person with `FrameCropper`, then sends crop tensors for posture/gaze
+through the same frame-batch dispatch helper used by `full_frame`. The existing
+optimization controls still govern the path:
+
+| Control | Default | Crop-frame behavior |
+|---|---|---|
+| `TRITON_BINARY_TENSORS` | off | crop tensors use the same binary/JSON payload branch |
+| `TRITON_CONCURRENT_MODELS` | off | secondary crop tasks use the shared concurrent dispatch helper |
+| `TRITON_OFFLINE_PIPELINE_OVERLAP` | off | decode/preprocess overlap remains the outer frame producer path |
+| `OFFLINE_PROGRESS_UPDATE_EVERY_N` | 1 | progress throttle remains in the shared Triton callback path |
+
+Production validation must compare `legacy_crop`, `full_frame`, and `crop_frame`
+with fresh runs and telemetry before any throughput or GPU-utilization claim.
+
+---
+
+## 6.2 Remaining Parallelization Phases Status
+
+**Recorded:** 2026-05-31
+**Status:** code-complete locally; production RTX 5090 benchmark pending.
+
+| Phase | Local implementation | Default | Production validation |
+|---|---|---|---|
+| P3 gRPC transport | `TritonClient` can use `tritonclient.grpc` and falls back to HTTP on gRPC failure | HTTP | Validate `TRITON_GRPC_URL`/39101 readiness and compare RTT |
+| P4 batched writer | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes with per-row fallback | off | Compare DB time and row counts |
+| P4 post-stage offload | `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages out of inline execution | off | Confirm worker routing and lifecycle completion |
+| P6 VRAM discipline | tracked Triton configs use single GPU instance per model | count 1 | Reload Triton and gate on `peak_gpu_memory_mb` |
+| P7b temporal reuse | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` and `OFFLINE_BEHAVIOUR_REUSE` reuse cached track state | off | Compare per-track parity and lower CPU/model calls |
+
+No production throughput, GPU-utilization, or p95-latency improvement is claimed
+until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
+
+---
+
 ## 7. Tools Added During This Session
 
 | Script | Purpose |
