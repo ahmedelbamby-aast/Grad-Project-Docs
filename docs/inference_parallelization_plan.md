@@ -66,8 +66,11 @@ Completion scope:
   the generic `FrameCropper` PNG encode path and builds crop tensors directly
   from bounded `xyxy` slices. After observing >100 GB RSS in a dense crop fanout
   frame, `TRITON_NUMPY_OUTPUTS=1` keeps gRPC YOLO outputs as NumPy arrays until
-  decode instead of materializing large Python lists. `--profile max-throughput`
-  is retained for old behaviour-reuse benchmarks.
+  decode instead of materializing large Python lists. The next crop-fanout fix
+  adds `TRITON_TRUE_BATCH_REQUESTS=1`: same-model crop tensors are stacked into
+  one Triton request up to model caps from `TRITON_MODEL_BATCH_SIZE_OVERRIDES`,
+  then split back into per-crop responses. `--profile max-throughput` is retained
+  for old behaviour-reuse benchmarks.
 - Active production run started 2026-05-31 21:39 EEST:
   replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
   `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`. The run is using commit `a1770e5f`
@@ -80,7 +83,10 @@ Completion scope:
   `parallel-per-frame-signals-crop-frame-20260531T214740`, job
   `e8071c5a-8fb7-4c23-882d-621f8469c097`. First probe: `25/4541`,
   `window_fps=0.400`, `TRITON_NUMPY_OUTPUTS=True`, and active worker RSS near
-  12 GiB instead of the previous >100 GiB spike.
+  12 GiB instead of the previous >100 GiB spike. The run was cancelled at
+  `100/4541` when RSS climbed to ~49 GiB and the crop fanout remained CPU-bound;
+  follow-up implementation batches same-model crop requests and scopes gRPC
+  client reuse to each dispatch window.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
@@ -99,6 +105,7 @@ complete from a non-GPU environment.
 | 1b concurrent models | **Implemented** (flag `TRITON_CONCURRENT_MODELS`; optimized prod default `1`) | equivalence unit-tested; speedup/VRAM to be confirmed on prod GPU |
 | 4 DB progress throttle | **Implemented** (`OFFLINE_PROGRESS_UPDATE_EVERY_N`; optimized prod default `25`) | first/last frame still persisted |
 | 5 dynamic batching | **Already present** in `triton_repository_cuda12/*/config.pbtxt` (`dynamic_batching` + `instance_group`) | tune `max_batch_size`/`preferred_batch_size` on prod |
+| 5a true client-side batch requests | **Implemented** (`TRITON_TRUE_BATCH_REQUESTS`; optimized prod default `1`) | same-model crop tensors stack into one Triton request, capped by `TRITON_MODEL_BATCH_SIZE_OVERRIDES`, then split back to per-crop responses |
 | 1a binary tensors | **Implemented** (flag `TRITON_BINARY_TENSORS`; optimized prod default `1`) | encoder unit-tested; client auto-falls back to JSON on a binary error |
 | 2 pipeline overlap | **Implemented** (flag `TRITON_OFFLINE_PIPELINE_OVERLAP`; optimized prod default `1`) | producer thread does decode+preprocess; main thread dispatches; equivalence-tested |
 | 3 gRPC transport | **Implemented and bug-fixed (optimized prod default `grpc`, HTTP fallback retained; prod validation pending)** | request timeout is sent as int microseconds and client deadline as seconds |
@@ -116,7 +123,7 @@ application implementation.
 | Stage | Concurrent today? | Evidence |
 |---|---|---|
 | Frame **decode** | ✅ yes | `FrameReadPipeline` background thread |
-| **Frames within one model** | ✅ yes | `InferenceOrchestrator.run_inference_batch` → `asyncio.gather` + `max_concurrency` semaphore over `httpx.AsyncClient` |
+| **Frames/crops within one model** | ✅ yes | `InferenceOrchestrator.run_inference_batch` uses true batched Triton requests when `TRITON_TRUE_BATCH_REQUESTS=1`, otherwise bounded async per-item dispatch |
 | **Across the 5–6 models** | ✅ enabled in optimized prod env | `TRITON_CONCURRENT_MODELS=1` dispatches task groups through shared `asyncio.gather`; HTTP fallback remains available |
 | **Across frame-batches** | ✅ opt-in overlap | `TRITON_OFFLINE_PIPELINE_OVERLAP=1` runs decode/preprocess for batch K+1 while batch K dispatches/postprocesses; final persistence remains ordered |
 | Transport | ✅ gRPC in optimized prod env / HTTP fallback | `TRITON_PROTOCOL_PREFERENCE=grpc` + `TRITON_GRPC_ENABLED=1`; HTTP fallback retained |
@@ -341,6 +348,7 @@ ground truth after each phase.
 - [x] **P4 throttled progress writes (`OFFLINE_PROGRESS_UPDATE_EVERY_N`) — optimized prod default `25`**
 - [x] **P4 batched detection writer (`OFFLINE_DB_BATCH_WRITES`) + existing follow-up offload (`OFFLINE_OFFLOAD_POST_STAGES`) — optimized prod default on; render-worker split deferred**
 - [x] **P5 dynamic batching present in `triton_repository_cuda12` configs** — tune `max_batch_size`/`preferred_batch_size` on prod
+- [x] **P5a true Triton request batching (`TRITON_TRUE_BATCH_REQUESTS`) — crop fanout now stacks same-model crops into model-capped batch requests before splitting responses**
 - [x] **P6 VRAM discipline — tracked Triton configs use `instance_group count: 1`; telemetry peak GPU gate remains prod acceptance**
 - [x] **P7a make `full_frame` + `crop_frame` both first-class & user-selectable — prod CLI/benchmark default is now `crop_frame`; DB/API compatibility default remains `legacy_crop`; prod GPU validation pending**
 - [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — implemented, optional, not the default for per-frame-signal runs**

@@ -45,7 +45,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   (`TRITON_PROTOCOL_PREFERENCE=grpc`, fixed request-timeout type bug), P4 progress
   throttle + batched DB writer/offload (`OFFLINE_PROGRESS_UPDATE_EVERY_N`,
   `OFFLINE_DB_BATCH_WRITES`, `OFFLINE_OFFLOAD_POST_STAGES`), P5 dynamic batching
-  in tracked Triton configs, P6 VRAM/process discipline, P7a first-class
+  in tracked Triton configs plus true client-side request batching
+  (`TRITON_TRUE_BATCH_REQUESTS`, model caps via
+  `TRITON_MODEL_BATCH_SIZE_OVERRIDES`), P6 VRAM/process discipline, P7a first-class
   `full_frame`/`crop_frame`, and P7b optional embedding/behaviour reuse. P7c Triton
   ensemble/BLS is classified as future advanced model-repository work, not a
   blocker for this plan's application implementation.
@@ -57,8 +59,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   `tools/prod/prod_run_parallel_flow_benchmark.sh`. The active benchmark default
   is `crop_frame` on
   `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
-  with gRPC, binary tensors, concurrent model dispatch, pipeline overlap, batched
-  DB writes, and post-stage offload enabled in `backend/.env`. The default
+  with gRPC, binary tensors, true Triton batch requests, concurrent model dispatch,
+  pipeline overlap, batched DB writes, and post-stage offload enabled in `backend/.env`. The default
   profile is now `per-frame-signals`: `TRITON_OFFLINE_FRAME_STRIDE=1`, sparse
   `person_detection` is allowed with last-box reuse
   (`OFFLINE_DETECT_EVERY_N_FRAMES=5`,
@@ -103,7 +105,10 @@ This file defines how agents should execute tests quickly and safely in this rep
   `backend/logs/parallel_flow_parallel-per-frame-signals-crop-frame-20260531T214740.log`.
   First probe confirmed `TRITON_NUMPY_OUTPUTS=True`, `25/4541` frames,
   `window_fps=0.400`, and the active worker RSS stayed near 12 GiB instead of
-  the prior >100 GiB crop-fanout spike.
+  the prior >100 GiB crop-fanout spike. The run was later cancelled at
+  `100/4541` frames when RSS still climbed to ~49 GiB and throughput remained
+  CPU-bound; follow-up implementation adds real batched Triton requests for
+  crop fanout plus scoped gRPC channel reuse/cleanup.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
