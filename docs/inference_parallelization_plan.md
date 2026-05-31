@@ -69,8 +69,10 @@ Completion scope:
   decode instead of materializing large Python lists. The next crop-fanout fix
   adds `TRITON_TRUE_BATCH_REQUESTS=1`: same-model crop tensors are stacked into
   one Triton request up to model caps from `TRITON_MODEL_BATCH_SIZE_OVERRIDES`,
-  then split back into per-crop responses. `--profile max-throughput` is retained
-  for old behaviour-reuse benchmarks.
+  then split back into per-crop responses. Follow-up no-copy refinement keeps
+  Triton NumPy outputs and split per-crop outputs as views instead of allocating
+  contiguous copies for every crop. `--profile max-throughput` is retained for
+  old behaviour-reuse benchmarks.
 - Active production run started 2026-05-31 21:39 EEST:
   replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
   `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`. The run is using commit `a1770e5f`

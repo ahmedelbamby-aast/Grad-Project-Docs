@@ -108,7 +108,12 @@ This file defines how agents should execute tests quickly and safely in this rep
   the prior >100 GiB crop-fanout spike. The run was later cancelled at
   `100/4541` frames when RSS still climbed to ~49 GiB and throughput remained
   CPU-bound; follow-up implementation adds real batched Triton requests for
-  crop fanout plus scoped gRPC channel reuse/cleanup.
+  crop fanout plus scoped gRPC channel reuse/cleanup. A subsequent guarded run
+  `parallel-per-frame-signals-truebatch-guarded-crop-frame-20260531T221625`
+  reached `50/4541` with one active job, proving the stale-redelivery guard, but
+  was cancelled because true-batch splitting still copied per-crop NumPy output
+  slices and RSS climbed to ~34.5 GiB. Follow-up no-copy split keeps batch-output
+  views instead of contiguous per-crop copies.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
