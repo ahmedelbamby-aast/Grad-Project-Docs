@@ -62,8 +62,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   profile is now `per-frame-signals`: `TRITON_OFFLINE_FRAME_STRIDE=1`, sparse
   `person_detection` is allowed with last-box reuse
   (`OFFLINE_DETECT_EVERY_N_FRAMES=5`,
-  `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`), but behaviour/gaze and embedding
-  reuse are disabled so current-frame crop signals are recomputed.
+  `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`), decode/preprocess queueing is bounded
+  (`TRITON_OFFLINE_DECODE_QUEUE_SIZE=4`), but behaviour/gaze and embedding reuse
+  are disabled so current-frame crop signals are recomputed.
 - Current production benchmark run (started 2026-05-31 20:28 EEST):
   replay key `parallel-crop-frame-20260531T202819`, job
   `5801ef31-050f-4e20-a58e-d98122c5e920`, log
@@ -83,7 +84,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   crop batch. The run was cancelled at `25/4541`; the follow-up contract now
   permits person-box reuse only. Behaviour/gaze and embedding reuse are disabled
   in the default profile because every frame must carry fresh current-frame
-  signal predictions.
+  signal predictions. Follow-up optimization skips full-frame tensor
+  build/serialization on non-detection frames in `crop_frame`, keeping only the
+  original pixels needed for current-frame crop inference.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`

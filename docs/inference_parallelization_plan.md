@@ -59,8 +59,11 @@ Completion scope:
   `OFFLINE_DETECT_EVERY_N_FRAMES=5`, and
   `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`; it sets
   `OFFLINE_BEHAVIOUR_REUSE=0`, `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES=0`, and
-  `OFFLINE_EMBEDDING_REUSE_BY_TRACK=0`. `--profile max-throughput` is retained
-  for old behaviour-reuse benchmarks.
+  `OFFLINE_EMBEDDING_REUSE_BY_TRACK=0`, and bounds the decode/preprocess queue
+  with `TRITON_OFFLINE_DECODE_QUEUE_SIZE=4`. The crop-frame loop now skips
+  full-frame tensor build/serialization on non-detection frames; those frames
+  reuse person boxes and run only the current-frame crop signals. `--profile
+  max-throughput` is retained for old behaviour-reuse benchmarks.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs

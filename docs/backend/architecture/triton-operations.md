@@ -137,6 +137,8 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_PROTOCOL_PREFERENCE` | `grpc` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_HTTP_ENABLED` | `true` | `core.configuration.ModuleConfigLoader` |
 | `TRITON_GRPC_ENABLED` | `true` | `core.configuration.ModuleConfigLoader` |
+| `TRITON_OFFLINE_THREADED_DECODE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `TRITON_OFFLINE_DECODE_QUEUE_SIZE` | `4` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `INFERENCE_RUNTIME_CANARY_P95_LATENCY_THRESHOLD_MS` | `120.0` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_P99_LATENCY_THRESHOLD_MS` | `220.0` | `core.configuration.ModuleConfigLoader` |
 | `INFERENCE_RUNTIME_CANARY_FALLBACK_RATE_THRESHOLD` | `0.05` | `core.configuration.ModuleConfigLoader` |
