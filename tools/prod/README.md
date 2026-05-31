@@ -138,21 +138,23 @@ probes the flow, runs the benchmark, and probes the resulting job:
 
 ```bash
 cd /home/bamby/grad_project
-bash tools/prod/prod_run_parallel_flow_benchmark.sh
+bash tools/prod/prod_run_parallel_flow_benchmark.sh --profile per-frame-signals
 ```
 
 Default target:
 
 - video: `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
 - pipeline mode: `crop_frame`
+- profile: `per-frame-signals` (`stride=1`; person-box reuse allowed; no reused behaviour/gaze/embedding predictions)
 - timeout: `7200`
 
 Individual helper scripts:
 
 ```bash
 bash tools/prod/prod_cancel_video_jobs.sh --all-active
-bash tools/prod/prod_enable_parallel_flow.sh
+bash tools/prod/prod_enable_parallel_flow.sh --profile per-frame-signals
 bash tools/prod/prod_parallel_flow_probe.sh --watch 30
+bash tools/prod/prod_verify_per_frame_signals.sh --job-id <job_id> --watch 30
 ```
 
 For DB-backed progress on the subjective `all_merged.mp4` run:

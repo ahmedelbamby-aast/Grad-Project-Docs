@@ -326,7 +326,7 @@ with fresh runs and telemetry before any throughput or GPU-utilization claim.
 | P4 batched writer | `OFFLINE_DB_BATCH_WRITES` bulk-creates frame detections/boxes with per-row fallback | optimized prod default on | Compare DB time and row counts |
 | P4 post-stage offload | `OFFLINE_OFFLOAD_POST_STAGES` forces existing follow-up stages out of inline execution | optimized prod default on | Confirm worker routing and lifecycle completion |
 | P6 VRAM discipline | tracked Triton configs use single GPU instance per model | count 1 | Reload Triton and gate on `peak_gpu_memory_mb` |
-| P7b temporal reuse | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` and `OFFLINE_BEHAVIOUR_REUSE` reuse cached track state | optimized prod default on | Compare per-track parity and lower CPU/model calls |
+| P7b temporal reuse | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` and `OFFLINE_BEHAVIOUR_REUSE` reuse cached track state | optional; off in per-frame-signal profile | Compare per-track parity and lower CPU/model calls |
 
 No production throughput, GPU-utilization, or p95-latency improvement is claimed
 until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
@@ -336,6 +336,9 @@ until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
 **Recorded:** 2026-05-31
 **Video:** `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
 **Mode:** `crop_frame`
+**Default profile:** `per-frame-signals` (`TRITON_OFFLINE_FRAME_STRIDE=1`;
+`OFFLINE_DETECT_EVERY_N_FRAMES=5`; person-box reuse TTL `10`; no
+behaviour/gaze or embedding reuse)
 **Runner:** `tools/prod/prod_run_parallel_flow_benchmark.sh`
 
 The runner performs the operational sequence now expected for this flow:
@@ -352,13 +355,14 @@ Command:
 
 ```bash
 cd /home/bamby/grad_project
-bash tools/prod/prod_run_parallel_flow_benchmark.sh
+bash tools/prod/prod_run_parallel_flow_benchmark.sh --profile per-frame-signals
 ```
 
 Investigation helpers:
 
 ```bash
 bash tools/prod/prod_parallel_flow_probe.sh --watch 30
+bash tools/prod/prod_verify_per_frame_signals.sh --job-id <job_id> --watch 30
 bash tools/prod/prod_cancel_video_jobs.sh --all-active
 bash tools/prod/prod_enable_parallel_flow.sh --dry-run
 ```
@@ -369,7 +373,7 @@ Initial production execution:
 |---|---|---|---|
 | 2026-05-31 20:26 EEST | `parallel-crop-frame-20260531T202607` | `22b6d969-5789-4c53-a6e0-da63d9c10cc5` | Failed before inference because `TRITON_LIVE_URL` pointed at inactive `39000`; fixed in commit `9ed0a922`. |
 | 2026-05-31 20:28 EEST | `parallel-crop-frame-20260531T202819` | `5801ef31-050f-4e20-a58e-d98122c5e920` | Cancelled by operator at `50/4541` frames after the active crop-frame worker reached ~100 GB RSS. Root cause: `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=16` retained too many frames of person crops/responses in one crop-frame batch. Follow-up default changed to `1`, keeping batching inside each frame's person crops while bounding memory. |
-| 2026-05-31 20:36 EEST | `parallel-crop-frame-20260531T203638` | `17518cbe-c320-4880-8265-62df0add1ae3` | Cancelled at `25/4541` frames. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1` bounded memory better than the previous run, but `OFFLINE_DETECT_EVERY_N_FRAMES=1` kept crop-frame CPU-bound and prevented reuse from reducing model calls. Follow-up default changed to `OFFLINE_DETECT_EVERY_N_FRAMES=5` so every frame still gets output while person boxes and behaviour outputs can be reused between inference frames. |
+| 2026-05-31 20:36 EEST | `parallel-crop-frame-20260531T203638` | `17518cbe-c320-4880-8265-62df0add1ae3` | Cancelled at `25/4541` frames. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1` bounded memory better than the previous run, but `OFFLINE_DETECT_EVERY_N_FRAMES=1` kept crop-frame CPU-bound and prevented reuse from reducing model calls. Follow-up default changed to `OFFLINE_DETECT_EVERY_N_FRAMES=5` with person-box reuse only; behaviour/gaze and embedding reuse are disabled in the accuracy-first profile so current-frame crop signals are recomputed. |
 
 ### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
 
@@ -420,8 +424,9 @@ process counts.
 | `tools/prod/prod_disk_cleanup.sh` | Purges `__pycache__`, probe engines, stale rollbacks, old logs |
 | `tools/prod/prod_post_sync.sh` | Post-`uv sync` TRT install + guard check |
 | `tools/prod/prod_cancel_video_jobs.sh` | Stops workers and marks active video jobs terminal before a new benchmark |
-| `tools/prod/prod_enable_parallel_flow.sh` | Idempotently applies optimized parallel-flow defaults to `backend/.env` |
+| `tools/prod/prod_enable_parallel_flow.sh` | Idempotently applies optimized parallel-flow defaults to `backend/.env`; default profile is `per-frame-signals` |
 | `tools/prod/prod_parallel_flow_probe.sh` | Prints env/runtime/job/model-call evidence for the optimized flow |
+| `tools/prod/prod_verify_per_frame_signals.sh` | Verifies the accuracy-first contract and DB frame completeness for a job |
 | `tools/prod/prod_run_parallel_flow_benchmark.sh` | Chained cancel → enable → restart → probe → benchmark runner for `combined.mp4` |
 | `backend/scripts/build_tensorrt_engines.py` | Full .pt → ONNX (dynamic) → TRT → Triton deploy pipeline |
 

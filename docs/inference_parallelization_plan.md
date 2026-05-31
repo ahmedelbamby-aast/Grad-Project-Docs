@@ -51,7 +51,16 @@ Completion scope:
   RSS around 20-26 GB, but GPU samples remained near 0% and progress stalled at
   the next crop batch. The run was cancelled at `25/4541`; optimized crop-frame
   default now uses `OFFLINE_DETECT_EVERY_N_FRAMES=5` so the pipeline still emits
-  per-frame outputs but allows person-box and behaviour reuse to cut model calls.
+  per-frame outputs. The accepted accuracy contract permits reused person boxes
+  on non-detection frames, but disables behaviour/gaze and embedding reuse so
+  current-frame crop signals are recomputed for every frame.
+- Accuracy-first profile update (2026-05-31): `prod_enable_parallel_flow.sh`
+  defaults to `--profile per-frame-signals`. It keeps `TRITON_OFFLINE_FRAME_STRIDE=1`,
+  `OFFLINE_DETECT_EVERY_N_FRAMES=5`, and
+  `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`; it sets
+  `OFFLINE_BEHAVIOUR_REUSE=0`, `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES=0`, and
+  `OFFLINE_EMBEDDING_REUSE_BY_TRACK=0`. `--profile max-throughput` is retained
+  for old behaviour-reuse benchmarks.
 - Operational safeguards from the failed subjective run are codified:
   `prod_start_triton.sh` raises `nofile`, reads `TRITON_NOFILE_LIMIT` /
   `TRITON_LOG_MAX_MIB` from `backend/.env`, and truncates oversized Triton logs
@@ -314,8 +323,8 @@ ground truth after each phase.
 - [x] **P5 dynamic batching present in `triton_repository_cuda12` configs** — tune `max_batch_size`/`preferred_batch_size` on prod
 - [x] **P6 VRAM discipline — tracked Triton configs use `instance_group count: 1`; telemetry peak GPU gate remains prod acceptance**
 - [x] **P7a make `full_frame` + `crop_frame` both first-class & user-selectable — prod CLI/benchmark default is now `crop_frame`; DB/API compatibility default remains `legacy_crop`; prod GPU validation pending**
-- [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — optimized prod default on**
-- [x] **Production helper suite added — cancel active jobs, enable optimized defaults, probe flow evidence, and run `combined.mp4` benchmark**
+- [x] **P7b temporal reuse: embeddings per track + crop-frame behaviour reuse for static tracks — implemented, optional, not the default for per-frame-signal runs**
+- [x] **Production helper suite added — cancel active jobs, enable optimized defaults, probe flow evidence, verify per-frame signals, and run `combined.mp4` benchmark**
 - [x] **P7c decision — ensemble/BLS classified as future advanced Triton model-repo work, not required for this plan's repo-side completion**
 - [x] **CI focused gate added — `.github/workflows/inference-parallelization.yml` runs transport, batching, crop-frame, docs, and prod-helper syntax checks**
 - [x] **Per-phase benchmark workflow documented; fresh production telemetry comparison remains a prod-only evidence gate in `docs/production_inference_benchmark.md`**
@@ -375,20 +384,24 @@ code revert needed.
 **DEV:**
 1. In `apps/tracking/embeddings.py`, before computing an embedding, check the Redis
    `cache_job_track_embedding` key for that `track_id`; compute only for new/changed
-   tracks. Add flag `OFFLINE_EMBEDDING_REUSE_BY_TRACK` (optimized prod default on).
+   tracks. Add flag `OFFLINE_EMBEDDING_REUSE_BY_TRACK` (optional; off in the
+   accuracy-first production profile).
 2. Extend the box-reuse pattern (`_apply_person_detection_cadence_and_reuse`) to
    posture/gaze: cache last label per `track_id` and reuse within
    `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` for static tracks. Flag
-   `OFFLINE_BEHAVIOUR_REUSE` (optimized prod default on).
+   `OFFLINE_BEHAVIOUR_REUSE` (optional; off in the accuracy-first production profile).
 3. Tests: assert reuse path returns the cached label and that a moved/new track
    recomputes; assert parity of final per-track results vs. recompute-every-frame.
 
 **CI-CD:** none (unit tests auto-run). DB-backed reuse tests run in the gate (Postgres
 present); Redis-dependent assertions use the LocMemCache test default or fakeredis.
 
-**PROD:** `git pull`; `echo 'OFFLINE_EMBEDDING_REUSE_BY_TRACK=1' >> backend/.env`,
-`echo 'OFFLINE_BEHAVIOUR_REUSE=1' >> backend/.env`; restart workers; benchmark and
-confirm detection/track parity + lower CPU.
+**PROD:** Reuse is optional. For the current accuracy-first benchmark, run
+`bash tools/prod/prod_enable_parallel_flow.sh --profile per-frame-signals`; this
+allows sparse person detection with last-box reuse while disabling behaviour/gaze
+and embedding reuse. For pure throughput experiments only, run
+`bash tools/prod/prod_enable_parallel_flow.sh --profile max-throughput`, restart
+workers, benchmark, and confirm detection/track parity + lower CPU.
 
 ### Phase 3 — gRPC transport
 

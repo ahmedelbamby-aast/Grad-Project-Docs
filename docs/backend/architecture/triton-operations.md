@@ -144,9 +144,9 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `OFFLINE_DB_BATCH_WRITES` | `true` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_DB_BATCH_SIZE` | `1000` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_OFFLOAD_POST_STAGES` | `true` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
-| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `true` | `apps.video_analysis.tasks.generate_embeddings` |
-| `OFFLINE_BEHAVIOUR_REUSE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
-| `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` | `30` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `false` | `apps.video_analysis.tasks.generate_embeddings` |
+| `OFFLINE_BEHAVIOUR_REUSE` | `false` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` | `0` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `OFFLINE_BEHAVIOUR_REUSE_IOU_THRESHOLD` | `0.90` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 
 ## 7. Orchestrator Routing References

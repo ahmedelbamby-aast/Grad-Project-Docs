@@ -46,7 +46,7 @@ This file defines how agents should execute tests quickly and safely in this rep
   throttle + batched DB writer/offload (`OFFLINE_PROGRESS_UPDATE_EVERY_N`,
   `OFFLINE_DB_BATCH_WRITES`, `OFFLINE_OFFLOAD_POST_STAGES`), P5 dynamic batching
   in tracked Triton configs, P6 VRAM/process discipline, P7a first-class
-  `full_frame`/`crop_frame`, and P7b embedding/behaviour reuse. P7c Triton
+  `full_frame`/`crop_frame`, and P7b optional embedding/behaviour reuse. P7c Triton
   ensemble/BLS is classified as future advanced model-repository work, not a
   blocker for this plan's application implementation.
 - Workflow: `.github/workflows/inference-parallelization.yml` is the focused local
@@ -58,8 +58,12 @@ This file defines how agents should execute tests quickly and safely in this rep
   is `crop_frame` on
   `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`
   with gRPC, binary tensors, concurrent model dispatch, pipeline overlap, batched
-  DB writes, post-stage offload, embedding reuse, and behaviour reuse enabled in
-  `backend/.env`.
+  DB writes, and post-stage offload enabled in `backend/.env`. The default
+  profile is now `per-frame-signals`: `TRITON_OFFLINE_FRAME_STRIDE=1`, sparse
+  `person_detection` is allowed with last-box reuse
+  (`OFFLINE_DETECT_EVERY_N_FRAMES=5`,
+  `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`), but behaviour/gaze and embedding
+  reuse are disabled so current-frame crop signals are recomputed.
 - Current production benchmark run (started 2026-05-31 20:28 EEST):
   replay key `parallel-crop-frame-20260531T202819`, job
   `5801ef31-050f-4e20-a58e-d98122c5e920`, log
@@ -76,17 +80,19 @@ This file defines how agents should execute tests quickly and safely in this rep
   `backend/logs/parallel_flow_parallel-crop-frame-20260531T203638.log`.
   Memory is bounded compared with the prior attempt (~20-26 GB RSS observed),
   but GPU utilization samples remained near 0% and progress stalled at the next
-  crop batch. The run was cancelled at `25/4541`; optimized crop-frame defaults
-  now set `OFFLINE_DETECT_EVERY_N_FRAMES=5` so every frame still receives output
-  while person-box and behaviour reuse reduce repeated model calls.
+  crop batch. The run was cancelled at `25/4541`; the follow-up contract now
+  permits person-box reuse only. Behaviour/gaze and embedding reuse are disabled
+  in the default profile because every frame must carry fresh current-frame
+  signal predictions.
 - Production hardening from the failed `all_merged.mp4` subjective run is now part
   of the plan: `prod_start_triton.sh` raises `TRITON_NOFILE_LIMIT` (default
   `65535`) and truncates oversized `triton.log` using `TRITON_LOG_MAX_MIB`
   (default `1024`); `prod_start_celery_workers.sh` reads worker time limits,
   worker concurrency, and guardrails from `backend/.env`; `prod_cancel_video_jobs.sh`
   stops old active jobs before a new benchmark; `prod_parallel_flow_probe.sh`
-  verifies env/runtime/DB/model-call telemetry; `prod_run_benchmark.sh` accepts
-  `--pipeline-mode`; `prod-runtime-ingest-video.ps1` accepts `crop_frame`; and
+  verifies env/runtime/DB/model-call telemetry; `prod_verify_per_frame_signals.sh`
+  checks the per-frame signal contract and DB frame completeness;
+  `prod_run_benchmark.sh` accepts `--pipeline-mode`; `prod-runtime-ingest-video.ps1` accepts `crop_frame`; and
   `prod_check_subjective_progress.sh` provides DB-backed progress/ETA.
 - Agents must treat this plan as the priority for runtime/inference work and update
   its task checklist + `docs/production_inference_benchmark.md` after each phase.
