@@ -88,6 +88,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   build/serialization on non-detection frames in `crop_frame`, keeping only the
   original pixels needed for current-frame crop inference, and avoids the generic
   `FrameCropper` PNG encode path in favor of direct bounded `xyxy` slicing.
+  After the crop fanout memory spike, `TRITON_NUMPY_OUTPUTS=1` was added so gRPC
+  YOLO outputs are decoded from NumPy arrays instead of Python list materialization.
 - Active per-frame-signal production run (started 2026-05-31 21:39 EEST):
   replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
   `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`, log

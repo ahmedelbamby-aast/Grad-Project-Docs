@@ -338,7 +338,7 @@ until these flags are enabled and benchmarked on the native Linux RTX 5090 host.
 **Mode:** `crop_frame`
 **Default profile:** `per-frame-signals` (`TRITON_OFFLINE_FRAME_STRIDE=1`;
 `OFFLINE_DETECT_EVERY_N_FRAMES=5`; person-box reuse TTL `10`; no
-behaviour/gaze or embedding reuse; decode queue size `4`)
+behaviour/gaze or embedding reuse; decode queue size `4`; NumPy gRPC outputs)
 **Runner:** `tools/prod/prod_run_parallel_flow_benchmark.sh`
 
 The runner performs the operational sequence now expected for this flow:
@@ -375,6 +375,7 @@ Initial production execution:
 | 2026-05-31 20:28 EEST | `parallel-crop-frame-20260531T202819` | `5801ef31-050f-4e20-a58e-d98122c5e920` | Cancelled by operator at `50/4541` frames after the active crop-frame worker reached ~100 GB RSS. Root cause: `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=16` retained too many frames of person crops/responses in one crop-frame batch. Follow-up default changed to `1`, keeping batching inside each frame's person crops while bounding memory. |
 | 2026-05-31 20:36 EEST | `parallel-crop-frame-20260531T203638` | `17518cbe-c320-4880-8265-62df0add1ae3` | Cancelled at `25/4541` frames. `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=1` bounded memory better than the previous run, but `OFFLINE_DETECT_EVERY_N_FRAMES=1` kept crop-frame CPU-bound and prevented reuse from reducing model calls. Follow-up default changed to `OFFLINE_DETECT_EVERY_N_FRAMES=5` with person-box reuse only; behaviour/gaze and embedding reuse are disabled in the accuracy-first profile so current-frame crop signals are recomputed. The crop-frame loop now skips full-frame tensor serialization on non-detection frames and avoids per-crop PNG encoding. |
 | 2026-05-31 21:39 EEST | `parallel-per-frame-signals-crop-frame-20260531T213945` | `c1a9117e-7f59-4c53-9731-b528ab5e6cbd` | Active run on commit `a1770e5f` with `per-frame-signals`. First probe: `25/4541`, `window_fps=0.400`, `frame_signal_contract=per_frame_signals_with_person_box_reuse`, GPU sample `62%`. DB frame rows are `pending_persistence` while frame inference is running; final Step 3 writes `Frame`/`Detection`/`BoundingBox` rows. |
+| 2026-05-31 21:43 EEST | `parallel-per-frame-signals-crop-frame-20260531T213945` | `c1a9117e-7f59-4c53-9731-b528ab5e6cbd` | Cancelled after worker RSS exceeded 100 GB around frame 25. Root cause is dense crop fanout plus gRPC YOLO output materialized as Python lists. Follow-up change adds `TRITON_NUMPY_OUTPUTS=1` so decode consumes NumPy arrays directly. |
 
 ### 6.3 Subjective `all_merged.mp4` Failure Analysis And Hardening
 

@@ -64,8 +64,10 @@ Completion scope:
   full-frame tensor build/serialization on non-detection frames; those frames
   reuse person boxes and run only the current-frame crop signals. It also avoids
   the generic `FrameCropper` PNG encode path and builds crop tensors directly
-  from bounded `xyxy` slices. `--profile max-throughput` is retained for old
-  behaviour-reuse benchmarks.
+  from bounded `xyxy` slices. After observing >100 GB RSS in a dense crop fanout
+  frame, `TRITON_NUMPY_OUTPUTS=1` keeps gRPC YOLO outputs as NumPy arrays until
+  decode instead of materializing large Python lists. `--profile max-throughput`
+  is retained for old behaviour-reuse benchmarks.
 - Active production run started 2026-05-31 21:39 EEST:
   replay key `parallel-per-frame-signals-crop-frame-20260531T213945`, job
   `c1a9117e-7f59-4c53-9731-b528ab5e6cbd`. The run is using commit `a1770e5f`
