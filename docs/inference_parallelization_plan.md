@@ -30,7 +30,7 @@ complete from a non-GPU environment.
 | 3 gRPC transport | **Designed** | new `tritonclient.grpc` path; requires live-Triton validation |
 | 4 batched detection writer / offload | **Designed** | FK-safe bulk writer + dedicated-queue offload |
 | 6 VRAM discipline | **Partly enforced** | per-model in-flight split (1b) + telemetry `peak_gpu_memory_mb`; config caps to confirm |
-| 7 ROI sharing + Triton ensemble | **Designed (model work)** | needs ROI-classifier models + a Triton ensemble graph / retraining — not code-only |
+| 7 crop-frame mode first-class | **Designed (code, NO retraining)** | crop pipeline + Ultralytics `save_crop` already exist; make both `full_frame`/`crop_frame` first-class + all optimisations work under both. Triton ensemble is an optional extra |
 
 The remaining phases are sequenced below with concrete designs so they can be
 implemented and validated on the production GPU one at a time.
@@ -166,35 +166,48 @@ Parallelism must not balloon VRAM. Key facts and levers:
 - **Watch it:** the telemetry session records `peak_gpu_memory_mb`; the benchmark's
   GPU CSV tracks `memory.used`. Gate any concurrency increase on these staying flat.
 
-### Phase 7 — Trade information *between* models and layers (biggest structural win)
-*Impact: very high · Effort: high · Risk: medium–high (model/graph changes)*
+### Phase 7 — Crop-frame pipeline as a first-class, optimised mode (NO retraining)
+*Impact: very high · Effort: medium · Risk: low–medium (uses existing crops, not new models)*
 
-Today every model re-receives the **whole 640×640 frame** over the wire and runs
-independently — no information is shared between models or pipeline layers. The
-high-value redesign is to make stages feed each other:
+**Key correction (2026-05-31):** the system already supports two pipeline modes —
+`VideoAnalysisJob.pipeline_mode` is `legacy_crop` (default) or `full_frame`
+([models.py:26](backend/apps/video_analysis/models.py), routed by
+`_resolve_upload_pipeline_executor`). Cropping is already implemented
+(`apps/pipeline/cropper.py::FrameCropper`) and the Ultralytics path already passes
+`save_crop=True` / `save_frames=True` ([tasks.py:2472](backend/apps/video_analysis/tasks.py)).
+Ultralytics gives us crops natively — `save_crop=True`, `result.save_crop(save_dir)`,
+and manual `result.boxes.xyxy → result.orig_img[y1:y2, x1:x2]` (Boxes exposes
+`xyxy/xywh/conf/cls/id`). **So ROI sharing needs NO model retraining** — we run the
+existing models on person crops instead of the full frame.
 
-1. **ROI sharing (detector → behaviour models).** Run `person_detector` first,
-   then feed **person crops** (e.g. 192×256) to posture/gaze/pose instead of the
-   full frame. Smaller inputs = far less compute, less activation VRAM, and many
-   persons batch into one call. `rtmpose` is already ROI-based; converting the
-   gaze/posture heads to ROI classifiers is the model-side change that unlocks this.
-2. **Triton ensemble / BLS — share tensors on the GPU.** Build a Triton
-   **ensemble** (or Business-Logic-Scripting) graph: `preprocess → person_detector
-   → crop → {posture, gaze×3, rtmpose}`. The frame is uploaded **once** and lives
-   on the GPU; downstream models read the **same device tensors** and the detector's
-   ROIs without host round-trips. This collapses 5–6 network calls per frame into
-   **one** and eliminates repeated host→device copies — the cleanest "models trading
-   information" architecture, and a large bandwidth + VRAM-copy saving.
-3. **GPU-side preprocessing.** Move letterbox/normalize into a DALI/ensemble step so
-   the CPU never builds tensors (also kills the JSON/`.tolist()` cost at the source).
-4. **Temporal reuse across layers (cache, don't recompute).**
+The goal of Phase 7 is therefore: make **both** pipeline modes first-class,
+user-selectable, and make **all** optimisations (1a binary, 1b concurrent, 2
+overlap, 4 throttle, telemetry) work identically under **both** modes.
+
+1. **Two first-class, user-selectable modes.**
+   - `full_frame`: every model sees the whole 640×640 frame (current optimised path).
+   - `crop_frame`: `person_detector` runs first; each person is cropped (via
+     `FrameCropper` / Ultralytics `boxes.xyxy`), and posture/gaze/pose run on the
+     **small crops** (smaller input = far less compute + activation VRAM; many
+     persons batch into one call). `rtmpose` is already ROI-based — same pattern.
+   - The user picks the mode per job (`--pipeline-mode`); the API/UI expose it.
+   - **Contract:** old, new, and future code paths must run under either mode. Wire
+     the crop path through the same telemetry, batch queue, concurrent dispatch,
+     pipeline overlap, and binary-tensor code so they apply to crops too.
+2. **Temporal reuse across layers (cache, don't recompute).**
    - Tracking → embeddings: compute a ReID embedding only for **new/changed
      track_ids** (cache by `track_id` in Redis — partially done) instead of every
      person every frame.
-   - Detection cadence + box reuse (already implemented) extends to **behaviour
-     reuse**: for a static track, reuse last posture/gaze label for a TTL window.
-   - Pass tracking IDs into the renderer/telemetry so per-student timelines are
-     assembled without re-scanning detections.
+   - Detection cadence + box reuse (already implemented for person boxes) extends
+     to **behaviour reuse**: for a static track, reuse last posture/gaze label for a
+     TTL window.
+3. **Triton ensemble / BLS (optional, advanced).** Once crop_frame is first-class,
+   a Triton **ensemble** (`preprocess → detector → crop (BLS) → {posture, gaze×3,
+   rtmpose}`) can keep the frame on the GPU and collapse 5–6 calls into one. This is
+   the only sub-item that needs Triton-graph work; it is an optimisation on top of
+   the crop mode, not a prerequisite, and still needs **no retraining**.
+4. **GPU-side preprocessing (optional).** Move letterbox/normalize into a DALI step
+   so the CPU never builds tensors.
 
 These turn the pipeline from "N independent full-frame inferences" into a single
 **shared-tensor graph with cached temporal state** — the durable path to GPU
@@ -238,6 +251,8 @@ ground truth after each phase.
 - [ ] P4 batched detection writer (FK-safe) + offload pose/embeddings/render to dedicated queues
 - [x] **P5 dynamic batching present in `triton_repository_cuda12` configs** — tune `max_batch_size`/`preferred_batch_size` on prod
 - [ ] P6 VRAM discipline (instance_group/batch caps, telemetry peak_gpu_memory gate)
-- [ ] P7 ROI sharing + Triton ensemble (shared on-GPU tensors) + temporal behaviour reuse
+- [ ] P7a make `full_frame` + `crop_frame` both first-class & user-selectable; all optimisations (binary/concurrent/overlap/telemetry) work under BOTH modes (NO retraining — uses FrameCropper / Ultralytics save_crop)
+- [ ] P7b temporal reuse: embeddings per new track_id + behaviour reuse for static tracks
+- [ ] P7c (optional) Triton ensemble/BLS shared-GPU-tensor graph
 - [ ] Per-phase benchmark + telemetry comparison recorded in
       `docs/production_inference_benchmark.md`
