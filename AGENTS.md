@@ -104,6 +104,19 @@ This file defines how agents should execute tests quickly and safely in this rep
   `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`, `LPM_ENABLED=0`,
   then Triton/workers were restarted. See
   `docs/cycle_9b_output_fusion_results.md`.
+- **2026-06-02 Cycle 9b exact server-side slice STAGED — not accepted**:
+  because the prod Triton build has no `python` backend, the next low-risk
+  dense-byte candidate uses TensorRT only: `gaze_horizontal_model` remains the
+  unchanged legacy producer, `gaze_horizontal_slice_model` gathers channels
+  `[0,1,2,3,8,9]` from its dense `[84,2100]` output, and
+  `behavior_ensemble_gaze_slice` returns `[6,2100]` as `gaze_h_out`.
+  `gaze_horizontal_slice_adapter` provides the same 6-channel contract for
+  standalone fallback. This is guarded by `GAZE_HORIZONTAL_HEAD_VARIANT=slice`
+  plus route overrides from `tools/prod/prod_enable_gaze_horizontal_slice.sh`.
+  Local validation passed (`18 passed`, py_compile, shell syntax). It remains
+  STAGED until production builds the slice plan, passes
+  `tools/prod/prod_gaze_horizontal_slice_parity.py`, completes the canonical
+  `combined.mp4` benchmark, and documents ACCEPTED/NOT ACCEPTED metrics.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

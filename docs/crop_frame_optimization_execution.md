@@ -713,6 +713,78 @@ decoded-detection parity gate before any full benchmark.
 
 ---
 
+## Cycle 9b B.2.b — Exact Server-Side Horizontal Slice (STAGED)
+
+### Phase 1: Investigation
+
+Production Triton currently has no `python` backend installed, so the B.1.a BLS
+Python compact-postprocessing path is not the lowest-risk next implementation
+without rebuilding Triton. The installed backend usable for this candidate is
+`tensorrt`.
+
+Detailed Phase A/B record:
+[`docs/cycle_9b_exact_slice_investigation.md`](cycle_9b_exact_slice_investigation.md).
+
+### Phase 2: Hypothesis
+
+Keep `gaze_horizontal_model` unchanged and add a tiny TensorRT gather model after
+it:
+
+```text
+gaze_horizontal_model.output0 [N,84,2100]
+  -> gaze_horizontal_slice_model Gather(axis=1, [0,1,2,3,8,9])
+  -> output0 [N,6,2100]
+```
+
+**Named lever:** dense output bytes.
+
+Expected horizontal output returned to app Python drops from `~11.4 MB/frame` to
+`~0.82 MB/frame` at the observed ~17 crops/frame, while avoiding the rejected
+standalone `gaze_horizontal_gaze2_model` parity failure mechanism.
+
+### Phase 3: Implementation
+
+- `backend/scripts/build_tensorrt_engines.py`: can build
+  `gaze_horizontal_slice_model` from a generated ONNX gather graph.
+- `backend/models/triton_repository_cuda12/gaze_horizontal_slice_model/`: new
+  TensorRT plan config, input `dense_input [84,2100]`, output `output0 [6,2100]`.
+- `backend/models/triton_repository_cuda12/gaze_horizontal_slice_adapter/`: new
+  standalone ensemble fallback, image input -> legacy horizontal -> slice.
+- `backend/models/triton_repository_cuda12/behavior_ensemble_gaze_slice/`: new
+  behavior ensemble that routes only horizontal gaze through the slice model.
+- `tools/prod/prod_enable_gaze_horizontal_slice.sh`: builds/enables the route
+  with `GAZE_HORIZONTAL_HEAD_VARIANT=slice`.
+- `tools/prod/prod_gaze_horizontal_slice_parity.py`: production parity probe for
+  direct slice, adapter, and full behavior ensemble outputs.
+- `backend/tests/unit/pipeline/test_behavior_ensemble_dispatch.py`: route,
+  compact decode/remap, and repository validator coverage.
+
+Local validation:
+
+```bash
+backend\.venv\Scripts\python.exe -m py_compile \
+  backend\scripts\build_tensorrt_engines.py \
+  backend\apps\pipeline\services\ensemble_validator.py \
+  tools\prod\prod_gaze_horizontal_slice_parity.py
+bash -n tools/prod/prod_enable_gaze_horizontal_slice.sh \
+  tools/prod/prod_run_parallel_flow_benchmark.sh \
+  tools/prod/prod_start_triton.sh
+backend\.venv\Scripts\python.exe -m pytest \
+  backend/tests/unit/pipeline/test_behavior_ensemble_dispatch.py \
+  backend/tests/unit/docs/test_triton_phase_knob_docs_consistency.py \
+  -q --tb=short
+```
+
+Result: `18 passed`; py_compile and shell syntax passed.
+
+### Decision
+
+**STAGED — not accepted.** Production still must build the slice plan, pass
+`tools/prod/prod_gaze_horizontal_slice_parity.py`, complete `combined.mp4`, and
+record before/after metrics.
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.

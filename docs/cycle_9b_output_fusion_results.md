@@ -84,3 +84,27 @@ output-fusion attempt must either:
 
 B.1 compact postprocessing / BLS remains the cleaner path because it can also
 host the future LPM probability logic before dense outputs leave Triton.
+
+---
+
+## B.2.b Follow-Up — Exact Server-Side Slice (STAGED)
+
+**Status:** STAGED locally, not accepted.
+
+The follow-up candidate keeps the legacy `gaze_horizontal_model` TensorRT plan
+unchanged and inserts `gaze_horizontal_slice_model` after its dense output inside
+Triton:
+
+| Item | Value |
+|---|---|
+| Variant flag | `GAZE_HORIZONTAL_HEAD_VARIANT=slice` |
+| Direct slice model | `gaze_horizontal_slice_model`, input `dense_input [84,2100]`, output `output0 [6,2100]` |
+| Full behavior ensemble | `behavior_ensemble_gaze_slice` |
+| Standalone fallback adapter | `gaze_horizontal_slice_adapter` |
+| Prod enable helper | `tools/prod/prod_enable_gaze_horizontal_slice.sh` |
+| Prod parity probe | `tools/prod/prod_gaze_horizontal_slice_parity.py` |
+| Local validation | `18 passed`; py_compile and shell syntax passed |
+
+This candidate is not accepted until production builds the slice plan, the
+parity probe passes, and the canonical `combined.mp4` benchmark records
+before/after metrics.

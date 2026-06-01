@@ -682,6 +682,14 @@ because the pre-benchmark parity gate failed. Production was rolled back to
 `GAZE_HORIZONTAL_HEAD_VARIANT=coco80`, `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`,
 and `LPM_ENABLED=0`.
 
+Cycle 9b exact server-side slice is **STAGED, not accepted**. This candidate
+keeps the legacy `gaze_horizontal_model` plan unchanged, then runs
+`gaze_horizontal_slice_model` on the legacy dense output inside Triton so the app
+receives `[6,2100]` instead of `[84,2100]`. The matching
+`behavior_ensemble_gaze_slice` and `gaze_horizontal_slice_adapter` are guarded by
+`GAZE_HORIZONTAL_HEAD_VARIANT=slice`. Production parity and a full `combined.mp4`
+benchmark are still required before any acceptance claim.
+
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to
 implement. The general lesson — **stop optimizing gRPC call count alone**

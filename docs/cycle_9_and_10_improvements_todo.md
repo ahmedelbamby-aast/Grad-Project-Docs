@@ -229,7 +229,7 @@ footprint than the full BLS path.
 TRITON_BEHAVIOR_TOP_K_ENABLED=0           # B.2.a — top-K anchor packing
 TRITON_BEHAVIOR_TOP_K_VALUE=100            # K must equal the client-side cap to preserve parity
 
-GAZE_HORIZONTAL_HEAD_VARIANT=coco80        # B.2.b — "coco80" (legacy 84-channel) | "gaze2" (re-exported 6-channel)
+GAZE_HORIZONTAL_HEAD_VARIANT=coco80        # B.2.b — "coco80" (legacy 84-channel) | "gaze2" (rejected standalone 6-channel) | "slice" (exact server-side 6-channel)
 ```
 
 Setting both to non-default values activates **B.2.c**. The client-side
@@ -250,6 +250,15 @@ Production was rolled back to `GAZE_HORIZONTAL_HEAD_VARIANT=coco80` and the
 legacy `behavior_ensemble` route. Remaining B.2 approaches are still open only
 if they can preserve parity, preferably by slicing the already-executed legacy
 output server-side or by passing an explicit decoded-detection parity gate.
+
+**Staged follow-up (2026-06-02):** exact server-side slicing is now implemented
+locally behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, but not accepted. It keeps
+`gaze_horizontal_model` unchanged, adds `gaze_horizontal_slice_model` to gather
+channels `[0,1,2,3,8,9]` from the legacy dense output inside Triton, routes
+`behavior_all` through `behavior_ensemble_gaze_slice`, and routes standalone
+fallback through `gaze_horizontal_slice_adapter`. Local focused validation passed
+(`18 passed`, py_compile, shell syntax). Production parity, full benchmark, and
+ACCEPTED/NOT ACCEPTED metrics are still required.
 
 #### B.2 measurement matrix (one prod bench per row)
 
@@ -741,7 +750,7 @@ quality of the diff.
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PARTIALLY PROVEN — B.2.b TENSORRT SLICE NOT ACCEPTED** | B.2.b separate TensorRT output-slice code exists behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`, but production parity failed (`backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json`, `max_abs_diff=9.5`, tolerance `1e-6`), so no full benchmark was run and prod was rolled back. B.1, B.2.a, B.2.c, exact server-side B.2b slicing, B.3 Step 2, and B.4 remain unaccepted. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_output_fusion_results.md` |
+| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PARTIALLY PROVEN — B.2.b EXACT SLICE STAGED** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is implemented locally but missing production parity and full `combined.mp4` benchmark. B.1, B.2.a, B.2.c, B.3 Step 2, and B.4 remain unaccepted. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_output_fusion_results.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
