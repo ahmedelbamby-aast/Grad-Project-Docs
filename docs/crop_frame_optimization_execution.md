@@ -236,6 +236,58 @@ return clean.
 
 ---
 
+## Cycle 7 — Cache the Redis client across the embedding loop
+
+### Phase 1: Investigation
+
+**Evidence captured before any change** (cycle 6 job `a1a448b9`):
+
+| Stage | seconds | % of total |
+|---|---:|---:|
+| Step 2 (frame inference) | 879.0 | 53.8 % |
+| Pose post-processing | 221.4 | 13.6 % |
+| Persistence | 39.6 | 2.4 % |
+| Render | 25.7 | 1.6 % |
+| **Embedding (post-`run.complete`)** | **467.6** | **28.6 %** |
+| **TOTAL** | **1 633.2** | 100 % |
+
+Embedding produces 72 586 `FrameEmbedding` rows → 467.6 s / 72 586 = **6.44 ms / embedding**. That's ~10× a plausible budget for a SHA-256 stub fallback or a YOLO backbone embedding on this GPU; the cost must live somewhere else.
+
+Code inspection of `apps/video_analysis/tasks.py:generate_embeddings` and `apps/tracking/embeddings.py` shows the loop calls **three Redis helpers per embedding**:
+
+1. `cache_embedding(...)` → `redis_client()` → `Redis.from_url() + .ping()`
+2. `cache_job_track_embedding(...)` → `redis_client()` → `Redis.from_url() + .ping()`
+3. `_cache_student_embedding_for_analysis(...)` → `_redis_client()` → `Redis.from_url() + .ping()`
+
+That is **3 fresh socket connects + 3 PING round-trips per embedding**, ~217 758 connects per job. At ~1.5 ms each (localhost), the connect-overhead alone is **~325 s of the 467.6 s** embedding wall, leaving ~143 s for the actual model.embed + DB writes + redis SET/SADD/LPUSH/EXPIRE operations.
+
+**Proven root cause:** the per-call factory `Redis.from_url(...).ping()` pattern in both `apps/tracking/embeddings.py::redis_client` and `apps/video_analysis/tasks.py::_redis_client`. Neither caches the client object; every helper invocation pays the connect cost.
+
+### Phase 2: Hypothesis
+
+If `redis_client()` and `_redis_client()` lazily cache a single connected client (with a one-shot retry on connection failure), the per-embedding cost drops from ~6.44 ms to ~1.5 ms, eliminating ~70 % of the embedding wall.
+
+**Expected impact** (all numbers extrapolated linearly from the connect-overhead measurement above):
+- Embedding wall: 467.6 s → **~145 s** (−69 %).
+- Total job (DB `status=completed`): 1 633 s → **~1 310 s** (−20 %).
+- Overall FPS (DB-completed basis): 2.78 → **~3.47** (+24 %).
+- Step 2 inference unchanged.
+
+**Risk:** Low.
+- `redis-py` is thread-safe; a single connected client can be shared.
+- Tests may monkeypatch `settings.REDIS_URL` — we guard by re-checking the URL each call and rebuilding the cache if it changed.
+- On any operation error we drop the cache so the next call re-connects.
+
+**Rollback:** Revert the two `Edit`s on `redis_client` / `_redis_client`.
+
+### Phase 3: STAGED — implementation pending
+
+### Phase 4: STAGED — production benchmark pending
+
+### Phase 5: STAGED — accept/reject decision pending production evidence
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
