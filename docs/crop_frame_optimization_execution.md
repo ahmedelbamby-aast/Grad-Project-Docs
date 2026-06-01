@@ -593,6 +593,38 @@ fresh production benchmark before Cycle 10 can be reconsidered. Evidence:
 [`docs/production_inference_benchmark.md`](production_inference_benchmark.md)
 §16.
 
+### Safety-fix production proof — still NOT ACCEPTED
+
+The post-run safety fix was deployed and benchmarked on production:
+
+- Replay key: `cycle10-lpm-violationonly-crop-frame-20260601T221110`
+- Job: `21666815-f4bd-4f5f-b90e-b9101b4d899d`
+- Candidate SHA: `31edac44c66233baadd3a26ddd57b51b1a043d66`
+- Telemetry session: `be855e0e-6393-467a-9688-b723a29a56a4`
+- Bench summary: `backend/logs/bench_summary_20260602T011132.json`
+- GPU CSV: `backend/logs/gpu_monitor_bench_20260602T011132.csv`
+- Inference audit:
+  `backend/data/videos/21666815-f4bd-4f5f-b90e-b9101b4d899d/inference_audit.json`
+
+Result:
+
+| Metric | Cycle 9 | Safety Proof | Decision |
+|---|---:|---:|---|
+| Overall FPS | `4.09` | `4.039` | failed performance gate |
+| Detection rows | `72749` | `72095` | failed parity gate |
+| `attention_tracking` boxes | `11776` | `11122` | failed parity gate |
+| LPM `C1` violations | expected non-zero | `0` | failed signal gate |
+| LPM eliminated contradictions | expected non-zero | `0` | failed signal gate |
+
+The fix restored most attention boxes compared with the first LPM run
+(`2680 → 11122`), but it did not restore Cycle 9 parity and it did not produce
+any contradiction-reduction signal. Production was rolled back again to
+`LPM_ENABLED=0`.
+
+**Updated decision:** **NEEDS FURTHER ITERATION — NOT ACCEPTED.** Do not tune
+post-decode box suppression further. The next LPM design must capture pre-decode
+gaze probabilities or run inside the future compact postprocessing/BLS path.
+
 ---
 
 ## Pending Cycles (not implemented in this session)

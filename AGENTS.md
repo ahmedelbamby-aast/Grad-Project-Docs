@@ -106,12 +106,19 @@ This file defines how agents should execute tests quickly and safely in this rep
   `377fb59e66fe46327e6cbf2e6e64fd3bb70a0bde` and proved the telemetry table
   works (`4541` LPM rows), but Cycle 10 is **NOT ACCEPTED**: `C1=0`,
   `eliminated=0`, and `attention_tracking` boxes regressed `11776 → 2680`.
-  Production was rolled back to `LPM_ENABLED=0` and workers were restarted. A
-  local safety fix now prevents single low-confidence directional gaze boxes
-  from being suppressed unless a C1-C4 violation fired, but that fix requires a
-  fresh production benchmark before any acceptance claim. The same pure-function
-  math layer is the planned hand-off point for a future Triton BLS Python
-  backend (Phase 2).
+  Production was rolled back to `LPM_ENABLED=0` and workers were restarted.
+  Safety-fix proof `cycle10-lpm-violationonly-crop-frame-20260601T221110` /
+  job `21666815-f4bd-4f5f-b90e-b9101b4d899d` deployed SHA
+  `31edac44c66233baadd3a26ddd57b51b1a043d66` and completed, with summary
+  `backend/logs/bench_summary_20260602T011132.json`, GPU CSV
+  `backend/logs/gpu_monitor_bench_20260602T011132.csv`, and telemetry session
+  `be855e0e-6393-467a-9688-b723a29a56a4`. It restored most of the first-run
+  attention-box loss (`2680 → 11122`) but still failed Cycle 9 parity
+  (`11776`), recorded `C1=0`, `eliminated=0`, and regressed DB-completed FPS
+  (`4.09 → 4.039`). Production was rolled back again to `LPM_ENABLED=0`.
+  Next LPM work must capture pre-decode gaze probabilities or move the pure
+  math layer into the future compact postprocessing / Triton BLS path where
+  dense gaze outputs are still available.
 - **Constitutional re-affirmation (2026-06-01)**: **No optimization cycle may
   be marked accepted/success/agreed without a production benchmark on the
   Linux RTX 5090 server that demonstrates both (a) the targeted metric

@@ -693,11 +693,17 @@ Phase 1: pure-Python module at
 `backend/apps/video_analysis/tasks.py:_run_crop_behaviour_for_items` for
 post-decode crop-frame gaze boxes. C.2.2 telemetry is implemented via
 `TelemetrySession.record_lpm_event(...)`, `telemetry_lpm_events`, and the
-JSON/PostgreSQL writer. A post-run local safety fix now preserves
-single-axis gaze boxes unless a C1-C4 violation fired; it still needs a fresh
-production benchmark. Phase 2 (future cycle): migrate the same pure constraint
-solver to a Triton BLS Python backend, which dovetails with Cycle 9b Option 1
-(server-side compact postprocessing).
+JSON/PostgreSQL writer. The post-run safety fix was deployed and production
+benchmarked as
+`cycle10-lpm-violationonly-crop-frame-20260601T221110` / job
+`21666815-f4bd-4f5f-b90e-b9101b4d899d` at SHA
+`31edac44c66233baadd3a26ddd57b51b1a043d66`. It restored most of the original
+attention-box loss (`2680 → 11122`) but still failed Cycle 9 parity
+(`11776`) and still recorded no contradiction signal (`C1=0`,
+`eliminated=0`). Production was rolled back to `LPM_ENABLED=0` again. Phase 2
+(future cycle): migrate the same pure constraint solver to a Triton BLS Python
+backend, which dovetails with Cycle 9b Option 1 (server-side compact
+postprocessing).
 
 ### 2026-06-01 Cycle 8 — Embedding stage attack (ACCEPTED)
 
