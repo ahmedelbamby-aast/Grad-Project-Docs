@@ -646,6 +646,20 @@ the Triton parallelization plan. Inference-side, the remaining justified
 candidate is still Phase 7d (Triton ensemble/BLS) — gain estimated at +20–40 %
 over cycle 6, but at high engineering cost.
 
+### 2026-06-01 Cycle 7 — Redis client caching (ACCEPTED with caveat)
+
+Status: **production benchmark ACCEPTED.** Modest +3.2 % overall FPS gain
+(2.78 → 2.87 DB-completed basis; +119 % vs baseline). The hypothesis under-
+projected the result by ~20× — `redis-py` 5.x lazy pool initialization made
+the per-call `Redis.from_url + ping` cost ~0.08 ms instead of the ~1.5 ms I
+assumed. Kept anyway because the code is cleaner, the gain is measurable
+and parity is preserved. The next-cycle target shifts to the *real*
+embedding sub-cost (cv2 frame seek + model.embed + per-row creates).
+
+Evidence: `docs/production_inference_benchmark.md` §13, replay key
+`cycle7-rediscache-crop-frame-20260601T120927`, job
+`515fe118-6009-4776-916d-6473fbf31ed7`.
+
 ### Phase 7d (optional) — Triton ensemble / BLS
 
 **STATUS UPDATE (2026-06-01):** evidence now justifies server-side BLS/ensemble

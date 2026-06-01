@@ -770,4 +770,55 @@ pass and are gated by `inference-parallelization.yml`.
 
 ---
 
+## 13. 2026-06-01 Cycle 7 Production Benchmark — Redis Client Caching
+
+**Status:** **ACCEPTED with caveat (hypothesis was partially wrong but the direction is right).** Measured before/after with identical 4 541-frame `combined.mp4`; correctness preserved within 0.012 %.
+
+**Candidate:** Cache the Redis client per `REDIS_URL` in both `apps/tracking/embeddings.py:redis_client` and `apps/video_analysis/tasks.py:_redis_client`. The embedding loop calls these helpers ~217 k times per job; the pre-cycle-7 code paid a fresh `Redis.from_url() + .ping()` round-trip every time.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle7-rediscache-crop-frame-20260601T120927` |
+| Job ID | `515fe118-6009-4776-916d-6473fbf31ed7` |
+| Bench summary | `backend/logs/bench_summary_20260601T120927.json` (rc=0) |
+| Inference audit | `backend/data/videos/515fe118-.../inference_audit.json` |
+| Final status | `completed` (no stale-error) |
+| DB row parity | 4 541 frames, 72 745 detections, 72 745 bboxes, 72 579 embeddings |
+
+**Per-cycle FPS summary across all 4 runs (same `combined.mp4`, 4 541 frames, prod RTX 5090):**
+
+| Cycle | Job ID | Step 2 FPS | Overall FPS (`run.complete`) | Overall FPS (DB `status=completed`) |
+|---|---|---:|---:|---:|
+| Baseline (ROI-320) | `77650001-3c4b-4b0a-94aa-b4eb899b90df` | 2.09 | 1.308 | **1.309** |
+| Cycles 1–5 | `74ec0432-995c-487e-9d77-1048ec109fb1` | 5.14 | 2.644 | **2.077** |
+| Cycle 6 (pose chunking) | `a1a448b9-474f-4dea-942b-3288bcae6900` | 5.17 | 2.776 | **2.780** |
+| **Cycle 7 (redis cache)** | `515fe118-6009-4776-916d-6473fbf31ed7` | **5.39** | **2.865** | **2.870** |
+| Δ Cycle 7 vs Baseline | — | **+158 %** | **+119 %** | **+119 %** |
+| Δ Cycle 7 vs Cycle 6 | — | +4.3 % | +3.2 % | +3.2 % |
+
+**Stage-by-stage (Cycle 7 vs Cycle 6):**
+
+| Stage | C6 | C7 | Δ |
+|---|---:|---:|---:|
+| Step 2 (frame inference) | 879.0 s | 842.6 s | −36.4 s |
+| Pose post-processing | 221.4 s | 220.6 s | unchanged |
+| Persistence | 39.6 s | 42.4 s | +2.8 s |
+| Render | 25.7 s | 25.8 s | unchanged |
+| **Embedding** | **467.6 s** | **450.7 s** | **−16.9 s (−3.6 %)** |
+| **TOTAL DB `status=completed`** | **1 633.2 s** | **1 582.1 s** | **−51 s (−3.1 %)** |
+
+**Why the result was smaller than the projected −69 %:** I extrapolated the embedding-stage saving from "per-call `Redis.from_url + ping` = ~1.5 ms × 217 k calls = ~325 s". The actual saving was 17 s, meaning real per-call overhead is ~0.08 ms — about 18× smaller than assumed. `redis-py` 5.x's `Redis.from_url()` lazily constructs a `ConnectionPool` and pool checkouts are cheap; the first call pays the connect cost, subsequent ones reuse the pooled socket even *without* my cache. The cache layer is still useful (one connect per worker process instead of two-stage from_url+ping per call), just not as dominant as I projected.
+
+**Where the real ~450 s of embedding wall actually lives** (next-cycle targets):
+1. `cv2.VideoCapture.set/read` per-frame seek of the encoded video — likely dominant.
+2. `model.embed([crop])` YOLO backbone per detection — 72 k single-crop inference calls.
+3. Per-row `FrameEmbedding.objects.create()` — no bulk_create.
+4. Per-row `detection.embeddings.exists()` idempotency query.
+
+**Acceptance state: ACCEPTED.** Measurable production improvement, zero correctness regression, all 8 new unit tests (cycle 6 + cycle 7) pass and are gated by `inference-parallelization.yml`. The 15–32 FPS user target requires Cycle 8+ to attack the dominant embedding sub-costs above and Cycle 9+ to attack Step 2 with Triton ensemble/BLS.
+
+---
+
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

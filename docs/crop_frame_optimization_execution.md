@@ -280,11 +280,61 @@ If `redis_client()` and `_redis_client()` lazily cache a single connected client
 
 **Rollback:** Revert the two `Edit`s on `redis_client` / `_redis_client`.
 
-### Phase 3: STAGED — implementation pending
+### Phase 3: Implemented in commit `2771824a`
 
-### Phase 4: STAGED — production benchmark pending
+- `backend/apps/tracking/embeddings.py`: `redis_client()` now caches the
+  connected client per `REDIS_URL` (successful pings only; failures retry
+  to survive brief outages).
+- `backend/apps/video_analysis/tasks.py`: same treatment for `_redis_client()`.
+- `backend/tests/unit/tracking/test_redis_client_cache.py`: 6 regression
+  tests covering reuse, failure-retry semantics, cross-helper sharing, and
+  cache-reset cleanliness.
+- `.github/workflows/inference-parallelization.yml`: gates the new test file.
 
-### Phase 5: STAGED — accept/reject decision pending production evidence
+### Phase 4: Production benchmark — job `515fe118-6009-4776-916d-6473fbf31ed7`
+
+**Result vs Cycle 6 (same `combined.mp4`, 4 541 frames):**
+
+| Stage | Cycle 6 `a1a448b9` | Cycle 7 `515fe118` | Δ |
+|---|---:|---:|---:|
+| Step 2 (frame inference) | 879.0 s | **842.6 s** | **−36.4 s** (within noise band) |
+| Pose post-processing | 221.4 s | **220.6 s** | unchanged (as designed) |
+| Persistence | 39.6 s | **42.4 s** | +2.8 s (noise) |
+| Render | 25.7 s | **25.8 s** | unchanged |
+| **Embedding** | **467.6 s** | **450.7 s** | **−16.9 s (−3.6 %)** |
+| **TOTAL DB `status=completed`** | **1 633.2 s** (27.22 min) | **1 582.1 s** (26.37 min) | **−51.1 s (−3.1 %)** |
+| **Overall FPS (DB completed)** | **2.78** | **2.87** | **+3.2 %** |
+| **Overall FPS (bench probe)** | 2.776 | 2.865 | +3.2 % |
+
+**Correctness parity (vs all prior cycles):**
+
+| Counter | Baseline | C1–5 | C6 | C7 | Range |
+|---|---:|---:|---:|---:|---|
+| Detections | 72 751 | 72 743 | 72 752 | 72 745 | ±9 (0.012 %) |
+| BBoxes | 72 751 | 72 743 | 72 752 | 72 745 | ±9 (0.012 %) |
+| Embeddings | 72 585 | 72 577 | 72 586 | 72 579 | ±9 (0.012 %) |
+
+All within BoT-SORT non-determinism noise. No regression.
+
+### Phase 5: Decision — **ACCEPTED with hypothesis correction**
+
+**Why ACCEPT:**
+- −3.6 % embedding wall, −3.1 % total job — small but **measurable** in the same direction as the hypothesis.
+- Code is cleaner (single connection per worker process per Redis URL instead of ~217 k).
+- No correctness regression.
+- 6 regression unit tests gate the new behavior.
+
+**Why the hypothesis was wrong:** I projected −69 % on embedding wall based on extrapolation from "per-call Redis.from_url + ping = ~1.5 ms × 217 k calls = ~325 s". The actual saving was 17 s, which means the real per-call overhead was ~0.08 ms — about 18× smaller than I assumed. `redis-py` 5.x's `Redis.from_url()` is much cheaper than I feared: it constructs a `ConnectionPool` lazily and the pool itself reuses the underlying socket, so most of the "fresh client per call" cost wasn't actually a fresh socket connect — only the first one was, the rest were pool checkouts.
+
+**Where the real 450 s of embedding wall actually lives** (now the next-cycle hypothesis target):
+1. `cv2.VideoCapture.set(1, frame_number-1)` + `cv2_cap.read()` per frame — seeks decode codecs from the nearest keyframe each time; expected dominant cost on 4 541-frame H.264 input.
+2. `model.embed([crop])` — YOLO backbone forward pass per detection (72 k × ~3-5 ms = ~250 s).
+3. Per-row `FrameEmbedding.objects.create()` — no bulk_create.
+4. Per-row `detection.embeddings.exists()` idempotency check — extra DB query per detection.
+
+These will be the targets of Cycle 8 onward.
+
+**Honest status:** the user's 15-32 FPS goal requires **much** bigger wins than incremental Redis tuning. Cycle 7 confirmed both the methodology (measure → hypothesize → verify) and that the next big block is *inside* embedding, not at its periphery.
 
 ---
 

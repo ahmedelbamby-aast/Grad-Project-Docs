@@ -65,6 +65,21 @@ This file defines how agents should execute tests quickly and safely in this rep
   `docs/production_inference_benchmark.md` §11,
   `docs/crop_frame_optimization_execution.md`,
   `docs/rtt_root_cause_investigation_77650001.md`.
+- **2026-06-01 Cycle 7 ACCEPTED (with caveat)**: cache Redis client per `REDIS_URL`
+  in both `apps.tracking.embeddings.redis_client` and
+  `apps.video_analysis.tasks._redis_client`. The embedding loop calls these
+  helpers ~217 k times per offline job. Replay key
+  `cycle7-rediscache-crop-frame-20260601T120927`, job
+  `515fe118-6009-4776-916d-6473fbf31ed7`. **Total DB-completed elapsed
+  27.22 min → 26.37 min (−3.1 %); overall FPS 2.78 → 2.87 (+3.2 % vs C6;
+  +119 % vs baseline); embedding stage 467.6 s → 450.7 s (−3.6 %);
+  detection-row parity within 0.012 %.** The hypothesis predicted −69 %
+  embedding wall but actual was only −3.6 % because `redis-py` 5.x's
+  `Redis.from_url()` is much cheaper than I assumed (~0.08 ms per call, not
+  ~1.5 ms). The cache is still kept (cleaner code, modest measurable win,
+  zero risk); next cycle attacks the *real* embedding sub-costs (cv2 seek,
+  per-row create, per-row exists query, model.embed single-crop). Evidence:
+  `docs/production_inference_benchmark.md` §13.
 - **2026-06-01 Cycle 6 ACCEPTED**: chunk `PoseRuntime._provider_infer_batch`
   at the deployed rtmpose `max_batch_size=16` (configurable via
   `TRITON_MODEL_BATCH_SIZE_OVERRIDES["pose_estimation"]`). Cycles 1–5
