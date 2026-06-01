@@ -129,6 +129,66 @@ All cycles individually marked **ACCEPTED**. Replay key `cycle2to5-crop-frame-20
 
 ---
 
+## Cycle 6 — Fix `rtmpose_model` batch > 16 violation in `PoseRuntime`
+
+### Phase 1: Investigation (measurement, no code change)
+
+**Evidence captured before any change:**
+- Cycles 1–5 production benchmark (job `74ec0432`) lifecycle showed pose
+  post-processing block `step2.frame_stage_timings → step2.pose_upload` took
+  **12 m 47 s (767 s)** for the same 4 541-frame video.
+- Celery log for that run shows repeated `WARNING TritonClient: gRPC inference
+  failed [model=rtmpose_model] ... [StatusCode.INVALID_ARGUMENT] inference
+  request batch-size must be <= 16 for 'rtmpose_model'` followed by an HTTP
+  fallback that succeeds.
+- Triton stats: `rtmpose_model` max_batch_size=16, avg observed effective
+  batch 1.44, executions 13 316 for 19 157 inferences across the job.
+- `PoseRuntime.infer_from_detections` is called from `tasks.py:3838` once per
+  frame, serially across all 4 541 frames.
+- `PoseRuntime._provider_infer_batch` builds one payload per crop and calls
+  `orchestrator.run_inference_batch(frame_payloads=payloads, ...)`. With
+  `TRITON_TRUE_BATCH_REQUESTS=1`, the orchestrator stacks *all* of them into a
+  single batched gRPC call without enforcing the model's `max_batch_size`.
+- `tasks.py:3817` computes `dynamic_cap = pose_frame_budget_ms /
+  avg_pose_ms_per_person`. With a fast GPU `avg_pose_ms_per_person` decays to
+  ~20–50 ms, so `dynamic_cap = 1400 / 20 = 70` person crops per frame —
+  well above `max_batch_size=16` — and every such frame trips the batch-size
+  guard, falls back to HTTP, and pays the fallback round-trip.
+
+**Root cause (proven):** `_provider_infer_batch` does not chunk its
+`frame_payloads` list to the model's max batch size. The behavior-model path
+in `tasks.py:_infer_task_batch` *does* chunk via
+`_effective_task_batch_size(...)`, but pose's dedicated dispatcher bypasses
+that helper and goes straight to the orchestrator.
+
+### Phase 2: Hypothesis
+
+If `PoseRuntime._provider_infer_batch` chunks its crops to `max_batch_size=16`
+before dispatch:
+
+- 0 rtmpose batch>16 warnings (correctness improvement).
+- Removes the per-frame HTTP fallback round-trip (~50–100 ms on the affected
+  frames).
+- Should not change Triton's effective batch (the orchestrator was already
+  stacking; we now stack in correctly sized chunks).
+- Bench expectation: small but measurable drop in pose-upload elapsed time
+  (~10–20 % of the 767 s pose block) and zero gRPC→HTTP fallbacks for
+  rtmpose during the run.
+
+**Risk:** very low — the chunk size is read from settings with a default of
+16 that already matches the deployed engine; if the chunk size matches the
+old behavior (one batch of all crops), behavior is identical.
+
+**Rollback:** revert the single edit in `pose_runtime.py`.
+
+### Phase 3: STAGED — implementation in progress
+
+### Phase 4: STAGED — production benchmark pending
+
+### Phase 5: STAGED — accept/reject decision pending production evidence
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
