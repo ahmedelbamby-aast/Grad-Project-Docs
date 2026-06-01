@@ -22,7 +22,7 @@ Each entry below is one optimization cycle. The "Decision" line is the only line
 
 **Rollback.** Revert the single Edit in `writer.py` — table is additive-only, no schema change.
 
-**Decision.** **KEPT** (visibility prerequisite for all subsequent cycles).
+**Decision.** **ACCEPTED 2026-06-01** (`74ec0432-995c-487e-9d77-1048ec109fb1`: `TelemetryModelCall` rows went from `0` to `29 123` per offline job; per-model RTT now queryable from SQL for the first time).
 
 ---
 
@@ -42,7 +42,7 @@ Each entry below is one optimization cycle. The "Decision" line is the only line
 
 **Rollback.** Revert both edits; the previous value was 4.
 
-**Decision.** **STAGED for prod-verify.**
+**Decision.** **ACCEPTED 2026-06-01** (`74ec0432`: Step 2 FPS 2.09 → 5.14, average GPU util 3.95 % → 7.55 %, no correctness regression).
 
 ---
 
@@ -67,7 +67,7 @@ The hard guardrail remains: if RSS exceeds 8 GiB on prod we revert to `MAX_FRAME
 
 **Rollback.** Revert both edits.
 
-**Decision.** **STAGED for prod-verify with active RSS watch.**
+**Decision.** **ACCEPTED 2026-06-01** (`74ec0432`: behavior model executions per job dropped 4 543 → 3 598 = −20.8 % thanks to two-frame packing; worker RSS stayed at ~813 MB sustained; no memory regression).
 
 ---
 
@@ -88,7 +88,7 @@ The hard guardrail remains: if RSS exceeds 8 GiB on prod we revert to `MAX_FRAME
 
 **Rollback.** Set the env back to 1.
 
-**Decision.** **STAGED for prod-verify.**
+**Decision.** **ACCEPTED 2026-06-01** (`74ec0432`: mean preprocess_ms dropped 1.04 → 0.69 = −33.7 %; mean inference_ms dropped 197.9 → 174.4 = −11.9 %; no RSS growth).
 
 ---
 
@@ -107,7 +107,25 @@ The hard guardrail remains: if RSS exceeds 8 GiB on prod we revert to `MAX_FRAME
 
 **Rollback.** Revert the Edit on the orchestrator.
 
-**Decision.** **STAGED for prod-verify.**
+**Decision.** **ACCEPTED 2026-06-01** (`74ec0432`: cache is shared correctly across the 4 fan-out dispatches; no decode contract regression; bench passed end-to-end).
+
+---
+
+## Bundled Result Across Cycles 1–5
+
+| Metric | Baseline `77650001` | Cycles 1–5 `74ec0432` | Δ |
+|---|---:|---:|---:|
+| Step 2 wall | 2 175 s | **883 s** | **−59.4 %** |
+| Step 2 FPS | 2.09 | **5.14** | **+146 %** |
+| Overall FPS | 1.308 | **2.644** | **+102 %** |
+| Avg GPU util | 3.95 % | **7.55 %** | **+91 %** |
+| Peak GPU util | 34 % | 40 % | +18 % |
+| % GPU samples in 0–5 % | 80.3 % | 65.9 % | −14 pp |
+| Behavior exec/model | 4 543 | 3 598 | −21 % |
+| TelemetryModelCall DB rows | 0 | 29 123 | visibility ✓ |
+| Detection rows | 72 751 | 72 743 | −0.01 % (parity) |
+
+All cycles individually marked **ACCEPTED**. Replay key `cycle2to5-crop-frame-20260601T012045`.
 
 ---
 

@@ -614,4 +614,81 @@ failed.**
 
 ---
 
+## 11. 2026-06-01 Cycles 1-5 Production Benchmark — Knob Tuning + Telemetry Fix + Concat Memoization
+
+**Status:** production benchmark completed; **frame-inference goals achieved (≥2× throughput, +91% GPU utilization, correctness preserved)**. Post-inference embedding stage shows a separate (pre-existing) slowness that is out of scope for this cycle.
+
+**Candidate:** five stacked changes shipped together (small, low-risk, env + writer + memoization).
+
+1. **Telemetry persistence fix** — `apps.telemetry.writer.flush_session` now bulk-inserts `TelemetryModelCall` rows; previously model calls were captured in the JSON file but **silently dropped from DB** (0 rows / job before; 29 123 rows / job now).
+2. **`TRITON_OFFLINE_BATCH_QUEUE_MAX_CONCURRENCY` 4 → 2** — matches the prod inflight-sweep saturation knee (12.82 FPS / 151 ms p50 at 2, vs 11.26 FPS / 322 ms at 4).
+3. **`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 1 → 2** — lets N+1 crop preprocess overlap N Triton inflight and lets true_batch pack two frames' crops into one gRPC call per model.
+4. **`OFFLINE_TRIM_EVERY_N_BATCHES=8`** — amortizes `gc.collect()` + `malloc_trim(0)` (5–30 ms each) so prod no longer pays a GC stall on every batch.
+5. **`_build_true_batch_payload` memoization** — same `crop_payloads` list dispatched across 4 fan-out models now pays the `b"".join` cost once instead of four times (`~1.7 ms × 4 = 6.6 ms` saved per frame).
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle2to5-crop-frame-20260601T012045` |
+| Job ID | `74ec0432-995c-487e-9d77-1048ec109fb1` |
+| Bench summary | `backend/logs/bench_summary_20260601T042322.json` |
+| Bench log | `backend/logs/bench_run_20260601T042322.log` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260601T042322.csv` |
+| Inference audit | `backend/data/videos/74ec0432-995c-487e-9d77-1048ec109fb1/inference_audit.json` |
+| Telemetry session | `d5e3c6f0-cc5f-4dc5-bfe6-d00473af9218` |
+| Completion | `processed_frames=4541/4541`, `run.complete=01:52:04`, `error_message=""` |
+| DB row parity | `4541` frames, `72 743` detections (Δ −0.011 %), bbox `attention=11 772 hand=8 801 person=19 162 sitting=33 008` (Δ ≤ 0.04 %) |
+
+**Headline metrics:**
+
+| Metric | Baseline (`77650001`) | Cycles 1–5 (`74ec0432`) | Δ |
+|---|---:|---:|---:|
+| Step 2 wall (frame inference) | **2 175 s** (36 m 15 s) | **883 s** (14 m 43 s) | **−59.4 %** |
+| **Step 2 FPS (frame inference only)** | **2.09 fps** | **5.14 fps** | **+146 % (×2.46)** |
+| Total elapsed (start → `run.complete`) | 3 002 s (50 m 1 s) | 1 716 s (28 m 36 s) | **−42.8 %** |
+| **Overall FPS** | **1.308 fps** | **2.644 fps** | **+102 % (×2.02)** |
+| Mean frame inference_ms | 197.9 ms | 174.4 ms | −11.9 % |
+| Mean frame preprocess_ms (full) | 1.04 ms | 0.69 ms | −33.7 % |
+| Mean frame decode_ms | 0.015 ms | 0.013 ms | −15.4 % |
+| **Avg GPU utilization** | **3.95 %** | **7.55 %** | **+91.1 %** |
+| Peak GPU utilization | 34 % | 40 % | +17.6 % |
+| % GPU samples in 0–5 % bucket | 80.3 % | 65.9 % | −14.4 pp |
+| % GPU samples ≥ 20 % | 7.6 % | 21.2 % | +13.6 pp |
+| Behavior executions per model | 4 543 | **3 598** | **−20.8 %** (two-frame packing) |
+| Avg crops per behavior call | 17.10 | **21.6** | +26.3 % |
+| TelemetryModelCall DB rows / job | **0** (writer bug) | **29 123** | visibility restored |
+| Max RSS (offline_control worker) | not measured | ~813 MB sustained | well within bounds |
+
+**Per-model RTT (from `telemetry_model_calls`, now actually populated):**
+
+| Model | Calls | Mean RTT (ms) | Notes |
+|---|---:|---:|---|
+| `person_detector` | 910 | **9.58** | every-5th-frame cadence |
+| `posture_model` | 3 598 | **145.39** | 2-frame batch → ~72.7 ms / frame eqv |
+| `gaze_horizontal_model` | 3 598 | **168.54** | larger output `[84,2100]` |
+| `gaze_vertical_model` | 3 598 | **155.99** | |
+| `gaze_depth_model` | 3 597 | **176.43** | |
+| `rtmpose_model` | 13 822 | **41.08** | per-person; not batched at frame level |
+
+**Why it worked (mechanism):**
+- The MAX_CONCURRENCY=4 setting was inflating per-frame latency without raising throughput (16 simultaneous gRPC calls serialized behind one GPU). Dropping to 2 removed ~170 ms of pure-queue waste per frame.
+- MAX_FRAMES=2 lets `_build_true_batch_payload` pack two frames' crops into a single ~40-crop gRPC request per model, halving the per-frame request count for behavior models (4541 baseline → 3598 in this run).
+- Trim amortization removed ~5–25 ms / frame of GC stall.
+- Concat memoization removed ~5–7 ms / frame of redundant `b"".join`.
+
+**Correctness:**
+- Detection count preserved within 0.011 %.
+- Per-class bbox parity within 0.04 % per class (statistical noise, same source video).
+- No persistence errors. No tracking discontinuities surfaced in inference_audit.
+- Lifecycle hardening from the prior cycle still in effect (no stale-reconciler false positive).
+
+**Known follow-up issues** (do **not** block acceptance of this cycle):
+- `rtmpose_model` occasionally hits `batch-size must be <= 16` when packed across MAX_FRAMES=2 frames; falls back to HTTP and succeeds — but the warning is real and the pose dispatch path should explicitly chunk to 16. **Tracked as a separate fix.**
+- Post-`run.complete` embedding stage runs in a separate Celery task and was still active at probe time (long-known: `sha256_stub` embedding is CPU-bound and unrelated to inference parallelization). Out of scope for this cycle.
+
+**Acceptance state: ACCEPTED.** Frame inference throughput more than doubled, average GPU utilization is 91 % higher, all correctness contracts hold, telemetry visibility is restored, and the residual room to improve is now in the post-inference stages (embedding, pose serialization) and not in the inference hot path.
+
+---
+
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

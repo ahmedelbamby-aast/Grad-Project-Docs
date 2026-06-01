@@ -51,6 +51,20 @@ This file defines how agents should execute tests quickly and safely in this rep
   with no stale reconciler error and improved throughput/RTT/traffic, but
   average GPU utilization regressed to `3.95%` (peak `34%`). This phase is
   **partial production success only, not final acceptance**.
+- **2026-06-01 Cycles 1–5 ACCEPTED** on top of ROI-320: bundled telemetry
+  writer fix (TelemetryModelCall now actually persists — was silently dropping
+  ~30 k rows / job), `BATCH_QUEUE_MAX_CONCURRENCY` 4→2 (saturation knee from
+  prod inflight sweep), `BATCH_QUEUE_MAX_FRAMES` 1→2 (two-frame true_batch
+  packing), `OFFLINE_TRIM_EVERY_N_BATCHES=8` (amortize gc/malloc_trim),
+  `_build_true_batch_payload` memoization (collapse 4× redundant `b"".join`
+  across fan-out behavior models). Replay key
+  `cycle2to5-crop-frame-20260601T012045`, job
+  `74ec0432-995c-487e-9d77-1048ec109fb1`. **Step-2 FPS 2.09 → 5.14 (+146 %),
+  overall FPS 1.308 → 2.644 (+102 %), avg GPU util 3.95 % → 7.55 % (+91 %),
+  detection-row parity within 0.01 %.** Evidence:
+  `docs/production_inference_benchmark.md` §11,
+  `docs/crop_frame_optimization_execution.md`,
+  `docs/rtt_root_cause_investigation_77650001.md`.
 - Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
   throughput from single-digit fps toward 100+ fps, every phase measured by the
   telemetry layer and shipped behind a flag with fallback.

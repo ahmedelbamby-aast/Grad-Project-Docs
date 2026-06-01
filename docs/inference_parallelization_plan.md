@@ -566,6 +566,52 @@ and latency reduction, but it does not solve RTX 5090 starvation. The next
 accepted optimization must remove Python/Triton request-boundary cost and request
 fragmentation; a plain smaller input size is insufficient for final acceptance.
 
+### 2026-06-01 Cycles 1–5 — Knob tuning + telemetry fix + concat memoization (ACCEPTED)
+
+Status: **production benchmark ACCEPTED**. Overall FPS doubled, average GPU
+utilization rose 91 %, and per-call RTT telemetry is finally queryable from SQL.
+
+Bundled into one commit (single benchmark cycle because each change is small
+and independently low-risk; rollback is a single revert):
+
+1. **Telemetry writer fix** (`apps.telemetry.writer.flush_session`): added the
+   missing `_bulk_insert_model_calls` so the 29 000–300 000 model-call records
+   per offline job now land in `telemetry_model_calls` instead of being
+   silently dropped (the JSON file already had them).
+2. **`TRITON_OFFLINE_BATCH_QUEUE_MAX_CONCURRENCY` 4 → 2** — matches the
+   inflight-sweep saturation knee measured on the prod RTX 5090.
+3. **`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 1 → 2** — lets `true_batch`
+   pack two frames' crops into a single gRPC request per behavior model.
+4. **`OFFLINE_TRIM_EVERY_N_BATCHES=8`** — amortizes per-batch
+   `gc.collect()` + `malloc_trim(0)` cost (5–30 ms) so prod no longer pays a
+   GC stall on every flush.
+5. **`_build_true_batch_payload` memoization** — collapses the 4× redundant
+   `b"".join` (one per fan-out behavior model) into one when the same
+   `crop_payloads` list is dispatched across multiple models.
+
+Result on `combined.mp4` (4 541 frames):
+
+| Metric | Baseline `77650001` | Cycles 1–5 `74ec0432` | Δ |
+|---|---:|---:|---:|
+| Step 2 wall | 2 175 s | **883 s** | **−59.4 %** |
+| **Step 2 FPS (frame inference)** | **2.09** | **5.14** | **+146 %** |
+| **Overall FPS** | **1.308** | **2.644** | **+102 %** |
+| **Avg GPU utilization** | **3.95 %** | **7.55 %** | **+91 %** |
+| Peak GPU utilization | 34 % | 40 % | +17.6 % |
+| Behavior executions / model | 4 543 | 3 598 | −20.8 % (two-frame packing) |
+| Detection rows preserved | — | 72 743 / 72 751 = −0.01 % | parity |
+
+Evidence: `docs/production_inference_benchmark.md` §11, replay key
+`cycle2to5-crop-frame-20260601T012045`, job `74ec0432-995c-487e-9d77-1048ec109fb1`.
+Full breakdown in `docs/crop_frame_optimization_execution.md`.
+
+The dominant remaining cost has now shifted from frame-inference Python
+orchestration to post-inference embedding (CPU-bound `sha256_stub`) and
+sequential pose dispatch — both are independent of the parallelization plan's
+inference hot path. Further inference-side gains would require Triton
+ensemble/BLS (Phase 7d below), which is now the only remaining justified
+candidate from the bottleneck investigation.
+
 ### Phase 7d (optional) — Triton ensemble / BLS
 
 **STATUS UPDATE (2026-06-01):** evidence now justifies server-side BLS/ensemble
