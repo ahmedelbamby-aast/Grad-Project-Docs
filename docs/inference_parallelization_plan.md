@@ -663,6 +663,15 @@ Evidence: `docs/cycle_9_results.md`, replay key
 `cycle9-behavior-ensemble-crop-frame-20260601T180847`, job
 `c1651663-e08a-4e29-9ee3-fd0f09884b98`.
 
+Cycle 9b Step-1 child critical-path measurement is now recorded in
+`docs/cycle_9b_child_critical_path_results.md`. Direct production gRPC
+decomposition identified `gaze_horizontal_model` as the dominant child
+(`16.058 ms/exec` server delta versus `12.133 ms` posture, `11.759 ms`
+vertical, and `11.909 ms` depth). It is also the widest dense-output model
+(`[84,2100]`). The next Cycle 9b implementation should target
+`gaze_horizontal_model` first, with B.2.b output fusion / narrow-head work as
+the lowest-risk first candidate.
+
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to
 implement. The general lesson — **stop optimizing gRPC call count alone**

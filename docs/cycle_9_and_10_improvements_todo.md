@@ -39,7 +39,7 @@ Items per §B / §C:
 
 - [ ] **B.1** Compact-postprocessing: ALL three approaches (B.1.a BLS Python, B.1.b C++ custom, B.1.c TRT NMS plugin) measured on prod and recorded in `docs/cycle_9b_compact_postproc_results.md`; one approach selected via `BEHAVIOR_COMPACT_BACKEND`; CI gate updated for the new tests
 - [ ] **B.2** Output-fusion: ALL three approaches (B.2.a top-K, B.2.b 2-class gaze_h re-export, B.2.c both) measured on prod and recorded in `docs/cycle_9b_output_fusion_results.md`; one approach selected; CI gate updated
-- [ ] **B.3** Child critical-path: Step 1 measurement landed; ALL applicable Step 2 approaches measured and recorded in `docs/cycle_9b_child_critical_path_results.md`; dominant-child optimization landed; CI gate updated
+- [ ] **B.3** Child critical-path: Step 1 measurement landed in `docs/cycle_9b_child_critical_path_results.md` (`gaze_horizontal_model` is the dominant child); ALL applicable Step 2 approaches still need implementation, prod measurement, and CI gate updates
 - [ ] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; accept or reject documented in a results doc
 - [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated (**deployed and prod-proven, but Cycle 10 acceptance failed so checkbox remains open**)
 - [ ] **C.2.2** `telemetry_lpm_events` table + migration + writer landed; migration test added; CI gate updated (**deployed and prod-proven, but Cycle 10 acceptance failed so checkbox remains open**)
@@ -296,6 +296,12 @@ done'
 
 Record the per-child average and p95 in `docs/cycle_9b_child_critical_path_results.md`.
 **Do NOT proceed to B.3 Step 2 until this measurement exists.**
+
+**Current measured status (2026-06-02):** Step 1 is complete. Production stats
+and direct gRPC decomposition show `gaze_horizontal_model` is the dominant child:
+`16.058 ms/exec` server delta versus `12.133 ms` posture, `11.759 ms` vertical,
+and `11.909 ms` depth. The next implementation target should be
+`gaze_horizontal_model`, likely via B.2.b output fusion / narrow head first.
 
 #### B.3 Step 2 — approaches to test (only on the dominant child)
 

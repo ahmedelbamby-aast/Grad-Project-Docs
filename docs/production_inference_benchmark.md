@@ -951,6 +951,27 @@ the candidate deployed only as a measured, parity-clean intermediate state.
 The next iteration must reduce the server-side ensemble critical path or dense
 output movement, not just the Python request count.
 
+### 15.1 Cycle 9b Child Critical-Path Measurement
+
+**Status:** measurement only; no optimization accepted.
+
+After the Cycle 10 safety proof, the live production Triton stats and direct
+gRPC decomposition were used to identify the dominant behavior child before any
+Cycle 9b implementation:
+
+| Model | Direct server avg / exec |
+|---|---:|
+| `posture_model` | `12.133 ms` |
+| `gaze_horizontal_model` | `16.058 ms` |
+| `gaze_vertical_model` | `11.759 ms` |
+| `gaze_depth_model` | `11.909 ms` |
+
+Decision: `gaze_horizontal_model` is the dominant child and should be the first
+Cycle 9b target. This aligns with the dense-tensor anatomy: it is also the
+widest behavior output (`[84,2100]`). Evidence is recorded in
+`docs/cycle_9b_child_critical_path_results.md`; the direct probe artifact is
+`backend/logs/probe_rtt_decompose_cycle9b_child_20260602T.json`.
+
 ---
 
 ## 16. 2026-06-01 Cycle 10 Production Benchmark — LPM Phase 1

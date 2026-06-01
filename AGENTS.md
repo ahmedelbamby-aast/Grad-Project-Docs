@@ -79,6 +79,16 @@ This file defines how agents should execute tests quickly and safely in this rep
   (server-side compact postprocessing / BLS, output fusion, child critical-path
   optimization, larger ensemble batches, discipline rule "stop optimizing
   gRPC call count alone") are documented in `docs/cycle_9_results.md`.
+- **2026-06-02 Cycle 9b Step-1 measurement complete (not an accepted
+  optimization)**: production stats and direct gRPC decomposition in
+  `docs/cycle_9b_child_critical_path_results.md` identify
+  `gaze_horizontal_model` as the dominant behavior child (`16.058 ms/exec`
+  server delta vs. `12.133 ms` posture, `11.759 ms` vertical, `11.909 ms`
+  depth). The same model also owns the widest dense output tensor
+  (`[84,2100]`). Next Cycle 9b implementation should target
+  `gaze_horizontal_model` first, preferably through B.2.b output fusion /
+  narrow-head work, but no Cycle 9b optimization is accepted until a fresh prod
+  benchmark proves Step 2/FPS improvement and correctness parity.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
