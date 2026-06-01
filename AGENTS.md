@@ -65,6 +65,46 @@ This file defines how agents should execute tests quickly and safely in this rep
   `docs/production_inference_benchmark.md` §11,
   `docs/crop_frame_optimization_execution.md`,
   `docs/rtt_root_cause_investigation_77650001.md`.
+- **2026-06-01 Cycle 9 NOT ACCEPTED** — Triton ensemble for the 4 behavior
+  models. Step 2 wall 852.8 s → 858.1 s (+0.6 %, failed the ≥ 10 % reduction
+  acceptance gate). Behavior app calls 14 391 → 3 597 (−75 %), behavior RTT
+  143–168 ms → 107.9 ms avg, DB-completed FPS 3.46 → 4.09 (+18.1 %), GPU peak
+  36 % → 43 %, all correctness counters unchanged. The flag `TRITON_BEHAVIOR_ENSEMBLE`
+  remains deployed but the cycle does not constitute SLA progress because
+  the four sub-models still execute identically and still return dense YOLO
+  outputs — the reduction was app-side request fragmentation, which was not
+  the dominant Step 2 limiter. Replay key
+  `cycle9-behavior-ensemble-crop-frame-20260601T180847`, job
+  `c1651663-e08a-4e29-9ee3-fd0f09884b98`. Five concrete follow-up options
+  (server-side compact postprocessing / BLS, output fusion, child critical-path
+  optimization, larger ensemble batches, discipline rule "stop optimizing
+  gRPC call count alone") are documented in `docs/cycle_9_results.md`.
+- **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
+  deterministic mathematical constraint layer applied AFTER the three gaze
+  models (horizontal / vertical / depth) and BEFORE persistence. Scope is
+  HARD-RESTRICTED to those three models only; RTMPose, person_detector, and
+  posture_model are read-only inputs (C4 uses RTMPose head-yaw as a signal
+  but never modifies pose outputs) or are not touched at all. Constraints
+  C1–C4 enforce within-axis exclusivity (margin-based), temporal smoothness
+  with hysteresis, impossible-state alarms, and pose-coupling. Implementation
+  lives at `backend/apps/pipeline/services/logical_path_matrix.py` plus 22
+  unit tests at `backend/tests/unit/pipeline/test_logical_path_matrix.py`.
+  Flag `LPM_ENABLED` defaults `0` — **STAGED, not accepted**, until a prod
+  benchmark on the Linux RTX 5090 satisfies §10 of
+  `docs/logical_path_matrix_spec.md` (zero correctness regression + measurable
+  contradiction reduction + ≥ 25 % gaze-flip-rate drop per track). The same
+  pure-function math layer is the planned hand-off point for a future Triton
+  BLS Python backend (Phase 2).
+- **Constitutional re-affirmation (2026-06-01)**: **No optimization cycle may
+  be marked accepted/success/agreed without a production benchmark on the
+  Linux RTX 5090 server that demonstrates both (a) the targeted metric
+  improvement and (b) zero correctness regression vs. the prior accepted
+  baseline.** Code review, local testing, theoretical reasoning, and
+  parity probes are necessary but never sufficient. Cycle 9 is the
+  reference precedent: parity passed, code reviewed, FPS improved, but the
+  designated acceptance gate (Step 2 wall) failed, so the cycle is held back
+  even though the change is technically working. Every future cycle's
+  acceptance section must cite the production replay key and job id.
 - **2026-06-01 Cycle 8 ACCEPTED** (largest single-cycle win since Cycles 1–5):
   bundled `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + lazy `cv2.VideoCapture` reads
   (skip `.set/.read` when every detection in a frame already has a cached

@@ -646,6 +646,48 @@ the Triton parallelization plan. Inference-side, the remaining justified
 candidate is still Phase 7d (Triton ensemble/BLS) — gain estimated at +20–40 %
 over cycle 6, but at high engineering cost.
 
+### 2026-06-01 Cycle 9 — Behavior ensemble (NOT ACCEPTED)
+
+Status: **production benchmark completed, NOT accepted.** Step 2 wall
+852.8 s → 858.1 s (+0.6 %, failed the ≥ 10 % reduction gate). DB-completed
+FPS 3.46 → 4.09 (+18.1 %), behavior app calls −75 %, behavior RTT
+143–168 ms → 107.9 ms ensemble, correctness counters unchanged.
+
+Root cause: the four sub-models still execute identically and still return
+dense YOLO outputs server-side. The savings landed in app-side request
+fragmentation (which was already absorbed by `TRITON_CONCURRENT_MODELS=1`
+since Cycle 1–5), not in the GPU critical path or in dense output
+transfer.
+
+Evidence: `docs/cycle_9_results.md`, replay key
+`cycle9-behavior-ensemble-crop-frame-20260601T180847`, job
+`c1651663-e08a-4e29-9ee3-fd0f09884b98`.
+
+Five concrete continuation options recorded in `docs/cycle_9_results.md` as
+Cycle 9b candidates; each STAGED until prod evidence selects which to
+implement. The general lesson — **stop optimizing gRPC call count alone**
+— is now an explicit discipline rule for future cycle hypotheses.
+
+### 2026-06-01 Cycle 10 — Logical Path Matrix (STAGED)
+
+Status: **STAGED only.** Code, math, unit tests, and CI gate are landed
+but the cycle is not accepted until production benchmark satisfies the
+gates in `docs/logical_path_matrix_spec.md` §10.
+
+Scope (hard-restricted): the LPM consumes per-person probabilities from
+`gaze_horizontal_model`, `gaze_vertical_model`, `gaze_depth_model` only.
+RTMPose head-yaw is a read-only input to C4 (physical-coupling
+constraint). `person_detector` and `posture_model` (sitting/standing) are
+not touched. Constraints C1–C4 enforce within-axis exclusivity
+(margin-based), temporal hysteresis, impossible-state alarms, and head-pose
+coupling.
+
+Phase 1 (this commit): pure-Python module at
+`backend/apps/pipeline/services/logical_path_matrix.py`, flag-gated by
+`LPM_ENABLED=0` default. Phase 2 (future cycle): migrate the same pure
+constraint solver to a Triton BLS Python backend, which dovetails with
+Cycle 9b Option 1 (server-side compact postprocessing).
+
 ### 2026-06-01 Cycle 8 — Embedding stage attack (ACCEPTED)
 
 Status: **production benchmark ACCEPTED.** Embedding stage wall 450.7 s →

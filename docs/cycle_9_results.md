@@ -134,3 +134,124 @@ The next evidence-driven option should reduce either:
 This points toward the planned Cycle 13 architecture decision: compare compact
 server-side postprocessing/BLS against video sharding or multi-process
 architecture using production measurements.
+
+---
+
+## Cycle 9 Post-Mortem — Why The Main Gate Failed
+
+The improvement *was* real on three axes (app-side call count, behavior RTT,
+overall DB-completed FPS). It failed on the gate we chose (Step 2 wall) because
+the gate was upstream of where the savings landed.
+
+**Old per-frame critical path (Cycle 8):**
+
+```
+max(posture_call, gaze_h_call, gaze_v_call, gaze_d_call)
+```
+
+These four calls already ran concurrently from Python (`TRITON_CONCURRENT_MODELS=1`
+since Cycle 1–5), so the wall time was already `max(…)`, not `sum(…)`. The
+ensemble removed the per-call gRPC fan-out tax (4 trips → 1 trip), which is
+why call count dropped 75 % and RTT dropped from 143–168 ms/model to 107.9 ms
+ensemble. But the **GPU still executed the same four TensorRT engines on the
+same crop batches**, and the response still carried the same four dense YOLO
+output tensors (`[14, 2100]` × 3 and `[84, 2100]` × 1). So:
+
+- Step 2 wall is bounded by **server-side GPU compute + dense response transfer**,
+  not by per-call request fragmentation. The fragmentation that Cycle 9 removed
+  was already hidden behind concurrent dispatch.
+- The Cycle 9 win shows up in `Telemetry session wall` (-18.9 %) and the
+  `DB-completed elapsed` (-15.4 %) because the embedding / persistence loops
+  *do* benefit from fewer telemetry rows and lower Python orchestration cost.
+
+**Lesson formalized:** request count was no longer the dominant Step 2 limiter
+when this cycle started. The remaining levers are inside the GPU work
+(child-model critical path, dense output volume) or outside the single-process
+ordering (multi-process or video sharding).
+
+---
+
+## Cycle 9b — Continuation Options (Not Implemented Yet, Plan Only)
+
+The next ensemble-adjacent change MUST attack one of these five levers. Each is
+a separate STAGED candidate; the production benchmark before/after is the only
+acceptance evidence.
+
+### Option 1 — Server-side compact postprocessing (HIGHEST IMPACT)
+
+Add a BLS Python backend or a C++ custom backend that consumes the four dense
+behavior outputs **inside Triton** and emits only the post-NMS / argmax decisions
+(class ID, confidence, optional bbox). Per-frame response shrinks from
+`(14 + 84 + 14 + 14) × 2100 × 4 bytes ≈ 1.05 MB / crop` to roughly 32 bytes /
+crop / model. With ~17 crops/frame × 4 models that is `~71 MB → ~2 KB` of dense
+output movement removed per frame.
+
+- **Mechanism placement**: new `behavior_compact_ensemble` ensemble whose final
+  step is a BLS Python backend (`triton_repository_cuda12/behavior_postproc/`).
+- **Expected gain**: Step 2 wall reduction not just from PCIe / gRPC bytes but
+  from removing the dense `result.as_numpy(output0).reshape(...)` cost in the
+  Python `_decode_yolo_output0` path that runs 17 × 4 = 68 times per frame.
+- **Risk**: high — first BLS Python backend in this repo, requires the
+  python_backend stub bundled with Triton 2.55 (already present in our
+  install). Accuracy contract is bit-identical *only if* the NMS settings match
+  the Python-side `_decode_yolo_output0`.
+
+### Option 2 — Fuse outputs before returning
+
+If full BLS is too much, add a stage that concatenates / packs only the needed
+logits (class scores per anchor) instead of returning the full dense grid.
+Even partial compression (return top-K anchors per model, not all 2 100) cuts
+output bytes 20-100× without changing the Python decoder contract.
+
+- **Mechanism placement**: a thin C++ custom backend OR an ensemble step that
+  invokes a tiny TensorRT engine wrapping a top-K op.
+- **Expected gain**: less than Option 1 but with a much smaller engineering
+  footprint.
+- **Risk**: medium — the top-K choice must match Python-side
+  `TRITON_YOLO_MAX_DECODE_CANDIDATES=100` exactly.
+
+### Option 3 — Reduce the child model critical path
+
+The ensemble still waits for the slowest sub-model. Cycle 9 telemetry shows the
+ensemble mean RTT 107.9 ms; the standalone per-model RTTs were 143–168 ms
+spread asymmetrically. Need server-side measurement of which sub-model dominates,
+then optimize that one specifically:
+
+- TensorRT profile / precision tuning (FP16 → INT8 on the dominant child).
+- Engine batch profile mismatch (each engine has its own preferred batch).
+- Output channel pruning if any single sub-model output is wider than needed.
+
+- **Mechanism placement**: ONNX export + TRT rebuild for the dominant child
+  only. Other three children untouched.
+- **Expected gain**: lifts the floor of `max(…)` for behavior dispatch.
+- **Risk**: medium — precision change requires accuracy parity gate.
+
+### Option 4 — Batch larger at ensemble level
+
+Cycle 9 frequently formed batches of 32 already (the engine cap). Behavior
+crops formed by `_build_crop_payload` could be coalesced across **2 frames at
+once** so the ensemble sees ~34 crops / call instead of 17. Helps Triton hit
+the preferred batch shape more often.
+
+- **Mechanism placement**: raise `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4
+  with the cycle 6 pose chunking still chunking pose at 16 to avoid the
+  regression of cycles 1-5.
+- **Expected gain**: marginal — Cycle 9 batch histogram already centered at 32.
+  This is secondary unless the dominant-child analysis (Option 3) shows the
+  engine is under-utilized.
+- **Risk**: medium — the prior 100 GiB RSS spike was at `MAX_FRAMES = ∞`; the
+  cycle 8 trim still bounds it but we must measure.
+
+### Option 5 — Stop optimizing gRPC call count alone
+
+Cycle 9 proved that **call-count reduction without GPU-work reduction is
+insufficient**. Any new candidate must reduce one of:
+
+- GPU-side child compute (Option 3, Cycle 11 smaller input),
+- dense output bytes returned to Python (Options 1, 2),
+- frame-level Python orchestration outside the single-process ordering (the
+  pose-parallelization Cycle 10 already in the plan, or video sharding /
+  multi-process for a future cycle).
+
+This is a discipline rule, not an implementation: future cycle hypotheses
+must name which of these three levers they pull, before any code is written.

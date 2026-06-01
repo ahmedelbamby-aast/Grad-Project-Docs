@@ -155,8 +155,23 @@ Flip `TRITON_BEHAVIOR_ENSEMBLE=0`. The 4 standalone models stay in the repo; the
 
 ### Production outcome (2026-06-01)
 
-Cycle 9 was implemented and production-benchmarked, but the result is
-**NEEDS FURTHER ITERATION**, not accepted.
+Cycle 9 was implemented and production-benchmarked. The result is **NOT
+ACCEPTED** for the chosen acceptance gate (Step 2 wall ≥ 10 % reduction);
+overall DB-completed FPS improved nonetheless. The ensemble candidate is
+kept available behind a flag but is not the route to the SLA.
+
+See [`docs/cycle_9_results.md`](cycle_9_results.md) for the full post-mortem,
+the five concrete follow-up options (server-side compact postprocessing,
+output fusion, child critical-path optimization, larger ensemble batches,
+"stop optimizing gRPC call count alone" discipline), and the lesson
+formalized for future cycles.
+
+**The optimization sequencing is updated:** Cycle 10 (originally pose
+parallelization) is repurposed for the **Logical Path Matrix (LPM)** — see
+[`docs/logical_path_matrix_spec.md`](logical_path_matrix_spec.md). Pose
+parallelization moves to Cycle 10b. The 5 ensemble follow-ups become
+Cycle 9b candidates and stay STAGED until prod evidence selects which to
+implement.
 
 - Replay key: `cycle9-behavior-ensemble-crop-frame-20260601T180847`
 - Job: `c1651663-e08a-4e29-9ee3-fd0f09884b98`

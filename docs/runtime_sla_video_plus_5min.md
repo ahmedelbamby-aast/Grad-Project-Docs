@@ -150,6 +150,17 @@ Or, alternatively, decouple inference from rendering & embedding by **streaming*
 
 ## 6. Acceptance & constitutional discipline
 
+**Non-negotiable rule, re-affirmed 2026-06-01:** no optimization cycle may
+be marked accepted/success/agreed without a production benchmark on the
+Linux RTX 5090 server that demonstrates (a) the targeted metric improvement
+and (b) zero correctness regression vs. the prior accepted baseline. Code
+review, local testing, theoretical reasoning, parity probes, and
+correctness counter matches are necessary but never sufficient. The
+**Cycle 9 precedent** stands as the reference: parity passed, code
+reviewed, FPS improved, but the designated acceptance gate (Step 2 wall
+reduction ≥ 10 %) failed, so the cycle was held back even though the
+change is technically working.
+
 Per the constitution and per the prior agreed protocol, **each cycle independently**:
 
 1. Measures the relevant stage on a prod baseline.
