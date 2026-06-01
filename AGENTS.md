@@ -96,17 +96,22 @@ This file defines how agents should execute tests quickly and safely in this rep
   `backend/apps/telemetry/migrations/0002_telemetrylpmevent.py`, collected via
   `TelemetrySession.record_lpm_event(...)`, flushed through the JSON +
   PostgreSQL telemetry writer, and emitted from the crop-frame hook through
-  `_tel_record_lpm_event(...)`. Local validation for C.2.1-C.2.2: focused
-  telemetry/LPM set `64 passed`; focused inference-parallelization workflow
-  pytest set `155 passed`; `makemigrations --check --dry-run`, compileall,
+  `_tel_record_lpm_event(...)`. Local validation for C.2.1-C.2.2 plus the
+  post-benchmark safety fix: focused telemetry/LPM set `65 passed`; focused
+  inference-parallelization workflow pytest set `156 passed`;
+  `makemigrations --check --dry-run`, compileall,
   docs diagram verification, and `git diff --check` passed.
-  Flag `LPM_ENABLED` defaults `0` — **STAGED, not accepted**, until a prod
-  benchmark on the Linux RTX 5090 satisfies §10 of
-  `docs/logical_path_matrix_spec.md` (zero correctness regression + measurable
-  contradiction reduction + ≥ 25 % gaze-flip-rate drop per track). Production
-  migration, C.2.3 benchmark, acceptance docs, commit/push/deploy, and deployed
-  SHA verification remain pending. The same pure-function math layer is the
-  planned hand-off point for a future Triton BLS Python backend (Phase 2).
+  Production benchmark `cycle10-lpm-crop-frame-20260601T201239` / job
+  `17075418-4386-4b5f-85d4-ea23bec71f66` deployed SHA
+  `377fb59e66fe46327e6cbf2e6e64fd3bb70a0bde` and proved the telemetry table
+  works (`4541` LPM rows), but Cycle 10 is **NOT ACCEPTED**: `C1=0`,
+  `eliminated=0`, and `attention_tracking` boxes regressed `11776 → 2680`.
+  Production was rolled back to `LPM_ENABLED=0` and workers were restarted. A
+  local safety fix now prevents single low-confidence directional gaze boxes
+  from being suppressed unless a C1-C4 violation fired, but that fix requires a
+  fresh production benchmark before any acceptance claim. The same pure-function
+  math layer is the planned hand-off point for a future Triton BLS Python
+  backend (Phase 2).
 - **Constitutional re-affirmation (2026-06-01)**: **No optimization cycle may
   be marked accepted/success/agreed without a production benchmark on the
   Linux RTX 5090 server that demonstrates both (a) the targeted metric
@@ -891,7 +896,7 @@ class TelemetrySession:
 
 - All telemetry code lives under `backend/apps/telemetry/` — no telemetry logic outside this package.
 - Public functions and classes must have a one-line docstring stating *what* they measure.
-- DB migrations for the five telemetry tables must be added as a numbered Alembic migration file.
+- DB migrations for telemetry tables must be added as numbered Django migration files.
 - A `README.md` inside `backend/apps/telemetry/` must document: the table schema, the JSON file schema, how to query common metrics (e.g., "p95 inference latency for the last 10 sessions"), and the integration checklist.
 - Unit tests for the layer must cover: session lifecycle, frame batching, model-call recording, JSON file write, DB failure fallback.
 
@@ -905,11 +910,11 @@ class TelemetrySession:
 ### Implemented (2026-05-30)
 
 - **Package:** `backend/apps/telemetry/`
-- **Models:** `models.py` — five DB tables (`telemetry_sessions`, `telemetry_videos`, `telemetry_frames`, `telemetry_model_calls`, `telemetry_students`)
-- **Public API:** `session.py` — `TelemetrySession`, `FrameMeta`, `ModelCallMeta`, `StudentMeta`, `VideoSummary`, `SessionSummary`
+- **Models:** `models.py` — six DB tables (`telemetry_sessions`, `telemetry_videos`, `telemetry_frames`, `telemetry_model_calls`, `telemetry_lpm_events`, `telemetry_students`)
+- **Public API:** `session.py` — `TelemetrySession`, `FrameMeta`, `ModelCallMeta`, `LpmEventMeta`, `StudentMeta`, `VideoSummary`, `SessionSummary`
 - **Writer:** `writer.py` — atomic JSON-first + PostgreSQL dual-sink; JSON fallback with `db_commit_failed: true` on DB error
 - **Metrics:** `metrics.py` — `percentile`, `mean`, `latency_summary`, `per_model_summary`
-- **Migration:** `migrations/0001_initial.py` — verified with `sqlmigrate`, outputs clean PostgreSQL DDL
+- **Migrations:** `migrations/0001_initial.py`, `migrations/0002_telemetrylpmevent.py`
 - **Tests:** `backend/tests/unit/telemetry/` — `test_telemetry_layer.py` (layer unit tests) + `test_integration.py` (wiring); **41 tests, all passing** (verified 2026-05-30)
 - **Django app registered:** `apps.telemetry` added to `INSTALLED_APPS` in `config/settings/base.py`
 - **JSON output directory:** `backend/logs/telemetry/`
@@ -922,7 +927,8 @@ class TelemetrySession:
 | ContextVar propagation | `backend/apps/telemetry/context.py` | Same-thread access to active session without threading it through every call; mirrors `pipeline/logging_context.py` pattern |
 | Triton client RTT | `backend/apps/pipeline/services/triton_client.py` | `_try_record_telemetry()` called at both `infer()` exit paths; reads ContextVar, records `ModelCallMeta` |
 | Offline frame recording | `backend/apps/video_analysis/tasks.py` | `_tel_record_frame()` helper called inside `_on_frame_complete` (multi-model path) and `_on_triton_frame_inferred` (Triton-only path) |
+| Offline LPM event recording | `backend/apps/video_analysis/tasks.py` | `_tel_record_lpm_event()` records `LpmEventMeta` when `LPM_ENABLED=1`; production run proved rows flush, but LPM remains disabled after Cycle 10 rejection |
 | Live stream frame recording | `backend/apps/video_analysis/tasks.py` | `_tel_record_frame()` helper called inside live `_on_frame_complete` after `stage_timings` is computed |
 
-**Migration**: Apply `backend/apps/telemetry/migrations/0001_initial.py` with `python manage.py migrate` before first production run.
+**Migration**: Apply `backend/apps/telemetry/migrations/0001_initial.py` and `backend/apps/telemetry/migrations/0002_telemetrylpmevent.py` with `python manage.py migrate` before first production run.
 **JSON output**: `backend/logs/telemetry/<session_id>_<source_type>_<YYYYMMDD_HHMMSS>.json`

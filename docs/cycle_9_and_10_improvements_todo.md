@@ -118,7 +118,7 @@ ship the flag.
 | Cycle 7 (redis cache) | `515fe118` | 1 582 s (26.4 min) | 2.870 | ACCEPTED (caveat) |
 | Cycle 8 (embedding stage) | `d2de80a0` | 1 312 s (21.9 min) | 3.460 | **ACCEPTED** (latest accepted baseline) |
 | Cycle 9 (behavior ensemble) | `c1651663` | 1 111 s (18.5 min) | 4.090 | **NOT ACCEPTED** — Step 2 wall +0.6 % failed the ≥ 10 % gate |
-| Cycle 10 (LPM) | — | — | — | **STAGED** — C.2.1 hook + C.2.2 telemetry landed locally, prod migration/benchmark pending |
+| Cycle 10 (LPM) | `17075418` | 1 076 s (17.9 min) | 4.219 | **NOT ACCEPTED** — telemetry worked, but C1/eliminated stayed 0 and `attention_tracking` boxes regressed 11 776 → 2 680 |
 
 **SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
 = 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 8) is
@@ -712,13 +712,14 @@ quality of the diff.
 | Cycle 7 | Redis client caching | **ACCEPTED 2026-06-01 (with caveat)** | `515fe118-6009-4776-916d-6473fbf31ed7` | Embedding wall 467 → 451 s (−3.6 %), overall FPS 2.78 → 2.87. Hypothesis projected −69 %; only −3.6 % delivered (redis-py 5.x lazy pool was much cheaper than assumed) | `docs/production_inference_benchmark.md` §13 |
 | Cycle 8 | Embedding stage attack: track-level reuse + lazy cv2 + bulk_create | **ACCEPTED 2026-06-01** | `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8` | Embedding wall 451 → 174 s (−61.5 %), overall FPS 2.87 → 3.46 | `docs/production_inference_benchmark.md` §14, Cycle 8 section in `docs/crop_frame_optimization_execution.md` |
 | Cycle 9 | Triton behavior ensemble (4 → 1 gRPC call per frame) | **NOT ACCEPTED 2026-06-01** | `c1651663-e08a-4e29-9ee3-fd0f09884b98` | App calls −75 %, behavior RTT 143–168 → 107.9 ms, overall FPS 3.46 → 4.09 (+18 %) — but **Step 2 wall 852.8 → 858.1 s failed the ≥ 10 % reduction gate**. Ensemble kept available under `TRITON_BEHAVIOR_ENSEMBLE=1` but not on the SLA path | `docs/cycle_9_results.md` (full post-mortem), `docs/cycle_9_investigation.md` |
+| Cycle 10 | Logical Path Matrix (LPM) Phase 1 | **NOT ACCEPTED 2026-06-01** | `17075418-4386-4b5f-85d4-ea23bec71f66` | Telemetry table worked (`4541` rows), but contradictions were not detected (`C1=0`, `eliminated=0`) and `attention_tracking` boxes regressed 11 776 → 2 680. Prod rolled back to `LPM_ENABLED=0`; local safety fix requires a new prod benchmark. | `docs/production_inference_benchmark.md` §16, `docs/cycle_10_lpm_phase1_results.md` |
 
 ### Z.2 Cycles staged or in progress (code exists, awaiting prod evidence)
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
 | **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PLANNED, NOT STARTED** | **This file, §§B.1–B.5.** No code yet; each option has its own multi-approach comparison matrix. | This file, `docs/cycle_9_results.md` |
-| **Cycle 10** | Logical Path Matrix (LPM) — server-side behavioral constraint layer | **STAGED, HOOK + TELEMETRY WIRED LOCALLY** | Math + unit tests + CI gate + spec are landed; C.2.1 hook and C.2.2 telemetry storage are locally implemented and tested. **Production migration, production benchmark (§C.2.3), and acceptance docs are NOT done.** | **This file, §§C.1–C.2.5**, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
+| **Cycle 10 follow-up** | LPM safety fix + contradiction-signal redesign | **STAGED AFTER REJECTION** | First prod run failed correctness and contradiction gates. Local safety fix preserves single low-confidence gaze boxes unless a C1-C4 violation fires. Missing: fresh prod benchmark and, if C1 remains zero, a redesign that captures pre-decode probabilities instead of post-decode boxes only. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
 
@@ -747,6 +748,7 @@ quality of the diff.
 | Required overall FPS | **≥ 10.07** |
 | Current accepted baseline (Cycle 8) | 21.87 min = **3.46 FPS** (gap: 14.4 min) |
 | Cycle 9 NOT ACCEPTED but produced | 18.51 min = 4.09 FPS (gap: 11.0 min) |
+| Cycle 10 NOT ACCEPTED but produced | 17.93 min = 4.219 FPS (invalid for baseline because correctness regressed) |
 
 Document: `docs/runtime_sla_video_plus_5min.md`.
 

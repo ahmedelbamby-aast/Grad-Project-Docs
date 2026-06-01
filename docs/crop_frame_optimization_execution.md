@@ -548,7 +548,7 @@ Local validation:
   -q --tb=short
 ```
 
-Result: `64 passed`.
+Result after the post-benchmark safety regression test: `65 passed`.
 
 Additional local gate:
 
@@ -572,15 +572,26 @@ Additional local gate:
   -q --tb=short
 ```
 
-Result: `155 passed`, with the pre-existing `async_to_sync` warnings in the
+Result after the post-benchmark safety regression test: `156 passed`, with the pre-existing `async_to_sync` warnings in the
 pose runtime chunking tests. `makemigrations --check --dry-run`, compileall,
 docs diagram verification, and `git diff --check` also passed locally.
 
 ### Decision
 
-**STAGED.** No acceptance claim until the migration is applied/deployed on
-production and a Linux RTX 5090 benchmark satisfies the LPM §10 gates with
-results recorded in `docs/cycle_10_lpm_phase1_results.md`.
+**NEEDS FURTHER ITERATION — NOT ACCEPTED.** Production benchmark
+`cycle10-lpm-crop-frame-20260601T201239` / job
+`17075418-4386-4b5f-85d4-ea23bec71f66` completed and populated
+`4541` `telemetry_lpm_events` rows, but LPM did not eliminate any
+contradictions (`C1=0`, `eliminated=0`) and it regressed correctness by
+dropping `attention_tracking` boxes from `11776` to `2680`.
+
+Production rollback was applied with `LPM_ENABLED=0` and worker restart. The
+post-run local safety fix prevents single low-confidence directional gaze boxes
+from being suppressed unless a C1-C4 violation fired, but that fix still needs a
+fresh production benchmark before Cycle 10 can be reconsidered. Evidence:
+[`docs/cycle_10_lpm_phase1_results.md`](cycle_10_lpm_phase1_results.md) and
+[`docs/production_inference_benchmark.md`](production_inference_benchmark.md)
+§16.
 
 ---
 

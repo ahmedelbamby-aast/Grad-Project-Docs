@@ -670,10 +670,14 @@ implement. The general lesson — **stop optimizing gRPC call count alone**
 
 ### 2026-06-01 Cycle 10 — Logical Path Matrix (STAGED)
 
-Status: **STAGED only.** Code, math, the C.2.1 crop-frame hook, C.2.2
-`telemetry_lpm_events` storage path, unit tests, and CI gate are locally
-staged, but the cycle is not accepted until production migration/deployment and
-benchmark satisfy the gates in `docs/logical_path_matrix_spec.md` §10.
+Status: **NEEDS FURTHER ITERATION — NOT ACCEPTED.** Code, math, the C.2.1
+crop-frame hook, C.2.2 `telemetry_lpm_events` storage path, unit tests, and CI
+gate are deployed. Production benchmark
+`cycle10-lpm-crop-frame-20260601T201239` / job
+`17075418-4386-4b5f-85d4-ea23bec71f66` completed, but failed the gates in
+`docs/logical_path_matrix_spec.md` §10 because LPM recorded no contradictions
+(`C1=0`, `eliminated=0`) and `attention_tracking` boxes regressed
+`11776 → 2680`. Production was rolled back to `LPM_ENABLED=0`.
 
 Scope (hard-restricted): the LPM consumes per-person probabilities from
 `gaze_horizontal_model`, `gaze_vertical_model`, `gaze_depth_model` only.
@@ -687,11 +691,12 @@ Phase 1: pure-Python module at
 `backend/apps/pipeline/services/logical_path_matrix.py`, flag-gated by
 `LPM_ENABLED=0` default, now wired into
 `backend/apps/video_analysis/tasks.py:_run_crop_behaviour_for_items` for
-post-decode crop-frame gaze boxes. C.2.2 telemetry is locally implemented via
+post-decode crop-frame gaze boxes. C.2.2 telemetry is implemented via
 `TelemetrySession.record_lpm_event(...)`, `telemetry_lpm_events`, and the
-JSON/PostgreSQL writer; production migration and C.2.3 production benchmark
-remain pending. Phase 2 (future cycle): migrate the same pure constraint solver
-to a Triton BLS Python backend, which dovetails with Cycle 9b Option 1
+JSON/PostgreSQL writer. A post-run local safety fix now preserves
+single-axis gaze boxes unless a C1-C4 violation fired; it still needs a fresh
+production benchmark. Phase 2 (future cycle): migrate the same pure constraint
+solver to a Triton BLS Python backend, which dovetails with Cycle 9b Option 1
 (server-side compact postprocessing).
 
 ### 2026-06-01 Cycle 8 — Embedding stage attack (ACCEPTED)

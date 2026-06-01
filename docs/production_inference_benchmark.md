@@ -953,4 +953,71 @@ output movement, not just the Python request count.
 
 ---
 
+## 16. 2026-06-01 Cycle 10 Production Benchmark — LPM Phase 1
+
+**Status:** **NEEDS FURTHER ITERATION — NOT ACCEPTED.** The LPM hook and
+`telemetry_lpm_events` table deployed and ran on production, and the benchmark
+completed. The run failed the LPM acceptance gates because contradiction
+counters stayed at zero while `attention_tracking` boxes dropped sharply.
+Production was rolled back to `LPM_ENABLED=0`.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle10-lpm-crop-frame-20260601T201239` |
+| Job ID | `17075418-4386-4b5f-85d4-ea23bec71f66` |
+| Candidate SHA | `377fb59e66fe46327e6cbf2e6e64fd3bb70a0bde` |
+| Telemetry session | `59c9e8bb-514f-41b4-a21a-ebda3a070a7d` |
+| Bench summary | `backend/logs/bench_summary_20260601T231516.json` |
+| Bench log | `backend/logs/parallel_flow_cycle10-lpm-crop-frame-20260601T201239.log` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260601T231516.csv` |
+| Final status | `completed` |
+| Rollback | `LPM_ENABLED=0`; workers restarted |
+
+**Before / after metrics:**
+
+| Metric | Cycle 9 Candidate | Cycle 10 LPM Run | Delta |
+|---|---:|---:|---:|
+| DB-completed elapsed | `1110.7 s` | `1076 s` | `-34.7 s` / `-3.1 %` |
+| Overall FPS | `4.09` | `4.219` | `+3.2 %` |
+| Telemetry session wall | `923.1 s` | `908.857 s` | `-14.2 s` / `-1.5 %` |
+| App-level model calls | `9557` | `9557` | unchanged |
+| Avg GPU utilization | `9.36 %` | `9.0 %` | `-0.36 pp` |
+| Peak GPU utilization | `43 %` | `39 %` | `-4 pp` |
+
+**Correctness parity:**
+
+| Counter | Cycle 9 | Cycle 10 LPM Run | Delta |
+|---|---:|---:|---:|
+| Frames | `4541` | `4541` | 0 |
+| Detections | `72749` | `63653` | `-9096` / `-12.5 %` |
+| Bounding boxes | `72749` | `63653` | `-9096` / `-12.5 %` |
+| Frame embeddings | `72583` | `63487` | `-9096` / `-12.5 %` |
+| Student tracks | `53` | `53` | 0 |
+| `attention_tracking` boxes | `11776` | `2680` | `-9096` / `-77.2 %` |
+| `hand_raising` boxes | `8800` | `8803` | `+3` |
+| `person_detection` boxes | `19162` | `19162` | 0 |
+| `sitting_standing` boxes | `33011` | `33008` | `-3` |
+
+**LPM telemetry:**
+
+| Metric | Value |
+|---|---:|
+| LPM event rows | `4541` |
+| Persons seen by LPM | `10587` |
+| Eliminated contradictions | `0` |
+| C1 / C2 / C3 / C4 violations | `0 / 0 / 0 / 0` |
+| Frames with eliminated contradictions | `0` |
+| Avg / max LPM latency | `0.024 ms / 0.272 ms` |
+
+**Decision:** **NEEDS FURTHER ITERATION — NOT ACCEPTED.** The production run
+proved the telemetry table works, but the LPM gate failed. The immediate bug was
+that a single low-confidence directional gaze box could resolve to UNKNOWN and
+be dropped without any C1-C4 violation. A local safety fix was added after this
+run, but it still requires a fresh production benchmark before Cycle 10 can be
+reconsidered.
+
+---
+
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*
