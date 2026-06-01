@@ -19,18 +19,38 @@ This file is "done" only when **every** unchecked box below has been ticked
 in a follow-up commit. Until then, future agents must assume the file is
 in-progress and use the per-item acceptance gates inside it.
 
-- [ ] B.1 Compact-postprocessing backend implemented (one of the approaches in §B.1) and prod-benchmarked
-- [ ] B.2 Output-fusion approach selected from the comparison matrix in §B.2 and prod-benchmarked
-- [ ] B.3 Child critical-path measurement landed and the dominant-child optimization landed
-- [ ] B.4 Larger-batch knob measured (accept or reject)
-- [ ] C.2.1 LPM hook wired into `_run_crop_behaviour_for_items`
-- [ ] C.2.2 `telemetry_lpm_events` table + migration + writer landed
-- [ ] C.2.3 LPM Phase 1 prod benchmark passes all §10 gates → ACCEPTED
-- [ ] C.2.4 LPM Phase 2 (BLS migration) landed and benchmarked
-- [ ] C.2.5 Open spec issues resolved
+**A box may be ticked ONLY when ALL of the following are true** (this is
+the §E hard-rule restated as a checklist gate):
+
+1. The change is implemented AND has unit tests.
+2. `.github/workflows/inference-parallelization.yml` lists the new test
+   file(s) under both `paths:` filters AND inside the pytest invocation.
+3. The change has been deployed to the Linux RTX 5090 production server.
+4. `tools/prod/prod_run_parallel_flow_benchmark.sh` was executed on
+   `combined.mp4` and the bench summary JSON, inference_audit JSON, and
+   GPU monitor CSV are captured.
+5. The resulting metrics are recorded in the matching
+   `docs/cycle_*_results.md` file alongside the SLA Baseline (Cycle 8)
+   and the SLA target.
+6. The corresponding row in § Z.1 / Z.2 of this file has been moved /
+   updated to reflect the new accepted state.
+
+Items per §B / §C:
+
+- [ ] **B.1** Compact-postprocessing: ALL three approaches (B.1.a BLS Python, B.1.b C++ custom, B.1.c TRT NMS plugin) measured on prod and recorded in `docs/cycle_9b_compact_postproc_results.md`; one approach selected via `BEHAVIOR_COMPACT_BACKEND`; CI gate updated for the new tests
+- [ ] **B.2** Output-fusion: ALL three approaches (B.2.a top-K, B.2.b 2-class gaze_h re-export, B.2.c both) measured on prod and recorded in `docs/cycle_9b_output_fusion_results.md`; one approach selected; CI gate updated
+- [ ] **B.3** Child critical-path: Step 1 measurement landed; ALL applicable Step 2 approaches measured and recorded in `docs/cycle_9b_child_critical_path_results.md`; dominant-child optimization landed; CI gate updated
+- [ ] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; accept or reject documented in a results doc
+- [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated
+- [ ] **C.2.2** `telemetry_lpm_events` table + migration + writer landed; migration test added; CI gate updated
+- [ ] **C.2.3** LPM Phase 1 prod benchmark passes ALL §10 gates of `docs/logical_path_matrix_spec.md`; metrics recorded in a new `docs/cycle_10_lpm_phase1_results.md`; LPM row in § Z.2 moved to § Z.1
+- [ ] **C.2.4** LPM Phase 2 (BLS migration) landed and prod-benchmarked; results in `docs/cycle_10_lpm_phase2_results.md`
+- [ ] **C.2.5** Open spec issues resolved; resolution recorded in `docs/logical_path_matrix_spec.md`
+- [ ] **CI/CD audit** of this file: confirm `.github/workflows/inference-parallelization.yml` lists every new test, every new module, and every new doc this file adds before any of B.1–B.4 / C.2.1–C.2.5 is marked complete
 
 Each item below lists its own acceptance gate; flip the checkbox above
-**only** when that gate is met with prod evidence.
+**only** when that gate is met with prod evidence on the Linux RTX 5090
+server. **There is no path that bypasses § E rules 1, 4, and 5.**
 
 **Source documents this consolidates:**
 
@@ -40,6 +60,51 @@ Each item below lists its own acceptance gate; flip the checkbox above
 - `docs/triton_models_and_tensor_anatomy.md` — dense tensor inefficiency analysis
 - `docs/runtime_sla_video_plus_5min.md` — SLA target (`total_wall ≤ video_duration + 5 min`)
 - `AGENTS.md` — constitutional discipline
+
+---
+
+## Quick-reference: what a "CI/CD update" looks like (§E.4 enforcement)
+
+Every change in this file lands in three workflow blocks of
+`.github/workflows/inference-parallelization.yml`. Skipping any of these
+is a §E.4 violation.
+
+```yaml
+# Block 1 — path filter under `on.push.paths` AND `on.pull_request.paths`
+on:
+  push:
+    paths:
+      - "backend/apps/pipeline/services/<NEW_MODULE>.py"
+      - "backend/tests/unit/pipeline/<NEW_TEST_FILE>.py"
+      - "docs/<NEW_RESULTS_FILE>.md"
+      - "backend/models/triton_repository_cuda12/**"   # already present
+  pull_request:
+    paths:
+      - "backend/apps/pipeline/services/<NEW_MODULE>.py"
+      - "backend/tests/unit/pipeline/<NEW_TEST_FILE>.py"
+      - "docs/<NEW_RESULTS_FILE>.md"
+
+# Block 2 — pytest invocation
+- name: Run inference parallelization tests
+  run: |
+    python -m pytest \
+      ... existing entries ... \
+      backend/tests/unit/pipeline/<NEW_TEST_FILE>.py \
+      -q --tb=short
+```
+
+For multi-approach items (§B.1, §B.2, §B.3) each approach must have at
+least one unit test that exercises its `.env` flag value. Example for
+B.1.a:
+
+```python
+def test_compact_backend_bls_python_path_is_used(monkeypatch):
+    monkeypatch.setenv("BEHAVIOR_COMPACT_BACKEND", "bls_python")
+    # assert the dispatch chooses the BLS path
+```
+
+If you cannot articulate the test that exercises the new flag, you cannot
+ship the flag.
 
 ---
 
@@ -525,17 +590,71 @@ postprocessing.
 
 ## E. Hard rules (re-stated)
 
+These are NOT guidelines. They are gating conditions. Any commit that
+violates one of these must be reverted and re-done, regardless of the
+quality of the diff.
+
 1. **No "accepted" without a production benchmark on the Linux RTX 5090
-   server.** Code review, parity probes, and local tests are necessary but
-   never sufficient. Cycle 9 is the precedent.
+   server.** Code review, parity probes, local pytest passes, and PR
+   approvals are necessary but NEVER sufficient. Cycle 9 is the precedent —
+   working code + measurable FPS improvement + parity, but the wrong
+   metric moved, so the cycle is NOT ACCEPTED. The acceptance bar is
+   evidence on the live production server, not the dev box.
+
 2. **No optimization-cycle hypothesis without naming the lever it pulls**
-   (Option 5 / B.5). Future hypotheses must say "this attacks GPU child
-   compute" OR "this attacks dense output bytes" OR "this attacks
-   single-process Python orchestration" — and the proposed change must
-   actually move that lever.
-3. **LPM scope is HARD-RESTRICTED.** Code that mutates RTMPose / person_detector
-   / sitting_standing outputs must fail loudly via the structural
-   exclusion tests in `test_logical_path_matrix.py`.
+   (the Cycle 9b §B.5 discipline rule). Future hypotheses must say "this
+   attacks GPU child compute" OR "this attacks dense output bytes" OR
+   "this attacks single-process Python orchestration" — and the proposed
+   change must actually move that lever. Cycle 9 violated this implicitly
+   (it attacked gRPC call count, which was already absorbed by concurrent
+   dispatch), which is why it didn't deliver the targeted Step 2 wall
+   reduction.
+
+3. **LPM scope is HARD-RESTRICTED.** Code that mutates RTMPose /
+   person_detector / sitting_standing outputs must fail loudly via the
+   structural exclusion tests in `test_logical_path_matrix.py`. The three
+   gaze models are the entire scope; nothing else.
+
+4. **CI/CD workflow file updates are MANDATORY, not optional.** Every
+   change in this file that lands code must, in the same commit:
+   - List any new test file in
+     `.github/workflows/inference-parallelization.yml` under the path
+     filter AND inside the pytest invocation in `Run inference
+     parallelization tests`.
+   - List any new app-side module (e.g. a new BLS backend module, a new
+     constraint solver helper) under the same workflow's path filter so
+     pull requests touching the module re-run the gate.
+   - List any new doc that captures acceptance evidence (e.g.
+     `docs/cycle_9b_compact_postproc_results.md`) so a docs-only change
+     also reruns the workflow.
+   - If the change touches Triton model configs, list the affected
+     `backend/models/triton_repository_cuda12/**` path filter (already
+     present — verify it is not removed).
+   - Every new `.env` flag introduced under §B / §C must be exercised by
+     at least one unit test. The CI workflow must include that test.
+   - Commits that add code without updating the workflow are treated as
+     incomplete and must be amended before review.
+
+5. **No option, optimization, or strategy is accepted until it has been
+   really tested, measured, and compared to the SLA Baseline on the
+   production Linux server.** "Tested" means pytest passes in CI AND on
+   prod. "Measured" means `tools/prod/prod_run_parallel_flow_benchmark.sh`
+   ran on `combined.mp4` end-to-end, the bench summary JSON was captured,
+   the inference_audit was captured, and the GPU monitor CSV was captured.
+   "Compared to the SLA Baseline" means the resulting metrics are recorded
+   in a row of the matching `docs/cycle_*_results.md` file alongside the
+   prior accepted baseline (Cycle 8 for now) AND the SLA target row from
+   `docs/runtime_sla_video_plus_5min.md`. Without all three artefacts plus
+   the row in the results doc, the item stays STAGED, not ACCEPTED — even
+   if the unit tests are green, even if the code reviewer signed off, even
+   if the FPS number looks better.
+
+6. **Multi-approach items in this file (§B.1, §B.2, §B.3) must benchmark
+   ALL their approaches on prod before one is selected.** A new
+   `docs/cycle_9b_*_results.md` file captures the comparison matrix and is
+   the source of truth for the tradeoff. Selection is `.env`-controlled so
+   rollback is a single env flip. Shipping only one approach of a
+   multi-approach item without the comparison evidence violates this rule.
 
 ---
 
@@ -611,6 +730,9 @@ Document: `docs/runtime_sla_video_plus_5min.md`.
 
 ### Z.6 Constitutional hard rules (re-affirmed across all cycles)
 
+These mirror § E. If § E is updated, this section must be updated in the
+same commit so the rules cannot drift between the TODO and the cycle map.
+
 1. **No "accepted" without a production benchmark on the Linux RTX 5090
    server** that demonstrates the targeted metric improvement AND zero
    correctness regression vs. the prior accepted baseline. Cycle 9 is the
@@ -623,11 +745,26 @@ Document: `docs/runtime_sla_video_plus_5min.md`.
    RTMPose / person_detector / sitting_standing outputs must fail loudly
    via the structural exclusion tests in
    `backend/tests/unit/pipeline/test_logical_path_matrix.py`.
-4. **Multi-approach items in this file (§B.1, §B.2, §B.3) must measure ALL
-   their approaches on prod before one is selected.** A new
-   `docs/cycle_9b_*_results.md` file captures the comparison matrix and is
-   the source of truth for the tradeoff. Selection is .env-controlled so
-   rollback is a single env flip.
+4. **CI/CD workflow updates are MANDATORY, not optional.** Every code
+   change must update `.github/workflows/inference-parallelization.yml`
+   in the same commit: new test files added to both the path filter and
+   the pytest invocation; new modules added to the path filter; new
+   `.env` flags exercised by a test that runs in CI. Commits that add
+   code without updating the workflow are incomplete.
+5. **No option, optimization, or strategy is accepted until it has been
+   really tested, measured, and compared to the SLA Baseline on the
+   production Linux server.** The three required artefacts are (a) bench
+   summary JSON from `tools/prod/prod_run_parallel_flow_benchmark.sh`, (b)
+   inference_audit JSON, and (c) GPU monitor CSV — all from the prod
+   Linux RTX 5090 server. The metrics must be recorded in a row of the
+   matching `docs/cycle_*_results.md` file alongside the SLA Baseline
+   (Cycle 8) and the SLA target row. No prod artefacts = STAGED, not
+   ACCEPTED.
+6. **Multi-approach items in this file (§B.1, §B.2, §B.3) must measure
+   ALL their approaches on prod before one is selected.** A new
+   `docs/cycle_9b_*_results.md` file captures the comparison matrix and
+   is the source of truth for the tradeoff. Selection is `.env`-controlled
+   so rollback is a single env flip.
 
 ### Z.7 How to read this file as the next agent
 
