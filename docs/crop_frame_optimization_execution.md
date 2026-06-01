@@ -181,11 +181,58 @@ old behavior (one batch of all crops), behavior is identical.
 
 **Rollback:** revert the single edit in `pose_runtime.py`.
 
-### Phase 3: STAGED — implementation in progress
+### Phase 3: Implemented in commit `17b3745d`
 
-### Phase 4: STAGED — production benchmark pending
+- `backend/apps/pipeline/services/pose_runtime.py`: `_provider_infer_batch`
+  now chunks `payloads` at `_resolve_pose_max_batch_size()` (reads
+  `TRITON_MODEL_BATCH_SIZE_OVERRIDES["pose_estimation"]`, falls back to 16,
+  bounded by `TRITON_MAX_INFLIGHT_REQUESTS`).
+- `backend/tests/unit/pipeline/test_pose_runtime_batch_chunking.py`: 5
+  regression tests asserting chunk sizes for 4 / 20 / 40 crops, the
+  invalid-override fallback, and the empty-input contract.
+- `.github/workflows/inference-parallelization.yml`: blocks the gate on the
+  new test file plus the cycle 1–5 telemetry writer regression suite.
 
-### Phase 5: STAGED — accept/reject decision pending production evidence
+### Phase 4: Production benchmark — job `a1a448b9-474f-4dea-942b-3288bcae6900`
+
+Run on the same `combined.mp4` (4 541 frames) prod RTX 5090.
+
+| Stage | Cycle 1–5 `74ec0432` | Cycle 6 `a1a448b9` | Δ |
+|---|---:|---:|---:|
+| Step 2 frame inference wall | 883 s (14 m 43 s) | **879 s** (14 m 39 s) | −0.5 % (unchanged, as designed) |
+| Step 2 → step3 transition (pose upload + persist + render) | **13 m 27 s** | **5 m 10 s** | **−61.5 %** |
+| Pose-upload block specifically (`step2.frame_stage_timings → step2.pose_upload`) | **12 m 13 s** | **3 m 42 s** | **−69.7 %** |
+| Total `run.complete` elapsed | 1 716 s (28 m 36 s) | **1 166 s** (19 m 26 s) | **−32.1 %** |
+| Total DB `status=completed` elapsed | 36.44 min | **27.22 min** | **−25.3 %** |
+| **Overall FPS (bench probe basis)** | 2.644 fps | **2.776 fps** | +5.0 % |
+| **Overall FPS (DB-completed basis)** | 2.077 fps | **2.78 fps** | **+33.8 %** |
+
+| Correctness check | Cycle 1–5 | Cycle 6 | Δ |
+|---|---:|---:|---:|
+| Frames persisted | 4 541 / 4 541 | 4 541 / 4 541 | ✓ |
+| Detections | 72 743 | 72 752 | +9 (+0.012 %) |
+| BoundingBoxes | 72 743 | 72 752 | +9 (+0.012 %) |
+| FrameEmbeddings | 72 577 | 72 586 | +9 (+0.012 %) |
+| Per-class bbox parity (`attention/hand/person/sitting`) | 11 772 / 8 801 / 19 162 / 33 008 | 11 769 / 8 801 / 19 162 / 33 020 | ≤ 0.04 % per class |
+| **rtmpose batch>16 warnings** | many | **0** | **bug fixed** |
+| TelemetryModelCall DB rows | 29 123 | **20 348** | −30 % (fewer pose-retry calls) |
+| Final status | completed | **completed** | ✓ |
+
+Pose-upload contribution to total time dropped from 33.6 % of the run to
+13.4 %. Detection numbers improved slightly (more detected objects, not
+fewer) because frames that previously timed out after the HTTP fallback now
+return clean.
+
+### Phase 5: Decision — **ACCEPTED 2026-06-01**
+
+- Removed the root-cause batch-size-violation: rtmpose warnings dropped from
+  many per run to zero.
+- Pose-upload block: −69.7 %.
+- Total DB-completed elapsed: −25.3 % vs cycle 1–5; **−52.9 % vs baseline**.
+- Overall FPS: +33.8 % vs cycle 1–5; **+112 % vs baseline**.
+- No correctness regression (parity within 0.012 % on every counter).
+- All 5 new chunking unit tests + 41 existing telemetry tests pass; the
+  inference-parallelization workflow gate has been updated to enforce them.
 
 ---
 

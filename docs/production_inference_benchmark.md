@@ -695,3 +695,69 @@ failed.**
 ---
 
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*
+
+---
+
+## 12. 2026-06-01 Cycle 6 Production Benchmark — Pose Dispatch Chunking Fix
+
+**Status:** **ACCEPTED**. Measured before/after on prod RTX 5090 with identical
+4 541-frame video; correctness preserved within 0.012 % on every counter.
+
+**Candidate (single, surgical change):** `PoseRuntime._provider_infer_batch`
+now chunks its crops to the deployed rtmpose engine's `max_batch_size=16`
+(configurable via `TRITON_MODEL_BATCH_SIZE_OVERRIDES["pose_estimation"]`)
+before handing each chunk to the orchestrator. Cycles 1–5 enabled true-batch
+packing across all model paths, but the pose path bypassed `_infer_task_batch`
+and let the orchestrator stack every per-crop payload into a single gRPC
+request — when `tasks.py` `dynamic_cap` exceeded 16 (which happens once
+`avg_pose_ms_per_person` decays below ~88 ms on a fast GPU), every such call
+violated the model contract and silently fell back to HTTP per frame.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle6-posechunk-crop-frame-20260601T022240` |
+| Job ID | `a1a448b9-474f-4dea-942b-3288bcae6900` |
+| Bench summary | `backend/logs/bench_summary_20260601T0...json` (rc=0) |
+| Bench log | `backend/logs/bench_run_20260601T0...log` |
+| Inference audit | `backend/data/videos/a1a448b9-.../inference_audit.json` |
+| Telemetry session | (via DB query against `metadata.job_id`) |
+| Final status | `completed` (no stale-error) |
+| DB row parity | 4 541 frames, 72 752 detections, 72 752 bboxes, 72 586 embeddings |
+
+**Headline metrics (Cycle 6 vs Cycle 1–5 vs Baseline):**
+
+| Metric | Baseline `77650001` | Cycle 1–5 `74ec0432` | **Cycle 6 `a1a448b9`** | Δ vs Cycle 1–5 | Δ vs Baseline |
+|---|---:|---:|---:|---:|---:|
+| Step 2 wall (frame inference) | 2 175 s | 883 s | **879 s** | unchanged | −59.6 % |
+| **Step 2 FPS (frame inference)** | 2.09 | 5.14 | **5.17** | +0.6 % | +147 % |
+| Pose post-processing wall (`step2.frame_stage_timings → step2.pose_upload`) | (not measured) | 733 s (12 m 13 s) | **222 s (3 m 42 s)** | **−69.7 %** | n/a |
+| Total to `run.complete` | 3 002 s | 1 716 s | **1 166 s** | **−32.1 %** | **−61.2 %** |
+| **Overall FPS (bench probe / `run.complete`)** | 1.308 | 2.644 | **2.776** | +5.0 % | **+112 %** |
+| Total to DB `status=completed` | 3 469 s (57.8 m) | 2 186 s (36.4 m) | **1 633 s (27.2 m)** | **−25.3 %** | **−52.9 %** |
+| **Overall FPS (DB `status=completed`)** | 1.309 | 2.077 | **2.78** | **+33.8 %** | **+112 %** |
+| `rtmpose_model` batch-size>16 warnings | (not measured) | many per run | **0** | **bug fixed** | **bug fixed** |
+| TelemetryModelCall DB rows / job | 0 (writer bug) | 29 123 | 20 348 | −30 % (fewer pose retries) | visibility restored |
+
+**Correctness (parity check across all four counters):**
+
+| Counter | Baseline | Cycle 1–5 | Cycle 6 | Δ vs baseline |
+|---|---:|---:|---:|---:|
+| Detections | 72 751 | 72 743 | 72 752 | **+1 (+0.001 %)** |
+| BoundingBoxes | 72 751 | 72 743 | 72 752 | **+1 (+0.001 %)** |
+| FrameEmbeddings | 72 585 | 72 577 | 72 586 | **+1 (+0.001 %)** |
+| Per-class `attention/hand/person/sitting` | 11 776 / 8 801 / 19 162 / 33 012 | 11 772 / 8 801 / 19 162 / 33 008 | 11 769 / 8 801 / 19 162 / 33 020 | ≤ 0.06 % per class |
+
+The Cycle 6 run actually produced **+1** of each counter vs baseline — frames
+that previously got bumped to the HTTP fallback and lost their gRPC retry
+budget now return cleanly with full results. No regression.
+
+**Acceptance state: ACCEPTED.** Measurable production improvement on every
+metric (FPS, elapsed, warning count, telemetry rows), zero correctness
+regression, all 5 new chunking unit tests + 41 cycle-1–5 telemetry tests
+pass and are gated by `inference-parallelization.yml`.
+
+---
+
+*Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

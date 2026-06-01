@@ -65,6 +65,24 @@ This file defines how agents should execute tests quickly and safely in this rep
   `docs/production_inference_benchmark.md` §11,
   `docs/crop_frame_optimization_execution.md`,
   `docs/rtt_root_cause_investigation_77650001.md`.
+- **2026-06-01 Cycle 6 ACCEPTED**: chunk `PoseRuntime._provider_infer_batch`
+  at the deployed rtmpose `max_batch_size=16` (configurable via
+  `TRITON_MODEL_BATCH_SIZE_OVERRIDES["pose_estimation"]`). Cycles 1–5
+  enabled true-batch packing across all paths, but the pose path bypassed
+  `_infer_task_batch` and let the orchestrator stack every per-crop payload
+  into one gRPC call — when `tasks.py` `dynamic_cap` exceeded 16 (which
+  happens once `avg_pose_ms_per_person` decays below ~88 ms on a fast GPU),
+  every such frame got the `batch-size must be <= 16` Triton error and a
+  silent HTTP-fallback round-trip. Replay key
+  `cycle6-posechunk-crop-frame-20260601T022240`, job
+  `a1a448b9-474f-4dea-942b-3288bcae6900`. **Pose post-processing wall
+  12 m 13 s → 3 m 42 s (−69.7 %); total job `run.complete` 28 m 36 s →
+  19 m 26 s (−32.1 % vs cycles 1–5); overall FPS (DB-completed basis)
+  2.077 → 2.78 (+33.8 % vs cycles 1–5; +112 % vs baseline); rtmpose
+  batch-warnings many → 0; detection-row parity 72 743 → 72 752 (+1 vs
+  baseline 72 751, statistical noise).** Evidence:
+  `docs/production_inference_benchmark.md` §12 and
+  `docs/crop_frame_optimization_execution.md` Cycle 6.
 - Goal: saturate the RTX 5090 (today ~1% GPU util, CPU-bound) and raise offline
   throughput from single-digit fps toward 100+ fps, every phase measured by the
   telemetry layer and shipped behind a flag with fallback.

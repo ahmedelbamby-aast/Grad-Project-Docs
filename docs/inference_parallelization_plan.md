@@ -612,6 +612,40 @@ inference hot path. Further inference-side gains would require Triton
 ensemble/BLS (Phase 7d below), which is now the only remaining justified
 candidate from the bottleneck investigation.
 
+### 2026-06-01 Cycle 6 — Pose dispatch chunking fix (ACCEPTED)
+
+Status: **production benchmark ACCEPTED**. Fixed the root cause of repeated
+`inference request batch-size must be <= 16 for 'rtmpose_model'` warnings
+plus per-frame HTTP fallback round-trips.
+
+Change: `backend/apps/pipeline/services/pose_runtime.py:_provider_infer_batch`
+now chunks its crops to `TRITON_MODEL_BATCH_SIZE_OVERRIDES["pose_estimation"]`
+(default 16, bounded by `TRITON_MAX_INFLIGHT_REQUESTS`) before handing each
+chunk to the orchestrator. Without this, the orchestrator's true-batch
+packer (introduced in cycles 1–5) stacked all per-frame pose crops into a
+single gRPC request — fine when `dynamic_cap` stayed ≤ 16 but the cap grew
+past 16 once `avg_pose_ms_per_person` decayed below ~88 ms on the prod GPU.
+
+Result on `combined.mp4` (4 541 frames):
+
+| Metric | Baseline `77650001` | Cycle 1–5 `74ec0432` | **Cycle 6 `a1a448b9`** |
+|---|---:|---:|---:|
+| Pose-upload wall | (not separately measured) | 12 m 13 s | **3 m 42 s (−69.7 %)** |
+| Total `run.complete` | 50 m 1 s | 28 m 36 s | **19 m 26 s (−32.1 % vs C1-5)** |
+| **Overall FPS (DB completed)** | 1.309 | 2.077 | **2.78 (+33.8 % vs C1-5, +112 % vs baseline)** |
+| **rtmpose batch-warnings** | not measured | many | **0** |
+| Detection-row parity | — | 72 743 | 72 752 (+9 vs C1-5, +1 vs baseline) |
+
+Evidence: `docs/production_inference_benchmark.md` §12, replay key
+`cycle6-posechunk-crop-frame-20260601T022240`, job
+`a1a448b9-474f-4dea-942b-3288bcae6900`.
+
+The next bottleneck is now the embedding stage (~6–8 min CPU-bound
+`sha256_stub` per offline job, after `run.complete`). It is independent of
+the Triton parallelization plan. Inference-side, the remaining justified
+candidate is still Phase 7d (Triton ensemble/BLS) — gain estimated at +20–40 %
+over cycle 6, but at high engineering cost.
+
 ### Phase 7d (optional) — Triton ensemble / BLS
 
 **STATUS UPDATE (2026-06-01):** evidence now justifies server-side BLS/ensemble
