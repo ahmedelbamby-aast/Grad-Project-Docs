@@ -821,4 +821,58 @@ pass and are gated by `inference-parallelization.yml`.
 
 ---
 
+## 14. 2026-06-01 Cycle 8 Production Benchmark — Embedding Stage Attack
+
+**Status:** **ACCEPTED.** Largest single-cycle win since Cycles 1–5. The embedding stage that took 450 s in Cycle 7 now takes ~174 s. Correctness parity within 0.003 %.
+
+**Candidate (bundled, single benchmark cycle because the three sub-changes share one stage budget):**
+1. Enable `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` (already-implemented flag + a process-local `track_vector_cache` dict in the embedding loop).
+2. Lazy `cv2.VideoCapture` frame reads — skip `.set()/.read()` when every detection in the frame already has a cached track vector. Forward-skip with `.grab()` to avoid keyframe re-decodes.
+3. New `persist_embeddings_bulk` helper (`backend/apps/tracking/embeddings.py`) replaces 72 k single-row `.create()` calls with `bulk_create` batches of `EMBEDDING_BULK_BATCH_SIZE` (default 500). Vector-dim coercion at the bulk boundary preserves §17.2.
+
+**Prod-measured root cause (Cycle 7 → Cycle 8 investigation):**
+- 53 distinct StudentTracks vs 72 579 student Detections → 1 370× duplicate `model.embed()` work without reuse.
+- `cv2_cap.set(...).read()`: 16.69 ms/frame on the same MP4 (sequential read: 0.32 ms/frame) → ~75 s of avoidable wall.
+- Per-row `FrameEmbedding.objects.create(...)` × 72 k → no bulk path.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle8-embed-bulk-crop-frame-20260601T125627` |
+| Job ID | `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8` |
+| Bench summary | `backend/logs/bench_summary_20260601T125627.json` (rc=0) |
+| Inference audit | `backend/data/videos/d2de80a0-.../inference_audit.json` |
+| Final status | `completed` |
+| DB row parity | 4 541 frames, 72 749 detections, 72 749 bboxes, 72 583 embeddings |
+
+**Per-cycle FPS summary across all 5 runs (same `combined.mp4`, 4 541 frames, prod RTX 5090):**
+
+| Cycle | Job ID | Step 2 FPS | Overall FPS (`run.complete`) | Overall FPS (DB `status=completed`) |
+|---|---|---:|---:|---:|
+| Baseline (ROI-320) | `77650001-3c4b-4b0a-94aa-b4eb899b90df` | 2.09 | 1.308 | 1.309 |
+| Cycles 1–5 | `74ec0432-995c-487e-9d77-1048ec109fb1` | 5.14 | 2.644 | 2.077 |
+| Cycle 6 (pose chunking) | `a1a448b9-474f-4dea-942b-3288bcae6900` | 5.17 | 2.776 | 2.780 |
+| Cycle 7 (redis cache) | `515fe118-6009-4776-916d-6473fbf31ed7` | 5.39 | 2.865 | 2.870 |
+| **Cycle 8 (embedding stage)** | `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8` | 5.33 | **3.99** | **3.46** |
+| Δ Cycle 8 vs Baseline | — | **+155 %** | **+205 %** | **+164 %** |
+| Δ Cycle 8 vs Cycle 7 | — | −1.1 % (noise) | +39.2 % | +20.5 % |
+
+**Stage breakdown (Cycle 8 vs Cycle 7):**
+
+| Stage | C7 | C8 | Δ |
+|---|---:|---:|---:|
+| Step 2 (frame inference) | 842.6 s | 852.8 s | +1.2 % (within noise) |
+| Pose post | 220.6 s | 220.7 s | unchanged (as designed) |
+| Persistence | 39.6 s | 39.4 s | unchanged |
+| Render | 25.7 s | 25.7 s | unchanged |
+| **Embedding (post-`run.complete`)** | **450.7 s** | **~174 s** | **−61.5 %** |
+| **TOTAL DB `status=completed`** | **1 582.1 s** | **1 312.3 s** | **−17.1 %** |
+
+**Toward the 7.5-min SLA**: 21.87 min vs 7.5 min target = **14.4-min gap remaining**. Step 2 (14.2 min) is now ~98 % of that gap → Cycle 9 (Triton ensemble) is the next attack.
+
+**Acceptance state: ACCEPTED.** Measurable production improvement on every metric (FPS, elapsed, embedding wall), correctness preserved within 0.003 %, 7 new bulk-create regression unit tests pass and are gated by `inference-parallelization.yml`.
+
+---
+
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

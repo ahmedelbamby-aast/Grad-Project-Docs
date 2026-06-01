@@ -646,6 +646,27 @@ the Triton parallelization plan. Inference-side, the remaining justified
 candidate is still Phase 7d (Triton ensemble/BLS) — gain estimated at +20–40 %
 over cycle 6, but at high engineering cost.
 
+### 2026-06-01 Cycle 8 — Embedding stage attack (ACCEPTED)
+
+Status: **production benchmark ACCEPTED.** Embedding stage wall 450.7 s →
+~174 s (−61.5 %); total DB-completed elapsed 26.37 min → 21.87 min
+(−17.1 %); overall FPS 2.87 → 3.46 (+20.5 % vs C7, +164 % vs baseline).
+
+Change (bundled, low-risk, one stage budget): `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1`
++ process-local `track_vector_cache` + lazy `cv2.VideoCapture.read` (only
+when a detection in the frame has no cached vector; forward-skip with
+`.grab()`) + new `persist_embeddings_bulk` helper that replaces 72 k
+single-row `.create()` calls with `bulk_create` batches of 500.
+
+Evidence: `docs/production_inference_benchmark.md` §14, replay key
+`cycle8-embed-bulk-crop-frame-20260601T125627`, job
+`d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`.
+
+Toward the 7.5-min SLA (per `docs/runtime_sla_video_plus_5min.md`): 14.4-min
+gap remains. Step 2 (14.2 min) is now ~98 % of that gap. Next cycles attack
+Step 2 with Triton ensemble (Cycle 9), pose parallelization (Cycle 10), and
+smaller behavior input (Cycle 11).
+
 ### 2026-06-01 Cycle 7 — Redis client caching (ACCEPTED with caveat)
 
 Status: **production benchmark ACCEPTED.** Modest +3.2 % overall FPS gain

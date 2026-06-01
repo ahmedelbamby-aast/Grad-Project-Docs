@@ -65,6 +65,21 @@ This file defines how agents should execute tests quickly and safely in this rep
   `docs/production_inference_benchmark.md` §11,
   `docs/crop_frame_optimization_execution.md`,
   `docs/rtt_root_cause_investigation_77650001.md`.
+- **2026-06-01 Cycle 8 ACCEPTED** (largest single-cycle win since Cycles 1–5):
+  bundled `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + lazy `cv2.VideoCapture` reads
+  (skip `.set/.read` when every detection in a frame already has a cached
+  track vector; forward-skip with `.grab()` instead of keyframe-rewind
+  `.set()`) + new `persist_embeddings_bulk` helper that replaces 72 k single-
+  row `FrameEmbedding.objects.create()` calls with `bulk_create` batches of
+  `EMBEDDING_BULK_BATCH_SIZE=500`. The embedding loop now does ~53
+  `model.embed()` calls instead of 72 579 (one per StudentTrack instead of
+  per Detection). Replay key `cycle8-embed-bulk-crop-frame-20260601T125627`,
+  job `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`. **Embedding stage wall
+  450.7 s → ~174 s (−61.5 %); total DB-completed elapsed 26.37 min →
+  21.87 min (−17.1 % vs C7); overall FPS (DB-completed) 2.87 → 3.46
+  (+20.5 % vs C7; +164 % vs baseline); detection/bbox/embedding parity
+  within 0.003 %.** Evidence: `docs/production_inference_benchmark.md` §14,
+  `docs/runtime_sla_video_plus_5min.md`.
 - **2026-06-01 Cycle 7 ACCEPTED (with caveat)**: cache Redis client per `REDIS_URL`
   in both `apps.tracking.embeddings.redis_client` and
   `apps.video_analysis.tasks._redis_client`. The embedding loop calls these

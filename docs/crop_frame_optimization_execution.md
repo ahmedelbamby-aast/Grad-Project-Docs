@@ -389,9 +389,40 @@ A single bundled change attacks all three independently:
 - `backend/tests/unit/tracking/test_persist_embeddings_bulk.py`: 7 regression tests (batching at 500/1200/7/0/2, field contract, dimension coercion, batch_size kwarg pass-through).
 - `.github/workflows/inference-parallelization.yml`: gates the new test file.
 
-### Phase 4: Production benchmark — **STAGED**
+### Phase 4: Production benchmark — job `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`
 
-### Phase 5: Decision — **STAGED pending prod evidence**
+| Stage | Cycle 7 `515fe118` | Cycle 8 `d2de80a0` | Δ |
+|---|---:|---:|---:|
+| Step 2 frame inference | 842.6 s | **852.8 s** | +1.2 % (noise) |
+| Pose post | 220.6 s | 220.7 s | unchanged (as designed) |
+| Persistence | 39.6 s | 39.4 s | unchanged |
+| Render | 25.7 s | 25.7 s | unchanged |
+| **Embedding** | **450.7 s** | **~174 s** | **−61.5 %** |
+| **TOTAL DB `status=completed`** | **1 582.1 s** (26.37 min) | **1 312.3 s** (21.87 min) | **−17.1 %** |
+| **Overall FPS (DB completed)** | **2.87** | **3.46** | **+20.5 %** |
+| **Overall FPS (bench probe)** | 2.865 | 3.455 | +20.6 % |
+
+**Correctness parity (vs all prior cycles):**
+
+| Counter | Baseline | C7 | C8 | Δ vs baseline |
+|---|---:|---:|---:|---:|
+| Detections | 72 751 | 72 745 | 72 749 | −2 (−0.003 %) |
+| BBoxes | 72 751 | 72 745 | 72 749 | −2 (−0.003 %) |
+| Embeddings | 72 585 | 72 579 | 72 583 | −2 (−0.003 %) |
+
+All within BoT-SORT non-determinism noise.
+
+### Phase 5: Decision — **ACCEPTED 2026-06-01**
+
+- Embedding stage dropped 277 s — matches the conservative end of the projected −250…−400 s window.
+- Overall job 4.5 min faster (−17.1 %) → 21.87 min for a 2 m 31 s video = 19.4 min of "extra" time vs the 5 min SLA target. The SLA gap closed from 18.86 min (Cycle 7) → 14.36 min (Cycle 8).
+- Detection/bbox/embedding counts within 0.003 % of baseline — no correctness regression.
+- All 12 new regression unit tests (cycles 6, 7, 8) pass and are CI-gated.
+
+**Toward the 7.5-min SLA we still need −14.4 min**, primarily from:
+- Step 2 frame inference (currently 852 s ≈ 14.2 min) — Cycle 9 will attack this with Triton ensemble + smaller behavior input.
+- Pose post (220 s) — Cycle 10 parallelizes across frames.
+- Render (25 s) and persistence (39 s) are already in budget.
 
 ---
 
