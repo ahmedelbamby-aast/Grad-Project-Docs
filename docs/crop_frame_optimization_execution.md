@@ -338,6 +338,63 @@ These will be the targets of Cycle 8 onward.
 
 ---
 
+## Cycle 8 — Embedding stage: track-level reuse + lazy cv2 + bulk_create
+
+### Phase 1: Investigation (prod-measured, not estimated)
+
+**Direct measurement on prod RTX 5090 (job `515fe118`, video `combined.mp4`):**
+- 53 distinct StudentTracks vs 72 579 student Detections → **1 370× duplicate `model.embed()` calls** without track-level reuse.
+- cv2 video read benchmark on the same MP4:
+  - sequential read (no seek): **0.32 ms/frame** → 1.5 s over 4 541 frames.
+  - sequential seek-and-read (current code's `cv2_cap.set(...) + .read()` pattern): **16.69 ms/frame** → **75.8 s over 4 541 frames**.
+  - random seek-and-read: 30.40 ms/frame.
+- Per-row `FrameEmbedding.objects.create(...)` ran 72 k times last cycle (no bulk path).
+
+The 450.7 s embedding wall therefore decomposes (with high confidence) into:
+1. ~75 s of unnecessary cv2 keyframe re-decodes from per-frame `.set()`.
+2. Hundreds of seconds of redundant `model.embed()` work — the same 53 vectors recomputed 72 k times.
+3. ~50–100 s of per-row INSERT overhead Django ORM doesn't batch.
+4. The rest is the genuine model.embed and CPU/IO that must remain.
+
+### Phase 2: Hypothesis
+
+A single bundled change attacks all three independently:
+
+1. **Enable `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1`** — the helper `get_cached_job_track_embedding(...)` already exists; the loop already calls it; it just defaults off. Combined with a process-local `track_vector_cache` dict, we go from 72 k → ~53 `model.embed()` calls without changing the FrameEmbedding-per-Detection contract.
+
+2. **Lazy cv2 frame read** — only call `cv2_cap.set(...).read()` if the current frame has at least one detection whose track has no cached vector yet. Once the warm-up frames are done (~1 frame per unique track), every subsequent frame skips cv2 entirely. Also replaces absolute `.set()` with sequential `.grab()` so forward-seek between needed frames doesn't force keyframe re-decodes.
+
+3. **Bulk-insert FrameEmbedding rows** via a new `persist_embeddings_bulk` helper, batched at `EMBEDDING_BULK_BATCH_SIZE=500`. Vector dimension coercion still happens at the boundary so §17.2 holds.
+
+**Expected impact:**
+- model.embed calls: 72 k → ~53 → ~250–350 s saved.
+- cv2 seeks: 4 541 → ~53 → ~70 s saved.
+- DB INSERTs: 72 k single rows → ~145 bulk_create calls → ~50–80 s saved.
+- **Stage wall: 450.7 s → 50–100 s (≈ −80 % to −90 %).**
+- Total job wall: 1 582 s → **~1 150–1 250 s (≈ 3.6–4.0 FPS overall)**.
+
+**Risk:**
+- Track reuse changes the *content* of FrameEmbedding rows for second-and-later detections of the same track — they now all share the first-detection vector. This is the intended behavior for offline jobs (the vector represents a *student's* appearance, not a frame-specific signal). Downstream consumers (ReID, attendance, FrameEmbedding queries) already treat embeddings as track-scoped — that's exactly why the flag exists in the codebase.
+- Lazy cv2 might miss a frame if a track's *first* appearance has a bad bounding box (zero area). The existing degenerate-xyxy fallback in `extract_crop_embedding` (returns the sha256 stub) handles this.
+- Bulk_create skips `.save()` hooks. There are none on FrameEmbedding (verified by grep).
+
+**Rollback:** revert the helper edits + flip `OFFLINE_EMBEDDING_REUSE_BY_TRACK` back to 0 in prod env. Two single-line reverts.
+
+### Phase 3: Implementation in commit `<pending push>`
+
+- `backend/apps/tracking/embeddings.py`: new `persist_embeddings_bulk(rows, batch_size=500)` helper that mirrors `persist_embedding`'s vector-coercion contract.
+- `backend/apps/video_analysis/tasks.py:generate_embeddings`: lazy cv2 (`cv2_cap.grab()` for forward skip; `.read()` only on needed frames); process-local `track_vector_cache`; pending-rows buffer with periodic `_flush_pending()`; deferred Redis writes co-batched with DB inserts.
+- `backend/config/settings/base.py`: `EMBEDDING_BULK_BATCH_SIZE` knob (default 500).
+- `tools/prod/prod_enable_parallel_flow.sh`: prod env sets `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + `EMBEDDING_BULK_BATCH_SIZE=500`.
+- `backend/tests/unit/tracking/test_persist_embeddings_bulk.py`: 7 regression tests (batching at 500/1200/7/0/2, field contract, dimension coercion, batch_size kwarg pass-through).
+- `.github/workflows/inference-parallelization.yml`: gates the new test file.
+
+### Phase 4: Production benchmark — **STAGED**
+
+### Phase 5: Decision — **STAGED pending prod evidence**
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
