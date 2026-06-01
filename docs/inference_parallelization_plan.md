@@ -670,9 +670,10 @@ implement. The general lesson — **stop optimizing gRPC call count alone**
 
 ### 2026-06-01 Cycle 10 — Logical Path Matrix (STAGED)
 
-Status: **STAGED only.** Code, math, unit tests, and CI gate are landed
-but the cycle is not accepted until production benchmark satisfies the
-gates in `docs/logical_path_matrix_spec.md` §10.
+Status: **STAGED only.** Code, math, the C.2.1 crop-frame hook, C.2.2
+`telemetry_lpm_events` storage path, unit tests, and CI gate are locally
+staged, but the cycle is not accepted until production migration/deployment and
+benchmark satisfy the gates in `docs/logical_path_matrix_spec.md` §10.
 
 Scope (hard-restricted): the LPM consumes per-person probabilities from
 `gaze_horizontal_model`, `gaze_vertical_model`, `gaze_depth_model` only.
@@ -682,11 +683,16 @@ not touched. Constraints C1–C4 enforce within-axis exclusivity
 (margin-based), temporal hysteresis, impossible-state alarms, and head-pose
 coupling.
 
-Phase 1 (this commit): pure-Python module at
+Phase 1: pure-Python module at
 `backend/apps/pipeline/services/logical_path_matrix.py`, flag-gated by
-`LPM_ENABLED=0` default. Phase 2 (future cycle): migrate the same pure
-constraint solver to a Triton BLS Python backend, which dovetails with
-Cycle 9b Option 1 (server-side compact postprocessing).
+`LPM_ENABLED=0` default, now wired into
+`backend/apps/video_analysis/tasks.py:_run_crop_behaviour_for_items` for
+post-decode crop-frame gaze boxes. C.2.2 telemetry is locally implemented via
+`TelemetrySession.record_lpm_event(...)`, `telemetry_lpm_events`, and the
+JSON/PostgreSQL writer; production migration and C.2.3 production benchmark
+remain pending. Phase 2 (future cycle): migrate the same pure constraint solver
+to a Triton BLS Python backend, which dovetails with Cycle 9b Option 1
+(server-side compact postprocessing).
 
 ### 2026-06-01 Cycle 8 — Embedding stage attack (ACCEPTED)
 

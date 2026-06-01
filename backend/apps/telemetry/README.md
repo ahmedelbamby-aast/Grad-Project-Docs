@@ -9,12 +9,13 @@ test/benchmark runs.
 ```
 backend/apps/telemetry/
 ├── apps.py          — Django AppConfig
-├── models.py        — ORM models (five tables)
+├── models.py        — ORM models (six tables)
 ├── session.py       — TelemetrySession public API
 ├── metrics.py       — Pure statistical helpers (percentile, mean, …)
 ├── writer.py        — Atomic DB + JSON dual-sink writer
 ├── migrations/
-│   └── 0001_initial.py
+│   ├── 0001_initial.py
+│   └── 0002_telemetrylpmevent.py
 └── README.md        — this file
 ```
 
@@ -69,6 +70,13 @@ One row per Triton inference call.  Key columns:
 `session_id`, `model_name`, `model_version`, `request_sent_at`,
 `response_received_at`, `rtt_ms`, `input_shape` (JSON), `status`, `error_detail`.
 
+### `telemetry_lpm_events`
+
+One row per frame where the Logical Path Matrix executes. Key columns:
+`session_id`, `frame_index`, `person_count`, `eliminated_contradictions`,
+`violations_c1`, `violations_c2`, `violations_c3`, `violations_c4`,
+`latency_ms`.
+
 ### `telemetry_students`
 
 One row per tracked student per session.  Key columns:
@@ -89,8 +97,10 @@ Top-level keys mirror the DB tables:
   "session": { ... },
   "videos": [ ... ],
   "model_calls": [ ... ],
+  "lpm_events": [ ... ],
   "students": [ ... ],
   "frame_count_in_json": 1234,
+  "lpm_event_count_in_json": 1234,
   "db_commit_failed": false   // present only when DB write failed
 }
 ```
@@ -209,14 +219,16 @@ ORDER BY frames_tracked DESC;
 |---|---|---|
 | `TelemetrySession` API (session.py) | Done | `apps/telemetry/session.py` |
 | DB models + migration (0001_initial.py) | Done | `apps/telemetry/models.py`, `migrations/0001_initial.py` |
+| LPM event model + migration (0002) | Staged | `apps/telemetry/models.py`, `migrations/0002_telemetrylpmevent.py` |
 | JSON dual-sink writer (writer.py) | Done | `apps/telemetry/writer.py` |
 | Statistical helpers (metrics.py) | Done | `apps/telemetry/metrics.py` |
 | ContextVar propagation | Done | `apps/telemetry/context.py` |
 | Celery task lifecycle (auto start/end) | Done | `apps/telemetry/celery_integration.py` → `apps.py:ready()` |
 | Offline video task frame recording | Done | `apps/video_analysis/tasks.py:_tel_record_frame()` in `_on_frame_complete` + `_on_triton_frame_inferred` |
+| Offline LPM event recording | Staged | `apps/video_analysis/tasks.py:_tel_record_lpm_event()` when `LPM_ENABLED=1` |
 | Live stream task frame recording | Done | `apps/video_analysis/tasks.py:_tel_record_frame()` in live `_on_frame_complete` |
 | Triton client RTT hook | Done | `apps/pipeline/services/triton_client.py:_try_record_telemetry()` |
 | Test / benchmark harness | Done | Use `TelemetrySession(source_type="test")` context manager; Celery signals also cover `ingest_runtime_event_task` |
 
-All integration points are wired. Run `python manage.py migrate` on prod to apply `0001_initial`.
+All integration points are wired. Run `python manage.py migrate` on prod to apply `0001_initial` and `0002_telemetrylpmevent`.
 Update `agents.md` Telemetry section status to **IMPLEMENTED** once the migration is applied and confirmed in production.

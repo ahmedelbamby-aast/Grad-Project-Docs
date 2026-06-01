@@ -398,17 +398,18 @@ note at the bottom of `AGENTS.md`.
    - C4 pose-coupling test using a fake yaw value.
    - Optimization objective monotonicity test.
    - Debug-log structure test.
-5. Add `telemetry_lpm_events` Django model + migration (deferred to
-   acceptance commit, since the table only exists once LPM lands).
+5. Add `telemetry_lpm_events` Django model + migration and wire
+   `TelemetrySession.record_lpm_event(...)` through the JSON + PostgreSQL
+   writer.
 6. Update `.github/workflows/inference-parallelization.yml` to gate the
-   new unit test.
+   new unit and integration tests.
 7. Update `tools/prod/prod_enable_parallel_flow.sh` to set `LPM_ENABLED=0`
    explicitly (so the production env has the knob registered even before
    LPM is turned on).
 
 No Triton config changes, no engine rebuilds, no Celery routing changes.
-The change set is the LPM module, its tests, one settings block, and one
-hook in the existing dispatch function.
+The change set is the LPM module, telemetry event storage, tests, one settings
+block, and one hook in the existing dispatch function.
 
 ---
 

@@ -41,8 +41,8 @@ Items per §B / §C:
 - [ ] **B.2** Output-fusion: ALL three approaches (B.2.a top-K, B.2.b 2-class gaze_h re-export, B.2.c both) measured on prod and recorded in `docs/cycle_9b_output_fusion_results.md`; one approach selected; CI gate updated
 - [ ] **B.3** Child critical-path: Step 1 measurement landed; ALL applicable Step 2 approaches measured and recorded in `docs/cycle_9b_child_critical_path_results.md`; dominant-child optimization landed; CI gate updated
 - [ ] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; accept or reject documented in a results doc
-- [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated
-- [ ] **C.2.2** `telemetry_lpm_events` table + migration + writer landed; migration test added; CI gate updated
+- [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated (**locally staged; prod evidence pending**)
+- [ ] **C.2.2** `telemetry_lpm_events` table + migration + writer landed; migration test added; CI gate updated (**locally staged; prod migration/evidence pending**)
 - [ ] **C.2.3** LPM Phase 1 prod benchmark passes ALL §10 gates of `docs/logical_path_matrix_spec.md`; metrics recorded in a new `docs/cycle_10_lpm_phase1_results.md`; LPM row in § Z.2 moved to § Z.1
 - [ ] **C.2.4** LPM Phase 2 (BLS migration) landed and prod-benchmarked; results in `docs/cycle_10_lpm_phase2_results.md`
 - [ ] **C.2.5** Open spec issues resolved; resolution recorded in `docs/logical_path_matrix_spec.md`
@@ -118,7 +118,7 @@ ship the flag.
 | Cycle 7 (redis cache) | `515fe118` | 1 582 s (26.4 min) | 2.870 | ACCEPTED (caveat) |
 | Cycle 8 (embedding stage) | `d2de80a0` | 1 312 s (21.9 min) | 3.460 | **ACCEPTED** (latest accepted baseline) |
 | Cycle 9 (behavior ensemble) | `c1651663` | 1 111 s (18.5 min) | 4.090 | **NOT ACCEPTED** — Step 2 wall +0.6 % failed the ≥ 10 % gate |
-| Cycle 10 (LPM) | — | — | — | **STAGED** — code + tests landed, prod benchmark pending |
+| Cycle 10 (LPM) | — | — | — | **STAGED** — C.2.1 hook + C.2.2 telemetry landed locally, prod migration/benchmark pending |
 
 **SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
 = 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 8) is
@@ -395,7 +395,7 @@ hypotheses. Cycle 9b candidates B.1–B.4 each name their lever explicitly.
 
 ---
 
-## C. Cycle 10 — Logical Path Matrix (LPM) (STAGED, NOT WIRED)
+## C. Cycle 10 — Logical Path Matrix (LPM) (STAGED, HOOK + TELEMETRY WIRED LOCALLY)
 
 ### C.1 What landed already
 
@@ -406,6 +406,14 @@ hypotheses. Cycle 9b candidates B.1–B.4 each name their lever explicitly.
 - 28 unit tests passing covering all of C1–C4, the disabled-flag identity,
   the exclusion contract, the RTMPose head-yaw helper, batch metrics, and
   the integration helper.
+- C.2.1 hook wiring is now locally implemented in
+  `backend/apps/video_analysis/tasks.py` and covered by
+  `backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py`.
+- C.2.2 telemetry is now locally implemented: `TelemetryLpmEvent`,
+  migration `0002_telemetrylpmevent`, `LpmEventMeta`,
+  `TelemetrySession.record_lpm_event(...)`, writer bulk insert + JSON fallback,
+  and crop-frame `_tel_record_lpm_event(...)` are covered by telemetry and hook
+  tests.
 - All settings registered in `backend/config/settings/base.py`
   (`LPM_ENABLED` default `0`).
 - All prod env knobs registered in `tools/prod/prod_enable_parallel_flow.sh`
@@ -413,9 +421,9 @@ hypotheses. Cycle 9b candidates B.1–B.4 each name their lever explicitly.
 - CI workflow gates the new module + tests.
 - Formal spec at `docs/logical_path_matrix_spec.md`.
 
-### C.2 What is NOT done yet (this is the TODO list)
+### C.2 What remains before acceptance (this is the TODO list)
 
-#### C.2.1 Wire the LPM hook into `tasks.py`
+#### C.2.1 Wire the LPM hook into `tasks.py` — LOCALLY STAGED
 
 **Where:** `backend/apps/video_analysis/tasks.py` inside
 `_run_crop_behaviour_for_items()`, **after** the 4-model dispatch returns
@@ -456,7 +464,14 @@ if settings.LPM_ENABLED:
 fake `fd` object and verifies (a) disabled-flag identity, (b)
 detection_count parity when LPM is enabled but inputs are unambiguous.
 
-#### C.2.2 Telemetry table for LPM events
+**Local status (2026-06-01):** implemented behind `LPM_ENABLED=0` default.
+The hook maintains a per-job prior-state cache and applies only after crop
+behavior/gaze boxes are decoded. Integration coverage is in
+`backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py`. The
+top-level checkbox remains unchecked until production deployment and the
+C.2.3 benchmark evidence exist.
+
+#### C.2.2 Telemetry table for LPM events — LOCALLY STAGED
 
 **Where:** new Django model + migration.
 
@@ -484,10 +499,17 @@ CREATE INDEX telemetry_lpm_sess_frame_idx
 rate, gaze-flip-rate drop) can only be computed by log scraping. The table
 is the canonical source for the before/after benchmark math.
 
-**Implementation:** model in `backend/apps/telemetry/models.py`, write
-helper in `backend/apps/telemetry/writer.py` (mirrors
-`_bulk_insert_model_calls` from Cycle 7), bulk-insert from
-`record_lpm_telemetry`.
+**Implementation:** model in `backend/apps/telemetry/models.py`, migration
+`backend/apps/telemetry/migrations/0002_telemetrylpmevent.py`, public
+`LpmEventMeta` + `TelemetrySession.record_lpm_event(...)`, writer helper
+`_bulk_insert_lpm_events`, JSON fallback keys `lpm_events` /
+`lpm_event_count_in_json`, and crop-frame `_tel_record_lpm_event(...)`.
+
+**Local status (2026-06-01):** implemented and covered by
+`backend/tests/unit/telemetry/test_telemetry_layer.py` plus
+`backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py`. The
+top-level checkbox remains unchecked until the migration is applied on
+production and C.2.3 benchmark evidence exists.
 
 #### C.2.3 Production benchmark — the only thing that turns STAGED into ACCEPTED
 
@@ -696,7 +718,7 @@ quality of the diff.
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
 | **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PLANNED, NOT STARTED** | **This file, §§B.1–B.5.** No code yet; each option has its own multi-approach comparison matrix. | This file, `docs/cycle_9_results.md` |
-| **Cycle 10** | Logical Path Matrix (LPM) — server-side behavioral constraint layer | **STAGED, NOT WIRED** | Math + 28 unit tests + CI gate + spec are landed. **Wiring into `tasks.py` (§C.2.1), telemetry table (§C.2.2), and the prod benchmark (§C.2.3) are NOT done.** | **This file, §§C.1–C.2.5**, `docs/logical_path_matrix_spec.md` |
+| **Cycle 10** | Logical Path Matrix (LPM) — server-side behavioral constraint layer | **STAGED, HOOK + TELEMETRY WIRED LOCALLY** | Math + unit tests + CI gate + spec are landed; C.2.1 hook and C.2.2 telemetry storage are locally implemented and tested. **Production migration, production benchmark (§C.2.3), and acceptance docs are NOT done.** | **This file, §§C.1–C.2.5**, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
 

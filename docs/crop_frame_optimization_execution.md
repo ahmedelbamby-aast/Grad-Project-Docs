@@ -461,6 +461,129 @@ server-side critical path, or frame-level process parallelism.
 
 ---
 
+## Cycle 10 — LPM Phase 1 Hook + Telemetry (C.2.1-C.2.2 STAGED)
+
+### Phase 1: Investigation
+
+The Logical Path Matrix math layer already exists in
+`backend/apps/pipeline/services/logical_path_matrix.py`, with tests for C1-C4,
+disabled identity, and the structural exclusion contract. The missing production
+integration is in `backend/apps/video_analysis/tasks.py`:
+`_run_crop_behaviour_for_items()` decodes each crop behavior/gaze response and
+immediately appends the resulting `DetectionBox` objects to `fd.boxes`.
+
+That means the crop-frame path currently has no constraint layer between the
+three gaze axes and persistence. `LPM_ENABLED` exists and defaults to `0`, but no
+caller applies `apply_to_detection_boxes(...)` or maintains per-track prior LPM
+state across frames.
+
+Detailed Phase A record: [`docs/cycle_10_investigation.md`](cycle_10_investigation.md).
+
+### Phase 2: Hypothesis
+
+Hook the existing default-off LPM helper into `_run_crop_behaviour_for_items()`
+after behavior/gaze decode and before downstream tracking/persistence consumes
+`fd.boxes`.
+
+**Named lever:** single-process Python orchestration.
+
+This is a correctness/staging cycle, not a Step 2 throughput win. The hook adds a
+bounded Python post-decode step and is expected to be performance-neutral:
+disabled behavior must be identity; enabled behavior must reduce contradictory
+gaze boxes without touching `person_detection`, `sitting_standing`, hand-raising,
+or pose outputs. Production acceptance is deferred to the C.2.3 benchmark gates
+in `docs/logical_path_matrix_spec.md` §10.
+
+**Expected impact:**
+- `LPM_ENABLED=0`: no runtime behavior change.
+- `LPM_ENABLED=1`: one coherent gaze decision per tracked person/axis where the
+  existing decoded boxes provide enough evidence.
+- Step 2 wall: no regression above 1%; LPM latency target below 5 ms/frame.
+
+**Risk:** low-to-medium. The flag default stays off. Enabled LPM can change
+attention/gaze boxes, so the integration test must prove non-gaze detections are
+preserved and the disabled path is identity.
+
+**Rollback:** set `LPM_ENABLED=0` and restart offline workers; no code revert is
+needed for production rollback.
+
+### Phase 3: Implementation
+
+- `backend/apps/video_analysis/tasks.py`: `_run_crop_behaviour_for_items()` now
+  maintains a per-job `lpm_prior_states_by_track` dict and, when
+  `LPM_ENABLED=1`, applies `logical_path_matrix.apply_to_detection_boxes(...)`
+  to each frame after crop behavior/gaze boxes are decoded. The hook is skipped
+  entirely when `LPM_ENABLED=0`. The hook records one telemetry row through
+  `_tel_record_lpm_event(...)` for every frame where LPM executes.
+- `backend/apps/pipeline/services/logical_path_matrix.py`: class-label matching
+  now covers the deployed bare labels (`left`, `right`, `up`, `down`,
+  `forward`, `backward`) and explicitly restricts Phase 1 classification to
+  attention/gaze model names so hand-raising `up/down` boxes remain out of
+  scope.
+- `backend/apps/telemetry/models.py` and
+  `backend/apps/telemetry/migrations/0002_telemetrylpmevent.py`: add the
+  `telemetry_lpm_events` table required by
+  `docs/logical_path_matrix_spec.md` §8.
+- `backend/apps/telemetry/session.py` and `backend/apps/telemetry/writer.py`:
+  add `LpmEventMeta`, `TelemetrySession.record_lpm_event(...)`, JSON fallback
+  keys, and `_bulk_insert_lpm_events(...)` so LPM metrics persist with the same
+  dual-sink semantics as model-call telemetry.
+- `backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py`: new
+  crop-frame integration coverage proves disabled LPM does not invoke the
+  filter, enabled LPM preserves unambiguous non-gaze counts, and enabled LPM
+  records a telemetry event with the expected contradiction counters.
+- `backend/tests/unit/telemetry/test_telemetry_layer.py`: covers
+  `LpmEventMeta`, session collection, writer bulk insert invocation, and skip
+  behavior when no LPM rows exist.
+- `.github/workflows/inference-parallelization.yml`: gates the new integration
+  test, telemetry app changes, and the Cycle 10 investigation/execution docs.
+
+Local validation:
+
+```bash
+.\backend\.venv\Scripts\python.exe -m pytest \
+  backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py \
+  backend/tests/unit/pipeline/test_logical_path_matrix.py \
+  backend/tests/unit/telemetry/test_telemetry_layer.py \
+  -q --tb=short
+```
+
+Result: `64 passed`.
+
+Additional local gate:
+
+```bash
+.\backend\.venv\Scripts\python.exe -m pytest \
+  backend/tests/unit/pipeline/test_triton_grpc_transport.py \
+  backend/tests/unit/pipeline/test_dependency_injection_boundaries.py \
+  backend/tests/unit/pipeline/test_triton_configuration_profiles.py \
+  backend/tests/unit/pipeline/test_behavior_ensemble_dispatch.py \
+  backend/tests/unit/pipeline/test_pose_runtime_batch_chunking.py \
+  backend/tests/unit/tracking/test_redis_client_cache.py \
+  backend/tests/unit/tracking/test_persist_embeddings_bulk.py \
+  backend/tests/unit/pipeline/test_logical_path_matrix.py \
+  backend/tests/unit/video_analysis/test_concurrent_model_dispatch.py \
+  backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py \
+  backend/tests/unit/video_analysis/test_management_commands.py \
+  backend/tests/unit/video_analysis/test_pipeline_mode_phase7a.py \
+  backend/tests/unit/video_analysis/test_triton_offline_batch_queue.py \
+  backend/tests/unit/docs/test_triton_phase_knob_docs_consistency.py \
+  backend/tests/unit/telemetry/test_telemetry_layer.py \
+  -q --tb=short
+```
+
+Result: `155 passed`, with the pre-existing `async_to_sync` warnings in the
+pose runtime chunking tests. `makemigrations --check --dry-run`, compileall,
+docs diagram verification, and `git diff --check` also passed locally.
+
+### Decision
+
+**STAGED.** No acceptance claim until the migration is applied/deployed on
+production and a Linux RTX 5090 benchmark satisfies the LPM §10 gates with
+results recorded in `docs/cycle_10_lpm_phase1_results.md`.
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.

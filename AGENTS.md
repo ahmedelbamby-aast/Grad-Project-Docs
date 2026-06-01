@@ -86,15 +86,27 @@ This file defines how agents should execute tests quickly and safely in this rep
   posture_model are read-only inputs (C4 uses RTMPose head-yaw as a signal
   but never modifies pose outputs) or are not touched at all. Constraints
   C1–C4 enforce within-axis exclusivity (margin-based), temporal smoothness
-  with hysteresis, impossible-state alarms, and pose-coupling. Implementation
-  lives at `backend/apps/pipeline/services/logical_path_matrix.py` plus 22
-  unit tests at `backend/tests/unit/pipeline/test_logical_path_matrix.py`.
+  with hysteresis, impossible-state alarms, and pose-coupling. The pure math
+  lives at `backend/apps/pipeline/services/logical_path_matrix.py`; C.2.1 is
+  now locally wired into `backend/apps/video_analysis/tasks.py` behind
+  `LPM_ENABLED`, with integration coverage in
+  `backend/tests/unit/video_analysis/test_lpm_crop_behaviour_hook.py`.
+  C.2.2 is also locally staged: `telemetry_lpm_events` is modeled in
+  `backend/apps/telemetry/models.py`, migrated by
+  `backend/apps/telemetry/migrations/0002_telemetrylpmevent.py`, collected via
+  `TelemetrySession.record_lpm_event(...)`, flushed through the JSON +
+  PostgreSQL telemetry writer, and emitted from the crop-frame hook through
+  `_tel_record_lpm_event(...)`. Local validation for C.2.1-C.2.2: focused
+  telemetry/LPM set `64 passed`; focused inference-parallelization workflow
+  pytest set `155 passed`; `makemigrations --check --dry-run`, compileall,
+  docs diagram verification, and `git diff --check` passed.
   Flag `LPM_ENABLED` defaults `0` — **STAGED, not accepted**, until a prod
   benchmark on the Linux RTX 5090 satisfies §10 of
   `docs/logical_path_matrix_spec.md` (zero correctness regression + measurable
-  contradiction reduction + ≥ 25 % gaze-flip-rate drop per track). The same
-  pure-function math layer is the planned hand-off point for a future Triton
-  BLS Python backend (Phase 2).
+  contradiction reduction + ≥ 25 % gaze-flip-rate drop per track). Production
+  migration, C.2.3 benchmark, acceptance docs, commit/push/deploy, and deployed
+  SHA verification remain pending. The same pure-function math layer is the
+  planned hand-off point for a future Triton BLS Python backend (Phase 2).
 - **Constitutional re-affirmation (2026-06-01)**: **No optimization cycle may
   be marked accepted/success/agreed without a production benchmark on the
   Linux RTX 5090 server that demonstrates both (a) the targeted metric
