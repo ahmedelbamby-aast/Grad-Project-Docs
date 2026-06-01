@@ -672,6 +672,13 @@ vertical, and `11.909 ms` depth). It is also the widest dense-output model
 `gaze_horizontal_model` first, with B.2.b output fusion / narrow-head work as
 the lowest-risk first candidate.
 
+Cycle 9b B.2.b is now locally staged behind
+`GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`: `gaze_horizontal_gaze2_model` slices the
+legacy horizontal output to `[6,2100]`, `behavior_ensemble_gaze2` routes the
+same crop tensor through that child, and the app remaps compact class IDs back
+to legacy DB IDs `4/5`. This is not accepted; production parity and a full
+`combined.mp4` benchmark are still required.
+
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to
 implement. The general lesson — **stop optimizing gRPC call count alone**

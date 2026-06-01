@@ -627,6 +627,58 @@ gaze probabilities or run inside the future compact postprocessing/BLS path.
 
 ---
 
+## Cycle 9b B.2.b — Gaze-Horizontal Output Fusion (STAGED)
+
+### Phase 1: Investigation
+
+Cycle 9b Step-1 production measurement identified `gaze_horizontal_model` as
+the dominant behavior child: `16.058 ms/exec` server delta versus `12.133 ms`
+posture, `11.759 ms` vertical, and `11.909 ms` depth. It is also the widest
+dense-output behavior model (`[84,2100]`, about `689 KB` per crop).
+
+The runtime consumes only the `right_left` class filter `(4,5)` for horizontal
+gaze, so the 80-class output mostly crosses Triton/gRPC/Python only to be
+discarded by `_decode_yolo_output0(...)`.
+
+Detailed Phase A/B record:
+[`docs/cycle_9b_output_fusion_investigation.md`](cycle_9b_output_fusion_investigation.md).
+
+### Phase 2: Hypothesis
+
+Add an env-gated `gaze2` output-slice variant for horizontal gaze:
+
+- `GAZE_HORIZONTAL_HEAD_VARIANT=coco80|gaze2`
+- `gaze_horizontal_gaze2_model` returns `[6,2100]`
+  (`xywh` + legacy class channels `4/5`)
+- `behavior_ensemble_gaze2` fans out to the same four behavior models except
+  horizontal gaze uses the sliced-output variant
+- the app remaps compact class IDs `0/1` back to legacy class IDs `4/5`
+
+**Named lever:** dense output bytes.
+
+Expected byte impact at ~17 crops/frame: horizontal-gaze dense output drops from
+about `11.4 MB/frame` to about `0.82 MB/frame` (`~92.9 %` reduction for that
+child). This should reduce behavior RTT and Python dense-output decode cost for
+the measured dominant child. It may not reduce full TensorRT compute if TensorRT
+cannot prune unused internal channels from the sliced graph, so production
+benchmark evidence decides acceptance.
+
+**Risk:** medium. The largest correctness risk is class-ID drift; the compact
+decoder must preserve legacy `4/5` IDs in DB rows. The largest performance risk
+is no Step 2 wall movement if output bytes are not the dominant part of this
+child's critical path.
+
+**Rollback:** set `GAZE_HORIZONTAL_HEAD_VARIANT=coco80`, route `behavior_all`
+back to `behavior_ensemble`, restart Triton and workers. The legacy dense model
+and ensemble remain deployed.
+
+**Acceptance gate:** production benchmark on `combined.mp4` must complete with
+Step 2 wall improvement, DB-completed FPS improvement, sliced-output parity, and
+no row/per-class correctness regression. Until then this cycle is STAGED, not
+ACCEPTED.
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.

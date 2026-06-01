@@ -219,7 +219,7 @@ footprint than the full BLS path.
 | ID | Approach | What changes | Bytes saved per crop |
 |---|---|---|---:|
 | **B.2.a** | **Top-K anchor packing** — extra ensemble step (or tiny TensorRT op) returns only the top-K anchors per crop per model with `K = TRITON_YOLO_MAX_DECODE_CANDIDATES = 100` | Output shape per model becomes `[C, K]` instead of `[C, 2100]` — `100/2100 ≈ 4.8 %` of original | ~95 % per model |
-| **B.2.b** | **Class-channel trim for `gaze_horizontal_model`** — re-export ONNX with a 2-class head instead of the inherited COCO-80 head | Output shape changes from `[84, 2100]` to `[6, 2100]` | ~93 % on this one model (689 KB → ~50 KB per crop = **~11 MB / frame** saved) |
+| **B.2.b** | **Class-channel trim for `gaze_horizontal_model`** — staged as an ONNX output-slice variant, not a retrained head | Output shape changes from `[84, 2100]` to `[6, 2100]`; compact class IDs are remapped back to legacy IDs `4/5` | ~93 % on this one model (689 KB → ~50 KB per crop = **~11 MB / frame** saved) |
 | **B.2.c** | **Combine B.2.a + B.2.b** — top-K packing AND a 2-class re-export of `gaze_horizontal_model` (the other three behavior models keep their 10-class head) | Stacked savings | ~99 % per crop on `gaze_horizontal_model`, ~95 % on the others |
 
 #### B.2 selection mechanism (.env-controlled)
@@ -235,6 +235,14 @@ GAZE_HORIZONTAL_HEAD_VARIANT=coco80        # B.2.b — "coco80" (legacy 84-chann
 Setting both to non-default values activates **B.2.c**. The client-side
 `_decode_yolo_output0` must read `GAZE_HORIZONTAL_HEAD_VARIANT` to know
 whether to expect 84 or 6 channels on that specific model.
+
+**Current implementation state (2026-06-02):** B.2.b is locally staged behind
+`GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`. The implementation creates
+`gaze_horizontal_gaze2_model` by gathering channels `[0,1,2,3,8,9]` from the
+legacy horizontal ONNX output, routes `behavior_all` to
+`behavior_ensemble_gaze2`, and remaps compact class IDs `0/1` back to legacy
+DB IDs `4/5`. Local focused validation passed (`160 passed`), but this is not
+accepted until the production parity probe and `combined.mp4` benchmark pass.
 
 #### B.2 measurement matrix (one prod bench per row)
 
@@ -724,7 +732,7 @@ quality of the diff.
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PLANNED, NOT STARTED** | **This file, §§B.1–B.5.** No code yet; each option has its own multi-approach comparison matrix. | This file, `docs/cycle_9_results.md` |
+| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **STAGED LOCALLY — B.2.b ONLY** | B.2.b code exists behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`; missing production sliced-output parity probe, full `combined.mp4` benchmark, before/after matrix in `docs/cycle_9b_output_fusion_results.md`, and ACCEPTED/NOT ACCEPTED decision. B.1, B.2.a, B.2.c, B.3 Step 2, and B.4 remain unimplemented. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
