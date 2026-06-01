@@ -726,6 +726,16 @@ violated the model contract and silently fell back to HTTP per frame.
 | Final status | `completed` (no stale-error) |
 | DB row parity | 4 541 frames, 72 752 detections, 72 752 bboxes, 72 586 embeddings |
 
+**Per-cycle FPS summary (same job — `combined.mp4`, 4 541 frames, prod RTX 5090):**
+
+| Cycle | Job ID | Step 2 FPS (frame inference) | Overall FPS (`run.complete`) | Overall FPS (DB `status=completed`) |
+|---|---|---:|---:|---:|
+| Baseline (ROI-320 only) | `77650001-3c4b-4b0a-94aa-b4eb899b90df` | **2.09** | **1.308** | **1.309** |
+| Cycles 1–5 (telemetry + concurrency + concat memo) | `74ec0432-995c-487e-9d77-1048ec109fb1` | **5.14** | **2.644** | **2.077** |
+| Cycle 6 (pose chunking fix) | `a1a448b9-474f-4dea-942b-3288bcae6900` | **5.17** | **2.776** | **2.780** |
+| Δ Cycle 6 vs Baseline | — | **+147 %** | **+112 %** | **+112 %** |
+| Δ Cycle 6 vs Cycle 1–5 | — | **+0.6 %** | **+5.0 %** | **+33.8 %** |
+
 **Headline metrics (Cycle 6 vs Cycle 1–5 vs Baseline):**
 
 | Metric | Baseline `77650001` | Cycle 1–5 `74ec0432` | **Cycle 6 `a1a448b9`** | Δ vs Cycle 1–5 | Δ vs Baseline |
