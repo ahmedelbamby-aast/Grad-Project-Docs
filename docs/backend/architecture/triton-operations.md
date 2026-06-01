@@ -141,7 +141,8 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_TRUE_BATCH_REQUESTS` | `true` | `apps.video_analysis.services.inference_orchestrator.InferenceOrchestrator` |
 | `TRITON_YOLO_MAX_DECODE_CANDIDATES` | `100` | `apps.video_analysis.tasks._decode_yolo_output0` |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `640` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
-| `TRITON_MODEL_BATCH_SIZE_OVERRIDES` | `object-models=8,pose=16` | `apps.video_analysis.tasks._effective_task_batch_size` |
+| `TRITON_BEHAVIOR_ENSEMBLE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference`, `apps.pipeline.services.triton_client.TritonClient` |
+| `TRITON_MODEL_BATCH_SIZE_OVERRIDES` | `object-models=8,behavior_all=32,pose=16` | `apps.video_analysis.tasks._effective_task_batch_size` |
 | `TRITON_OFFLINE_THREADED_DECODE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `TRITON_OFFLINE_DECODE_QUEUE_SIZE` | `4` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `INFERENCE_RUNTIME_CANARY_P95_LATENCY_THRESHOLD_MS` | `120.0` | `core.configuration.ModuleConfigLoader` |
@@ -152,7 +153,7 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `OFFLINE_DB_BATCH_SIZE` | `1000` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_OFFLOAD_POST_STAGES` | `true` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
 | `OFFLINE_TRIM_PROCESS_MEMORY` | `true` | `apps.video_analysis.tasks._trim_process_memory_if_enabled` |
-| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `false` | `apps.video_analysis.tasks.generate_embeddings` |
+| `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `true` | `apps.video_analysis.tasks.generate_embeddings` |
 | `OFFLINE_BEHAVIOUR_REUSE` | `false` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `OFFLINE_BEHAVIOUR_REUSE_TTL_FRAMES` | `0` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `OFFLINE_BEHAVIOUR_REUSE_IOU_THRESHOLD` | `0.90` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
