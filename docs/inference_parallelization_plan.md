@@ -672,12 +672,15 @@ vertical, and `11.909 ms` depth). It is also the widest dense-output model
 `gaze_horizontal_model` first, with B.2.b output fusion / narrow-head work as
 the lowest-risk first candidate.
 
-Cycle 9b B.2.b is now locally staged behind
-`GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`: `gaze_horizontal_gaze2_model` slices the
-legacy horizontal output to `[6,2100]`, `behavior_ensemble_gaze2` routes the
-same crop tensor through that child, and the app remaps compact class IDs back
-to legacy DB IDs `4/5`. This is not accepted; production parity and a full
-`combined.mp4` benchmark are still required.
+Cycle 9b B.2.b TensorRT output-slice variant is **NOT ACCEPTED**. Production
+built and loaded `gaze_horizontal_gaze2_model` and `behavior_ensemble_gaze2` at
+SHA `49932a22bfb429a74075e6952788af63eb007810`, but the required parity probe
+failed twice. The final rebuilt-engine proof
+`backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json`
+reported `max_abs_diff=9.5` against a `1e-6` tolerance. No full benchmark was run
+because the pre-benchmark parity gate failed. Production was rolled back to
+`GAZE_HORIZONTAL_HEAD_VARIANT=coco80`, `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`,
+and `LPM_ENABLED=0`.
 
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to

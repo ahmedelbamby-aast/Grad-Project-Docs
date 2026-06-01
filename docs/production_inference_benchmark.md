@@ -694,7 +694,7 @@ failed.**
 
 ---
 
-*Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*
+*Updated from production proof on 2026-06-02. Update this file after each major pipeline change or hardware migration.*
 
 ---
 
@@ -1090,6 +1090,36 @@ still lacks the probability evidence needed to detect contradictions. The next
 iteration must capture pre-decode gaze probabilities or move LPM into the
 future compact postprocessing / BLS path. Production remains rolled back to
 `LPM_ENABLED=0`.
+
+---
+
+## 17. 2026-06-02 Cycle 9b B.2.b Production Parity Proof — Output-Slice Variant
+
+**Status:** **NOT ACCEPTED.** The `gaze_horizontal_gaze2_model` TensorRT
+output-slice candidate built and loaded on production, but failed the required
+raw tensor parity gate before a full benchmark was run.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Candidate SHA | `49932a22bfb429a74075e6952788af63eb007810` |
+| Variant child | `gaze_horizontal_gaze2_model` |
+| Variant ensemble | `behavior_ensemble_gaze2` |
+| Parity artifact | `backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json` |
+| Probe shape | `[16,6,2100]` expected and candidate |
+| Max abs diff | `9.5` |
+| Required tolerance | `1e-6` |
+| Full benchmark | Not run; pre-benchmark parity failed |
+| Rollback | `GAZE_HORIZONTAL_HEAD_VARIANT=coco80`, `MODEL_ROUTE_GAZE_HORIZONTAL_MODEL_NAME=gaze_horizontal_model`, `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`, `LPM_ENABLED=0`; Triton/workers restarted |
+
+The candidate gathered legacy output channels `[0,1,2,3,8,9]` in ONNX, but as
+a separate TensorRT plan it did not produce bit-identical values to the legacy
+horizontal plan. This fails the Cycle 9b output-fusion parity gate, so no FPS or
+Step 2 wall improvement is claimed.
+
+See [`docs/cycle_9b_output_fusion_results.md`](cycle_9b_output_fusion_results.md)
+for the decision record.
 
 ---
 

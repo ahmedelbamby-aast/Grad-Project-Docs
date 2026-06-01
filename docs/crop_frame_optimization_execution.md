@@ -627,7 +627,7 @@ gaze probabilities or run inside the future compact postprocessing/BLS path.
 
 ---
 
-## Cycle 9b B.2.b — Gaze-Horizontal Output Fusion (STAGED)
+## Cycle 9b B.2.b — Gaze-Horizontal Output Fusion (NOT ACCEPTED)
 
 ### Phase 1: Investigation
 
@@ -674,8 +674,42 @@ and ensemble remain deployed.
 
 **Acceptance gate:** production benchmark on `combined.mp4` must complete with
 Step 2 wall improvement, DB-completed FPS improvement, sliced-output parity, and
-no row/per-class correctness regression. Until then this cycle is STAGED, not
-ACCEPTED.
+no row/per-class correctness regression.
+
+### Phase 4: Production parity proof
+
+Production built and loaded `gaze_horizontal_gaze2_model` and
+`behavior_ensemble_gaze2` at SHA
+`49932a22bfb429a74075e6952788af63eb007810`. The candidate failed the required
+pre-benchmark raw tensor parity gate twice:
+
+| Probe | Artifact | Max abs diff | Tolerance | Result |
+|---|---|---:|---:|---|
+| Initial candidate proof | `backend/logs/gaze_horizontal_gaze2_parity_20260601T230548.json` | `7.125` | `1e-6` | fail |
+| Rebuilt-engine proof | `backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json` | `9.5` | `1e-6` | fail |
+
+Both probes compared the legacy horizontal tensor slice
+`output0[:, [0,1,2,3,8,9], :]` against `gaze_horizontal_gaze2_model.output0` and
+`behavior_ensemble_gaze2.gaze_h_out`; shapes matched at `[16,6,2100]`, but values
+did not.
+
+### Decision
+
+**NOT ACCEPTED.** No full `combined.mp4` benchmark was run because correctness
+failed before the benchmark gate. Production was rolled back to:
+
+```bash
+GAZE_HORIZONTAL_HEAD_VARIANT=coco80
+MODEL_ROUTE_GAZE_HORIZONTAL_MODEL_NAME=gaze_horizontal_model
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble
+LPM_ENABLED=0
+```
+
+Mechanism observed: this implementation creates a separate TensorRT plan, so
+TensorRT can select different FP16 tactics once the graph output is changed to a
+final channel gather. The next output-fusion attempt must preserve exactness by
+slicing the already-executed legacy output server-side, or explicitly define a
+decoded-detection parity gate before any full benchmark.
 
 ---
 

@@ -126,7 +126,7 @@ ship the flag.
 
 ---
 
-## B. Cycle 9b — Five concrete improvements (NONE STARTED)
+## B. Cycle 9b — Five concrete improvements (PARTIALLY PROVEN)
 
 Cycle 9 (plain ensemble) reduced app-side request fragmentation but did not
 reduce GPU-side child compute or dense output transfer, so Step 2 wall did
@@ -208,7 +208,7 @@ dense-grid path stays compiled in.
    `docs/cycle_9b_compact_postproc_results.md` even if only one ships —
    so future agents have the evidence for the tradeoff.
 
-### B.2 Output fusion — class-trim and top-K (multi-approach, both built)
+### B.2 Output fusion — class-trim and top-K (multi-approach)
 
 **What:** Lighter-weight alternative to B.1 — keep dense YOLO format but
 trim the response to only the *needed* logits. Smaller engineering
@@ -236,13 +236,20 @@ Setting both to non-default values activates **B.2.c**. The client-side
 `_decode_yolo_output0` must read `GAZE_HORIZONTAL_HEAD_VARIANT` to know
 whether to expect 84 or 6 channels on that specific model.
 
-**Current implementation state (2026-06-02):** B.2.b is locally staged behind
-`GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`. The implementation creates
+**Current implementation state (2026-06-02):** B.2.b's first implementation,
+the separate TensorRT output-slice variant behind
+`GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`, is **NOT ACCEPTED**. It created
 `gaze_horizontal_gaze2_model` by gathering channels `[0,1,2,3,8,9]` from the
-legacy horizontal ONNX output, routes `behavior_all` to
-`behavior_ensemble_gaze2`, and remaps compact class IDs `0/1` back to legacy
-DB IDs `4/5`. Local focused validation passed (`160 passed`), but this is not
-accepted until the production parity probe and `combined.mp4` benchmark pass.
+legacy horizontal ONNX output, routed `behavior_all` to
+`behavior_ensemble_gaze2`, and remapped compact class IDs `0/1` back to legacy
+DB IDs `4/5`. Local focused validation passed (`160 passed`), but production
+raw tensor parity failed twice; the final rebuilt-engine probe
+`backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json`
+reported `max_abs_diff=9.5` at tolerance `1e-6`. No full benchmark was run.
+Production was rolled back to `GAZE_HORIZONTAL_HEAD_VARIANT=coco80` and the
+legacy `behavior_ensemble` route. Remaining B.2 approaches are still open only
+if they can preserve parity, preferably by slicing the already-executed legacy
+output server-side or by passing an explicit decoded-detection parity gate.
 
 #### B.2 measurement matrix (one prod bench per row)
 
@@ -308,8 +315,10 @@ Record the per-child average and p95 in `docs/cycle_9b_child_critical_path_resul
 **Current measured status (2026-06-02):** Step 1 is complete. Production stats
 and direct gRPC decomposition show `gaze_horizontal_model` is the dominant child:
 `16.058 ms/exec` server delta versus `12.133 ms` posture, `11.759 ms` vertical,
-and `11.909 ms` depth. The next implementation target should be
-`gaze_horizontal_model`, likely via B.2.b output fusion / narrow head first.
+and `11.909 ms` depth. The first B.2.b narrow-head TensorRT plan failed raw
+tensor parity, so the next implementation target should be either exact
+server-side slicing from the already-executed legacy output or B.1 compact
+postprocessing / BLS.
 
 #### B.3 Step 2 — approaches to test (only on the dominant child)
 
@@ -610,7 +619,7 @@ free).
 | 1 | **C.2.1 LPM wiring** | 10 (Phase 1) | low risk, code already exists, prerequisite for C.2.3 |
 | 2 | **C.2.2 LPM telemetry table** | 10 (Phase 1) | small DB migration, prerequisite for C.2.3 |
 | 3 | **C.2.3 LPM Phase 1 prod benchmark** | 10 (Phase 1) | flip `LPM_ENABLED=1` for one bench, gate decides ACCEPTED / REJECTED |
-| 4 | **B.2b `gaze_horizontal` re-export** | 9b | independent of LPM, smallest engineering footprint, single largest output trim |
+| 4 | **B.2b `gaze_horizontal` re-export** | 9b | first TensorRT output-slice implementation failed production parity; only revisit with exact server-side slicing or a documented decoded-parity gate |
 | 5 | **B.3 child critical-path analysis** | 9b | server-side timing first, then targeted optimization of the dominant child |
 | 6 | **B.1 server-side compact postprocessing (BLS)** | 9b | highest impact but highest risk — depends on B.2b learnings |
 | 7 | **C.2.4 LPM Phase 2 (move math into BLS)** | 10 (Phase 2) | combines with B.1 — both land in the same BLS Python backend |
@@ -732,7 +741,7 @@ quality of the diff.
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **STAGED LOCALLY — B.2.b ONLY** | B.2.b code exists behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`; missing production sliced-output parity probe, full `combined.mp4` benchmark, before/after matrix in `docs/cycle_9b_output_fusion_results.md`, and ACCEPTED/NOT ACCEPTED decision. B.1, B.2.a, B.2.c, B.3 Step 2, and B.4 remain unimplemented. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md` |
+| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PARTIALLY PROVEN — B.2.b TENSORRT SLICE NOT ACCEPTED** | B.2.b separate TensorRT output-slice code exists behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2`, but production parity failed (`backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json`, `max_abs_diff=9.5`, tolerance `1e-6`), so no full benchmark was run and prod was rolled back. B.1, B.2.a, B.2.c, exact server-side B.2b slicing, B.3 Step 2, and B.4 remain unaccepted. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_output_fusion_results.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)

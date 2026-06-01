@@ -89,16 +89,21 @@ This file defines how agents should execute tests quickly and safely in this rep
   `gaze_horizontal_model` first, preferably through B.2.b output fusion /
   narrow-head work, but no Cycle 9b optimization is accepted until a fresh prod
   benchmark proves Step 2/FPS improvement and correctness parity.
-- **2026-06-02 Cycle 9b B.2.b STAGED LOCALLY — not accepted**: code now adds a
-  guarded `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` output-slice path. The new
+- **2026-06-02 Cycle 9b B.2.b TensorRT output-slice variant NOT ACCEPTED**:
+  code added a guarded `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` path where
   `gaze_horizontal_gaze2_model` gathers legacy horizontal channels
   `[0,1,2,3,8,9]` to produce `[6,2100]`, `behavior_ensemble_gaze2` fans out to
   that child, and the app remaps compact class IDs `0/1` back to legacy DB IDs
-  `4/5`. Local validation passed (`160 passed`, docs diagrams pass, shell
-  syntax pass), but this remains STAGED until production builds the new plan,
-  passes `prod_gaze_horizontal_gaze2_parity.py`, completes the full
-  `combined.mp4` benchmark, and records ACCEPTED/NOT ACCEPTED metrics in the
-  benchmark docs.
+  `4/5`. Local validation passed (`160 passed`), and production built/loaded
+  the plan at SHA `49932a22bfb429a74075e6952788af63eb007810`, but parity failed
+  twice. The final rebuilt-engine proof
+  `backend/logs/gaze_horizontal_gaze2_parity_20260601T231503_postrebuild.json`
+  reported `max_abs_diff=9.5` against a `1e-6` tolerance. No full benchmark was
+  run because the pre-benchmark parity gate failed. Production was rolled back to
+  `GAZE_HORIZONTAL_HEAD_VARIANT=coco80`,
+  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`, `LPM_ENABLED=0`,
+  then Triton/workers were restarted. See
+  `docs/cycle_9b_output_fusion_results.md`.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
