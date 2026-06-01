@@ -153,6 +153,28 @@ Flip `TRITON_BEHAVIOR_ENSEMBLE=0`. The 4 standalone models stay in the repo; the
 4. Output tensor byte-parity probe passes (≤ 1e-6 max abs diff vs 4-call path).
 5. ≥ 4 new unit tests covering ensemble config validation, response-splitting, fallback to 4-call path on error, flag-gated route selection.
 
+### Production outcome (2026-06-01)
+
+Cycle 9 was implemented and production-benchmarked, but the result is
+**NEEDS FURTHER ITERATION**, not accepted.
+
+- Replay key: `cycle9-behavior-ensemble-crop-frame-20260601T180847`
+- Job: `c1651663-e08a-4e29-9ee3-fd0f09884b98`
+- Candidate SHA: `0fa847af43186017316cc11a8c76645ff463e574`
+- Tensor parity: max abs diff `0.0`
+- Step 2 wall: `852.8 s` → `858.1 s` (`+0.6 %`, failed acceptance gate)
+- DB-completed FPS: `3.46` → `4.09` (`+18.1 %`)
+- App-level behavior calls: `14 391` → `3 597` (`-75.0 %`)
+
+New production finding: the pinned Triton build originally had
+`TRITON_ENABLE_ENSEMBLE=OFF`; it was rebuilt in place with
+`TRITON_ENABLE_ENSEMBLE=ON`.
+
+Lesson for future cycles: do not repeat a plain dense-output ensemble. The next
+design must reduce dense output movement, the four-child server-side critical
+path, or frame-level process serialization. See
+[`docs/cycle_9_results.md`](cycle_9_results.md).
+
 ---
 
 ## 3. Cycle 10 — Pose parallelization across frames

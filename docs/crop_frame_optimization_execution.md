@@ -426,6 +426,41 @@ All within BoT-SORT non-determinism noise.
 
 ---
 
+## Cycle 9 — Behavior Triton Ensemble (NEEDS FURTHER ITERATION)
+
+Cycle 9 implemented the simple four-behavior Triton ensemble and benchmarked it
+on production, but it is **not accepted** because the Step 2 wall-time gate did
+not improve.
+
+Evidence:
+
+- Replay key: `cycle9-behavior-ensemble-crop-frame-20260601T180847`
+- Job: `c1651663-e08a-4e29-9ee3-fd0f09884b98`
+- Candidate SHA: `0fa847af43186017316cc11a8c76645ff463e574`
+- Parity probe: max abs diff `0.0`
+- Decision record: [`docs/cycle_9_results.md`](cycle_9_results.md)
+
+| Metric | Cycle 8 | Cycle 9 | Δ |
+|---|---:|---:|---:|
+| Step 2 frame inference | 852.8 s | 858.1 s | +0.6 % |
+| DB-completed elapsed | 1 312.3 s | 1 110.7 s | −15.4 % |
+| DB-completed FPS | 3.46 | 4.09 | +18.1 % |
+| App-level model calls | 20 348 | 9 557 | −53.0 % |
+| Behavior crop calls | 14 391 | 3 597 | −75.0 % |
+| Detection/bbox/embedding parity | baseline | exact parity | pass |
+
+Production readiness note: the pinned Triton build initially had
+`TRITON_ENABLE_ENSEMBLE=OFF`. It was rebuilt in place with
+`TRITON_ENABLE_ENSEMBLE=ON`; backup binary:
+`/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver.pre_cycle9_no_ensemble_20260601T180729`.
+
+Lesson: collapsing four app-side behavior requests to one ensemble request is
+not enough when the server still executes four child TensorRT models and returns
+the same dense YOLO tensors. The next design must reduce dense output movement,
+server-side critical path, or frame-level process parallelism.
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
@@ -433,7 +468,7 @@ Listed in order. Only proceed if the staged cycles above do not lift FPS to the 
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|
 | 6 | Persistent asyncio producer/consumer frame loop — drop `async_runner.run(...)` per-frame round-trip; one persistent dispatcher coroutine processes frames as they leave decode | +10–20 % | medium refactor of `_process_batch_items` and `_AsyncLoopRunner` |
-| 7 | Triton ensemble / BLS that fuses 4 behavior models into one gRPC call (shared input tensor, multi-output) | +20–40 % | high; requires `ensemble_scheduling` config + parity test |
+| 7 | Compact server-side BLS / postprocessing that returns detections instead of dense behavior grids. The simple four-model ensemble is already measured in Cycle 9 and was not accepted. | unknown; must re-measure | high; requires compact output contract + parity test |
 | 8 | TRT NMS plugin server-side — return compact detections instead of dense `[84,2100]` / `[14,2100]` grids | small wall, large bandwidth | engine rebuild + decoder refactor |
 | 9 | Re-export behavior engines at 256×256 (smaller than current 320) | +20–40 % step-2 | medium — accuracy parity required |
 | 10 | Triton CUDA Shared Memory for input tensors | tiny | medium-high — SHM lifecycle |

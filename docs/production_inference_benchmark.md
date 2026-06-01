@@ -875,4 +875,82 @@ pass and are gated by `inference-parallelization.yml`.
 
 ---
 
+## 15. 2026-06-01 Cycle 9 Production Benchmark — Behavior Triton Ensemble
+
+**Status:** **NEEDS FURTHER ITERATION.** The production benchmark completed and
+preserved correctness, and the ensemble reduced app-level behavior requests and
+behavior RTT. It did **not** meet the Cycle 9 Step 2 acceptance gate because
+Step 2 wall time stayed flat (`852.8 s` → `858.1 s`, +0.6 %).
+
+**Candidate:**
+1. Added `behavior_ensemble` Triton config over `posture_model`,
+   `gaze_horizontal_model`, `gaze_vertical_model`, and `gaze_depth_model`.
+2. Added `TRITON_BEHAVIOR_ENSEMBLE` with rollback to the previous four-call path.
+3. Added app route `behavior_all` and split ensemble outputs back into the
+   existing `output0` decode path.
+4. Added production startup validation and a tensor parity probe.
+5. Rebuilt the pinned production Triton binary with `TRITON_ENABLE_ENSEMBLE=ON`
+   after the first production restart proved the existing build had
+   `TRITON_ENABLE_ENSEMBLE=OFF`.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9-behavior-ensemble-crop-frame-20260601T180847` |
+| Job ID | `c1651663-e08a-4e29-9ee3-fd0f09884b98` |
+| Candidate SHA | `0fa847af43186017316cc11a8c76645ff463e574` |
+| Bench summary | `backend/logs/bench_summary_20260601T180857.json` (rc=0) |
+| Bench log | `backend/logs/parallel_flow_cycle9-behavior-ensemble-crop-frame-20260601T180847.log` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260601T180857.csv` |
+| Parity probe | `backend/logs/behavior_ensemble_parity_cycle9_20260601T180827.json` |
+| Triton rebuild backup | `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver.pre_cycle9_no_ensemble_20260601T180729` |
+| Final status | `completed` |
+| DB row parity | 4 541 frames, 72 749 detections, 72 749 bboxes, 72 583 embeddings |
+
+**Before / after metrics:**
+
+| Metric | Cycle 8 Baseline | Cycle 9 Candidate | Delta |
+|---|---:|---:|---:|
+| Step 2 wall | `852.8 s` | `858.1 s` | `+5.3 s` / `+0.6 %` |
+| Step 2 FPS | `5.33` | `5.29` | `-0.8 %` |
+| Telemetry session wall | `1138.8 s` | `923.1 s` | `-215.6 s` / `-18.9 %` |
+| DB-completed elapsed | `1312.3 s` | `1110.7 s` | `-201.7 s` / `-15.4 %` |
+| Overall FPS (DB-completed) | `3.46` | `4.09` | `+18.1 %` |
+| App-level model calls | `20 348` | `9 557` | `-53.0 %` |
+| Behavior crop app calls | `14 391` across four models | `3 597` `behavior_ensemble` calls | `-75.0 %` |
+| Behavior mean RTT | `143-168 ms` per standalone behavior model | `107.9 ms` ensemble mean | improved |
+| Behavior p95 RTT | `248-277 ms` per standalone behavior model | `173.9 ms` ensemble p95 | improved |
+| Avg GPU utilization | `9.65 %` | `9.36 %` | `-0.29 pp` |
+| Peak GPU utilization | `36 %` | `43 %` | `+7 pp` |
+| Avg / peak VRAM | `15 663 / 15 663 MiB` | `15 663 / 15 663 MiB` | unchanged |
+
+**Correctness parity:**
+
+| Counter | Cycle 8 | Cycle 9 | Delta |
+|---|---:|---:|---:|
+| Frames | 4 541 | 4 541 | 0 |
+| Detections | 72 749 | 72 749 | 0 |
+| Bounding boxes | 72 749 | 72 749 | 0 |
+| Frame embeddings | 72 583 | 72 583 | 0 |
+| Student tracks | 53 | 53 | 0 |
+| `attention_tracking` boxes | 11 776 | 11 776 | 0 |
+| `hand_raising` boxes | 8 800 | 8 800 | 0 |
+| `person_detection` boxes | 19 162 | 19 162 | 0 |
+| `sitting_standing` boxes | 33 011 | 33 011 | 0 |
+| Ensemble tensor parity | n/a | max abs diff `0.0` | pass |
+
+**Observed root cause of the mixed result:** Cycle 9 removed three app-level
+behavior uploads and responses per crop batch, but the Triton ensemble still
+executes the four child TensorRT models server-side for every crop batch and
+returns the same dense YOLO grids. That reduced request count and RTT, but it
+did not reduce the Step 2 critical path enough to pass the 10 % gate.
+
+**Decision:** **NEEDS FURTHER ITERATION.** Do not mark Cycle 9 accepted. Keep
+the candidate deployed only as a measured, parity-clean intermediate state.
+The next iteration must reduce the server-side ensemble critical path or dense
+output movement, not just the Python request count.
+
+---
+
 *Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*

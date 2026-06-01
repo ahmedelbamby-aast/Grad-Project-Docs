@@ -681,17 +681,66 @@ Evidence: `docs/production_inference_benchmark.md` §13, replay key
 `cycle7-rediscache-crop-frame-20260601T120927`, job
 `515fe118-6009-4776-916d-6473fbf31ed7`.
 
+### 2026-06-01 Cycle 9 — Behavior Triton ensemble (NEEDS FURTHER ITERATION)
+
+Status: **production benchmark completed, not accepted.** The app-level
+request fragmentation target was achieved, but the Step 2 acceptance gate was
+not.
+
+Change: added a `behavior_ensemble` Triton model that accepts one
+`[N, 3, 320, 320]` crop batch and fans out server-side to `posture_model`,
+`gaze_horizontal_model`, `gaze_vertical_model`, and `gaze_depth_model`.
+The app routes crop-frame behavior through `behavior_all` when
+`TRITON_BEHAVIOR_ENSEMBLE=1`, then maps the four named outputs back to the
+existing `output0` decode path. Rollback remains `TRITON_BEHAVIOR_ENSEMBLE=0`.
+
+Production readiness finding: the pinned Triton build had been compiled with
+`TRITON_ENABLE_ENSEMBLE=OFF`, so the first restart rejected the valid ensemble
+config with `unexpected platform type 'ensemble'`. The production binary was
+rebuilt in place with `TRITON_ENABLE_ENSEMBLE=ON`; backup binary:
+`/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver.pre_cycle9_no_ensemble_20260601T180729`.
+
+Result on `combined.mp4` (4 541 frames):
+
+| Metric | Cycle 8 `d2de80a0` | Cycle 9 `c1651663` | Δ |
+|---|---:|---:|---:|
+| Step 2 wall | 852.8 s | **858.1 s** | **+0.6 %** |
+| DB-completed elapsed | 1 312.3 s | **1 110.7 s** | **−15.4 %** |
+| DB-completed FPS | 3.46 | **4.09** | **+18.1 %** |
+| App-level model calls | 20 348 | **9 557** | **−53.0 %** |
+| Behavior crop calls | 14 391 | **3 597** | **−75.0 %** |
+| Behavior mean RTT | 143-168 ms/model | **107.9 ms ensemble** | improved |
+| Avg / peak GPU util | 9.65 % / 36 % | **9.36 % / 43 %** | avg flat, peak up |
+| Row parity | baseline | **exact parity** | pass |
+| Tensor parity | n/a | **max abs diff 0.0** | pass |
+
+Evidence: `docs/production_inference_benchmark.md` §15, replay key
+`cycle9-behavior-ensemble-crop-frame-20260601T180847`, job
+`c1651663-e08a-4e29-9ee3-fd0f09884b98`, parity log
+`backend/logs/behavior_ensemble_parity_cycle9_20260601T180827.json`.
+
+Lesson: a plain Triton ensemble removes Python/gRPC request fragmentation but
+does not reduce the server-side four-model behavior critical path or dense
+YOLO output volume. The next inference-side iteration should not repeat this
+shape unless it also reduces dense output movement or child-model critical
+path, for example compact server-side postprocessing/BLS or a sharded
+multi-process design selected by the Cycle 13 architecture decision.
+
 ### Phase 7d (optional) — Triton ensemble / BLS
 
-**STATUS UPDATE (2026-06-01):** evidence now justifies server-side BLS/ensemble
-work only if it removes the measured boundary cost. See
+**STATUS UPDATE (2026-06-01 after Cycle 9):** the simple four-behavior Triton
+ensemble is implemented and production-benchmarked, but **not accepted** because
+Step 2 wall stayed flat. Evidence now justifies further server-side BLS/graph
+work only if it removes dense output movement or the four-child critical path,
+not merely Python request count. See
 [`docs/crop_frame_rtx5090_bottleneck_investigation.md`](crop_frame_rtx5090_bottleneck_investigation.md).
 Production job `80027072-a9d4-4be7-9099-4354acd1170b` and two bounded profilers
 showed behavior/gaze client RTT around `192-212 ms` per true-batch request while
 Triton server success time was only `14.87-19.70 ms`. The current path transfers
 about `380 MB/frame` of behavior input plus about `82 MB/frame` of dense YOLO
-outputs through Python/gRPC for a `19.33` crops/frame sample. A plain ensemble
-that still returns raw `output0` tensors is not sufficient.
+outputs through Python/gRPC for a `19.33` crops/frame sample. Cycle 9 confirmed
+that a plain ensemble that still returns raw dense tensors is not sufficient for
+the Step 2 gate.
 
 **DEV/REPO:** author an `ensemble` model (`platform: "ensemble"` + `ensemble_scheduling`)
 plus a Python **BLS** backend for the crop step

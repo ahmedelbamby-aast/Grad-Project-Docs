@@ -80,6 +80,26 @@ This file defines how agents should execute tests quickly and safely in this rep
   (+20.5 % vs C7; +164 % vs baseline); detection/bbox/embedding parity
   within 0.003 %.** Evidence: `docs/production_inference_benchmark.md` §14,
   `docs/runtime_sla_video_plus_5min.md`.
+- **2026-06-01 Cycle 9 NEEDS FURTHER ITERATION**: implemented a guarded
+  `behavior_ensemble` Triton model and app route `behavior_all` so one crop
+  batch upload feeds `posture_model`, `gaze_horizontal_model`,
+  `gaze_vertical_model`, and `gaze_depth_model`, then splits the four named
+  outputs back into the existing `output0` decode path. Production parity probe
+  passed with max abs diff `0.0`. Replay key
+  `cycle9-behavior-ensemble-crop-frame-20260601T180847`, job
+  `c1651663-e08a-4e29-9ee3-fd0f09884b98`, candidate SHA
+  `0fa847af43186017316cc11a8c76645ff463e574`. **DB-completed elapsed improved
+  1312.3 s → 1110.7 s (+18.1 % FPS), app-level model calls fell 20 348 →
+  9 557, behavior crop calls fell 14 391 → 3 597, and correctness parity was
+  exact; however Step 2 wall stayed flat 852.8 s → 858.1 s (+0.6 %), so the
+  Cycle 9 acceptance gate failed. Do not mark accepted.** The pinned production
+  Triton build originally had `TRITON_ENABLE_ENSEMBLE=OFF`; it was rebuilt in
+  place with `TRITON_ENABLE_ENSEMBLE=ON` after saving backup binary
+  `/home/bamby/services/triton_build_r2502/tritonserver/install/bin/tritonserver.pre_cycle9_no_ensemble_20260601T180729`.
+  Rollback is `TRITON_BEHAVIOR_ENSEMBLE=0`; redesign should reduce dense output
+  movement or the four-child server-side critical path, not only Python request
+  count. Evidence: `docs/production_inference_benchmark.md` §15 and
+  `docs/cycle_9_results.md`.
 - **2026-06-01 Cycle 7 ACCEPTED (with caveat)**: cache Redis client per `REDIS_URL`
   in both `apps.tracking.embeddings.redis_client` and
   `apps.video_analysis.tasks._redis_client`. The embedding loop calls these
@@ -146,8 +166,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   `person_detection` is allowed with last-box reuse
   (`OFFLINE_DETECT_EVERY_N_FRAMES=5`,
   `OFFLINE_REUSE_LAST_BOXES_TTL_FRAMES=10`), decode/preprocess queueing is bounded
-  (`TRITON_OFFLINE_DECODE_QUEUE_SIZE=4`), but behaviour/gaze and embedding reuse
-  are disabled so current-frame crop signals are recomputed.
+  (`TRITON_OFFLINE_DECODE_QUEUE_SIZE=4`), behaviour/gaze reuse is disabled so
+  current-frame crop signals are recomputed, and accepted Cycle 8 track-level
+  embedding reuse remains enabled (`OFFLINE_EMBEDDING_REUSE_BY_TRACK=1`).
 - Current production benchmark run (started 2026-05-31 20:28 EEST):
   replay key `parallel-crop-frame-20260531T202819`, job
   `5801ef31-050f-4e20-a58e-d98122c5e920`, log
