@@ -638,7 +638,8 @@ failed.**
 | Inference audit | `backend/data/videos/74ec0432-995c-487e-9d77-1048ec109fb1/inference_audit.json` |
 | Telemetry session | `d5e3c6f0-cc5f-4dc5-bfe6-d00473af9218` |
 | Completion | `processed_frames=4541/4541`, `run.complete=01:52:04`, `error_message=""` |
-| DB row parity | `4541` frames, `72 743` detections (Δ −0.011 %), bbox `attention=11 772 hand=8 801 person=19 162 sitting=33 008` (Δ ≤ 0.04 %) |
+| DB row parity | `4541` frames, `72 743` detections (Δ −0.011 %), bbox `attention=11 772 hand=8 801 person=19 162 sitting=33 008` (Δ ≤ 0.04 %), `72 577` embeddings (Δ −0.011 %) |
+| Final DB status | `completed` (no stale error) |
 
 **Headline metrics:**
 
@@ -647,7 +648,9 @@ failed.**
 | Step 2 wall (frame inference) | **2 175 s** (36 m 15 s) | **883 s** (14 m 43 s) | **−59.4 %** |
 | **Step 2 FPS (frame inference only)** | **2.09 fps** | **5.14 fps** | **+146 % (×2.46)** |
 | Total elapsed (start → `run.complete`) | 3 002 s (50 m 1 s) | 1 716 s (28 m 36 s) | **−42.8 %** |
-| **Overall FPS** | **1.308 fps** | **2.644 fps** | **+102 % (×2.02)** |
+| **Overall FPS (to `run.complete`, bench probe basis)** | **1.308 fps** | **2.644 fps** | **+102 % (×2.02)** |
+| Total elapsed (start → DB `status=completed`) | 3 469 s (57 m 49 s) | 2 186 s (36 m 26 s) | **−37.0 %** |
+| **Overall FPS (to DB `status=completed`)** | **1.309 fps** | **2.077 fps** | **+58.7 % (×1.59)** |
 | Mean frame inference_ms | 197.9 ms | 174.4 ms | −11.9 % |
 | Mean frame preprocess_ms (full) | 1.04 ms | 0.69 ms | −33.7 % |
 | Mean frame decode_ms | 0.015 ms | 0.013 ms | −15.4 % |
