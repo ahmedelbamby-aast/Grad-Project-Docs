@@ -7,6 +7,31 @@ improvement and (b) zero correctness regression vs. the prior accepted
 baseline (Cycle 8, job `d2de80a0`). See `AGENTS.md` re-affirmation and the
 Cycle 9 precedent for what "not accepted" means in practice.
 
+> **For the next agent reading this file first:** this TODO covers **only**
+> Cycle 9b and Cycle 10. The full map of every cycle (accepted, not
+> accepted, staged, planned, deferred) is in **§ Z below**. Before starting
+> any item here, scan § Z to see whether a more-recent cycle has changed
+> the baseline these improvements are computed against.
+
+## File-completion checklist (read this first)
+
+This file is "done" only when **every** unchecked box below has been ticked
+in a follow-up commit. Until then, future agents must assume the file is
+in-progress and use the per-item acceptance gates inside it.
+
+- [ ] B.1 Compact-postprocessing backend implemented (one of the approaches in §B.1) and prod-benchmarked
+- [ ] B.2 Output-fusion approach selected from the comparison matrix in §B.2 and prod-benchmarked
+- [ ] B.3 Child critical-path measurement landed and the dominant-child optimization landed
+- [ ] B.4 Larger-batch knob measured (accept or reject)
+- [ ] C.2.1 LPM hook wired into `_run_crop_behaviour_for_items`
+- [ ] C.2.2 `telemetry_lpm_events` table + migration + writer landed
+- [ ] C.2.3 LPM Phase 1 prod benchmark passes all §10 gates → ACCEPTED
+- [ ] C.2.4 LPM Phase 2 (BLS migration) landed and benchmarked
+- [ ] C.2.5 Open spec issues resolved
+
+Each item below lists its own acceptance gate; flip the checkbox above
+**only** when that gate is met with prod evidence.
+
 **Source documents this consolidates:**
 
 - `docs/cycle_9_results.md` — Cycle 9 production outcome + post-mortem + the 5 continuation options
@@ -44,100 +69,221 @@ not move. The next ensemble-adjacent change MUST attack one of the five
 levers below. Each is a separate STAGED candidate; the production benchmark
 before/after is the only acceptance evidence.
 
-### B.1 Option 1 — Server-side compact postprocessing (HIGHEST IMPACT)
+### B.1 Server-side compact postprocessing (HIGHEST IMPACT — multi-approach)
 
-**What:** Add a BLS Python backend (or a C++ custom backend) that consumes
-the four dense behavior outputs **inside Triton** and emits only the
-post-NMS / argmax decisions (class ID, confidence, optional bbox).
+**What:** Move the post-NMS step *inside* Triton so the dense YOLO grids
+never cross gRPC. Same problem, two implementation strategies — both must
+be built and benchmarked side-by-side before one is selected.
 
 **Why this matters most:** every frame currently moves ~17.1 MB of dense
 YOLO grid bytes from GPU → CPU → gRPC → Python, runs NMS 68 times
 (17 crops × 4 models), then discards 99.99 % of it. See
 `docs/triton_models_and_tensor_anatomy.md` for the byte math.
 
-**Mechanism placement:**
+#### B.1 approaches to test
 
-- New `behavior_compact_ensemble` whose final step is a BLS Python backend
-  at `triton_repository_cuda12/behavior_postproc/`.
-- Triton 2.55's bundled `python_backend` stub is already present in our install.
+| ID | Approach | Backend type | Pros | Cons |
+|---|---|---|---|---|
+| **B.1.a** | **BLS Python backend** at `triton_repository_cuda12/behavior_postproc/` whose final ensemble step runs the existing `_decode_yolo_output0` math server-side | Triton 2.55 bundled `python_backend` | Lowest engineering cost — reuse Python NMS verbatim; debuggable in plain Python; first foothold for the Cycle 10 LPM Phase 2 migration | Adds a Python-interpreter hop inside Triton per call (~5–15 ms/call overhead); harder to tune at high throughput |
+| **B.1.b** | **C++ / custom-backend NMS** compiled as a Triton backend shared object | Triton `custom_backend` | Lower per-call overhead (~0.1–0.5 ms); no GIL; closer to TRT NMS plugin performance | High engineering cost — C++ build pipeline + per-engine signatures; not reusable for LPM |
+| **B.1.c** | **TRT EfficientNMS plugin** baked into each behavior engine via a re-export step (NMS happens inside the engine, not as a separate Triton step) | TensorRT plugin | Fastest path — NMS runs on GPU with the rest of the engine; no extra Triton scheduling | Each behavior engine must be re-exported with the plugin; output contract changes shape (compact `[num_dets, 6]` instead of `[C, 2100]`); accuracy parity must be re-validated per engine |
 
-**Expected gain:**
+#### B.1 selection mechanism (.env-controlled)
 
-- Per-frame response shrinks from `(14 + 84 + 14 + 14) × 2100 × 4 B ≈ 17 MB`
-  to roughly 32 B / crop / model = ~2 KB total.
-- Removes the 68 dense-grid Python decodes from the per-frame hot path
-  (`_decode_yolo_output0` calls).
-- Step 2 wall reduction projected at ≥ 10 % — this is the first candidate
-  with a realistic path to the SLA acceptance gate.
+```env
+# pick exactly one — empty / unset = legacy dense path
+BEHAVIOR_COMPACT_BACKEND=          # "" | "bls_python" | "cpp_custom" | "trt_plugin"
+BEHAVIOR_COMPACT_SCORE_THRESHOLD=0.25
+BEHAVIOR_COMPACT_IOU_THRESHOLD=0.45
+BEHAVIOR_COMPACT_MAX_DETECTIONS=100
+```
 
-**Risk:** **High.** First BLS Python backend in this repo. Accuracy contract
-is bit-identical *only if* server-side NMS settings match the Python-side
-`_decode_yolo_output0` (score threshold, IoU threshold,
-`TRITON_YOLO_MAX_DECODE_CANDIDATES`).
+The client-side `_decode_yolo_output0` reads `BEHAVIOR_COMPACT_BACKEND` and
+either parses dense grids (when empty) or compact `[num_dets, 6]` tuples
+(when one of the three approaches is enabled). Both paths must coexist so
+the rollback to legacy is a single env flip.
 
-**Rollback:** `TRITON_BEHAVIOR_ENSEMBLE_COMPACT=0`. Falls back to the
-existing flat ensemble or to the standalone 4-model path.
+#### B.1 measurement matrix (one prod bench per approach, same `combined.mp4`)
 
-**Acceptance gate:**
+Fill the table in a new file `docs/cycle_9b_compact_postproc_results.md`.
+Numbers must come from prod, not local — see § E hard rule #1.
 
-1. Tensor parity probe: ≤ 1e-6 max abs diff vs. the existing Python NMS
-   path on the same crop batch.
+| Metric | Legacy (Cycle 9 baseline) | B.1.a BLS Python | B.1.b C++ custom | B.1.c TRT plugin |
+|---|---:|---:|---:|---:|
+| Step 2 wall (s) | 858.1 | ? | ? | ? |
+| Step 2 wall Δ vs legacy | — | ? % | ? % | ? % |
+| Total DB-completed elapsed (s) | 1 110.7 | ? | ? | ? |
+| Overall FPS (DB completed) | 4.09 | ? | ? | ? |
+| Avg GPU util (%) | 9.36 | ? | ? | ? |
+| Behavior dense bytes / frame | 17.1 MB | ~2 KB | ~2 KB | ~2 KB |
+| Avg behavior RTT (ms) | 107.9 | ? | ? | ? |
+| p95 behavior RTT (ms) | 173.9 | ? | ? | ? |
+| Per-class bbox parity (Δ %) | 0 | ≤ 0.05 ✓ | ≤ 0.05 ✓ | ≤ 0.05 ✓ |
+| Engineering effort (person-days) | — | ~1 | ~5 | ~3 |
+| Production deploy risk | — | medium | high | medium-high |
+| Rollback complexity | trivial | env flip | env flip + binary swap | env flip + engine swap |
+
+**Selection rule:** pick the approach that delivers ≥ 10 % Step 2 wall
+reduction with the **lowest** engineering effort and rollback complexity.
+Ties go to the approach that also unlocks Cycle 10 LPM Phase 2 (B.1.a).
+
+**Risk:** see per-approach Cons column above.
+
+**Rollback (all three):** `BEHAVIOR_COMPACT_BACKEND=` (empty). The legacy
+dense-grid path stays compiled in.
+
+**Acceptance gate (any approach):**
+
+1. Tensor parity probe: ≤ 1e-6 max abs diff between compact-output
+   detections and the existing Python-NMS detections on the same crop
+   batch.
 2. Per-class bbox count parity within 0.05 % of Cycle 8 baseline.
 3. Step 2 wall reduction ≥ 10 % on `combined.mp4`.
+4. All three approaches' bench numbers recorded in
+   `docs/cycle_9b_compact_postproc_results.md` even if only one ships —
+   so future agents have the evidence for the tradeoff.
 
-### B.2 Option 2 — Fuse outputs before returning (top-K or class-trim)
+### B.2 Output fusion — class-trim and top-K (multi-approach, both built)
 
-**What:** Lighter-weight alternative to Option 1 — keep dense YOLO format
-but trim the response to only the *needed* logits.
+**What:** Lighter-weight alternative to B.1 — keep dense YOLO format but
+trim the response to only the *needed* logits. Smaller engineering
+footprint than the full BLS path.
 
-**Two sub-options:**
+#### B.2 approaches to test
 
-- **B.2a — Top-K anchor packing.** Add an ensemble step or tiny TensorRT op
-  that returns only the top-K anchors per crop per model (K matches
-  `TRITON_YOLO_MAX_DECODE_CANDIDATES=100`, set in Cycle 1–5). Output bytes
-  drop ~21× per crop.
-- **B.2b — Class-channel trim for `gaze_horizontal_model` specifically.**
-  This one model emits `[84, 2100]` because it was exported with a
-  COCO-80 head — the pipeline only consumes the gaze classes. Re-export
-  with a 2-class head: `[6, 2100]` = 50 KB instead of 689 KB per crop, a
-  ~14× shrink on the single largest output we have.
+| ID | Approach | What changes | Bytes saved per crop |
+|---|---|---|---:|
+| **B.2.a** | **Top-K anchor packing** — extra ensemble step (or tiny TensorRT op) returns only the top-K anchors per crop per model with `K = TRITON_YOLO_MAX_DECODE_CANDIDATES = 100` | Output shape per model becomes `[C, K]` instead of `[C, 2100]` — `100/2100 ≈ 4.8 %` of original | ~95 % per model |
+| **B.2.b** | **Class-channel trim for `gaze_horizontal_model`** — re-export ONNX with a 2-class head instead of the inherited COCO-80 head | Output shape changes from `[84, 2100]` to `[6, 2100]` | ~93 % on this one model (689 KB → ~50 KB per crop = **~11 MB / frame** saved) |
+| **B.2.c** | **Combine B.2.a + B.2.b** — top-K packing AND a 2-class re-export of `gaze_horizontal_model` (the other three behavior models keep their 10-class head) | Stacked savings | ~99 % per crop on `gaze_horizontal_model`, ~95 % on the others |
 
-**Expected gain:** Less than Option 1 but with a much smaller engineering
-footprint. B.2b alone could trim ~11 MB / frame of network bytes.
+#### B.2 selection mechanism (.env-controlled)
 
-**Risk:** Medium. Top-K choice must match Python-side
-`TRITON_YOLO_MAX_DECODE_CANDIDATES` exactly. B.2b is just a re-export of one
-ONNX model with a narrower head — but accuracy parity probe is mandatory.
+```env
+# Each approach independently toggleable
+TRITON_BEHAVIOR_TOP_K_ENABLED=0           # B.2.a — top-K anchor packing
+TRITON_BEHAVIOR_TOP_K_VALUE=100            # K must equal the client-side cap to preserve parity
 
-**Acceptance gate:** identical to B.1 (parity, bbox parity, Step 2 wall
-reduction).
+GAZE_HORIZONTAL_HEAD_VARIANT=coco80        # B.2.b — "coco80" (legacy 84-channel) | "gaze2" (re-exported 6-channel)
+```
 
-### B.3 Option 3 — Reduce the child model critical path
+Setting both to non-default values activates **B.2.c**. The client-side
+`_decode_yolo_output0` must read `GAZE_HORIZONTAL_HEAD_VARIANT` to know
+whether to expect 84 or 6 channels on that specific model.
+
+#### B.2 measurement matrix (one prod bench per row)
+
+Record in `docs/cycle_9b_output_fusion_results.md`. All three rows must be
+benchmarked even if only one ships.
+
+| Metric | Legacy (Cycle 9) | B.2.a top-K only | B.2.b 2-class gaze_h only | B.2.c both |
+|---|---:|---:|---:|---:|
+| Step 2 wall (s) | 858.1 | ? | ? | ? |
+| Step 2 wall Δ vs legacy | — | ? % | ? % | ? % |
+| Total DB-completed elapsed (s) | 1 110.7 | ? | ? | ? |
+| Overall FPS (DB completed) | 4.09 | ? | ? | ? |
+| Behavior dense bytes / frame | 17.1 MB | ? MB | ~6.1 MB | ? MB |
+| Avg behavior RTT (ms) | 107.9 | ? | ? | ? |
+| Per-class bbox parity (Δ %) | 0 | ≤ 0.05 ✓ | ≤ 0.05 ✓ | ≤ 0.05 ✓ |
+| Engineering effort (person-days) | — | ~1.5 | ~2 (re-export + accuracy probe) | ~3 |
+| Production deploy risk | — | low | medium (engine swap) | medium |
+| Rollback complexity | trivial | env flip | env flip + engine swap | env flip + engine swap |
+
+**Selection rule:** Pick the approach with the highest Step 2 wall
+reduction at acceptable risk. If B.2.c materially beats B.2.b alone,
+ship B.2.c; otherwise the simpler B.2.b is the default.
+
+**B.2 vs B.1 — should both be built?** Yes. B.2 is a lower-risk fallback
+if B.1 slips. They are not mutually exclusive — B.1 (server-side NMS) and
+B.2.b (smaller `gaze_horizontal_model` output) compose: a BLS backend
+operating on a 6-channel `gaze_horizontal` output is even cheaper than one
+operating on 84-channel.
+
+**Risk:** Medium. Top-K `K` value must match
+`TRITON_YOLO_MAX_DECODE_CANDIDATES` exactly. B.2.b re-export must pass an
+accuracy parity probe (same gates as Cycle 11 smaller-input change).
+
+**Rollback:** flip both env flags back to defaults.
+
+**Acceptance gate (any approach):** identical to B.1.
+
+### B.3 Reduce the child model critical path (measure-first, multi-approach)
 
 **What:** The ensemble's wall time is `max(posture, gaze_h, gaze_v, gaze_d)`.
 Cycle 9 ensemble RTT averaged 107.9 ms vs. the per-model spread of 143–168 ms
 in Cycle 8 standalone — but those numbers tell us nothing about *which*
 child dominates inside the ensemble.
 
-**Steps:**
+#### B.3 Step 1 — measurement (always do this first)
 
-1. Add server-side per-child timing telemetry to the ensemble (Triton
-   exposes `inference_stats.compute_infer.ns` per model — extract per-child
-   ns from a side-by-side run).
-2. Whichever sub-model dominates `max(…)`, optimize that one specifically:
-   - TensorRT precision tuning (FP16 → INT8 on the dominant child only).
-   - Engine batch-profile mismatch (each sub-model has its own preferred
-     batch shape; align with `behavior_ensemble.max_batch_size=32`).
-   - Output channel pruning if any single sub-model output is wider than
-     needed (overlaps with B.2b).
+Pull server-side per-child timing from Triton stats:
 
-**Expected gain:** Lifts the floor of `max(…)` for behavior dispatch. The
-prize is bounded by how skewed the children are today.
+```bash
+ssh prod-grad 'for m in posture_model gaze_horizontal_model \
+                     gaze_vertical_model gaze_depth_model; do
+  curl -s http://127.0.0.1:39100/v2/models/$m/stats \
+   | python3 -c "import json,sys;d=json.load(sys.stdin)[\"model_stats\"][0]; \
+       s=d[\"inference_stats\"][\"success\"]; \
+       print(f\"{d[\\\"name\\\"]:>25}  count={s[\\\"count\\\"]} \
+       avg_ms={s[\\\"ns\\\"]/max(1,s[\\\"count\\\"])/1e6:.3f}\")"
+done'
+```
 
-**Risk:** Medium. Precision change (INT8 calibration) requires an accuracy
-parity gate.
+Record the per-child average and p95 in `docs/cycle_9b_child_critical_path_results.md`.
+**Do NOT proceed to B.3 Step 2 until this measurement exists.**
 
-**Acceptance gate:** parity probe + Step 2 wall reduction ≥ 5 % vs. Cycle 9.
+#### B.3 Step 2 — approaches to test (only on the dominant child)
+
+| ID | Approach | Mechanism | Risk |
+|---|---|---|---|
+| **B.3.a** | **FP16 → INT8 precision** | Re-export the dominant child as INT8 with calibration data from `combined.mp4` | Medium — needs accuracy parity gate |
+| **B.3.b** | **Batch-profile alignment** | Each child engine has its own `min/opt/max` shape profile. Align dominant child's `opt` shape with `behavior_ensemble.max_batch_size=32` | Low — engine rebuild, no precision change |
+| **B.3.c** | **Output-channel pruning on dominant child** | If the dominant child is `gaze_horizontal_model`, this overlaps with B.2.b. For other dominant children, prune the unused class channels in their head | Medium — re-export with narrower head |
+| **B.3.d** | **Operator-level kernel selection** | TensorRT builder tactic tuning (kernel-selection hints, layer fusion overrides) for the dominant child | Low — pure builder-config change |
+
+#### B.3 selection mechanism (.env-controlled)
+
+```env
+# Activated only when the dominant child has been measured.
+# Each child has its own engine variant flag so future cycles can stack them.
+POSTURE_ENGINE_VARIANT=fp16              # "fp16" (default) | "int8" | "fp16_pruned"
+GAZE_HORIZONTAL_ENGINE_VARIANT=fp16
+GAZE_VERTICAL_ENGINE_VARIANT=fp16
+GAZE_DEPTH_ENGINE_VARIANT=fp16
+```
+
+A new helper `tools/prod/prod_enable_child_engine_variant.sh` ships the
+matching `.plan` files and reloads Triton.
+
+#### B.3 measurement matrix
+
+Record in `docs/cycle_9b_child_critical_path_results.md`. Headers are
+filled in after Step 1 identifies the dominant child — the table compares
+the chosen approach against the FP16 baseline for that **specific** model.
+
+| Metric | FP16 baseline (Cycle 9 child) | B.3.a INT8 | B.3.b batch-profile aligned | B.3.c output-pruned | B.3.d kernel-tuned |
+|---|---:|---:|---:|---:|---:|
+| Server compute_infer (ms) per call | ? | ? | ? | ? | ? |
+| Ensemble `max(…)` RTT (ms) | ? | ? | ? | ? | ? |
+| Step 2 wall (s) | 858.1 | ? | ? | ? | ? |
+| Step 2 Δ vs FP16 | — | ? % | ? % | ? % | ? % |
+| Per-class bbox parity Δ | 0 | ≤ 0.05 ✓ | 0 (no precision change) | ≤ 0.05 ✓ | 0 (no precision change) |
+| Accuracy parity gate | n/a | **mandatory** | n/a | **mandatory** | n/a |
+| Engineering effort (person-days) | — | ~3 (calibration set) | ~1 | ~2 | ~1.5 |
+
+**Selection rule:** prefer the approach with the largest ensemble `max(…)`
+reduction that passes accuracy parity. B.3.b and B.3.d are tried first
+(no precision change → no accuracy risk). Move to B.3.a/c only if those
+don't deliver ≥ 5 % Step 2 wall reduction.
+
+**Risk:** B.3.a INT8 is the highest — calibration drift can introduce
+silent accuracy regressions. The acceptance gate's per-class bbox parity
+catches this only at the offline-pipeline level; an explicit per-image
+calibration set comparison is mandatory before any INT8 child ships.
+
+**Acceptance gate:** Step 2 wall reduction ≥ 5 % vs. Cycle 9 AND per-class
+bbox parity within 0.05 % AND, for B.3.a / B.3.c, an explicit accuracy
+parity probe on a held-out calibration set.
 
 ### B.4 Option 4 — Batch larger at ensemble level
 
@@ -403,3 +549,96 @@ postprocessing.
 - `docs/cycles_9_to_12_implementation_playbook.md` — full Cycle 9–12 roadmap
 - `backend/apps/pipeline/services/logical_path_matrix.py` — LPM implementation
 - `backend/tests/unit/pipeline/test_logical_path_matrix.py` — 28 LPM unit tests
+
+---
+
+## Z. Map of ALL cycles — past, present, future
+
+> **For agents finding this file first:** this section is the single
+> entry point for *every* optimization cycle. If you don't see an item
+> in this table, it does not exist in this repo. If you see an item
+> marked ACCEPTED you may treat its measured numbers as the baseline
+> against which your next cycle is measured. If you see an item marked
+> NOT ACCEPTED / STAGED / PLANNED you must read its doc before assuming
+> anything about its behavior.
+
+### Z.1 Cycles that have completed (have prod-benchmark evidence)
+
+| # | Title | Status | Job ID | Result | Primary docs |
+|---|---|---|---|---|---|
+| Cycles 1–5 | Bundle: telemetry writer fix + concurrency knobs + concat memo + trim amortization | **ACCEPTED 2026-06-01** | `74ec0432-995c-487e-9d77-1048ec109fb1` | Step 2 FPS 2.09 → 5.14, overall FPS 1.31 → 2.08 | `docs/production_inference_benchmark.md` §11, `docs/crop_frame_optimization_execution.md` Cycles 1–5, `AGENTS.md` |
+| Cycle 6 | Pose dispatch chunking (rtmpose batch>16 fix) | **ACCEPTED 2026-06-01** | `a1a448b9-474f-4dea-942b-3288bcae6900` | Pose wall 12 m 13 s → 3 m 42 s (−69.7 %), overall FPS 2.08 → 2.78 | `docs/production_inference_benchmark.md` §12, Cycle 6 section in `docs/crop_frame_optimization_execution.md` |
+| Cycle 7 | Redis client caching | **ACCEPTED 2026-06-01 (with caveat)** | `515fe118-6009-4776-916d-6473fbf31ed7` | Embedding wall 467 → 451 s (−3.6 %), overall FPS 2.78 → 2.87. Hypothesis projected −69 %; only −3.6 % delivered (redis-py 5.x lazy pool was much cheaper than assumed) | `docs/production_inference_benchmark.md` §13 |
+| Cycle 8 | Embedding stage attack: track-level reuse + lazy cv2 + bulk_create | **ACCEPTED 2026-06-01** | `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8` | Embedding wall 451 → 174 s (−61.5 %), overall FPS 2.87 → 3.46 | `docs/production_inference_benchmark.md` §14, Cycle 8 section in `docs/crop_frame_optimization_execution.md` |
+| Cycle 9 | Triton behavior ensemble (4 → 1 gRPC call per frame) | **NOT ACCEPTED 2026-06-01** | `c1651663-e08a-4e29-9ee3-fd0f09884b98` | App calls −75 %, behavior RTT 143–168 → 107.9 ms, overall FPS 3.46 → 4.09 (+18 %) — but **Step 2 wall 852.8 → 858.1 s failed the ≥ 10 % reduction gate**. Ensemble kept available under `TRITON_BEHAVIOR_ENSEMBLE=1` but not on the SLA path | `docs/cycle_9_results.md` (full post-mortem), `docs/cycle_9_investigation.md` |
+
+### Z.2 Cycles staged or in progress (code exists, awaiting prod evidence)
+
+| # | Title | Status | What is missing | Primary docs |
+|---|---|---|---|---|
+| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PLANNED, NOT STARTED** | **This file, §§B.1–B.5.** No code yet; each option has its own multi-approach comparison matrix. | This file, `docs/cycle_9_results.md` |
+| **Cycle 10** | Logical Path Matrix (LPM) — server-side behavioral constraint layer | **STAGED, NOT WIRED** | Math + 28 unit tests + CI gate + spec are landed. **Wiring into `tasks.py` (§C.2.1), telemetry table (§C.2.2), and the prod benchmark (§C.2.3) are NOT done.** | **This file, §§C.1–C.2.5**, `docs/logical_path_matrix_spec.md` |
+
+### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
+
+| # | Title | Status | Projected gain | Primary docs |
+|---|---|---|---:|---|
+| **Cycle 10b** | Pose parallelization across frames (originally Cycle 10 in the playbook — slot taken by LPM; pose work moved here) | **PLANNED** | Pose wall 220 → ~80 s | `docs/cycles_9_to_12_implementation_playbook.md` §3 |
+| **Cycle 11** | Behavior input 320 → 256 with engine rebuild + accuracy parity gate | **PLANNED** | Step 2 wall ~−13 %, overall FPS +10 % | `docs/cycles_9_to_12_implementation_playbook.md` §4 |
+| **Cycle 12** | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | **PLANNED** | ~20 s saved | `docs/cycles_9_to_12_implementation_playbook.md` §5 |
+| **Cycle 13a** | BLS server-side fan-out (the architectural change — combines with §B.1 in this file) | **PLANNED** | 5 FPS → 8–10 FPS, lands at SLA boundary | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
+| **Cycle 13b** | Multi-process video sharding (4 Celery workers, each takes a quarter of the video, then a stitch step) | **PLANNED, RISKY** | 5 FPS → 15–18 FPS (tracking stitch is the hard part) | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
+
+### Z.4 Deferred decisions / out-of-scope here
+
+| Topic | Status | Rationale | Doc |
+|---|---|---|---|
+| **YOLOE integration** | **DEFERRED until SLA reached or Cycle 13a lands** | Adding it now widens the SLA gap and would be redone after the BLS architecture change | `docs/new_models_yoloe_depth_anything_v2_timing_decision.md` |
+| **Depth Anything v2 integration** | **DEFERRED** | Same reasoning as YOLOE; the smallest variant alone adds ~2.5 min of new GPU wall per `combined.mp4` | `docs/new_models_yoloe_depth_anything_v2_timing_decision.md` |
+
+### Z.5 SLA contract recap
+
+| Quantity | Value |
+|---|---|
+| Benchmark video | `combined.mp4` (4 541 frames, 2 m 31 s @ 30 fps) |
+| SLA contract | `total_wall ≤ duration(video) + 5 min` |
+| For `combined.mp4` | total wall ≤ **7 m 31 s** = 451 s |
+| Required overall FPS | **≥ 10.07** |
+| Current accepted baseline (Cycle 8) | 21.87 min = **3.46 FPS** (gap: 14.4 min) |
+| Cycle 9 NOT ACCEPTED but produced | 18.51 min = 4.09 FPS (gap: 11.0 min) |
+
+Document: `docs/runtime_sla_video_plus_5min.md`.
+
+### Z.6 Constitutional hard rules (re-affirmed across all cycles)
+
+1. **No "accepted" without a production benchmark on the Linux RTX 5090
+   server** that demonstrates the targeted metric improvement AND zero
+   correctness regression vs. the prior accepted baseline. Cycle 9 is the
+   precedent — working code + FPS improvement + parity, but the wrong
+   metric moved, so the cycle is NOT ACCEPTED.
+2. **Every optimization-cycle hypothesis must name the lever it pulls**
+   (GPU child compute / dense output bytes / single-process orchestration)
+   before any code is written. See §B.5.
+3. **LPM scope is HARD-RESTRICTED to the 3 gaze models.** Code that mutates
+   RTMPose / person_detector / sitting_standing outputs must fail loudly
+   via the structural exclusion tests in
+   `backend/tests/unit/pipeline/test_logical_path_matrix.py`.
+4. **Multi-approach items in this file (§B.1, §B.2, §B.3) must measure ALL
+   their approaches on prod before one is selected.** A new
+   `docs/cycle_9b_*_results.md` file captures the comparison matrix and is
+   the source of truth for the tradeoff. Selection is .env-controlled so
+   rollback is a single env flip.
+
+### Z.7 How to read this file as the next agent
+
+1. Read § Z.1–Z.4 to confirm the cycle landscape.
+2. Tick the boxes at the top of this file ("File-completion checklist")
+   based on actual prod evidence — not based on local tests, not based on
+   PR review, not based on "the code looks right."
+3. If a box is unchecked and you intend to work on it, follow the
+   per-item acceptance gate in §B / §C.
+4. If you ship something here, **update both this file's checklist and the
+   matching cycle row in § Z.1 (move it from Z.2/Z.3 to Z.1).**
+5. If you discover a new optimization cycle that does not fit here (e.g.
+   a Cycle 14 idea), add it to § Z.3 with status `PLANNED` and a doc
+   reference; do not silently start it.
