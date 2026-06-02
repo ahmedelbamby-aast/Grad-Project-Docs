@@ -79,7 +79,8 @@ context.
 | 35 | [`docs/cycle_10_investigation.md`](docs/cycle_10_investigation.md) | 2026-06-01 | Cycle 10 LPM investigation. |
 | 36 | [`docs/cycle_10_lpm_phase1_results.md`](docs/cycle_10_lpm_phase1_results.md) | 2026-06-02 | Cycle 10 LPM Phase 1 NOT-ACCEPTED outcome + safety-fix re-run. |
 | 37 | [`docs/new_models_yoloe_depth_anything_v2_timing_decision.md`](docs/new_models_yoloe_depth_anything_v2_timing_decision.md) | 2026-06-01 | YOLOE / Depth Anything v2 timing-of-integration decision (DEFERRED until SLA reached). |
-| 37b | [`docs/cycle_11_input_size_investigation.md`](docs/cycle_11_input_size_investigation.md) | 2026-06-02 | Cycle 11 investigation (320 → 256 input). Most recent investigation; the Step 2 lever-attack design. |
+| 37b | [`docs/cycle_11_input_size_investigation.md`](docs/cycle_11_input_size_investigation.md) | 2026-06-02 | Cycle 11 investigation (320 → 256 input). The Step 2 lever-attack design. |
+| 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A parity-gate result: 256 input rejected and prod rolled back to the 320 Top-K baseline. |
 
 ### Phase 4 — Triton-specific deep dives
 

@@ -4,6 +4,12 @@
 
 **Status:** **STEP 1 REMEASUREMENT COMPLETE — NO OPTIMIZATION ACCEPTED.**
 
+**Outcome update:** the highest-ceiling follow-up from this document, Cycle
+11.A (`TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`), was implemented on production but
+failed the required pre-benchmark parity gate. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). The
+accepted baseline remains `320` exact slice + Top-K.
+
 This document records the required Cycle 9b B.3 Step 1 **remeasurement**
 against the new accepted baseline: Cycle 9b B.2.c exact slice + Top-K
 (job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, SHA `9bc53d86`). The previous

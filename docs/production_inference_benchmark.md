@@ -1310,4 +1310,51 @@ bash tools/prod/prod_start_celery_workers.sh
 
 ---
 
+## 20. 2026-06-02 Cycle 11.A Production Parity Gate — Behavior Input 320 → 256
+
+**Status:** **NOT ACCEPTED. No full benchmark run.**
+
+Cycle 11.A rebuilt the four behavior engines and matching slice/Top-K adapters
+for `TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`, but the required pre-benchmark
+parity probe failed. Running `combined.mp4` would have violated the acceptance
+contract because correctness had already failed.
+
+| Item | Value |
+|---|---|
+| Candidate | Behavior/gaze input `320x320 → 256x256` |
+| Baseline capture | `backend/logs/parity_capture_320_20260602T123459.npz` |
+| Candidate capture | `backend/logs/parity_capture_256_20260602T154826.npz` |
+| Parity JSON | `backend/logs/parity_input_size_256_20260602T154842.json` |
+| Runtime guard commit | `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` |
+| Full benchmark | skipped because parity failed |
+
+The candidate did reduce synthetic capture time, but failed correctness gates:
+
+| Model | Class agreement | Mean centroid drift | Gate |
+|---|---:|---:|---|
+| `posture_model` | `0.6950` | `119.204 px` | fail |
+| `gaze_horizontal_model` | `1.0000` | `0.276 px` | pass |
+| `gaze_vertical_model` | `0.9550` | `142.669 px` | fail |
+| `gaze_depth_model` | `1.0000` | `141.526 px` | fail |
+
+Production rollback proof after rejection:
+
+```text
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+TRITON_BEHAVIOR_TOP_K_VALUE=100
+LPM_ENABLED=0
+Triton /v2/health/ready = 200
+behavior_ensemble_gaze_slice_topk = READY
+```
+
+**Decision:** **NOT ACCEPTED.** Keep the accepted Cycle 9b B.2.c `320x320`
+Top-K profile. Next work should either implement a real-crop parity harness
+before retrying smaller inputs or move to lower-risk B.3 kernel-tactic tuning at
+`320x320`.
+
+---
+
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

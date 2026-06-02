@@ -721,6 +721,21 @@ B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted; standalone
 B.2.a Top-K without exact-slice was not separately benchmarked because the
 accepted baseline has moved to B.2.c.
 
+Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED**. Production built the
+256 behavior engines plus matching slice/Top-K adapters and captured candidate
+outputs, but the mandatory pre-benchmark parity probe failed before any full
+`combined.mp4` benchmark was allowed. Evidence:
+`backend/logs/parity_capture_320_20260602T123459.npz`,
+`backend/logs/parity_capture_256_20260602T154826.npz`, and
+`backend/logs/parity_input_size_256_20260602T154842.json`. Failures included
+`posture_model` class agreement `0.695`, `gaze_vertical_model` agreement
+`0.955`, and large centroid drift on posture / vertical / depth. Runtime guard
+commit `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` keeps the useful validator
+and explicit model-loading fixes, but production was rolled back to the accepted
+`TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` exact-slice + Top-K profile. Next Step 2
+work should either build a real-crop parity harness before retrying smaller
+inputs or implement the lower-risk B.3 kernel-tactic fallback at `320`.
+
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to
 implement. The general lesson — **stop optimizing gRPC call count alone**

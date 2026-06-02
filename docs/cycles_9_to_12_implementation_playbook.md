@@ -262,6 +262,14 @@ Set `POSE_PARALLEL_FRAMES=1` to restore serial behavior. The new code path falls
 
 ## 4. Cycle 11 — Smaller behavior input (320 × 320 → 256 × 256)
 
+**2026-06-02 outcome update:** Cycle 11.A was implemented and built on
+production, but it is **NOT ACCEPTED**. The mandatory pre-benchmark parity gate
+failed (`posture_model` class agreement `0.695`, `gaze_vertical_model` `0.955`,
+large centroid drift on posture / vertical / depth), so no full `combined.mp4`
+benchmark was run. Production was rolled back to the accepted 320 exact-slice +
+Top-K profile. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
+
 ### Goal
 Reduce the per-crop GPU compute by re-exporting the 4 behavior TensorRT engines at a smaller input resolution. The model topology is unchanged — only `imgsz` shrinks.
 

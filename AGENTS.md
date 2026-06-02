@@ -174,6 +174,26 @@ This file defines how agents should execute tests quickly and safely in this rep
   — bounded at `~4 %` Step 2 wall but lowest risk. Per §E.6 both must be
   prod-benchmarked before one ships. No engine, route, or env flag was
   changed by this remeasurement.
+- **2026-06-02 Cycle 11.A behavior input 320→256 NOT ACCEPTED at parity
+  gate**: production built the 256 behavior engines and matching slice/Top-K
+  adapters, then captured candidate outputs with
+  `tools/prod/prod_behavior_input_size_parity.py`. Evidence:
+  baseline capture `backend/logs/parity_capture_320_20260602T123459.npz`,
+  candidate capture `backend/logs/parity_capture_256_20260602T154826.npz`, and
+  parity JSON `backend/logs/parity_input_size_256_20260602T154842.json`.
+  The candidate showed lower synthetic capture time but failed correctness
+  gates before the full benchmark (`posture_model` class agreement `0.695`,
+  `gaze_vertical_model` `0.955`, and large centroid drift on posture / vertical
+  / depth). No `combined.mp4` benchmark was run. Production was rolled back with
+  `prod_set_behavior_input_size.sh --input-size 320 --topk 100`, workers were
+  restarted, and final verified state is the accepted Cycle 9b B.2.c profile:
+  `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,
+  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`,
+  `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `LPM_ENABLED=0`, Triton health `200`, and
+  all active Top-K models `READY`. Runtime guard commit
+  `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` adds explicit Triton model
+  loading for `TRITON_LOAD_MODEL` and parameterized validator checks so future
+  size experiments cannot load stale incompatible ensembles.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

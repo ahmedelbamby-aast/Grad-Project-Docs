@@ -2,7 +2,10 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **INVESTIGATION ONLY — NO ENGINE BUILD AND NO PROD DEPLOY YET.**
+**Status:** **PHASE 3 COMPLETE — 11.A NOT ACCEPTED.** The 256 candidate was
+built on production, failed the pre-benchmark parity gate, and was rolled back
+to the accepted 320 Top-K baseline. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
 
 This document is the Cycle 11 Phase 1 design + risk analysis required before
 any engine rebuild. It is the §B.5 "name the lever" output for the Cycle 11
@@ -234,11 +237,13 @@ It is the Phase 1 design that gates the next commits.
 4. Update `tools/prod/prod_enable_parallel_flow.sh` to register
    `TRITON_CROP_BEHAVIOR_INPUT_SIZE` and `GAZE_HORIZONTAL_ENGINE_VARIANT`
    as known env knobs at their default values.
-5. Update `docs/cycle_9_and_10_improvements_todo.md` § Z.3 row for
-   Cycle 11 from PLANNED to STAGED.
+5. Update `docs/cycle_9_and_10_improvements_todo.md` § Z with the Phase 2
+   staging state.
 
-No engines are built and no prod deployment happens in Phase 2 either —
-that's Phase 3 (parity probe) and Phase 4 (full benchmark).
+Outcome update: Phase 3 later built the 256 engines on production, failed the
+parity gate, and rolled back to 320. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). No
+Phase 4 full benchmark was run.
 
 ## References
 

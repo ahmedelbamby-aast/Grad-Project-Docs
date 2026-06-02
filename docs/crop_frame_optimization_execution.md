@@ -948,6 +948,81 @@ Detailed result doc:
 
 ---
 
+## Cycle 11.A — Behavior Input Size 320 → 256 (NOT ACCEPTED)
+
+### Phase 1: Investigation
+
+Cycle 9b B.3 remeasurement showed that per-crop compute stayed roughly constant
+at `~0.94 ms/crop` and that tuning only the dominant child was capped at about
+`4 %` Step 2 wall improvement. Cycle 11.A therefore targeted all four behavior
+children by reducing input pixels from `320x320` to `256x256`.
+
+Detailed plan:
+[`docs/cycle_11_input_size_investigation.md`](cycle_11_input_size_investigation.md).
+
+### Phase 2: Implementation
+
+Cycle 11 helper code was staged:
+
+- `backend/apps/pipeline/services/triton_ensemble_input_size.py`: idempotent
+  rewriter for ensemble `images` input dims.
+- `tools/prod/prod_set_behavior_input_size.sh`: orchestrates config rewrite,
+  engine rebuild, Top-K rebuild, and restart.
+- `tools/prod/prod_behavior_input_size_parity.py`: two-pass capture/compare
+  parity probe.
+- `backend/apps/pipeline/services/ensemble_validator.py`: now validates
+  `behavior_input_size` and derived YOLO anchor counts.
+- `tools/prod/prod_start_triton.sh`: now uses explicit model loading when
+  `TRITON_LOAD_MODEL` is set, so stale compatibility ensembles do not block a
+  different input-size experiment.
+
+Runtime guard commit:
+`4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5`.
+
+### Phase 3: Production parity
+
+Production built the 256 candidate engines and adapters, then captured the
+candidate output tensors. The pre-benchmark parity gate failed:
+
+| Item | Value |
+|---|---|
+| Baseline capture | `backend/logs/parity_capture_320_20260602T123459.npz` |
+| Candidate capture | `backend/logs/parity_capture_256_20260602T154826.npz` |
+| Parity JSON | `backend/logs/parity_input_size_256_20260602T154842.json` |
+
+| Model | Class agreement | Mean centroid drift | Result |
+|---|---:|---:|---|
+| `posture_model` | `0.6950` | `119.204 px` | fail |
+| `gaze_horizontal_model` | `1.0000` | `0.276 px` | pass |
+| `gaze_vertical_model` | `0.9550` | `142.669 px` | fail |
+| `gaze_depth_model` | `1.0000` | `141.526 px` | fail |
+
+Configured gates were class agreement `>= 0.995`, centroid drift `<= 0.5 px`,
+and confidence delta `<= 0.05`.
+
+### Decision
+
+**NOT ACCEPTED.** No full `combined.mp4` benchmark was run because correctness
+failed before the benchmark gate. Production was rolled back to the accepted
+Cycle 9b B.2.c profile:
+
+```bash
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+TRITON_BEHAVIOR_TOP_K_VALUE=100
+LPM_ENABLED=0
+```
+
+Triton health returned `200`, and all active 320 Top-K models were verified
+`READY`.
+
+Detailed result doc:
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.

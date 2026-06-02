@@ -30,6 +30,8 @@
 - [Logical Path Matrix Spec (Cycle 10)](logical_path_matrix_spec.md)
 - [Cycle 10 Investigation](cycle_10_investigation.md)
 - [Cycle 10 LPM Phase 1 Results — NOT ACCEPTED](cycle_10_lpm_phase1_results.md)
+- [Cycle 11 Input Size Investigation](cycle_11_input_size_investigation.md)
+- [Cycle 11 Input Size Results — NOT ACCEPTED at parity gate](cycle_11_input_size_results.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)
