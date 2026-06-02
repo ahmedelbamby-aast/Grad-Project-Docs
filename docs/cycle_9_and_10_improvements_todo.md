@@ -795,7 +795,7 @@ quality of the diff.
 | # | Title | Status | Projected gain | Primary docs |
 |---|---|---|---:|---|
 | **Cycle 10b** | Pose parallelization across frames (originally Cycle 10 in the playbook — slot taken by LPM; pose work moved here) | **PLANNED** | Pose wall 220 → ~80 s | `docs/cycles_9_to_12_implementation_playbook.md` §3 |
-| **Cycle 11** | Behavior input 320 → 256 with engine rebuild + accuracy parity gate | **PLANNED** | Step 2 wall ~−13 %, overall FPS +10 % | `docs/cycles_9_to_12_implementation_playbook.md` §4 |
+| **Cycle 11** | Behavior input 320 → 256 with engine rebuild + accuracy parity gate | **STAGED 2026-06-02** | Step 2 wall ~−13 %, overall FPS +10 % | `docs/cycle_11_input_size_investigation.md` (Phase 1 + Phase 2 helpers landed), `docs/cycles_9_to_12_implementation_playbook.md` §4 |
 | **Cycle 12** | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | **PLANNED** | ~20 s saved | `docs/cycles_9_to_12_implementation_playbook.md` §5 |
 | **Cycle 13a** | BLS server-side fan-out (the architectural change — combines with §B.1 in this file) | **PLANNED** | 5 FPS → 8–10 FPS, lands at SLA boundary | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
 | **Cycle 13b** | Multi-process video sharding (4 Celery workers, each takes a quarter of the video, then a stitch step) | **PLANNED, RISKY** | 5 FPS → 15–18 FPS (tracking stitch is the hard part) | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
