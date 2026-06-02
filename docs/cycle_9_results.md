@@ -171,11 +171,14 @@ ordering (multi-process or video sharding).
 
 ---
 
-## Cycle 9b — Continuation Options (Not Implemented Yet, Plan Only)
+## Cycle 9b — Continuation Options (Status Updated 2026-06-02)
 
-The next ensemble-adjacent change MUST attack one of these five levers. Each is
-a separate STAGED candidate; the production benchmark before/after is the only
-acceptance evidence.
+The next ensemble-adjacent change MUST attack one of these five levers. Each
+candidate needs its own production benchmark before acceptance. Since this
+post-mortem was written, Option 2 has partially landed: exact server-side
+horizontal slicing is accepted, and exact slice + Top-K is accepted with caveat.
+Option 3 Step 1 measurement also landed and identified `gaze_horizontal_model`
+as the original dominant child.
 
 ### Option 1 — Server-side compact postprocessing (HIGHEST IMPACT)
 
@@ -191,10 +194,11 @@ output movement removed per frame.
 - **Expected gain**: Step 2 wall reduction not just from PCIe / gRPC bytes but
   from removing the dense `result.as_numpy(output0).reshape(...)` cost in the
   Python `_decode_yolo_output0` path that runs 17 × 4 = 68 times per frame.
-- **Risk**: high — first BLS Python backend in this repo, requires the
-  python_backend stub bundled with Triton 2.55 (already present in our
-  install). Accuracy contract is bit-identical *only if* the NMS settings match
-  the Python-side `_decode_yolo_output0`.
+- **Risk**: high — first BLS Python backend in this repo. Production validation
+  during Cycle 9b showed the active Triton build did **not** have the Python
+  backend available, so BLS requires an intentional backend rebuild or a
+  different compact-postprocessing backend. Accuracy contract is bit-identical
+  *only if* the NMS settings match the Python-side `_decode_yolo_output0`.
 
 ### Option 2 — Fuse outputs before returning
 
@@ -202,6 +206,14 @@ If full BLS is too much, add a stage that concatenates / packs only the needed
 logits (class scores per anchor) instead of returning the full dense grid.
 Even partial compression (return top-K anchors per model, not all 2 100) cuts
 output bytes 20-100× without changing the Python decoder contract.
+
+**2026-06-02 status:** exact server-side horizontal slicing is **ACCEPTED** and
+exact slice + FP32 Top-K is **ACCEPTED WITH CAVEAT**. The accepted Top-K run
+(`cycle9b-topk-crop-frame-20260602T041900`, job
+`be4ba9ee-4786-48e9-8334-28feb237a1fb`) reduced Step 2 frame wall
+`573.927 → 540.399 s`, behavior RTT mean `91.470 → 84.865 ms`, and behavior
+output traffic `~6.85 → ~0.33 MB/frame`, but average GPU utilization did not
+improve. Do not continue optimizing response-byte volume alone.
 
 - **Mechanism placement**: a thin C++ custom backend OR an ensemble step that
   invokes a tiny TensorRT engine wrapping a top-K op.
@@ -216,6 +228,12 @@ The ensemble still waits for the slowest sub-model. Cycle 9 telemetry shows the
 ensemble mean RTT 107.9 ms; the standalone per-model RTTs were 143–168 ms
 spread asymmetrically. Need server-side measurement of which sub-model dominates,
 then optimize that one specifically:
+
+**2026-06-02 status:** Step 1 measurement is complete. Production stats in
+`docs/cycle_9b_child_critical_path_results.md` identified
+`gaze_horizontal_model` as the original dominant child (`16.058 ms/exec` server
+delta). After exact-slice + Top-K, this must be remeasured before any Step 2
+engine variant is implemented.
 
 - TensorRT profile / precision tuning (FP16 → INT8 on the dominant child).
 - Engine batch profile mismatch (each engine has its own preferred batch).

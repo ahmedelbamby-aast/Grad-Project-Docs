@@ -1,15 +1,18 @@
 # Cycle 9b Output Fusion Results
 
-**Status:** **B.2.b exact server-side slice ACCEPTED.** The first standalone
-TensorRT output-slice variant (`gaze2`) is **NOT ACCEPTED**; the follow-up exact
-server-side slice (`slice`) is **ACCEPTED**.
+**Status:** **B.2.b exact server-side slice ACCEPTED** and **B.2.c exact
+slice + Top-K ACCEPTED WITH CAVEAT.** The first standalone TensorRT
+output-slice variant (`gaze2`) is **NOT ACCEPTED**.
 
-This document records both Cycle 9b B.2.b candidates:
+This document records the Cycle 9b output-fusion candidates:
 
 - `gaze_horizontal_gaze2_model`, a separate TensorRT plan that gathers legacy
   horizontal output channels `[0,1,2,3,8,9]` and returns `[6,2100]`.
 - `gaze_horizontal_slice_model`, an exact server-side TensorRT gather that slices
   the already-executed legacy `gaze_horizontal_model.output0` inside Triton.
+- `behavior_ensemble_gaze_slice_topk`, which keeps exact slicing and adds FP32
+  Top-K adapter models after each behavior child so Python receives `[C,100]`
+  instead of `[C,2100]`.
 
 ## Candidate
 
@@ -150,5 +153,78 @@ MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice
 LPM_ENABLED=0
 ```
 
-The broader B.2 multi-approach checklist is not complete: B.2.a top-K and B.2.c
-top-K plus slice have not yet been benchmarked.
+---
+
+## B.2.c Follow-Up — Exact Slice + Top-K Packing (ACCEPTED WITH CAVEAT)
+
+**Status:** **ACCEPTED WITH CAVEAT.**
+
+This candidate keeps the accepted exact-slice route and adds Top-K packing after
+all four behavior children:
+
+| Item | Value |
+|---|---|
+| Variant flags | `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `TRITON_BEHAVIOR_TOP_K_VALUE=100` |
+| Full behavior ensemble | `behavior_ensemble_gaze_slice_topk` |
+| Top-K adapters | `posture_topk_model`, `gaze_horizontal_slice_topk_model`, `gaze_vertical_topk_model`, `gaze_depth_topk_model` |
+| Prod enable helper | `tools/prod/prod_enable_behavior_topk.sh` |
+| Prod parity probe | `tools/prod/prod_behavior_topk_parity.py` |
+| Deployed SHA | `9f879affeb4478e63a09276b10a2d64844bcbc44` |
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` |
+| Telemetry session | `c4710435-4ec0-49e1-8ffb-60012fa878c9` |
+| Bench summary | `backend/logs/bench_summary_20260602T042139.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260602T042139.csv` |
+| Inference audit | `backend/data/videos/be4ba9ee-4786-48e9-8334-28feb237a1fb/inference_audit.json` |
+| Decoded parity | `backend/logs/behavior_topk_parity_20260602T011830Z_fp32.json`, `failed_count=0`, `max_score_diff=0.0`, `max_box_diff=0.0` |
+
+FP16 Top-K adapters failed decoded parity before the full benchmark
+(`max_score_diff≈2.4e-4`, `max_box_diff≈0.138`), so production built the Top-K
+adapters in FP32.
+
+### Production Result
+
+| Metric | Exact Slice Baseline | Exact Slice + Top-K | Delta |
+|---|---:|---:|---:|
+| Step 2 frame wall | `573.927 s` | `540.399 s` | `-5.84 %` |
+| Step 2 through pose upload | `799.345 s` | `767.589 s` | `-3.97 %` |
+| Audit `run.complete` wall | `865.419 s` | `833.810 s` | `-3.65 %` |
+| DB-completed elapsed | `1052.281 s` | `1022.952 s` | `-2.79 %` |
+| DB-completed FPS | `4.307` | `4.429` | `+2.8 %` |
+| Behavior RTT mean | `91.470 ms` | `84.865 ms` | `-7.22 %` |
+| Behavior RTT p95 | `146.072 ms` | `128.138 ms` | `-12.28 %` |
+| Behavior output / frame | `~6.85 MB` | `~0.33 MB` | `~95 %` less |
+| Avg GPU utilization | `9.595 %` | `9.3 %` | `-0.295 pp` |
+| Peak GPU utilization | `45 %` | `53 %` | `+8 pp` |
+
+Correctness stayed within the established tolerance: `4541` frames persisted,
+StudentTrack count stayed `53`, `person_detection` boxes stayed `19162`,
+`attention_tracking` boxes moved `11776 → 11781` (`+0.0425 %`), total
+detections moved `72747 → 72762` (`+0.0206 %`), and the decoded parity probe
+passed exactly.
+
+### Decision
+
+**ACCEPTED WITH CAVEAT.** The candidate pulled the same named lever as B.2.b,
+dense output bytes, and production proved lower Step 2 wall, lower behavior RTT,
+and correctness parity. The caveat is that average GPU utilization did not
+improve. Production remains on:
+
+```bash
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+TRITON_BEHAVIOR_TOP_K_VALUE=100
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+LPM_ENABLED=0
+```
+
+Detailed evidence is also recorded in
+[`docs/cycle_9b_topk_anchor_packing_results.md`](cycle_9b_topk_anchor_packing_results.md)
+and [`docs/production_inference_benchmark.md`](production_inference_benchmark.md)
+§19.
+
+The broader B.2 multi-approach checklist is still not fully closed because
+standalone B.2.a Top-K without the accepted slice was not separately
+benchmarked. It is lower priority now: the production baseline has already moved
+to B.2.c, and the next cycle should target GPU occupancy / server-side execution
+rather than response-byte trimming alone.

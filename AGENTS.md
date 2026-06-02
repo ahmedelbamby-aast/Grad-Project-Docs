@@ -86,9 +86,10 @@ This file defines how agents should execute tests quickly and safely in this rep
   server delta vs. `12.133 ms` posture, `11.759 ms` vertical, `11.909 ms`
   depth). The same model also owns the widest dense output tensor
   (`[84,2100]`). This measurement led to the B.2.b exact server-side slice
-  candidate below; future Cycle 9b work should use that accepted route as the
-  baseline before attempting B.1 compact postprocessing, B.2.a top-K, B.2.c, or
-  B.3 Step-2 engine variants.
+  candidate below, which then led to the B.2.c Top-K route. Future Cycle 9b
+  work should use the B.2.c accepted-with-caveat profile as the production
+  baseline before attempting B.1 compact postprocessing, B.3 Step-2 engine
+  variants, or B.4 batch-window changes.
 - **2026-06-02 Cycle 9b B.2.b TensorRT output-slice variant NOT ACCEPTED**:
   code added a guarded `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` path where
   `gaze_horizontal_gaze2_model` gathers legacy horizontal channels
@@ -125,6 +126,30 @@ This file defines how agents should execute tests quickly and safely in this rep
   embeddings `-2`, tracks unchanged). Production remains on
   `GAZE_HORIZONTAL_HEAD_VARIANT=slice` with `LPM_ENABLED=0`; rollback is
   `prod_enable_parallel_flow.sh --profile per-frame-signals`.
+- **2026-06-02 Cycle 9b B.2.c exact slice + Top-K ACCEPTED WITH CAVEAT**:
+  production keeps the accepted exact-slice route and adds FP32 TensorRT Top-K
+  adapters (`posture_topk_model`, `gaze_horizontal_slice_topk_model`,
+  `gaze_vertical_topk_model`, `gaze_depth_topk_model`) behind
+  `TRITON_BEHAVIOR_TOP_K_ENABLED=1`,
+  `TRITON_BEHAVIOR_TOP_K_VALUE=100`, and
+  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`.
+  FP16 adapters failed decoded parity before benchmarking; FP32 parity passed
+  exactly in `backend/logs/behavior_topk_parity_20260602T011830Z_fp32.json`
+  (`failed_count=0`, `max_score_diff=0.0`, `max_box_diff=0.0`). Production
+  benchmark `cycle9b-topk-crop-frame-20260602T041900` / job
+  `be4ba9ee-4786-48e9-8334-28feb237a1fb` deployed SHA
+  `9f879affeb4478e63a09276b10a2d64844bcbc44` and completed `4541/4541`
+  frames. Versus exact slice, Step 2 frame wall improved
+  `573.927 s → 540.399 s` (`-5.84 %`), behavior RTT mean improved
+  `91.470 ms → 84.865 ms`, DB-completed FPS improved `4.307 → 4.429`, and
+  behavior output traffic fell `~6.85 MB/frame → ~0.33 MB/frame`. Correctness
+  stayed within tolerance (`attention_tracking` `11776 → 11781`,
+  `person_detection` unchanged at `19162`, tracks unchanged at `53`). Caveat:
+  average GPU utilization did not improve (`9.595 % → 9.3 %`) though peak moved
+  `45 % → 53 %`; next cycle must target GPU occupancy / server-side execution /
+  orchestration rather than response-byte trimming alone. Rollback is
+  `prod_enable_gaze_horizontal_slice.sh --input-size 320 --skip-build`, then
+  restart Triton and workers.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

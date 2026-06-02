@@ -695,8 +695,29 @@ receives `[6,2100]` instead of `[84,2100]`. The matching
 reported `max_abs_diff=0.0`. Step 2 wall improved `858.1 s → 573.927 s`
 (`-33.1 %`), behavior RTT mean improved `107.9 ms → 91.470 ms`, DB-completed
 FPS improved `4.09 → 4.307`, and correctness stayed within noise. This accepts
-only the exact-slice B.2.b subcandidate; B.2.a top-K, B.2.c combined top-K plus
-slice, B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted.
+the exact-slice B.2.b subcandidate.
+
+Cycle 9b exact slice plus Top-K anchor packing is **ACCEPTED WITH CAVEAT**. It
+keeps `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, adds FP32 TensorRT Top-K adapters
+after all four behavior children, and routes `behavior_all` through
+`behavior_ensemble_gaze_slice_topk` when `TRITON_BEHAVIOR_TOP_K_ENABLED=1` and
+`TRITON_BEHAVIOR_TOP_K_VALUE=100`. Production benchmark
+`cycle9b-topk-crop-frame-20260602T041900` / job
+`be4ba9ee-4786-48e9-8334-28feb237a1fb` completed at deployed SHA
+`9f879affeb4478e63a09276b10a2d64844bcbc44`; decoded parity
+`backend/logs/behavior_topk_parity_20260602T011830Z_fp32.json` reported
+`failed_count=0`, `max_score_diff=0.0`, and `max_box_diff=0.0`. Versus the
+accepted exact-slice baseline, Step 2 frame wall improved
+`573.927 s → 540.399 s` (`-5.84 %`), DB-completed FPS improved
+`4.307 → 4.429`, behavior RTT mean improved `91.470 ms → 84.865 ms`, and
+behavior output traffic fell from `~6.85 MB/frame` to `~0.33 MB/frame`.
+Correctness stayed within tolerance (`attention_tracking` `11776 → 11781`,
+`person_detection` unchanged at `19162`, tracks unchanged at `53`). Caveat:
+average GPU utilization did not improve (`9.595 % → 9.3 %`) even though peak GPU
+utilization improved (`45 % → 53 %`). Production remains on the Top-K route.
+B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted; standalone
+B.2.a Top-K without exact-slice was not separately benchmarked because the
+accepted baseline has moved to B.2.c.
 
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to
@@ -756,10 +777,10 @@ Evidence: `docs/production_inference_benchmark.md` §14, replay key
 `cycle8-embed-bulk-crop-frame-20260601T125627`, job
 `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`.
 
-Toward the 7.5-min SLA (per `docs/runtime_sla_video_plus_5min.md`): 14.4-min
-gap remains. Step 2 (14.2 min) is now ~98 % of that gap. Next cycles attack
-Step 2 with Triton ensemble (Cycle 9), pose parallelization (Cycle 10), and
-smaller behavior input (Cycle 11).
+At the time of Cycle 8, the 7.5-min SLA gap was 14.4 min and Step 2 was the
+dominant remaining block. Later Cycle 9b work has moved the current accepted
+baseline to exact slice + Top-K (`4.429 FPS`, `1022.952 s` total); use
+`docs/runtime_sla_video_plus_5min.md` for the current SLA gap and stage budget.
 
 ### 2026-06-01 Cycle 7 — Redis client caching (ACCEPTED with caveat)
 

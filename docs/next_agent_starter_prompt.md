@@ -4,8 +4,8 @@
 self-contained — read it once, then act. Every link in here points to a
 file that already exists in this repository (verify with `git ls-files`).
 
-**Last updated:** 2026-06-02 (after Cycle 9b exact server-side slice was
-accepted).
+**Last updated:** 2026-06-02 (after Cycle 9b exact slice + Top-K was accepted
+with caveat).
 
 ---
 
@@ -23,15 +23,16 @@ For the canonical benchmark video `combined.mp4` (4 541 frames, 2 m 31 s
 @ 30 fps), that means **total wall ≤ 7 m 31 s = 451 s = ≥ 10.07 FPS
 overall**.
 
-**Current accepted baseline** (Cycle 9b exact slice, job `7933c1e5`):
-- Total wall: **~17.6 min** (~1 054 s)
-- Overall FPS (DB completed basis): **4.307**
-- **Gap to SLA: ~10.0 min**
+**Current accepted baseline** (Cycle 9b exact slice + Top-K, job `be4ba9ee`):
+- Total wall: **17.0 min** (`1022.952 s`)
+- Overall FPS (DB completed basis): **4.429**
+- **Gap to SLA: ~9.5 min**
 
 You are not at the SLA. The plan is in mid-flight. Cycles 1–8 are ACCEPTED;
 Cycle 9 ran on prod but FAILED its Step 2 gate; Cycle 9b B.2.b exact slice is
-ACCEPTED; Cycle 10 LPM ran on prod but is NOT ACCEPTED and remains rolled back
-with `LPM_ENABLED=0`. Future cycles (9b remaining, 10b, 11, 12, 13a, 13b) are
+ACCEPTED; Cycle 9b B.2.c exact slice + Top-K is ACCEPTED WITH CAVEAT; Cycle 10
+LPM ran on prod but is NOT ACCEPTED and remains rolled back with
+`LPM_ENABLED=0`. Future cycles (9b remaining, 10b, 11, 12, 13a, 13b) are
 planned.
 
 You will not silently expand scope. You will not declare anything
@@ -177,7 +178,7 @@ ssh prod-grad "cd /home/bamby/grad_project && bash tools/prod/prod_verify_per_fr
 
 Run `prod_run_parallel_flow_benchmark.sh` with `run_in_background: true`
 and set up a `Monitor` task that watches DB job status. The bench takes
-~20 min on `combined.mp4` for the current accepted baseline.
+~17 min on `combined.mp4` for the current accepted baseline.
 
 ---
 
@@ -234,16 +235,19 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 | Order | Task | Where the spec lives |
 |---|---|---|
 | 1 | **B.1 compact postprocessing** — preferably BLS only after verifying the prod Triton backend exists or rebuilding it intentionally | TODO § B.1 |
-| 2 | **B.2.a top-K anchor packing** or **B.2.c top-K + accepted slice** | TODO § B.2 |
-| 3 | **B.3 Step 2** — optimize the measured dominant child only if the exact-slice baseline still shows it dominates | TODO § B.3 |
+| 2 | **B.3 Step 2** — remeasure the dominant child against the Top-K baseline, then optimize only the measured dominant child | TODO § B.3 |
+| 3 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
 | 4 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
 | 5 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
 | 6 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
-B.2.b exact server-side slice is already accepted and is now the baseline.
-Do not repeat the rejected `gaze2` standalone output-slice plan. The remaining
-Step 2 work must reduce dense bytes further, reduce server-side child compute,
-or remove single-process Python orchestration.
+B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
+accepted; Top-K is now the production baseline. Do not repeat the rejected
+`gaze2` standalone output-slice plan. The remaining Step 2 work must reduce
+server-side child compute, improve GPU occupancy, or remove single-process
+Python orchestration. Standalone B.2.a Top-K-only was not separately benchmarked
+and is lower priority than the GPU-occupancy/server-side execution work because
+B.2.c already proved response-byte trimming alone is not enough.
 
 If you are not picking one of the above, you are scope-creeping. Don't.
 
@@ -328,16 +332,22 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
 ## 10. The current state of the world (snapshot — verify with `git log`)
 
 - **Branch:** `feature/phase7a-crop-frame-mode`
-- **Latest accepted baseline:** Cycle 9b B.2.b exact server-side slice, job
-  `7933c1e5-a970-47a3-81c5-0c9bd01bd332`, replay key
-  `cycle9b-exactslice-crop-frame-20260601T233211`, ~17.6 min total,
-  4.307 FPS overall (DB completed)
+- **Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job
+  `be4ba9ee-4786-48e9-8334-28feb237a1fb`, replay key
+  `cycle9b-topk-crop-frame-20260602T041900`, `1022.952 s` total,
+  4.429 FPS overall (DB completed)
 - **Cycle 9 (Triton behavior ensemble):** NOT ACCEPTED — Step 2 wall +0.6 %
   failed the ≥ 10 % reduction gate. Job `c1651663-e08a-4e29-9ee3-fd0f09884b98`.
   Flag `TRITON_BEHAVIOR_ENSEMBLE` exists and is part of the accepted slice route,
   but the plain dense ensemble by itself is not accepted.
 - **Cycle 9b B.2.b exact slice:** ACCEPTED — post-benchmark parity
   `max_abs_diff=0.0`, Step 2 wall `858.1 → 573.927 s`, correctness parity held.
+- **Cycle 9b B.2.c exact slice + Top-K:** ACCEPTED WITH CAVEAT — decoded parity
+  `failed_count=0`, `max_score_diff=0.0`, `max_box_diff=0.0`, Step 2 frame wall
+  `573.927 → 540.399 s`, behavior RTT mean `91.470 → 84.865 ms`, output bytes
+  `~6.85 → ~0.33 MB/frame`, correctness parity held. Caveat: average GPU
+  utilization did not improve (`9.595 % → 9.3 %`), so the next cycle must target
+  GPU occupancy / server-side execution / orchestration.
 - **Cycle 10 (Logical Path Matrix):** NOT ACCEPTED. The hook and telemetry table
   ran on prod, but contradiction counters stayed zero and attention boxes
   regressed. Production remains `LPM_ENABLED=0`.

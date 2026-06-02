@@ -1,8 +1,8 @@
 # Runtime SLA: `total_wall ≤ video_duration + 5 min`
 
 **Status:** Plan adopted 2026-06-01. Latest accepted baseline updated
-2026-06-02 after Cycle 9b exact server-side slice. Acceptance only after each
-cycle is measured on prod with before/after numbers, per the constitution.
+2026-06-02 after Cycle 9b exact slice + Top-K. Acceptance only after each cycle
+is measured on prod with before/after numbers, per the constitution.
 
 ---
 
@@ -20,26 +20,26 @@ For the canonical benchmark `combined.mp4`:
 - target total wall = 151.4 + 300 = **451 s (7 m 31 s)**
 - required throughput = 4 541 / 451 ≈ **10.07 FPS overall (DB-completed)**
 
-Current state (Cycle 9b exact slice, job
-`7933c1e5-a970-47a3-81c5-0c9bd01bd332`):
-- total wall = **~1 054 s (17.6 min)**
-- overall FPS (DB-completed) = **4.307**
-- gap = **2.34×** speed-up required
+Current state (Cycle 9b exact slice + Top-K, job
+`be4ba9ee-4786-48e9-8334-28feb237a1fb`):
+- total wall = **1022.952 s (17.0 min)**
+- overall FPS (DB-completed) = **4.429**
+- gap = **2.27×** speed-up required
 
 ---
 
-## 2. Where the ~1 054 s lives today (measured, not estimated)
+## 2. Where the ~1 023 s lives today (measured, not estimated)
 
-| Stage | Cycle 9b exact-slice wall (s) | % of total | Per-frame avg (ms) |
+| Stage | Cycle 9b exact slice + Top-K wall (s) | % of total | Per-frame avg (ms) |
 |---|---:|---:|---:|
-| Step 2 — frame inference (Triton offline) | **573.9** | 54.5 % | 126.4 |
-| Step 2 — pose post-processing | **225.4** | 21.4 % | 49.6 |
-| Step 3 — persistence | 40.3 | 3.8 % | 8.9 |
-| Step 4 — render (annotated + pose video) | 25.8 | 2.4 % | 5.7 |
-| Step 5 — embedding / DB completion tail | **188.6** | 17.9 % | 41.5 |
-| **TOTAL** | **~1 054** | 100 % | 232.1 |
+| Step 2 — frame inference (Triton offline) | **540.4** | 52.8 % | 119.0 |
+| Step 2 — pose post-processing | **227.2** | 22.2 % | 50.0 |
+| Post-pose audit stages to `run.complete` | 66.2 | 6.5 % | 14.6 |
+| Embedding / DB completion tail | **189.1** | 18.5 % | 41.7 |
+| **TOTAL** | **1023.0** | 100 % | 225.3 |
 
-The four bold blocks together are 96 % of the wall. **Persistence and render are within budget already.**
+The bold blocks are still the dominant cost. Top-K reduced frame inference but
+did not move pose or the DB completion tail.
 
 ---
 
@@ -49,12 +49,11 @@ The 451 s target distributes roughly as:
 
 | Stage | Cycle 9b actual | **Target SLA** | Required Δ | Achievable by |
 |---|---:|---:|---:|---|
-| Step 2 frame inference | 573.9 s | **≤ 300 s** | **−48 %** | Cycle 9b remaining / Cycle 13: compact postprocessing or sharding |
-| Pose post | 225.4 s | **≤ 60 s** | **−73 %** | Cycle 10b: parallelize across frames OR inline during Step 2 |
-| Persistence | 40.3 s | **≤ 30 s** | −26 % | Cycle 12: bulk_create + COPY-FROM |
-| Render | 25.8 s | **≤ 15 s** | −42 % | Cycle 11: parallel writers (annotated + pose in parallel) |
-| Embedding / DB completion tail | 188.6 s | **≤ 50 s** | **−73 %** | Cycle 12/13: streaming or server-side embedding contract |
-| **TOTAL** | **~1 054 s** | **≤ 451 s** | −57 % | Cycle 9b remaining + cycles 10b/12/13 |
+| Step 2 frame inference | 540.4 s | **≤ 300 s** | **−44 %** | Cycle 13: compact postprocessing/BLS, sharding, or GPU-occupancy fix |
+| Pose post | 227.2 s | **≤ 60 s** | **−74 %** | Cycle 10b: parallelize across frames OR inline during Step 2 |
+| Post-pose audit stages | 66.2 s | **≤ 45 s** | −32 % | Cycle 12: bulk persistence/render writers |
+| Embedding / DB completion tail | 189.1 s | **≤ 50 s** | **−74 %** | Cycle 12/13: streaming or server-side embedding contract |
+| **TOTAL** | **1023.0 s** | **≤ 451 s** | −56 % | cycles 10b/12/13 plus one more Step 2 architecture win |
 
 The largest single block to attack first is **embedding** (saves ~400 s of the 1 131 s gap = 35 % of the entire gap in one cycle), then **Step 2** (saves ~540 s = 48 %).
 
@@ -131,7 +130,7 @@ Small absolute wins (~25 s combined), keep for last.
 
 | Cycle | Target | Expected Δ overall wall | Confidence | Risk |
 |---|---|---|---:|---|
-| Cycle 9b remaining | Compact postprocessing / top-K output fusion / dominant-child variants | Must be measured | medium | medium-high |
+| Cycle 9b remaining | Compact postprocessing / dominant-child variants / larger batch window | Must be measured | medium | medium-high |
 | Cycle 10b | Pose parallelization OR inline pose | −150 to −180 s | medium | medium |
 | Cycle 11 | Behavior input 320→256 | −100 to −150 s | medium-high | high (accuracy parity needed) |
 | Cycle 12 | Persistence bulk-COPY + parallel render | −15 to −25 s | high | low |
@@ -139,9 +138,10 @@ Small absolute wins (~25 s combined), keep for last.
 
 Historical accepted wins: Cycle 8 reduced embedding wall from `450.7 s` to
 `~174 s`; Cycle 9 was not accepted; Cycle 9b exact slice reduced Step 2 wall
-from `858.1 s` to `573.927 s`.
+from `858.1 s` to `573.927 s`; Cycle 9b exact slice + Top-K reduced it again
+to `540.399 s` but did not improve average GPU utilization.
 
-Even after Cycle 9b exact slice, the pipeline is still **~10 minutes over** the
+Even after Cycle 9b exact slice + Top-K, the pipeline is still **~9.5 minutes over** the
 SLA. Incremental cycles may not reach 10 FPS alone. To close the rest we need a
 step-change:
 
@@ -180,7 +180,7 @@ No claim is made until prod evidence exists.
 
 ## 7. Next immediate action
 
-Use Cycle 9b exact slice as the accepted baseline. The next cycle must attack
-one of the remaining measured costs: server-side compact postprocessing / top-K
-output fusion, pose parallelization, or the Cycle 13 architecture decision.
+Use Cycle 9b exact slice + Top-K as the accepted baseline. The next cycle must
+attack one of the remaining measured costs: server-side compact postprocessing /
+GPU occupancy, pose parallelization, or the Cycle 13 architecture decision.
 Do not add new intelligence models until the SLA gap is closed.

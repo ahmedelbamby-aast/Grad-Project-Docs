@@ -828,9 +828,121 @@ DB correctness. Production remains on `GAZE_HORIZONTAL_HEAD_VARIANT=slice` with
 bash tools/prod/prod_enable_parallel_flow.sh --profile per-frame-signals
 ```
 
-This accepts the exact-slice B.2.b subcandidate only. The broader B.2
-multi-approach item remains open until B.2.a and B.2.c are measured or formally
-deferred with evidence.
+This accepted the exact-slice B.2.b subcandidate. The next B.2 production run
+measured B.2.c (exact slice plus Top-K) against this baseline.
+
+---
+
+## Cycle 9b B.2.c — Exact Slice + Top-K Anchor Packing (ACCEPTED WITH CAVEAT)
+
+### Phase 1: Investigation
+
+The accepted exact-slice route still returned dense `[C,2100]` grids for every
+behavior child. At the exact-slice baseline, behavior output traffic was still
+about `6.85 MB/frame`, and behavior RTT averaged `91.470 ms`.
+
+Detailed Phase A/B record:
+[`docs/cycle_9b_topk_anchor_packing_investigation.md`](cycle_9b_topk_anchor_packing_investigation.md).
+
+### Phase 2: Hypothesis
+
+Keep `GAZE_HORIZONTAL_HEAD_VARIANT=slice` and add TensorRT Top-K adapters after
+all behavior children:
+
+```text
+posture_model.output0 [N,14,2100] -> posture_topk_model [N,14,100]
+gaze_horizontal_slice_model.output0 [N,6,2100] -> gaze_horizontal_slice_topk_model [N,6,100]
+gaze_vertical_model.output0 [N,14,2100] -> gaze_vertical_topk_model [N,14,100]
+gaze_depth_model.output0 [N,14,2100] -> gaze_depth_topk_model [N,14,100]
+```
+
+**Named lever:** dense output bytes.
+
+Expected behavior output traffic drops from `~6.85 MB/frame` to `~0.33 MB/frame`
+while preserving the Python decoder's top-candidate semantics
+(`TRITON_BEHAVIOR_TOP_K_VALUE=100` matches `TRITON_YOLO_MAX_DECODE_CANDIDATES`).
+
+### Phase 3: Implementation
+
+- `backend/scripts/build_tensorrt_engines.py`: exports per-task Top-K ONNX
+  adapter graphs and builds FP32 TensorRT plans.
+- `backend/models/triton_repository_cuda12/behavior_ensemble_gaze_slice_topk/`:
+  full behavior ensemble that returns Top-K outputs for all behavior children.
+- `backend/models/triton_repository_cuda12/*_topk_model/`: adapter configs and
+  version directories.
+- `tools/prod/prod_enable_behavior_topk.sh`: builds/enables the route and sets
+  `TRITON_BEHAVIOR_TOP_K_ENABLED=1`.
+- `tools/prod/prod_behavior_topk_parity.py`: decoded parity probe comparing
+  dense exact-slice outputs against Top-K outputs.
+- Workflow/test coverage: `test_behavior_ensemble_dispatch.py`,
+  `test_yolo_decode_dynamic_shapes.py`, and
+  `test_triton_phase_knob_docs_consistency.py`.
+
+FP16 adapters failed decoded parity before the benchmark, so the production
+helper builds Top-K adapters with `--no-fp16`.
+
+### Phase 4: Production benchmark
+
+Production deployed SHA `9f879affeb4478e63a09276b10a2d64844bcbc44`, built the
+FP32 Top-K adapters, validated the ensemble repository, passed decoded parity,
+and completed the canonical `combined.mp4` benchmark:
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` |
+| Telemetry session | `c4710435-4ec0-49e1-8ffb-60012fa878c9` |
+| Bench summary | `backend/logs/bench_summary_20260602T042139.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260602T042139.csv` |
+| Inference audit | `backend/data/videos/be4ba9ee-4786-48e9-8334-28feb237a1fb/inference_audit.json` |
+| Decoded parity | `backend/logs/behavior_topk_parity_20260602T011830Z_fp32.json`, `failed_count=0`, `max_score_diff=0.0`, `max_box_diff=0.0` |
+| Final status | `completed` |
+
+| Metric | Exact Slice Baseline | Exact Slice + Top-K | Delta |
+|---|---:|---:|---:|
+| Step 2 frame wall | `573.927 s` | `540.399 s` | `-5.84 %` |
+| Step 2 through pose upload | `799.345 s` | `767.589 s` | `-3.97 %` |
+| Audit `run.complete` wall | `865.419 s` | `833.810 s` | `-3.65 %` |
+| DB-completed elapsed | `1052.281 s` | `1022.952 s` | `-2.79 %` |
+| DB-completed FPS | `4.307` | `4.429` | `+2.8 %` |
+| Behavior RTT mean | `91.470 ms` | `84.865 ms` | `-7.22 %` |
+| Behavior RTT p95 | `146.072 ms` | `128.138 ms` | `-12.28 %` |
+| Behavior output / frame | `~6.85 MB` | `~0.33 MB` | `~95 %` less |
+| Avg / peak GPU util | `9.595 % / 45 %` | `9.3 % / 53 %` | `-0.295 pp / +8 pp` |
+
+Correctness stayed within the established tolerance: frames `4541`, detections
+`72747 → 72762` (`+0.0206 %`), `attention_tracking` `11776 → 11781`
+(`+0.0425 %`), `person_detection` unchanged at `19162`, and StudentTrack count
+unchanged at `53`.
+
+### Decision
+
+**ACCEPTED WITH CAVEAT.** The named lever moved and production proved lower
+Step 2 wall, lower behavior RTT, and decoded parity. The caveat is that average
+GPU utilization did not improve, so the next optimization must target GPU
+occupancy / server-side execution or orchestration, not only response-byte
+trimming.
+
+Production remains on:
+
+```bash
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+TRITON_BEHAVIOR_TOP_K_VALUE=100
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+LPM_ENABLED=0
+```
+
+Rollback to exact-slice without Top-K:
+
+```bash
+bash tools/prod/prod_enable_gaze_horizontal_slice.sh --input-size 320 --skip-build
+bash -l tools/prod/prod_start_triton.sh
+bash tools/prod/prod_start_celery_workers.sh
+```
+
+Detailed result doc:
+[`docs/cycle_9b_topk_anchor_packing_results.md`](cycle_9b_topk_anchor_packing_results.md).
 
 ---
 
@@ -841,7 +953,7 @@ Listed in order. Only proceed if the staged cycles above do not lift FPS to the 
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|
 | 6 | Persistent asyncio producer/consumer frame loop — drop `async_runner.run(...)` per-frame round-trip; one persistent dispatcher coroutine processes frames as they leave decode | +10–20 % | medium refactor of `_process_batch_items` and `_AsyncLoopRunner` |
-| 7 | Compact server-side BLS / postprocessing that returns detections instead of dense behavior grids. The simple four-model ensemble is already measured in Cycle 9 and was not accepted. | unknown; must re-measure | high; requires compact output contract + parity test |
+| 7 | Compact server-side BLS / postprocessing that returns detections instead of dense behavior grids. The simple four-model ensemble is already measured in Cycle 9 and was not accepted; exact-slice + Top-K reduced bytes but did not lift average GPU utilization. | unknown; must re-measure | high; requires compact output contract + parity test |
 | 8 | TRT NMS plugin server-side — return compact detections instead of dense `[84,2100]` / `[14,2100]` grids | small wall, large bandwidth | engine rebuild + decoder refactor |
 | 9 | Re-export behavior engines at 256×256 (smaller than current 320) | +20–40 % step-2 | medium — accuracy parity required |
 | 10 | Triton CUDA Shared Memory for input tensors | tiny | medium-high — SHM lifecycle |

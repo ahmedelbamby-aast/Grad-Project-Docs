@@ -1,10 +1,10 @@
 # Cycles 9 – 12 Implementation Playbook
 
-**Status:** Plan only — no acceptance until each cycle has its own measured before/after on prod RTX 5090 against the canonical `combined.mp4` benchmark.
+**Status:** Historical playbook plus execution roadmap — no acceptance until each cycle has its own measured before/after on prod RTX 5090 against the canonical `combined.mp4` benchmark.
 **Date:** 2026-06-01
-**Latest accepted baseline:** Cycle 8, job `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`, **3.46 FPS overall (DB completed), 21.87 min total**.
+**Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, **4.429 FPS overall (DB completed), 17.0 min total**. Earlier cycle projections in this file are retained as historical planning context; use `docs/cycle_9_and_10_improvements_todo.md` § Z and `docs/runtime_sla_video_plus_5min.md` for current sequencing.
 **SLA target** (per `docs/runtime_sla_video_plus_5min.md`): `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (2 m 31 s): **≤ 7 m 31 s = ≥ 10.07 FPS overall**.
-**Current gap to close:** 14.4 min over budget.
+**Current gap to close:** ~9.5 min over budget.
 
 ---
 
