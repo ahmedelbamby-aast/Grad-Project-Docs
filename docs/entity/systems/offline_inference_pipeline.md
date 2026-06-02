@@ -26,7 +26,10 @@
 | File | `backend/apps/pipeline/services/logical_path_matrix.py` |
 | File | `backend/apps/pipeline/services/triton_ensemble_input_size.py` |
 | File | `backend/apps/tracking/tracker.py` |
-| File | `backend/apps/telemetry/services/writer.py` |
+| File | `backend/apps/telemetry/writer.py` |
+| File | `backend/apps/telemetry/session.py` |
+| File | `backend/apps/telemetry/context.py` |
+| File | `backend/apps/telemetry/celery_integration.py` |
 | File | `backend/config/celery.py` |
 | File | `backend/config/settings/base.py` |
 | File | `backend/models/triton_repository_cuda12/behavior_ensemble_gaze_slice_topk/config.pbtxt` |
@@ -114,7 +117,7 @@ plus shared services in `backend/apps/pipeline/services/`. Files:
 | `backend/apps/pipeline/services/logical_path_matrix.py` | LPM constraint solver (Cycle 10, currently `LPM_ENABLED=0` because Phase 1 was NOT ACCEPTED). |
 | `backend/apps/pipeline/services/triton_ensemble_input_size.py` | Cycle 11 ensemble-config input-dims rewriter. |
 | `backend/apps/tracking/tracker.py` | ByteTrack / BoT-SORT + ReID match logic (called after the per-frame detect+behavior pass). |
-| `backend/apps/telemetry/services/writer.py` | Dual-sink (PostgreSQL + JSON) writer; persists per-frame meta + per-call RTT. |
+| `backend/apps/telemetry/writer.py` + `session.py` + `context.py` + `celery_integration.py` | Dual-sink (PostgreSQL + JSON) writer + per-task `TelemetrySession` bound via ContextVar from Celery signals; persists per-frame meta + per-call RTT. Details in [`docs/entity/systems/telemetry_pipeline.md`](telemetry_pipeline.md). |
 | `backend/config/celery.py` | Queue routing (`process_video_upload` → `offline_control_queue_name` at line 89). |
 
 ## 4. Call graph (internal — single Celery task lifecycle)
