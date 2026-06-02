@@ -91,7 +91,7 @@ flowchart LR
 |---|---|
 | `backend/apps/video_analysis/tasks.py` | `run_live_stream_inference` Celery task at line 4548. Owns the per-camera frame loop, dispatch, tracking, anomaly evaluation, and WS publish. |
 | `backend/apps/sessions/views.py` | Session start view at line 91 fans out one task per camera; collects `live_stream_job_ids` for client return. |
-| `backend/apps/cameras/services.py` | `StreamGateway` Protocol (line 175) + concrete `Go2rtcGateway` and `GstMediamtxGateway` (line 252); `OnvifResolver` for ONVIF discovery. Selection driven by `STREAM_PROVIDER` env. |
+| `backend/apps/cameras/services.py` | `StreamGateway` Protocol (line 175) + concrete `LegacyGo2rtcGateway` (line 213) and `GstMediaMtxGateway` (line 251); `OnvifResolver` for ONVIF discovery. Selection driven by `STREAM_PROVIDER` env. |
 | `backend/apps/cameras/routing.py` | `CameraStatusConsumer` route `ws/cameras/{camera_id}/`. |
 | `backend/apps/cameras/consumers.py` | Camera-status WS consumer. |
 | `backend/apps/detections/routing.py` | `DetectionConsumer` route `ws/detections/{session_id}/` — main live detection channel. |
