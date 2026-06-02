@@ -2,9 +2,10 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **PHASE 3 COMPLETE — 11.A NOT ACCEPTED.** The 256 candidate was
-built on production, failed the pre-benchmark parity gate, and was rolled back
-to the accepted 320 Top-K baseline. See
+**Status:** **PHASE 3 COMPLETE — 11.A BENCHMARK REQUIRED / UNDECIDED.** The
+256 candidate was built on production, produced a synthetic pre-benchmark
+parity warning, and was rolled back to the accepted 320 Top-K baseline while
+the real benchmark matrix remains pending. See
 [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
 
 This document is the Cycle 11 Phase 1 design + risk analysis required before
@@ -112,7 +113,7 @@ Following the constitution's "no code without a plan":
    sample config string) under
    `backend/tests/unit/pipeline/test_behavior_input_size_helper.py`.
 
-### Phase 3 — accuracy parity gate (mandatory before benchmark)
+### Phase 3 — accuracy parity warning check (mandatory before benchmark)
 
 Reuse the existing decode pipeline. Run **before** the prod benchmark.
 
@@ -130,7 +131,7 @@ ssh prod-grad 'cd /home/bamby/grad_project && \
     --json backend/logs/parity_input_size_256_$(date -u +%Y%m%dT%H%M%S).json'
 ```
 
-### Acceptance gates (all three must pass)
+### Warning thresholds
 
 | Gate | Threshold | Why |
 |---|---|---|
@@ -138,7 +139,11 @@ ssh prod-grad 'cd /home/bamby/grad_project && \
 | Bounding-box centroid drift (normalized) | ≤ 0.5 px at 256 scale | Catches subtle localization drift |
 | Per-class confidence delta (absolute) | ≤ 5 % per class | Catches confidence collapse |
 
-Only if all three pass: run the full `combined.mp4` benchmark.
+If any threshold fails, record the warning in
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). The
+warning does not accept, reject, skip, or neglect the candidate by itself; the
+real `combined.mp4` production benchmark is still required for the final
+decision.
 
 ### Phase 4 — production benchmark gates
 
@@ -178,7 +183,7 @@ location (the rebuild process overwrites `model.plan` with the new
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| Accuracy parity gate fails (smaller receptive field misclassifies edge cases) | medium | Mandatory pre-benchmark parity probe; reject if any of 3 gates miss |
+| Accuracy parity warning triggers (smaller receptive field misclassifies edge cases) | medium | Mandatory pre-benchmark parity probe; record warning and require real benchmark evidence before final decision |
 | TRT engine build fails on prod (workspace too small, kernel selection) | low | The existing `prod-rebuild-tensorrt-engines.sh` has handled this surface for the 320 build; same machine + driver |
 | Ensemble config edit corrupts the file | low | Pure-Python rewrite covered by unit test; backup file on every edit |
 | Top-K adapter shape mismatch at the 1 344-anchor input | low | `build_tensorrt_engines.py` derives anchors from imgsz; matching profile already implemented at line 213-218 |
@@ -197,9 +202,11 @@ benchmarked before one is selected. The matrix is:
 
 Selection rule:
 
-- If 11.A passes its accuracy parity gate AND delivers ≥ 10 % Step 2
-  wall, **11.A ships**.
-- If 11.A fails accuracy parity OR fails the Step 2 gate, fall back to
+- If 11.A delivers ≥ 10 % Step 2 wall reduction, improves/holds GPU/RTT
+  metrics, and preserves DB/signal correctness on `combined.mp4`, **11.A
+  ships**.
+- If the real `combined.mp4` benchmark shows correctness regression or misses
+  the Step 2 gate, document the benchmark-backed rejection and then fall back to
   11.B (lower ceiling but lower risk).
 - Document both runs in `docs/cycle_11_input_size_results.md` regardless
   of which ships.
@@ -243,7 +250,15 @@ It is the Phase 1 design that gates the next commits.
 Outcome update: Phase 3 later built the 256 engines on production, failed the
 parity gate, and rolled back to 320. See
 [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). No
-Phase 4 full benchmark was run.
+Phase 4 full benchmark was run. A reproducible real-benchmark matrix is now
+required before a final decision:
+
+```bash
+bash tools/prod/prod_run_behavior_input_size_matrix.sh \
+  --sizes "320 256" \
+  --tag cycle11-input-size-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
+  --timeout 7200
+```
 
 ## References
 

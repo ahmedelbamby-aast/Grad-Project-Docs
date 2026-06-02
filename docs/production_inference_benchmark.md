@@ -1310,14 +1310,16 @@ bash tools/prod/prod_start_celery_workers.sh
 
 ---
 
-## 20. 2026-06-02 Cycle 11.A Production Parity Gate — Behavior Input 320 → 256
+## 20. 2026-06-02 Cycle 11.A Benchmark-Required Warning — Behavior Input 320 → 256
 
-**Status:** **NOT ACCEPTED. No full benchmark run.**
+**Status:** **UNDECIDED. Full production benchmark required.**
 
 Cycle 11.A rebuilt the four behavior engines and matching slice/Top-K adapters
-for `TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`, but the required pre-benchmark
-parity probe failed. Running `combined.mp4` would have violated the acceptance
-contract because correctness had already failed.
+for `TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`. The synthetic pre-benchmark parity
+probe failed and is recorded as a correctness warning, but it is not the final
+acceptance authority. Per the benchmark-first rule, no solution or optimization
+is accepted, skipped, or neglected until a real production benchmark on
+`combined.mp4` records the throughput and correctness evidence.
 
 | Item | Value |
 |---|---|
@@ -1326,7 +1328,9 @@ contract because correctness had already failed.
 | Candidate capture | `backend/logs/parity_capture_256_20260602T154826.npz` |
 | Parity JSON | `backend/logs/parity_input_size_256_20260602T154842.json` |
 | Runtime guard commit | `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` |
-| Full benchmark | skipped because parity failed |
+| Full benchmark | **pending** |
+| Matrix runner | `tools/prod/prod_run_behavior_input_size_matrix.sh` |
+| Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` |
 
 The candidate did reduce synthetic capture time, but failed correctness gates:
 
@@ -1337,7 +1341,8 @@ The candidate did reduce synthetic capture time, but failed correctness gates:
 | `gaze_vertical_model` | `0.9550` | `142.669 px` | fail |
 | `gaze_depth_model` | `1.0000` | `141.526 px` | fail |
 
-Production rollback proof after rejection:
+Production was restored to the current accepted baseline while benchmark tooling
+was prepared:
 
 ```text
 TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
@@ -1350,10 +1355,20 @@ Triton /v2/health/ready = 200
 behavior_ensemble_gaze_slice_topk = READY
 ```
 
-**Decision:** **NOT ACCEPTED.** Keep the accepted Cycle 9b B.2.c `320x320`
-Top-K profile. Next work should either implement a real-crop parity harness
-before retrying smaller inputs or move to lower-risk B.3 kernel-tactic tuning at
-`320x320`.
+Reproducible benchmark command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_behavior_input_size_matrix.sh \
+  --sizes "320 256" \
+  --tag cycle11-input-size-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
+  --timeout 7200
+```
+
+**Decision:** **PENDING BENCHMARK.** Keep the accepted Cycle 9b B.2.c `320x320`
+Top-K profile until the matrix produces real 320-vs-256 evidence. This section
+must be updated with the `matrix_runs.tsv`, `input_320_metrics.json`, and
+`input_256_metrics.json` paths after the production run.
 
 ---
 

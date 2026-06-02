@@ -948,7 +948,7 @@ Detailed result doc:
 
 ---
 
-## Cycle 11.A — Behavior Input Size 320 → 256 (NOT ACCEPTED)
+## Cycle 11.A — Behavior Input Size 320 → 256 (BENCHMARK REQUIRED)
 
 ### Phase 1: Investigation
 
@@ -975,14 +975,19 @@ Cycle 11 helper code was staged:
 - `tools/prod/prod_start_triton.sh`: now uses explicit model loading when
   `TRITON_LOAD_MODEL` is set, so stale compatibility ensembles do not block a
   different input-size experiment.
+- `tools/prod/prod_collect_benchmark_metrics.py`: collects DB correctness,
+  telemetry RTT, GPU CSV, and inference-audit metrics into one JSON/Markdown
+  evidence bundle.
+- `tools/prod/prod_run_behavior_input_size_matrix.sh`: runs reproducible 320/256
+  production benchmark matrices and rolls back to 320 by default.
 
 Runtime guard commit:
 `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5`.
 
-### Phase 3: Production parity
+### Phase 3: Production parity warning
 
 Production built the 256 candidate engines and adapters, then captured the
-candidate output tensors. The pre-benchmark parity gate failed:
+candidate output tensors. The synthetic pre-benchmark parity gate failed:
 
 | Item | Value |
 |---|---|
@@ -1000,11 +1005,35 @@ candidate output tensors. The pre-benchmark parity gate failed:
 Configured gates were class agreement `>= 0.995`, centroid drift `<= 0.5 px`,
 and confidence delta `<= 0.05`.
 
+### Phase 4: Real benchmark requirement
+
+The parity result is now treated as a warning, not a final decision. Per the
+current rule, no optimization is accepted, skipped, or neglected until a real
+production benchmark tells us what happened and why.
+
+Run:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_behavior_input_size_matrix.sh \
+  --sizes "320 256" \
+  --tag cycle11-input-size-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
+  --timeout 7200
+```
+
+Required evidence after the run:
+
+- `matrix_runs.tsv`
+- `input_320_metrics.json`
+- `input_256_metrics.json`
+- before/after table copied into
+  [`docs/production_inference_benchmark.md`](production_inference_benchmark.md)
+  and [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md)
+
 ### Decision
 
-**NOT ACCEPTED.** No full `combined.mp4` benchmark was run because correctness
-failed before the benchmark gate. Production was rolled back to the accepted
-Cycle 9b B.2.c profile:
+**PENDING REAL BENCHMARK.** Production was rolled back to the accepted Cycle 9b
+B.2.c profile while the matrix tooling was prepared:
 
 ```bash
 TRITON_CROP_BEHAVIOR_INPUT_SIZE=320

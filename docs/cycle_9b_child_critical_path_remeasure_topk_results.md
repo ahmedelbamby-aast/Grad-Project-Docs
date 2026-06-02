@@ -5,10 +5,11 @@
 **Status:** **STEP 1 REMEASUREMENT COMPLETE — NO OPTIMIZATION ACCEPTED.**
 
 **Outcome update:** the highest-ceiling follow-up from this document, Cycle
-11.A (`TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`), was implemented on production but
-failed the required pre-benchmark parity gate. See
+11.A (`TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`), was implemented on production and
+produced a synthetic parity warning. Per the benchmark-first rule, it remains
+undecided until a real `combined.mp4` production benchmark is recorded. See
 [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). The
-accepted baseline remains `320` exact slice + Top-K.
+accepted baseline remains `320` exact slice + Top-K until that evidence lands.
 
 This document records the required Cycle 9b B.3 Step 1 **remeasurement**
 against the new accepted baseline: Cycle 9b B.2.c exact slice + Top-K

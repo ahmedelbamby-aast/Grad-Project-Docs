@@ -235,10 +235,11 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 | Order | Task | Where the spec lives |
 |---|---|---|
 | 1 | **B.1 compact postprocessing** — preferably BLS only after verifying the prod Triton backend exists or rebuilding it intentionally | TODO § B.1 |
-| 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320 | TODO § B.3 |
-| 3 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
-| 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
-| 5 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 2 | **Cycle 11.A real benchmark matrix** — run 320-vs-256 with the new matrix tooling before accepting, rejecting, skipping, or neglecting the smaller-input candidate | `docs/cycle_11_input_size_results.md` |
+| 3 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, only after 11.A has real benchmark evidence | TODO § B.3 |
+| 4 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
+| 5 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
+| 6 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
 B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
 accepted; Top-K is now the production baseline. Do not repeat the rejected
@@ -247,8 +248,11 @@ server-side child compute, improve GPU occupancy, or remove single-process
 Python orchestration. Standalone B.2.a Top-K-only was not separately benchmarked
 and is lower priority than the GPU-occupancy/server-side execution work because
 B.2.c already proved response-byte trimming alone is not enough. Cycle 11.A
-input `320 → 256` has also been tried and rejected at the pre-benchmark parity
-gate; do not retry it without a real-crop parity redesign.
+input `320 → 256` has also been tried and produced a synthetic parity warning.
+Do not accept, reject, skip, or neglect it until
+`tools/prod/prod_run_behavior_input_size_matrix.sh` runs a real production
+benchmark and `tools/prod/prod_collect_benchmark_metrics.py` records the
+evidence.
 
 If you are not picking one of the above, you are scope-creeping. Don't.
 
@@ -355,14 +359,16 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
   (absolute `3.93 → 2.47 ms`). Ensemble RTT `63.59 ms` mean, server `30.13 ms`,
   orchestration overhead `~8.7 ms / call`, per-crop compute constant at
   `~0.94 ms/crop`. Per-child Step 2 ceiling is `~4 %` Step 2 wall reduction.
-  Cycle 11.A (`320 → 256`) was the higher-ceiling candidate, but it later
-  failed the required parity gate. Full remeasurement evidence:
+  Cycle 11.A (`320 → 256`) was the higher-ceiling candidate, and it later
+  produced a synthetic parity warning. Full remeasurement evidence:
   `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`.
-- **Cycle 11.A input 320 → 256:** NOT ACCEPTED — production built the 256
-  engines and captured candidate tensors, but parity failed before the full
-  benchmark (`posture_model` class agreement `0.695`, `gaze_vertical_model`
-  `0.955`, large centroid drift on three models). Production was rolled back to
-  the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` Top-K profile. Evidence:
+- **Cycle 11.A input 320 → 256:** BENCHMARK REQUIRED / UNDECIDED — production
+  built the 256 engines and captured candidate tensors. Synthetic parity warned
+  of correctness risk (`posture_model` class agreement `0.695`,
+  `gaze_vertical_model` `0.955`, large centroid drift on three models), but no
+  final decision is allowed before the real `combined.mp4` benchmark. Production
+  was rolled back to the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` Top-K
+  profile while matrix tooling was added. Evidence:
   `docs/cycle_11_input_size_results.md`.
 - **Cycle 10 (Logical Path Matrix):** NOT ACCEPTED. The hook and telemetry table
   ran on prod, but contradiction counters stayed zero and attention boxes

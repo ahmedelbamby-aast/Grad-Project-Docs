@@ -263,12 +263,17 @@ Set `POSE_PARALLEL_FRAMES=1` to restore serial behavior. The new code path falls
 ## 4. Cycle 11 — Smaller behavior input (320 × 320 → 256 × 256)
 
 **2026-06-02 outcome update:** Cycle 11.A was implemented and built on
-production, but it is **NOT ACCEPTED**. The mandatory pre-benchmark parity gate
-failed (`posture_model` class agreement `0.695`, `gaze_vertical_model` `0.955`,
-large centroid drift on posture / vertical / depth), so no full `combined.mp4`
-benchmark was run. Production was rolled back to the accepted 320 exact-slice +
-Top-K profile. See
-[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
+production, but it is **BENCHMARK REQUIRED / UNDECIDED**. The synthetic
+pre-benchmark parity gate failed (`posture_model` class agreement `0.695`,
+`gaze_vertical_model` `0.955`, large centroid drift on posture / vertical /
+depth), so it is recorded as a correctness warning. Per the benchmark-first
+operator rule, the candidate is not accepted, rejected, skipped, or neglected
+until a real `combined.mp4` production benchmark records throughput and
+correctness evidence. Tooling now exists:
+`tools/prod/prod_run_behavior_input_size_matrix.sh` and
+`tools/prod/prod_collect_benchmark_metrics.py`. Production was rolled back to
+the accepted 320 exact-slice + Top-K profile while the benchmark matrix remains
+pending. See [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
 
 ### Goal
 Reduce the per-crop GPU compute by re-exporting the 4 behavior TensorRT engines at a smaller input resolution. The model topology is unchanged — only `imgsz` shrinks.
@@ -312,7 +317,9 @@ At 256×256 the per-batch server compute should drop from ~14 ms to ~9 ms. Combi
 | Overall FPS | ~4.1 → ~4.5 | +10 % | |
 
 ### Risk
-**Medium-high.** A 4× smaller pixel budget can lose detail. The accuracy parity gate above is mandatory; failing it means the cycle is REJECTED and we revert.
+**Medium-high.** A smaller pixel budget can lose detail. The accuracy parity
+gate above is mandatory as a warning signal, but the final decision requires a
+real production benchmark and DB/signal parity comparison.
 
 ### Rollback
 Flip `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` and re-deploy the existing 320 engines (we never delete them). One env change + Triton restart.
