@@ -1429,4 +1429,104 @@ too much and lowers average GPU utilization. Keep the accepted Cycle 9b B.2.c
 
 ---
 
+## 21. 2026-06-02 Cycle 9b B.4 Production Benchmark — Batch Window 2 → 4
+
+**Status:** **NOT ACCEPTED. Real production benchmark completed, but correctness
+gates failed.**
+
+Cycle 9b B.4 kept the accepted `320x320` exact-slice + Top-K behavior graph and
+changed only the offline frame batch window:
+`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2 → 4`. The run completed the full
+`combined.mp4` production benchmark with bounded RSS, but the modest throughput
+gain did not preserve model agreement and track continuity.
+
+| Item | Value |
+|---|---|
+| Candidate | Batch queue max frames `2 → 4` |
+| Baseline replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Baseline job | `be4ba9ee-4786-48e9-8334-28feb237a1fb` |
+| Candidate replay key | `cycle9b-b4-maxframes4-20260602T175820Z` |
+| Candidate job | `416efe8c-772c-442f-8e55-cf44c54fe261` |
+| Benchmark summary | `backend/logs/bench_summary_20260602T210058.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260602T210058.csv` |
+| Inference audit | `backend/data/videos/416efe8c-772c-442f-8e55-cf44c54fe261/inference_audit.json` |
+| Evidence directory | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/` |
+| Metrics JSON | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/batch_window_metrics.json` |
+| Metrics Markdown | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/batch_window_metrics.md` |
+| Model agreement JSON | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/model_agreement_320_topk_vs_candidate.json` |
+| Model agreement Markdown | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/model_agreement_320_topk_vs_candidate.md` |
+| Sampled RSS TSV | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/batch_window_rss.tsv` |
+| Telemetry session | `68c36ffd-c493-42d4-b27f-81aa47ba7fa6` |
+
+**Before / after metrics versus accepted 320 Top-K baseline:**
+
+| Metric | 320 Top-K baseline | B.4 candidate | Delta |
+|---|---:|---:|---:|
+| Status | `completed` | `completed` | pass |
+| Processed frames | `4541` | `4541` | `0` |
+| DB-completed FPS | `4.439` | `4.572` | `+3.00 %` |
+| DB-completed elapsed | `1022.952 s` | `993.178 s` | `-2.91 %` |
+| Step 2 frame wall | `540.399 s` | `512.445 s` | `-5.17 %` |
+| Step 2 through pose upload | `767.589 s` | `739.389 s` | `-3.67 %` |
+| Behavior RTT mean | `84.865 ms` | `99.251 ms` | `+16.95 %` |
+| Behavior RTT p95 | `128.056 ms` | `128.731 ms` | `+0.53 %` |
+| GPU avg util | `9.344 %` | `9.459 %` | `+1.23 %` |
+| GPU peak util | `53.0 %` | `49.0 %` | `-7.55 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `-2.06 %` |
+| Worker RSS peak | not sampled | `1120.328 MiB` | pass |
+| Detection rows | `72,762` | `72,755` | `-0.01 %` |
+| BBox rows | `72,762` | `72,755` | `-0.01 %` |
+| Embedding rows | `72,596` | `72,589` | `-0.01 %` |
+| Student tracks | `53` | `47` | `-11.32 %` |
+
+**Persisted behavior signal deltas:**
+
+| BBox model | 320 Top-K baseline | B.4 candidate | Delta |
+|---|---:|---:|---:|
+| `attention_tracking` | `11,781` | `11,781` | `0` |
+| `hand_raising` | `8,809` | `8,806` | `-0.03 %` |
+| `person_detection` | `19,162` | `19,162` | `0` |
+| `sitting_standing` | `33,010` | `33,006` | `-0.01 %` |
+
+**Model-agreement proxy (`F1@IoU0.5` versus accepted baseline, not human-labeled
+accuracy):**
+
+| Model | Baseline reference | Candidate agreement F1@IoU | Frame-count match | Baseline boxes | Candidate boxes |
+|---|---:|---:|---:|---:|---:|
+| `attention_tracking` | `100.000 %` | `24.531 %` | `98.635 %` | `11,781` | `11,781` |
+| `hand_raising` | `100.000 %` | `26.648 %` | `99.185 %` | `8,809` | `8,806` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `19,162` | `19,162` |
+| `sitting_standing` | `100.000 %` | `17.217 %` | `97.666 %` | `33,010` | `33,006` |
+
+Production was restored after the benchmark to:
+
+```text
+TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+LPM_ENABLED=0
+Triton /v2/health/ready = 200
+```
+
+Reproducible command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_batch_window_benchmark.sh \
+  --max-frames 4 \
+  --rss-limit-mib 4096 \
+  --tag cycle9b-b4-maxframes4-$(date -u +%Y%m%dT%H%M%SZ) \
+  --timeout 7200
+```
+
+**Decision:** **NOT ACCEPTED.** The batch-window candidate improved Step 2
+wall by `5.17 %` and DB-completed FPS by `3.00 %`, but it increased behavior
+RTT mean by `16.95 %`, reduced persisted StudentTrack count from `53` to `47`,
+and failed model-agreement gates for three behavior outputs. Keep the accepted
+Cycle 9b B.2.c `max_frames=2` profile.
+
+---
+
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

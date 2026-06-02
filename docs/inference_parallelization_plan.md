@@ -717,9 +717,24 @@ Correctness stayed within tolerance (`attention_tracking` `11776 → 11781`,
 `person_detection` unchanged at `19162`, tracks unchanged at `53`). Caveat:
 average GPU utilization did not improve (`9.595 % → 9.3 %`) even though peak GPU
 utilization improved (`45 % → 53 %`). Production remains on the Top-K route.
-B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted; standalone
-B.2.a Top-K without exact-slice was not separately benchmarked because the
-accepted baseline has moved to B.2.c.
+
+Cycle 9b B.4 larger batch window is **NOT ACCEPTED**. Production benchmark
+`cycle9b-b4-maxframes4-20260602T175820Z` / job
+`416efe8c-772c-442f-8e55-cf44c54fe261` raised
+`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` from `2` to `4` while keeping the
+accepted 320 Top-K route. The candidate completed `4541/4541` frames and
+improved Step 2 frame wall `540.399 s → 512.445 s` (`-5.17 %`) plus
+DB-completed FPS `4.439 → 4.572` (`+3.00 %`), with sampled worker RSS
+`1120.328 MiB`. It failed the acceptance gate because behavior RTT mean
+regressed `84.865 ms → 99.251 ms`, StudentTrack count dropped `53 → 47`, and
+baseline-agreement F1@IoU0.5 failed for `attention_tracking` (`24.531 %`),
+`hand_raising` (`26.648 %`), and `sitting_standing` (`17.217 %`). Production
+was restored to `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`; do not repeat
+`max_frames=4` unless the tracking/model-agreement failure is addressed first.
+
+B.1 compact postprocessing and B.3 Step 2 remain unaccepted; standalone B.2.a
+Top-K without exact-slice was not separately benchmarked because the accepted
+baseline has moved to B.2.c.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

@@ -236,9 +236,9 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 |---|---|---|
 | 1 | **B.1 compact postprocessing** — preferably BLS only after verifying the prod Triton backend exists or rebuilding it intentionally | TODO § B.1 |
 | 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Top-K baseline | TODO § B.3 |
-| 3 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
-| 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
-| 5 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 3 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
+| 4 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 5 | **Cycle 12 persistence/render optimization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
 B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
 accepted; Top-K is now the production baseline. Do not repeat the rejected
@@ -251,6 +251,14 @@ input `320 → 256` was tried and then rejected by real production benchmark:
 Step 2 and behavior RTT improved, but persisted behavior signals regressed and
 average GPU utilization fell. Do not rerun 256 unless the over-detection cause
 is first explained by a real-crop parity harness.
+
+B.4 batch-window `2 → 4` was also tried and rejected by real production
+benchmark (`cycle9b-b4-maxframes4-20260602T175820Z`, job
+`416efe8c-772c-442f-8e55-cf44c54fe261`). It improved Step 2 frame wall by
+`5.17 %`, but behavior RTT mean regressed, StudentTrack count dropped `53 → 47`,
+and baseline-agreement F1 failed for three behavior outputs. Do not rerun
+`max_frames=4` unless the tracking/model-agreement instability is addressed
+first.
 
 If you are not picking one of the above, you are scope-creeping. Don't.
 

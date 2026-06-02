@@ -221,6 +221,28 @@ This file defines how agents should execute tests quickly and safely in this rep
   loading for `TRITON_LOAD_MODEL` and parameterized validator checks; follow-up
   commit `d378cec7` trims the non-320 Top-K Triton load list so future 256
   matrix runs do not try to load stale 320-only compatibility ensembles.
+- **2026-06-02 Cycle 9b B.4 larger batch window NOT ACCEPTED by real
+  production benchmark**: production benchmark
+  `cycle9b-b4-maxframes4-20260602T175820Z`, job
+  `416efe8c-772c-442f-8e55-cf44c54fe261`, raised
+  `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` from the accepted `2` to `4` while
+  keeping `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,
+  `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, and
+  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`.
+  The run completed `4541/4541` frames and bounded sampled Celery RSS at
+  `1120.328 MiB`. It improved Step 2 frame wall `540.399 s → 512.445 s`
+  (`-5.17 %`) and DB-completed FPS `4.439 → 4.572` (`+3.00 %`), but failed
+  the acceptance gate: behavior RTT mean regressed `84.865 ms → 99.251 ms`,
+  persisted StudentTrack count dropped `53 → 47`, GPU peak moved
+  `53 % → 49 %`, and baseline-agreement F1@IoU0.5 failed for
+  `attention_tracking=24.531 %`, `hand_raising=26.648 %`, and
+  `sitting_standing=17.217 %` (`person_detection=100.000 %`). Evidence:
+  `docs/production_inference_benchmark.md` §21,
+  `docs/cycle_9b_batch_window_results.md`, and
+  `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/`. Production was
+  restored to `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`; do not repeat
+  `max_frames=4` unless the tracking/model-agreement instability is addressed
+  first.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

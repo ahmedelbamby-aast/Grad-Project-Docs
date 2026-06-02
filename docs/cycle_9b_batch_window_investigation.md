@@ -2,13 +2,13 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **INVESTIGATION / HYPOTHESIS STAGED — NO OPTIMIZATION ACCEPTED.**
+**Status:** **PRODUCTION BENCHMARK COMPLETED — NOT ACCEPTED.**
 
 This document starts Cycle 9b B.4, the larger ensemble batch-window candidate.
-It does not accept a new runtime default. Acceptance is blocked until the
-production RTX 5090 benchmark completes on `combined.mp4`, proves a Step 2
-improvement, keeps worker RSS below the guardrail, and preserves correctness
-against the accepted 320 Top-K baseline.
+The production RTX 5090 benchmark later completed on `combined.mp4`, but the
+candidate is **not accepted** because correctness/model-agreement gates failed.
+The result is recorded in
+[`docs/cycle_9b_batch_window_results.md`](cycle_9b_batch_window_results.md).
 
 ## Problem Statement
 

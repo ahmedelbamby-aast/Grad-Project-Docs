@@ -44,7 +44,7 @@ Items per §B / §C:
 - [ ] **B.1** Compact-postprocessing: ALL three approaches (B.1.a BLS Python, B.1.b C++ custom, B.1.c TRT NMS plugin) measured on prod and recorded in `docs/cycle_9b_compact_postproc_results.md`; one approach selected via `BEHAVIOR_COMPACT_BACKEND`; CI gate updated for the new tests
 - [ ] **B.2** Output-fusion: B.2.b exact gaze_h slice and B.2.c exact slice + Top-K are prod-measured and accepted; standalone B.2.a top-K-only was not separately benchmarked and must be formally measured or deferred before this whole matrix is closed
 - [ ] **B.3** Child critical-path: Step 1 measurement landed in `docs/cycle_9b_child_critical_path_results.md` (`gaze_horizontal_model` is the dominant child); ALL applicable Step 2 approaches still need implementation, prod measurement, and CI gate updates
-- [ ] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; accept or reject documented in a results doc
+- [x] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; rejected in `docs/cycle_9b_batch_window_results.md`
 - [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated (**deployed and prod-proven, but Cycle 10 acceptance failed so checkbox remains open**)
 - [ ] **C.2.2** `telemetry_lpm_events` table + migration + writer landed; migration test added; CI gate updated (**deployed and prod-proven, but Cycle 10 acceptance failed so checkbox remains open**)
 - [ ] **C.2.3** LPM Phase 1 prod benchmark passes ALL §10 gates of `docs/logical_path_matrix_spec.md`; metrics recorded in a new `docs/cycle_10_lpm_phase1_results.md`; LPM row in § Z.2 moved to § Z.1
@@ -125,6 +125,7 @@ ship the flag.
 | Cycle 10 (LPM) | `17075418` | 1 076 s (17.9 min) | 4.219 | **NOT ACCEPTED** — telemetry worked, but C1/eliminated stayed 0 and `attention_tracking` boxes regressed 11 776 → 2 680 |
 | Cycle 9b B.2.b exact slice | `7933c1e5` | ~1 054 s (17.6 min) | 4.307 | **ACCEPTED** — Step 2 wall 858.1 → 573.927 s and correctness parity held |
 | Cycle 9b B.2.c exact slice + Top-K | `be4ba9ee` | 1 023 s (17.0 min) | 4.429 | **ACCEPTED WITH CAVEAT** — Step 2 frame wall 573.927 → 540.399 s, behavior RTT 91.470 → 84.865 ms, output bytes ~95 % lower, average GPU util did not improve |
+| Cycle 9b B.4 batch window 2 → 4 | `416efe8c` | 993 s (16.6 min) | 4.572 | **NOT ACCEPTED** — Step 2 improved 5.17 %, but behavior RTT mean regressed 16.95 %, StudentTrack count dropped 53 → 47, and model-agreement F1 failed for three behavior outputs |
 
 **SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
 = 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 9b exact
@@ -443,6 +444,18 @@ it must be measured.
 **Acceptance gate:** worker RSS stays under 4 GiB AND Step 2 wall
 improvement.
 
+**Production result (2026-06-02): NOT ACCEPTED.** Replay key
+`cycle9b-b4-maxframes4-20260602T175820Z`, job
+`416efe8c-772c-442f-8e55-cf44c54fe261`, completed `4541/4541` frames.
+Worker RSS stayed bounded (`1120.328 MiB`) and Step 2 frame wall improved
+`540.399 s → 512.445 s` (`-5.17 %`), but behavior RTT mean regressed
+`84.865 ms → 99.251 ms`, `StudentTrack` count dropped `53 → 47`, and
+baseline-agreement F1@IoU0.5 failed for `attention_tracking` (`24.531 %`),
+`hand_raising` (`26.648 %`), and `sitting_standing` (`17.217 %`). Keep
+`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`. Evidence:
+`docs/cycle_9b_batch_window_results.md` and
+`docs/production_inference_benchmark.md` §21.
+
 ### B.5 Option 5 — Discipline rule (not implementation, governance)
 
 **What:** Cycle 9 proved that **call-count reduction without GPU-work
@@ -668,7 +681,7 @@ free).
 | 6 | **B.3 child critical-path analysis — Step 1 REMEASURED 2026-06-02** | 9b | `gaze_horizontal_model` still dominant but gap shrank to +15 %; per-child ceiling ≤ 4 % Step 2 wall. Cycle 11.A input `320 → 256` was benchmarked on production: Step 2 improved strongly, but persisted behavior signals regressed and GPU avg util fell, so it is not accepted. |
 | 7 | **B.1 server-side compact postprocessing (BLS)** | 9b | highest impact but highest risk — depends on B.2c learnings; also recovers the ~8.7 ms/call ensemble orchestration overhead measured in the B.3 remeasure |
 | 8 | **C.2.4 LPM Phase 2 (move math into BLS)** | 10 (Phase 2) | combines with B.1 — both land in the same BLS Python backend |
-| 9 | **B.4 larger ensemble batches** | 9b | secondary — measure after B.1 / B.3 with RSS guardrails |
+| 9 | **B.4 larger ensemble batches** | 9b | measured and rejected on production; do not repeat `max_frames=4` unless the tracking/model-agreement failure is addressed first |
 
 Steps 1–3 unblock the LPM acceptance gate. Steps 4–6 are the path to the
 ≥ 10 % Step 2 wall reduction that Cycle 9 failed to achieve. Step 7 is the
@@ -781,13 +794,14 @@ quality of the diff.
 | Cycle 9 | Triton behavior ensemble (4 → 1 gRPC call per frame) | **NOT ACCEPTED 2026-06-01** | `c1651663-e08a-4e29-9ee3-fd0f09884b98` | App calls −75 %, behavior RTT 143–168 → 107.9 ms, overall FPS 3.46 → 4.09 (+18 %) — but **Step 2 wall 852.8 → 858.1 s failed the ≥ 10 % reduction gate**. Ensemble kept available under `TRITON_BEHAVIOR_ENSEMBLE=1` but not on the SLA path | `docs/cycle_9_results.md` (full post-mortem), `docs/cycle_9_investigation.md` |
 | Cycle 9b B.2.b | Exact server-side horizontal-gaze slice | **ACCEPTED 2026-06-02** | `7933c1e5-a970-47a3-81c5-0c9bd01bd332` | Dense horizontal output returned to Python changed `[84,2100] → [6,2100]`, post-benchmark tensor parity `max_abs_diff=0.0`, Step 2 wall `858.1 → 573.927 s` (`−33.1 %`), DB FPS `4.09 → 4.307`, correctness parity held | `docs/production_inference_benchmark.md` §18, `docs/cycle_9b_output_fusion_results.md`, `docs/crop_frame_optimization_execution.md` |
 | Cycle 9b B.2.c | Exact slice + Top-K anchor packing | **ACCEPTED WITH CAVEAT 2026-06-02** | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | FP32 Top-K adapters returned `[C,100]` behavior outputs, decoded parity passed exactly, Step 2 frame wall `573.927 → 540.399 s` (`−5.84 %` vs exact slice), DB FPS `4.307 → 4.429`, behavior RTT mean `91.470 → 84.865 ms`, behavior output traffic `~6.85 → ~0.33 MB/frame`; caveat: average GPU util `9.595 % → 9.3 %` | `docs/production_inference_benchmark.md` §19, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_output_fusion_results.md`, `docs/crop_frame_optimization_execution.md` |
+| Cycle 9b B.4 | Batch window 2 → 4 | **NOT ACCEPTED 2026-06-02** | `416efe8c-772c-442f-8e55-cf44c54fe261` | Step 2 frame wall `540.399 → 512.445 s` (`−5.17 %`) and DB FPS `4.439 → 4.572`, but behavior RTT mean regressed `84.865 → 99.251 ms`, StudentTrack count dropped `53 → 47`, and model-agreement F1@IoU0.5 failed for three behavior outputs. Prod restored to `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`. | `docs/production_inference_benchmark.md` §21, `docs/cycle_9b_batch_window_results.md`, `docs/cycle_9b_batch_window_investigation.md` |
 | Cycle 10 | Logical Path Matrix (LPM) Phase 1 | **NOT ACCEPTED 2026-06-01** | `17075418-4386-4b5f-85d4-ea23bec71f66`; safety proof `21666815-f4bd-4f5f-b90e-b9101b4d899d` | Telemetry table worked (`4541` rows), but contradictions were not detected (`C1=0`, `eliminated=0`) and `attention_tracking` boxes regressed 11 776 → 2 680. Safety proof at SHA `31edac44` restored most boxes (`2680 → 11122`) but still failed Cycle 9 parity (`11776`) and still recorded `C1=0`, `eliminated=0`. Prod rolled back to `LPM_ENABLED=0`. | `docs/production_inference_benchmark.md` §16, `docs/cycle_10_lpm_phase1_results.md` |
 
 ### Z.2 Cycles staged or in progress (code exists, awaiting prod evidence)
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b remaining** | Compact postprocessing, child critical-path, larger ensemble batches, discipline rule | **PARTIALLY ACCEPTED — B.2.b EXACT SLICE AND B.2.c TOP-K ACCEPTED; B.3 STEP 1 REMEASURED 2026-06-02** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is ACCEPTED. Exact slice + Top-K behind `TRITON_BEHAVIOR_TOP_K_ENABLED=1` is ACCEPTED WITH CAVEAT. B.3 Step 1 has been **remeasured against the Top-K baseline** — dominant child is still `gaze_horizontal_model` but the gap to the next slowest shrank from +33 % to +15 %, capping any per-child Step 2 candidate at ~4 % Step 2 wall reduction. B.1, B.3 Step 2, and B.4 remain unaccepted; standalone B.2.a Top-K-only was not separately benchmarked and is lower priority than GPU-occupancy/server-side execution work. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_topk_anchor_packing_investigation.md`, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_output_fusion_results.md` |
+| **Cycle 9b remaining** | Compact postprocessing, child critical-path, discipline rule | **PARTIALLY ACCEPTED — B.2.b EXACT SLICE AND B.2.c TOP-K ACCEPTED; B.3 STEP 1 REMEASURED; B.4 REJECTED 2026-06-02** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is ACCEPTED. Exact slice + Top-K behind `TRITON_BEHAVIOR_TOP_K_ENABLED=1` is ACCEPTED WITH CAVEAT. B.3 Step 1 has been remeasured against the Top-K baseline — dominant child is still `gaze_horizontal_model` but the gap to the next slowest shrank from +33 % to +15 %, capping any per-child Step 2 candidate at ~4 % Step 2 wall reduction. B.4 was production-benchmarked and rejected because `max_frames=4` failed track/model-agreement gates. B.1 and B.3 Step 2 remain; standalone B.2.a Top-K-only was not separately benchmarked and is lower priority than GPU-occupancy/server-side execution work. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_topk_anchor_packing_investigation.md`, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_batch_window_investigation.md`, `docs/cycle_9b_batch_window_results.md`, `docs/cycle_9b_output_fusion_results.md` |
 | **Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED BY REAL BENCHMARK 2026-06-02** | Production benchmark `cycle11-input256-realbench-20260602T161641Z-input256` / job `822b0da4-fbf2-4186-a5a6-dd066f2eb571` completed. It improved Step 2 wall `540.399 s → 391.673 s`, Step 2 FPS `8.403 → 11.594`, and behavior RTT mean `84.865 ms → 51.529 ms`, but detection/bbox rows regressed `72,762 → 101,213` (`+39.10 %`), `attention_tracking` boxes regressed `11,781 → 20,558` (`+74.50 %`), and baseline-agreement F1@IoU0.5 fell to `31.195 %` for `attention_tracking`, `38.032 %` for `hand_raising`, and `65.250 %` for `sitting_standing`; `person_detection` stayed `100.000 %`. GPU avg util fell `9.344 % → 7.367 %`. Production restored to `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`, exact slice + Top-K. | `docs/cycle_11_input_size_investigation.md`, `docs/cycle_11_input_size_results.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 

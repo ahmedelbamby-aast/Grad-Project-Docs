@@ -180,6 +180,11 @@ The helper keeps the accepted 320 Top-K behavior route, overrides only
 metrics/model-agreement evidence under `backend/logs/<tag>/`, and restores the
 accepted `max_frames=2` profile at exit.
 
+Production result `cycle9b-b4-maxframes4-20260602T175820Z` rejected
+`max_frames=4`: Step 2 improved modestly, but behavior RTT and
+tracking/model-agreement gates regressed. Keep the production default at
+`max_frames=2` unless a new cycle first addresses that instability.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash

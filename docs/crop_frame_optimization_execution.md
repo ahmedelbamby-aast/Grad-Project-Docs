@@ -1074,7 +1074,7 @@ Detailed result doc:
 
 ---
 
-## Cycle 9b B.4 — Larger Batch Window (STAGED)
+## Cycle 9b B.4 — Larger Batch Window (NOT ACCEPTED)
 
 ### Phase 1: Investigation
 
@@ -1116,11 +1116,44 @@ frame wall must improve versus `540.399 s`, worker RSS must stay below
 `4096 MiB`, and correctness/model-agreement metrics must stay within the
 accepted 320 Top-K baseline tolerance.
 
-### Phase 3+: Pending
+### Phase 3: Production Benchmark
 
-No code or env default is accepted yet. The reproducibility harness will write
-RSS and benchmark metrics to `docs/cycle_9b_batch_window_results.md` after the
-production run.
+The production benchmark completed on `combined.mp4`:
+
+| Item | Value |
+|---|---|
+| Candidate replay key | `cycle9b-b4-maxframes4-20260602T175820Z` |
+| Candidate job ID | `416efe8c-772c-442f-8e55-cf44c54fe261` |
+| Evidence directory | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/` |
+| Bench summary | `backend/logs/bench_summary_20260602T210058.json` |
+| Telemetry session | `68c36ffd-c493-42d4-b27f-81aa47ba7fa6` |
+| RSS TSV | `backend/logs/cycle9b-b4-maxframes4-20260602T175820Z/batch_window_rss.tsv` |
+
+| Metric | 320 Top-K baseline | B.4 candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `4.439` | `4.572` | `+3.00 %` |
+| Step 2 frame wall | `540.399 s` | `512.445 s` | `-5.17 %` |
+| Step 2 through pose upload | `767.589 s` | `739.389 s` | `-3.67 %` |
+| Behavior RTT mean | `84.865 ms` | `99.251 ms` | `+16.95 %` |
+| GPU avg util | `9.344 %` | `9.459 %` | `+1.23 %` |
+| GPU peak util | `53.0 %` | `49.0 %` | `-7.55 %` |
+| Worker RSS peak | not sampled | `1120.328 MiB` | pass |
+| Student tracks | `53` | `47` | `-11.32 %` |
+
+Count-level behavior rows were almost unchanged, but model-agreement F1@IoU0.5
+against the accepted 320 Top-K baseline failed for three behavior outputs:
+`attention_tracking=24.531 %`, `hand_raising=26.648 %`, and
+`sitting_standing=17.217 %`; `person_detection` stayed `100.000 %`.
+
+### Phase 4: Decision
+
+**NOT ACCEPTED.** The candidate produced only modest wall-time and FPS gains,
+increased mean behavior RTT, reduced track continuity, and failed the
+model-agreement gate. Production was restored to
+`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2` with the accepted 320 Top-K route.
+
+Detailed result doc:
+[`docs/cycle_9b_batch_window_results.md`](cycle_9b_batch_window_results.md).
 
 ---
 
