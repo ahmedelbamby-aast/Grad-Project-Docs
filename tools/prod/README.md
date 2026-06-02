@@ -221,7 +221,9 @@ This wrapper first runs the complete `combined.mp4` production benchmark through
 the accepted 320 exact-slice + Top-K route, collects DB/GPU/RTT and
 model-agreement evidence, then runs the decode-cost probe against the fresh
 replay key. It emits `NO_DECISION_BENCHMARK_RECORDED`; the decision still
-requires a documented benchmark comparison table.
+requires a documented benchmark comparison table. The helper waits for the job
+to reach a terminal state before collecting metrics, because `processed_frames`
+can reach `4541/4541` before embedding/finalization marks the job `completed`.
 
 ## 3) Stop all queue workers started by this repo
 

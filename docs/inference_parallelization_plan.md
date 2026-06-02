@@ -757,7 +757,15 @@ wait/server execution matters more than Python decode. B.1 is not accepted,
 rejected, skipped, deprioritized, or closed; only a full production Linux
 candidate benchmark on `combined.mp4` with the required decision explanation
 table can make that decision. The reproducible wrapper is
-`tools/prod/prod_run_b1_decode_cost_full_benchmark.sh`.
+`tools/prod/prod_run_b1_decode_cost_full_benchmark.sh`. The first wrapper run
+completed on production as `cycle9b-b1-fullbench-20260602T192344Z` / job
+`00e0e1da-44b6-4198-ad39-39fd853e4e18` at SHA `7556e84`, but it intentionally
+kept the accepted Top-K route and therefore records
+`NO_DECISION_BENCHMARK_RECORDED`: Step 2 wall `540.399 s → 540.748 s`, DB FPS
+`4.439 → 4.346`, behavior RTT `84.865 ms → 85.201 ms`, rows within `0.02 %`,
+tracks unchanged, and model agreement `>=99.724 %`. Fresh decode evidence from
+the completed job measured `19,146` crops, `45.160 ms` RTT, `42.704 ms` infer
+wait, and `2.040 ms/batch` decode/NMS.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

@@ -107,3 +107,72 @@ bash tools/prod/prod_run_b1_decode_cost_full_benchmark.sh \
 That wrapper runs the canonical full benchmark first, collects DB/GPU/RTT and
 model-agreement metrics, then runs the decode-cost probe against the fresh
 replay key. Only the documented full benchmark can support a B.1 decision.
+
+## Production Full-Benchmark Repeat
+
+The required end-to-end repeat was executed on the production Linux RTX 5090
+server. It kept the accepted 320 exact-slice + Top-K route and did not deploy a
+B.1 compact backend, so it records benchmark evidence only.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_b1_decode_cost_full_benchmark.sh` |
+| Replay key | `cycle9b-b1-fullbench-20260602T192344Z` |
+| Job ID | `00e0e1da-44b6-4198-ad39-39fd853e4e18` |
+| Deployed SHA | `7556e84` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Pipeline | `crop_frame`, accepted 320 exact-slice + Top-K |
+| Final status | `completed`, `4541/4541` frames |
+| Evidence directory | `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/` |
+| Decision status | `NO_DECISION_BENCHMARK_RECORDED` |
+
+| Metric | Accepted Top-K baseline | B.1 full repeat | Delta |
+|---|---:|---:|---:|
+| Step 2 frame wall | `540.399 s` | `540.748 s` | `+0.06 %` |
+| DB-completed FPS | `4.439` | `4.346` | `-2.11 %` |
+| DB-completed elapsed | `1022.952 s` | `1044.988 s` | `+2.15 %` |
+| Behavior RTT mean | `84.865 ms` | `85.201 ms` | `+0.40 %` |
+| Behavior RTT p95 | `128.056 ms` | `128.792 ms` | `+0.57 %` |
+| GPU avg util | `9.344 %` | `11.962 %` | `+28.02 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `-3.77 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `-2.06 %` |
+| Detection rows | `72762` | `72750` | `-0.02 %` |
+| BBox rows | `72762` | `72750` | `-0.02 %` |
+| Embedding rows | `72596` | `72584` | `-0.02 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+Model agreement against the accepted baseline remained within repeat-run noise:
+
+| Model | Agreement F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `99.724 %` | `-0.03 %` |
+| `hand_raising` | `99.790 %` | `-0.08 %` |
+| `person_detection` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.979 %` | `-0.01 %` |
+
+The post-benchmark decode probe ran against all sampled person crops from the
+fresh completed job:
+
+| Decode metric | Value |
+|---|---:|
+| Batches | `1127` |
+| Total crops | `19146` |
+| Mean RTT with parse | `45.160 ms` |
+| Mean infer wait | `42.704 ms` |
+| Mean serialization | `2.392 ms` |
+| Mean `as_numpy` parse | `0.064 ms` |
+| Mean decode/NMS | `2.040 ms/batch` |
+| Decode/NMS per crop | `0.120 ms` |
+| Total behavior output bytes | `367,603,200` |
+| Estimated compact bytes | `222,936` |
+| Estimated byte reduction | `99.939 %` |
+
+### Decision Authority Result
+
+This full production run still does not accept or reject B.1 because it did not
+deploy a compact-postprocessing candidate. It proves the benchmark path and
+refreshes the bottleneck measurement on `combined.mp4`: the accepted route's
+Step 2 wall and behavior RTT are effectively unchanged, while direct all-crop
+decode/NMS is a small measured component. A future B.1 candidate must change
+code/config, run this same production benchmark, and then compare against the
+accepted 320 Top-K baseline before any acceptance or non-acceptance decision.

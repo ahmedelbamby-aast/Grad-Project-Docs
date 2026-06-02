@@ -1591,4 +1591,75 @@ Probe context table — no decision authority:
 
 ---
 
+## 23. 2026-06-02 Cycle 9b B.1 Full Benchmark Repeat — Combined.mp4
+
+**Status:** **NO_DECISION_BENCHMARK_RECORDED.** This was a real production Linux
+benchmark on the canonical `combined.mp4` video, followed by the B.1 decode-cost
+probe against the fresh replay key. It did not deploy a compact backend, so it
+cannot accept or reject B.1.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_b1_decode_cost_full_benchmark.sh` |
+| Replay key | `cycle9b-b1-fullbench-20260602T192344Z` |
+| Job ID | `00e0e1da-44b6-4198-ad39-39fd853e4e18` |
+| Deployed SHA | `7556e84` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Final status | `completed`, `4541/4541` frames |
+| Full metrics | `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/full_benchmark_metrics_final.json` / `.md` |
+| Model agreement | `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/model_agreement_320_topk_vs_full_benchmark.json` / `.md` |
+| Decode evidence | `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/decode_cost_full_benchmark.json` / `.md` |
+
+| Metric | Accepted Top-K baseline | B.1 full repeat | Delta |
+|---|---:|---:|---:|
+| Step 2 frame wall | `540.399 s` | `540.748 s` | `+0.06 %` |
+| DB-completed FPS | `4.439` | `4.346` | `-2.11 %` |
+| DB-completed elapsed | `1022.952 s` | `1044.988 s` | `+2.15 %` |
+| Behavior RTT mean | `84.865 ms` | `85.201 ms` | `+0.40 %` |
+| Behavior RTT p95 | `128.056 ms` | `128.792 ms` | `+0.57 %` |
+| GPU avg util | `9.344 %` | `11.962 %` | `+28.02 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `-3.77 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `-2.06 %` |
+| Detection rows | `72762` | `72750` | `-0.02 %` |
+| BBox rows | `72762` | `72750` | `-0.02 %` |
+| Embedding rows | `72596` | `72584` | `-0.02 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+Model agreement:
+
+| Model | Agreement F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `99.724 %` | `99.737 %` | `99.711 %` | `-0.03 %` |
+| `hand_raising` | `99.790 %` | `99.830 %` | `99.750 %` | `-0.08 %` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.979 %` | `99.982 %` | `99.976 %` | `-0.01 %` |
+
+Decode-cost evidence from the completed job:
+
+| Metric | Value |
+|---|---:|
+| Batches | `1127` |
+| Total crops | `19146` |
+| Mean RTT with parse | `45.160 ms` |
+| Mean infer wait | `42.704 ms` |
+| Mean serialization | `2.392 ms` |
+| Mean `as_numpy` parse | `0.064 ms` |
+| Mean decode/NMS | `2.040 ms/batch` |
+| Decode/NMS per crop | `0.120 ms` |
+| Total behavior output bytes | `367,603,200` |
+| Estimated compact bytes | `222,936` |
+| Estimated byte reduction | `99.939 %` |
+
+Decision authority result:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Was this a real production Linux benchmark? | Yes: full `combined.mp4` job completed on the production RTX 5090 workflow. | Benchmark evidence is valid. |
+| Was a B.1 compact backend candidate deployed? | No: route remained accepted `behavior_ensemble_gaze_slice_topk` at `320x320`. | No B.1 acceptance or non-acceptance decision is allowed. |
+| Did correctness regress in the repeat? | No material regression: rows within `0.02 %`, tracks unchanged, all model F1 values `>=99.724 %`. | Repeat is comparable to baseline. |
+| Did throughput materially change? | Step 2 wall changed `+0.06 %`; behavior RTT changed `+0.40 %`; DB FPS changed `-2.11 %`. | Accepted route is repeatable; no optimization delta exists. |
+| What bottleneck should a future B.1 candidate attack? | Direct probe shows infer wait dominates decode probe RTT (`42.704 ms` of `45.160 ms`), while decode/NMS is `2.040 ms/batch`. | Future B.1 must prove it reduces production Step 2/RTT, not just response bytes. |
+
+---
+
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

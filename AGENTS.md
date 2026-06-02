@@ -320,7 +320,25 @@ the next case.
   RTT-with-parse sample), so the next B.1 implementation must reduce that
   remaining wait or model-side work, not only move Python Top-K decode/NMS.
   No compact backend is implemented, rejected, skipped, or accepted; only a
-  full production benchmark can make that decision.
+  full production benchmark can make that decision. The required end-to-end
+  repeat was run with the reproducible wrapper
+  `tools/prod/prod_run_b1_decode_cost_full_benchmark.sh`: replay
+  `cycle9b-b1-fullbench-20260602T192344Z`, job
+  `00e0e1da-44b6-4198-ad39-39fd853e4e18`, deployed SHA `7556e84`, video
+  `combined.mp4`, status `completed`. This run kept the accepted 320
+  exact-slice + Top-K route and implemented no compact backend, so it records
+  `NO_DECISION_BENCHMARK_RECORDED`, not acceptance or non-acceptance. Final
+  comparison vs accepted Top-K: Step 2 wall `540.399 s → 540.748 s`
+  (`+0.06 %`), DB-completed FPS `4.439 → 4.346` (`-2.11 %`), behavior RTT mean
+  `84.865 ms → 85.201 ms` (`+0.40 %`), GPU avg `9.344 % → 11.962 %`, DB rows
+  within `0.02 %`, tracks unchanged `53`, and model-agreement F1@IoU0.5 stayed
+  high (`attention_tracking=99.724 %`, `hand_raising=99.790 %`,
+  `person_detection=100.000 %`, `sitting_standing=99.979 %`). The fresh
+  all-crop decode probe sampled `19,146` crops / `1,127` batches from this
+  completed job: RTT `45.160 ms`, infer wait `42.704 ms`, decode/NMS
+  `2.040 ms/batch` (`0.120 ms/crop`), output `367,603,200` bytes vs estimated
+  compact `222,936` bytes. Evidence lives under
+  `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/`.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
