@@ -221,6 +221,7 @@ validates against the working tree.
 | # | File | Last updated | Why read this here |
 |---|---|---|---|
 | 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-02 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 9b Top-K (job `be4ba9ee`, 4.43 FPS, 9.5-min SLA gap). |
+| 98 | [`docs/entity/systems/live_streaming_pipeline.md`](docs/entity/systems/live_streaming_pipeline.md) | 2026-06-02 | DSP Cycle 2 — sibling live pipeline. One Celery task per session/camera; live Triton endpoint `:39001`; live detection + anomaly events via Channels. |
 
 ### Conventions used in this reading order
 
