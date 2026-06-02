@@ -381,6 +381,31 @@ the next case.
   a completed `combined.mp4` production Linux RTX 5090 benchmark writes the
   before/after table, model-agreement rows, DB parity, RTT/GPU/memory evidence,
   and rollback proof.
+- **2026-06-03 Cycle 12.B behavior-wait overlap NEEDS FURTHER ITERATION**:
+  production benchmark `cycle12-behavior-overlap-20260602T223350Z`, job
+  `46ba8b2a-3c61-4d89-b7b6-63ec72159428`, deployed SHA `d1f5e9b7`, completed
+  `4541/4541` frames on `combined.mp4`. It improved Step 2 wall
+  `540.399 s → 395.495 s` (`-26.81 %`), DB FPS `4.439 → 5.195`
+  (`+17.03 %`), DB elapsed `1022.952 s → 874.104 s` (`-14.55 %`), and GPU avg
+  `9.344 % → 11.274 %`. Correctness stayed within gate: tracks `53 → 53`, DB
+  rows within `0.02 %`, model-agreement F1 `>=99.716 %`. It is **not
+  accepted** because behavior RTT regressed: mean `84.865 ms → 115.420 ms`
+  (`+36.00 %`) and p95 `128.056 ms → 224.661 ms` (`+75.44 %`). Root cause to
+  address next: the current overlap submits the new `behavior_all` request
+  before finalizing the pending one, creating brief two-behavior-job Triton
+  contention. Production rollback proof: `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0`
+  and `TRITON_ASYNC_DISPATCH_PROFILING=0`, accepted 320/slice/Top-K route
+  remains active. Next task is Cycle 12.C single-inflight behavior overlap.
+- **2026-06-03 Cycle 12.C single-inflight behavior overlap STAGED**:
+  investigation doc `docs/cycle_12_single_inflight_overlap_investigation.md`
+  exists before code. The implementation keeps the same rollback flag
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` but changes ordering so the current
+  crop payloads are built first, the previous pending behavior job is finalized,
+  and only then the current `behavior_all` request is submitted. This preserves
+  overlap of previous behavior execution with current person/crop preparation
+  while avoiding two behavior jobs in flight. No decision exists until a real
+  production `combined.mp4` benchmark records FPS, Step 2 wall, RTT, GPU,
+  memory, DB parity, model agreement, and rollback proof.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

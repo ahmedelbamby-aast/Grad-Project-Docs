@@ -90,8 +90,10 @@ context.
 | 37b | [`docs/cycle_11_input_size_investigation.md`](docs/cycle_11_input_size_investigation.md) | 2026-06-02 | Cycle 11 investigation (320 → 256 input). The Step 2 lever-attack design. |
 | 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A real benchmark result: 256 input improved Step 2/RTT but was not accepted because persisted behavior signals regressed. |
 | 37d | [`docs/cycle_12_persistent_dispatcher_investigation.md`](docs/cycle_12_persistent_dispatcher_investigation.md) | 2026-06-02 | Cycle 12 investigation: persistent async dispatcher / single-process orchestration measurement before implementation. |
-| 37e | [`docs/cycle_12_persistent_dispatcher_results.md`](docs/cycle_12_persistent_dispatcher_results.md) | 2026-06-02 | Cycle 12 Phase A production profiling results and next implementation constraint. |
+| 37e | [`docs/cycle_12_persistent_dispatcher_results.md`](docs/cycle_12_persistent_dispatcher_results.md) | 2026-06-03 | Cycle 12 Phase A production profiling results and next implementation constraint. |
 | 37f | [`docs/cycle_12_overlap_dispatcher_investigation.md`](docs/cycle_12_overlap_dispatcher_investigation.md) | 2026-06-03 | Cycle 12.B selected candidate: overlap behavior wait while preserving ordered frame commits. |
+| 37g | [`docs/cycle_12_overlap_dispatcher_results.md`](docs/cycle_12_overlap_dispatcher_results.md) | 2026-06-03 | Cycle 12.B production result: wall-time improved, RTT regressed, needs further iteration. |
+| 37h | [`docs/cycle_12_single_inflight_overlap_investigation.md`](docs/cycle_12_single_inflight_overlap_investigation.md) | 2026-06-03 | Cycle 12.C investigation: preserve overlap while preventing two behavior jobs in flight. |
 
 ### Phase 4 — Triton-specific deep dives
 

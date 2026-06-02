@@ -1797,6 +1797,74 @@ MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
 TRITON_BEHAVIOR_TOP_K_ENABLED=1
 ```
 
+## 25. 2026-06-03 Cycle 12.B — Behavior-Wait Overlap Dispatcher
+
+**Status:** **NEEDS FURTHER ITERATION / NOT ACCEPTED.** This was a real
+production Linux RTX 5090 benchmark on `combined.mp4`. The candidate improved
+Step 2 wall, total elapsed, FPS, and GPU utilization while preserving
+model-agreement gates. It is not accepted because behavior RTT mean and p95
+regressed materially.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_behavior_overlap_benchmark.sh` |
+| Replay key | `cycle12-behavior-overlap-20260602T223350Z` |
+| Job ID | `46ba8b2a-3c61-4d89-b7b6-63ec72159428` |
+| Deployed SHA | `d1f5e9b7` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Candidate flag | `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` |
+| Final status | `completed`, `4541/4541` frames |
+| Metrics | `backend/logs/cycle12-behavior-overlap-20260602T223350Z/async_dispatch_profile_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle12-behavior-overlap-20260602T223350Z/model_agreement_320_topk_vs_async_dispatch_profile.json` / `.md` |
+| Results doc | `docs/cycle_12_overlap_dispatcher_results.md` |
+
+| Metric | Accepted 320 Top-K baseline | Cycle 12.B candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed elapsed | `1022.952 s` | `874.104 s` | `-14.55 %` |
+| DB-completed FPS | `4.439` | `5.195` | `+17.03 %` |
+| Step 2 frame wall | `540.399 s` | `395.495 s` | `-26.81 %` |
+| Step 2 through pose upload | `767.589 s` | `616.156 s` | `-19.73 %` |
+| Behavior RTT mean | `84.865 ms` | `115.420 ms` | `+36.00 %` |
+| Behavior RTT p95 | `128.056 ms` | `224.661 ms` | `+75.44 %` |
+| GPU avg util | `9.344 %` | `11.274 %` | `+20.65 %` |
+| GPU peak util | `53.000 %` | `77.000 %` | `+45.28 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `-2.06 %` |
+| Detection rows | `72762` | `72744` | `-0.02 %` |
+| BBox rows | `72762` | `72744` | `-0.02 %` |
+| Embedding rows | `72596` | `72578` | `-0.02 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+Model agreement:
+
+| Model | Agreement F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `99.732 %` | `-0.09 %` |
+| `hand_raising` | `99.716 %` | `-0.11 %` |
+| `person_detection` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.935 %` | `0.01 %` |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Did production benchmark authority exist? | Replay `cycle12-behavior-overlap-20260602T223350Z` completed on the Linux RTX 5090. | Decision evidence is valid. |
+| Did the target wall metric improve? | Step 2 wall `540.399 s → 395.495 s` (`-26.81 %`). | Throughput lever worked. |
+| Did correctness regress? | Tracks unchanged; all model F1 values `>=99.716 %`; rows within `0.02 %`. | Correctness gate passed. |
+| Did RTT/latency regress? | Behavior RTT mean `+36.00 %`, p95 `+75.44 %`; session p95 frame latency `376.240 ms → 772.645 ms`. | RTT/latency gate failed. |
+| Why did this happen? | The implementation starts the current behavior request before finalizing the previously pending behavior request. | Two behavior jobs can briefly contend for Triton/GPU service. |
+| Decision | Mixed result: wall-time gain plus RTT regression. | **NEEDS FURTHER ITERATION; not accepted.** |
+| Next task | Keep useful overlap but avoid two behavior jobs in flight. | Stage Cycle 12.C single-inflight behavior overlap. |
+
+Rollback proof after the wrapper:
+
+```text
+TRITON_ASYNC_DISPATCH_PROFILING=False
+TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=False
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+TRITON_BEHAVIOR_TOP_K_ENABLED=True
+```
+
 ---
 
-*Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*
+*Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

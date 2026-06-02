@@ -805,6 +805,15 @@ dispatcher. The candidate is guarded by
 `tools/prod/prod_run_behavior_overlap_benchmark.sh` before any optimization
 decision is valid.
 
+Cycle 12.B production benchmark
+`cycle12-behavior-overlap-20260602T223350Z` / job
+`46ba8b2a-3c61-4d89-b7b6-63ec72159428` is now recorded as **NEEDS FURTHER
+ITERATION**. It improved Step 2 wall `540.399 s → 395.495 s` (`-26.81 %`) and
+DB FPS `4.439 → 5.195` (`+17.03 %`) with model-agreement F1 `>=99.716 %`, but
+failed the RTT gate because behavior RTT mean regressed `84.865 ms →
+115.420 ms` and p95 regressed `128.056 ms → 224.661 ms`. Next task: Cycle
+12.C single-inflight behavior overlap.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity
