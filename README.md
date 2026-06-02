@@ -75,6 +75,8 @@ context.
 | 31 | [`docs/cycle_9b_topk_anchor_packing_results.md`](docs/cycle_9b_topk_anchor_packing_results.md) | 2026-06-02 | Top-K accepted-with-caveat results (current accepted baseline: job `be4ba9ee`). |
 | 32 | [`docs/cycle_9b_child_critical_path_results.md`](docs/cycle_9b_child_critical_path_results.md) | 2026-06-02 | B.3 Step 1 measurement vs pre-Top-K baseline. |
 | 33 | [`docs/cycle_9b_child_critical_path_remeasure_topk_results.md`](docs/cycle_9b_child_critical_path_remeasure_topk_results.md) | 2026-06-02 | B.3 Step 1 **remeasurement** against the accepted Top-K baseline (most recent — read this for the next-Step-2 lever ranking). |
+| 33a | [`docs/cycle_9b_batch_window_investigation.md`](docs/cycle_9b_batch_window_investigation.md) | 2026-06-02 | B.4 batch-window hypothesis and RSS guardrails before any max-frames benchmark. |
+| 33b | [`docs/cycle_9b_batch_window_results.md`](docs/cycle_9b_batch_window_results.md) | 2026-06-02 | B.4 production result placeholder; fill only after the real benchmark runs. |
 | 34 | [`docs/logical_path_matrix_spec.md`](docs/logical_path_matrix_spec.md) | 2026-06-01 | Cycle 10 LPM formal mathematical spec (C1–C4 constraints, acceptance gates). |
 | 35 | [`docs/cycle_10_investigation.md`](docs/cycle_10_investigation.md) | 2026-06-01 | Cycle 10 LPM investigation. |
 | 36 | [`docs/cycle_10_lpm_phase1_results.md`](docs/cycle_10_lpm_phase1_results.md) | 2026-06-02 | Cycle 10 LPM Phase 1 NOT-ACCEPTED outcome + safety-fix re-run. |

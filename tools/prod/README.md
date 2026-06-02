@@ -164,6 +164,22 @@ cd /home/bamby/grad_project
 bash tools/prod/prod_check_subjective_progress.sh --watch 30
 ```
 
+Cycle 9b B.4 batch-window benchmark helper:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_batch_window_benchmark.sh \
+  --max-frames 4 \
+  --rss-limit-mib 4096 \
+  --tag cycle9b-b4-maxframes4-$(date -u +%Y%m%dT%H%M%SZ) \
+  --timeout 7200
+```
+
+The helper keeps the accepted 320 Top-K behavior route, overrides only
+`TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES`, samples Celery worker RSS, writes
+metrics/model-agreement evidence under `backend/logs/<tag>/`, and restores the
+accepted `max_frames=2` profile at exit.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash

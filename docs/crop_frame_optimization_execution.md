@@ -1074,6 +1074,56 @@ Detailed result doc:
 
 ---
 
+## Cycle 9b B.4 — Larger Batch Window (STAGED)
+
+### Phase 1: Investigation
+
+Cycle 9b exact slice + Top-K is the accepted baseline. It keeps behavior input
+at `320x320`, routes `behavior_all` through
+`behavior_ensemble_gaze_slice_topk`, and runs the offline batch queue with:
+
+```text
+TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2
+TRITON_OFFLINE_BATCH_QUEUE_MAX_CONCURRENCY=2
+```
+
+Detailed investigation:
+[`docs/cycle_9b_batch_window_investigation.md`](cycle_9b_batch_window_investigation.md).
+
+### Phase 2: Hypothesis
+
+Raise `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` from `2` to `4` while keeping
+the accepted 320 Top-K model graph unchanged.
+
+**Named lever:** single-process Python orchestration / batch formation.
+
+The candidate may reduce frame-window overhead and improve true-batch packing
+when crop counts fluctuate across frames. It does not reduce dense output bytes
+or model compute. The expected gain is marginal, so the production benchmark is
+the decision authority.
+
+**Risk:** medium. Earlier large-window crop-frame runs hit severe RSS growth.
+The current Top-K path has no-copy output split, NumPy outputs, job-scoped gRPC,
+and trim amortization, but the B.4 benchmark still must sample worker RSS and
+reject the candidate if peak RSS reaches `4096 MiB`.
+
+**Rollback:** restore `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2` by re-running
+`prod_enable_parallel_flow.sh --profile per-frame-signals`, then restart Triton
+and Celery workers.
+
+**Acceptance gate:** production `combined.mp4` benchmark must complete, Step 2
+frame wall must improve versus `540.399 s`, worker RSS must stay below
+`4096 MiB`, and correctness/model-agreement metrics must stay within the
+accepted 320 Top-K baseline tolerance.
+
+### Phase 3+: Pending
+
+No code or env default is accepted yet. The reproducibility harness will write
+RSS and benchmark metrics to `docs/cycle_9b_batch_window_results.md` after the
+production run.
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
