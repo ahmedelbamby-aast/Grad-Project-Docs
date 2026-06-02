@@ -948,7 +948,7 @@ Detailed result doc:
 
 ---
 
-## Cycle 11.A — Behavior Input Size 320 → 256 (BENCHMARK REQUIRED)
+## Cycle 11.A — Behavior Input Size 320 → 256 (NOT ACCEPTED BY REAL BENCHMARK)
 
 ### Phase 1: Investigation
 
@@ -1005,11 +1005,10 @@ candidate output tensors. The synthetic pre-benchmark parity gate failed:
 Configured gates were class agreement `>= 0.995`, centroid drift `<= 0.5 px`,
 and confidence delta `<= 0.05`.
 
-### Phase 4: Real benchmark requirement
+### Phase 4: Real benchmark result
 
-The parity result is now treated as a warning, not a final decision. Per the
-current rule, no optimization is accepted, skipped, or neglected until a real
-production benchmark tells us what happened and why.
+The parity result was treated as a warning, not a final decision. The real
+production benchmark was then run and showed why the candidate cannot ship yet.
 
 Run:
 
@@ -1021,19 +1020,31 @@ bash tools/prod/prod_run_behavior_input_size_matrix.sh \
   --timeout 7200
 ```
 
-Required evidence after the run:
+Evidence:
 
-- `matrix_runs.tsv`
-- `input_320_metrics.json`
-- `input_256_metrics.json`
-- before/after table copied into
-  [`docs/production_inference_benchmark.md`](production_inference_benchmark.md)
-  and [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md)
+| Item | Value |
+|---|---|
+| Replay key | `cycle11-input256-realbench-20260602T161641Z-input256` |
+| Job ID | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |
+| Metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
+| Metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
+| Matrix TSV | `backend/logs/cycle11-input256-realbench-20260602T161641Z/matrix_runs.tsv` |
+
+| Metric | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
+| Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
+| Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
+| GPU avg util | `9.344 %` | `7.367 %` | `-21.16 %` |
+| Detection rows | `72,762` | `101,213` | `+39.10 %` |
+| BBox rows | `72,762` | `101,213` | `+39.10 %` |
 
 ### Decision
 
-**PENDING REAL BENCHMARK.** Production was rolled back to the accepted Cycle 9b
-B.2.c profile while the matrix tooling was prepared:
+**NOT ACCEPTED.** The benchmark-backed decision is no longer based on the
+synthetic parity probe. The candidate improved speed but regressed persisted
+signal counts substantially and lowered average GPU utilization. Production was
+rolled back to the accepted Cycle 9b B.2.c profile:
 
 ```bash
 TRITON_CROP_BEHAVIOR_INPUT_SIZE=320

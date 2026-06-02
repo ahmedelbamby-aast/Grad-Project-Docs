@@ -1310,16 +1310,16 @@ bash tools/prod/prod_start_celery_workers.sh
 
 ---
 
-## 20. 2026-06-02 Cycle 11.A Benchmark-Required Warning — Behavior Input 320 → 256
+## 20. 2026-06-02 Cycle 11.A Production Benchmark — Behavior Input 320 → 256
 
-**Status:** **UNDECIDED. Full production benchmark required.**
+**Status:** **NOT ACCEPTED. Real production benchmark showed correctness regression.**
 
 Cycle 11.A rebuilt the four behavior engines and matching slice/Top-K adapters
 for `TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`. The synthetic pre-benchmark parity
-probe failed and is recorded as a correctness warning, but it is not the final
-acceptance authority. Per the benchmark-first rule, no solution or optimization
-is accepted, skipped, or neglected until a real production benchmark on
-`combined.mp4` records the throughput and correctness evidence.
+probe failed and was recorded as a correctness warning, not the final decision.
+The real production benchmark on `combined.mp4` was then executed. It improved
+Step 2 wall and RTT, but failed correctness parity by increasing persisted
+behavior/detection rows by about `39 %` and reducing average GPU utilization.
 
 | Item | Value |
 |---|---|
@@ -1328,7 +1328,12 @@ is accepted, skipped, or neglected until a real production benchmark on
 | Candidate capture | `backend/logs/parity_capture_256_20260602T154826.npz` |
 | Parity JSON | `backend/logs/parity_input_size_256_20260602T154842.json` |
 | Runtime guard commit | `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` |
-| Full benchmark | **pending** |
+| Full benchmark | `cycle11-input256-realbench-20260602T161641Z-input256` |
+| Benchmark job | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |
+| Benchmark summary | `backend/logs/bench_summary_20260602T192327.json` |
+| Matrix directory | `backend/logs/cycle11-input256-realbench-20260602T161641Z/` |
+| Candidate metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
+| Candidate metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
 | Matrix runner | `tools/prod/prod_run_behavior_input_size_matrix.sh` |
 | Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` |
 
@@ -1341,8 +1346,7 @@ The candidate did reduce synthetic capture time, but failed correctness gates:
 | `gaze_vertical_model` | `0.9550` | `142.669 px` | fail |
 | `gaze_depth_model` | `1.0000` | `141.526 px` | fail |
 
-Production was restored to the current accepted baseline while benchmark tooling
-was prepared:
+Production was restored to the current accepted baseline after the benchmark:
 
 ```text
 TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
@@ -1355,6 +1359,35 @@ Triton /v2/health/ready = 200
 behavior_ensemble_gaze_slice_topk = READY
 ```
 
+**Before / after metrics versus accepted 320 Top-K baseline:**
+
+| Metric | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` | `cycle11-input256-realbench-20260602T161641Z-input256` |  |
+| Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |  |
+| DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
+| DB-completed elapsed | `1022.952 s` | `942.127 s` | `-7.90 %` |
+| Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
+| Step 2 through pose upload | `767.589 s` | `615.070 s` | `-19.87 %` |
+| Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
+| Behavior RTT p95 | `128.056 ms` | `77.574 ms` | `-39.42 %` |
+| GPU avg util | `9.344 %` | `7.367 %` | `-21.16 %` |
+| GPU peak util | `53.0 %` | `35.0 %` | `-33.96 %` |
+| Peak VRAM | `16055 MiB` | `15295 MiB` | `-4.73 %` |
+| Detection rows | `72,762` | `101,213` | `+39.10 %` |
+| BBox rows | `72,762` | `101,213` | `+39.10 %` |
+| Embedding rows | `72,596` | `101,047` | `+39.19 %` |
+| Student tracks | `53` | `53` | `0` |
+
+**Persisted behavior signal deltas:**
+
+| BBox model | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| `attention_tracking` | `11,781` | `20,558` | `+74.50 %` |
+| `hand_raising` | `8,809` | `15,944` | `+80.99 %` |
+| `person_detection` | `19,162` | `19,162` | `0` |
+| `sitting_standing` | `33,010` | `45,549` | `+37.99 %` |
+
 Reproducible benchmark command:
 
 ```bash
@@ -1365,10 +1398,10 @@ bash tools/prod/prod_run_behavior_input_size_matrix.sh \
   --timeout 7200
 ```
 
-**Decision:** **PENDING BENCHMARK.** Keep the accepted Cycle 9b B.2.c `320x320`
-Top-K profile until the matrix produces real 320-vs-256 evidence. This section
-must be updated with the `matrix_runs.tsv`, `input_320_metrics.json`, and
-`input_256_metrics.json` paths after the production run.
+**Decision:** **NOT ACCEPTED.** The real benchmark confirms the performance
+hypothesis, but the candidate changes the persisted behavior signal distribution
+too much and lowers average GPU utilization. Keep the accepted Cycle 9b B.2.c
+`320x320` Top-K profile.
 
 ---
 

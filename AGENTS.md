@@ -174,8 +174,8 @@ This file defines how agents should execute tests quickly and safely in this rep
   — bounded at `~4 %` Step 2 wall but lowest risk. Per §E.6 both must be
   prod-benchmarked before one ships. No engine, route, or env flag was
   changed by this remeasurement.
-- **2026-06-02 Cycle 11.A behavior input 320→256 BENCHMARK REQUIRED —
-  parity warning only**: production built the 256 behavior engines and matching slice/Top-K
+- **2026-06-02 Cycle 11.A behavior input 320→256 NOT ACCEPTED by real
+  production benchmark**: production built the 256 behavior engines and matching slice/Top-K
   adapters, then captured candidate outputs with
   `tools/prod/prod_behavior_input_size_parity.py`. Evidence:
   baseline capture `backend/logs/parity_capture_320_20260602T123459.npz`,
@@ -184,10 +184,22 @@ This file defines how agents should execute tests quickly and safely in this rep
   The candidate showed lower synthetic capture time but failed synthetic
   correctness gates before the full benchmark (`posture_model` class agreement `0.695`,
   `gaze_vertical_model` `0.955`, and large centroid drift on posture / vertical
-  / depth). This is a warning, not a final decision authority. Per the current
-  operator rule, no solution or optimization is accepted, skipped, or neglected
-  until the real production benchmark records throughput and correctness.
-  Reproducibility tooling is now staged:
+  / depth). This was treated as a warning, not a final decision authority. Per
+  the current operator rule, the real production benchmark was executed before
+  deciding:
+  `cycle11-input256-realbench-20260602T161641Z-input256`, job
+  `822b0da4-fbf2-4186-a5a6-dd066f2eb571`. The benchmark completed
+  `4541/4541` frames and proved the performance hypothesis, but failed
+  correctness and GPU-utilization gates: Step 2 frame wall `540.399 s →
+  391.673 s` (`-27.52 %`), behavior RTT mean `84.865 ms → 51.529 ms`
+  (`-39.28 %`), DB-completed FPS `4.439 → 4.820` (`+8.58 %`), but detection
+  rows `72,762 → 101,213` (`+39.10 %`), bbox rows `72,762 → 101,213`
+  (`+39.10 %`), `attention_tracking` boxes `11,781 → 20,558`
+  (`+74.50 %`), and average GPU utilization `9.344 % → 7.367 %`
+  (`-21.16 %`). Evidence:
+  `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json`
+  and `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md`.
+  Reproducibility tooling:
   `tools/prod/prod_run_behavior_input_size_matrix.sh` runs the 320/256
   production matrix, and `tools/prod/prod_collect_benchmark_metrics.py`
   captures DB correctness, telemetry RTT, GPU CSV, and inference-audit metrics
@@ -199,11 +211,9 @@ This file defines how agents should execute tests quickly and safely in this rep
   `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `LPM_ENABLED=0`, Triton health `200`, and
   all active Top-K models `READY`. Runtime guard commit
   `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` adds explicit Triton model
-  loading for `TRITON_LOAD_MODEL` and parameterized validator checks so future
-  size experiments cannot load stale incompatible ensembles. Cycle 11.A remains
-  **UNDECIDED** until `combined.mp4` benchmark metrics are written to
-  `docs/cycle_11_input_size_results.md` and
-  `docs/production_inference_benchmark.md`.
+  loading for `TRITON_LOAD_MODEL` and parameterized validator checks; follow-up
+  commit `d378cec7` trims the non-320 Top-K Triton load list so future 256
+  matrix runs do not try to load stale 320-only compatibility ensembles.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

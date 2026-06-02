@@ -721,23 +721,30 @@ B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted; standalone
 B.2.a Top-K without exact-slice was not separately benchmarked because the
 accepted baseline has moved to B.2.c.
 
-Cycle 11.A behavior input `320 → 256` is **BENCHMARK REQUIRED / UNDECIDED**.
-Production built the 256 behavior engines plus matching slice/Top-K adapters
-and captured candidate outputs. The synthetic pre-benchmark parity probe failed
-and is recorded as a correctness warning, but no solution or optimization is
-accepted, skipped, or neglected until the real production benchmark records the
-throughput and correctness evidence. Evidence:
+Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
+benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
+adapters and captured candidate outputs. The synthetic pre-benchmark parity
+probe failed and was recorded as a correctness warning, not the final decision.
+The real `combined.mp4` benchmark was then run. Synthetic parity evidence:
 `backend/logs/parity_capture_320_20260602T123459.npz`,
 `backend/logs/parity_capture_256_20260602T154826.npz`, and
 `backend/logs/parity_input_size_256_20260602T154842.json`. Failures included
 `posture_model` class agreement `0.695`, `gaze_vertical_model` agreement
 `0.955`, and large centroid drift on posture / vertical / depth. Runtime guard
 commit `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` keeps the useful validator
-and explicit model-loading fixes. Additional benchmark tooling now exists:
-`tools/prod/prod_run_behavior_input_size_matrix.sh` and
-`tools/prod/prod_collect_benchmark_metrics.py`. Production was rolled back to
-the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` exact-slice + Top-K profile
-while the real `combined.mp4` matrix remains pending.
+and explicit model-loading fixes; follow-up commit `d378cec7` trims non-320
+Top-K Triton load lists so stale 320-only compatibility ensembles are not
+loaded during future 256 runs. Real benchmark
+`cycle11-input256-realbench-20260602T161641Z-input256` / job
+`822b0da4-fbf2-4186-a5a6-dd066f2eb571` improved Step 2 frame wall
+`540.399 s → 391.673 s` (`-27.52 %`) and behavior RTT mean
+`84.865 ms → 51.529 ms` (`-39.28 %`), but regressed persisted signals:
+detection rows `72,762 → 101,213` (`+39.10 %`) and `attention_tracking`
+boxes `11,781 → 20,558` (`+74.50 %`). Average GPU utilization also fell
+`9.344 % → 7.367 %`. Evidence is in
+`backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json`.
+Production was rolled back to the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`
+exact-slice + Top-K profile.
 
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to

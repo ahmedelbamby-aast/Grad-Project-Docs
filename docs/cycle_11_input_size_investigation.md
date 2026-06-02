@@ -2,10 +2,12 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **PHASE 3 COMPLETE — 11.A BENCHMARK REQUIRED / UNDECIDED.** The
-256 candidate was built on production, produced a synthetic pre-benchmark
-parity warning, and was rolled back to the accepted 320 Top-K baseline while
-the real benchmark matrix remains pending. See
+**Status:** **11.A NOT ACCEPTED BY REAL PRODUCTION BENCHMARK.** The 256
+candidate was built on production, produced a synthetic pre-benchmark parity
+warning, then ran a full `combined.mp4` production benchmark. The real benchmark
+confirmed the speed hypothesis but failed DB/signal correctness and
+GPU-utilization gates, so production remains on the accepted 320 Top-K baseline.
+See
 [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
 
 This document is the Cycle 11 Phase 1 design + risk analysis required before
@@ -145,6 +147,9 @@ warning does not accept, reject, skip, or neglect the candidate by itself; the
 real `combined.mp4` production benchmark is still required for the final
 decision.
 
+**2026-06-02 result:** this exact rule was followed. The parity warning was
+recorded, then the real production benchmark was run before the decision.
+
 ### Phase 4 — production benchmark gates
 
 | Gate | Threshold | Source |
@@ -211,6 +216,14 @@ Selection rule:
 - Document both runs in `docs/cycle_11_input_size_results.md` regardless
   of which ships.
 
+**2026-06-02 selection outcome:** 11.A has now been benchmarked and is **NOT
+ACCEPTED**. It improved Step 2 frame wall `540.399 s → 391.673 s` and behavior
+RTT mean `84.865 ms → 51.529 ms`, but detection/bbox rows regressed
+`72,762 → 101,213`, `attention_tracking` boxes regressed `11,781 → 20,558`,
+and average GPU utilization fell `9.344 % → 7.367 %`. The matrix therefore
+points to 11.B/B.3 Step 2 as the next lower-risk production candidate at the
+accepted 320 input size.
+
 Env-flag selection (rollback is a single env flip in either direction):
 
 ```env
@@ -247,18 +260,38 @@ It is the Phase 1 design that gates the next commits.
 5. Update `docs/cycle_9_and_10_improvements_todo.md` § Z with the Phase 2
    staging state.
 
-Outcome update: Phase 3 later built the 256 engines on production, failed the
-parity gate, and rolled back to 320. See
-[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). No
-Phase 4 full benchmark was run. A reproducible real-benchmark matrix is now
-required before a final decision:
+Outcome update: Phase 3 later built the 256 engines on production and failed
+the parity warning gate. Per the benchmark-first rule, the team still ran the
+Phase 4 full-video benchmark instead of deciding from parity alone. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
+
+The benchmark command used this reproducible matrix path:
 
 ```bash
 bash tools/prod/prod_run_behavior_input_size_matrix.sh \
-  --sizes "320 256" \
-  --tag cycle11-input-size-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
+  --sizes "256" \
+  --baseline-metrics backend/logs/cycle9b_topk_320_baseline_metrics.json \
+  --tag cycle11-input256-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
   --timeout 7200
 ```
+
+Final production benchmark:
+
+| Metric | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` | `cycle11-input256-realbench-20260602T161641Z-input256` |  |
+| Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |  |
+| Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
+| Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
+| DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
+| Detection rows | `72,762` | `101,213` | `+39.10 %` |
+| `attention_tracking` boxes | `11,781` | `20,558` | `+74.50 %` |
+| GPU avg util | `9.344 %` | `7.367 %` | `-21.16 %` |
+
+Decision: **11.A is NOT ACCEPTED by real production benchmark**. Production was
+restored to `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,
+`MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`, and
+`TRITON_BEHAVIOR_TOP_K_ENABLED=1`.
 
 ## References
 

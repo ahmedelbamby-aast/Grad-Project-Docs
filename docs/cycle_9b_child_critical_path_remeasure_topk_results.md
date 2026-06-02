@@ -6,10 +6,11 @@
 
 **Outcome update:** the highest-ceiling follow-up from this document, Cycle
 11.A (`TRITON_CROP_BEHAVIOR_INPUT_SIZE=256`), was implemented on production and
-produced a synthetic parity warning. Per the benchmark-first rule, it remains
-undecided until a real `combined.mp4` production benchmark is recorded. See
+then rejected by a real `combined.mp4` production benchmark. It improved Step 2
+frame wall and behavior RTT, but failed DB/signal correctness and lowered
+average GPU utilization. See
 [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md). The
-accepted baseline remains `320` exact slice + Top-K until that evidence lands.
+accepted baseline remains `320` exact slice + Top-K.
 
 This document records the required Cycle 9b B.3 Step 1 **remeasurement**
 against the new accepted baseline: Cycle 9b B.2.c exact slice + Top-K
@@ -247,8 +248,9 @@ tuning, no precision change). Low risk but bounded leverage.
   `docs/cycles_9_to_12_implementation_playbook.md` §4 projection).
 - Hits every child, not just the dominant one.
 
-This is the **Cycle 11** PLANNED entry in §Z.3 of the TODO file. Same
-lever (GPU child compute) as B.3.b but multi-child leverage.
+This became the **Cycle 11.A** production candidate in §Z of the TODO file.
+It has since been benchmarked and rejected for correctness regression, while
+the lever analysis remains useful evidence for future smaller-input work.
 
 ### Lever 3 — Orchestration overhead (ensemble scheduling layer)
 
@@ -271,16 +273,16 @@ phase MUST benchmark multiple approaches on prod before one is selected.**
 
 The remeasurement evidence above produces this ranked candidate list:
 
-| Rank | Candidate | Lever | Projected Step 2 wall Δ | Engineering effort | Risk |
-|---|---|---|---|---|---|
-| 1 | **Cycle 11 — input 320 → 256** | GPU child compute (all 4) | −10 % to −13 % | ~2 person-days (engine rebuild + accuracy parity) | medium (accuracy parity gate required) |
-| 2 | **B.3.b / B.3.d on `gaze_horizontal_model`** | GPU child compute (dominant only) | at most −4 % | ~1.5 person-days (TRT builder tactic tuning) | low (no precision change) |
-| 3 | **B.1 BLS Python compact postprocessing** | orchestration + dense bytes | uncertain, projected larger but coupled with C.2.4 LPM Phase 2 | ~5 person-days | medium-high (first BLS deployment) |
+| Rank | Candidate | Lever | Projected Step 2 wall Δ | Engineering effort | Risk | 2026-06-02 status |
+|---|---|---|---|---|---|---|
+| 1 | **Cycle 11.A — input 320 → 256** | GPU child compute (all 4) | −10 % to −13 % | ~2 person-days (engine rebuild + accuracy parity) | medium | **NOT ACCEPTED**: real benchmark improved Step 2 but regressed persisted behavior signals |
+| 2 | **Cycle 11.B / B.3.b / B.3.d on `gaze_horizontal_model`** | GPU child compute (dominant only) | at most −4 % | ~1.5 person-days (TRT builder tactic tuning) | low (no precision change) | next lower-risk candidate |
+| 3 | **B.1 BLS Python compact postprocessing** | orchestration + dense bytes | uncertain, projected larger but coupled with C.2.4 LPM Phase 2 | ~5 person-days | medium-high (first BLS deployment) | planned architecture candidate |
 
-If only one Step 2 candidate is run, it should be **Cycle 11** — it has
-the highest leverage per person-day and attacks the same lever as B.3 but
-across all 4 children. B.3.b/d is a lower-risk fallback if Cycle 11's
-accuracy parity gate fails.
+Cycle 11.A has now been run, so the benchmark-backed next lower-risk Step 2
+candidate is **Cycle 11.B / B.3.b/d** at the accepted 320 input size. Its
+ceiling remains small, so it must still go through the same production
+before/after gate.
 
 **This recommendation is NOT a commit.** It is the §B.5 lever-naming
 output. The next agent picks one or both and runs the §E.5 prod-benchmark

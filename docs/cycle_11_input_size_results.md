@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **11.A BENCHMARK REQUIRED — PARITY WARNING ONLY.**
+**Status:** **11.A NOT ACCEPTED — REAL PRODUCTION BENCHMARK CORRECTNESS REGRESSION.**
 
 Cycle 11.A attempted to reduce behavior/gaze crop input size from `320x320` to
 `256x256` for the four base behavior children:
@@ -14,11 +14,11 @@ Cycle 11.A attempted to reduce behavior/gaze crop input size from `320x320` to
 
 The named lever was **GPU child compute across all four behavior children**.
 The synthetic pre-benchmark parity probe produced a serious correctness warning,
-but it is not the final decision authority. Per the current benchmark-first
-rule, 11.A remains undecided until a real `combined.mp4` production benchmark
-captures throughput, GPU, RTT, DB parity, and signal correctness. Production was
-rolled back to the accepted Cycle 9b B.2.c baseline (`320`, exact slice + Top-K)
-while the reproducible benchmark matrix was prepared.
+but it was not treated as the final decision authority. The real `combined.mp4`
+production benchmark was then executed. It confirmed a strong throughput win,
+but it also showed a large DB/signal correctness regression and lower average
+GPU utilization. Production was rolled back to the accepted Cycle 9b B.2.c
+baseline (`320`, exact slice + Top-K).
 
 ## Evidence
 
@@ -32,7 +32,12 @@ while the reproducible benchmark matrix was prepared.
 | Candidate output shapes | `[200,14,1344]`, `[200,84,1344]`, `[200,14,1344]`, `[200,14,1344]` |
 | Rollback proof | production env restored to `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`; active Top-K models READY |
 | Runtime guard commit | `4bcc79a5a4ea7c4d452b6fcd3ae3a6ff064a3bb5` |
-| Full-video benchmark | **pending** — must be run before accept/reject/skip |
+| Full-video benchmark | `cycle11-input256-realbench-20260602T161641Z-input256` |
+| Benchmark job | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |
+| Benchmark summary | `backend/logs/bench_summary_20260602T192327.json` |
+| Matrix directory | `backend/logs/cycle11-input256-realbench-20260602T161641Z/` |
+| Candidate metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
+| Candidate metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
 | Reproducible matrix runner | `tools/prod/prod_run_behavior_input_size_matrix.sh` |
 | Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` |
 
@@ -46,9 +51,8 @@ the performance hypothesis directionally:
 | `gaze_vertical_model` | `586.83` | `271.43` | `-53.7 %` |
 | `gaze_depth_model` | `593.77` | `307.81` | `-48.2 %` |
 
-That speed is not sufficient evidence by itself. The real benchmark must decide
-whether the faster engine path preserves the required per-frame signals and
-improves the target production metrics.
+That speed was not sufficient evidence by itself. The real benchmark below
+shows why the candidate does not ship.
 
 ## Parity Gate Result
 
@@ -105,7 +109,41 @@ Triton /v2/health/ready = 200
 behavior_ensemble_gaze_slice_topk = READY
 ```
 
-## Production Benchmark Matrix
+## Production Benchmark Matrix Result
+
+| Metric | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` | `cycle11-input256-realbench-20260602T161641Z-input256` |  |
+| Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |  |
+| Status | `completed` | `completed` |  |
+| DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
+| DB-completed elapsed | `1022.952 s` | `942.127 s` | `-7.90 %` |
+| Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
+| Step 2 through pose upload | `767.589 s` | `615.070 s` | `-19.87 %` |
+| Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
+| Behavior RTT p95 | `128.056 ms` | `77.574 ms` | `-39.42 %` |
+| GPU avg util | `9.344 %` | `7.367 %` | `-21.16 %` |
+| GPU peak util | `53.0 %` | `35.0 %` | `-33.96 %` |
+| Peak VRAM | `16055 MiB` | `15295 MiB` | `-4.73 %` |
+| Detection rows | `72,762` | `101,213` | `+39.10 %` |
+| BBox rows | `72,762` | `101,213` | `+39.10 %` |
+| Embedding rows | `72,596` | `101,047` | `+39.19 %` |
+| Student tracks | `53` | `53` | `0` |
+
+Per-class persisted signal changes:
+
+| BBox model | 320 Top-K baseline | 256 candidate | Delta |
+|---|---:|---:|---:|
+| `attention_tracking` | `11,781` | `20,558` | `+74.50 %` |
+| `hand_raising` | `8,809` | `15,944` | `+80.99 %` |
+| `person_detection` | `19,162` | `19,162` | `0` |
+| `sitting_standing` | `33,010` | `45,549` | `+37.99 %` |
+
+The candidate improved speed by shrinking behavior input compute, but it changed
+the persisted behavior signal distribution substantially. This violates the
+correctness/parity requirement for per-frame signals.
+
+## Reproduction Commands
 
 Use the matrix runner to produce comparable, reproducible evidence:
 
@@ -146,21 +184,17 @@ The matrix produces:
 
 ## Decision
 
-**11.A is not decided.**
+**11.A is NOT ACCEPTED by real production benchmark.**
 
-No accept/reject/skip status is allowed until the full-video production
-benchmark evidence is recorded. The current parity result is a warning that must
-be weighed against real benchmark throughput and DB correctness counters, not a
-final decision by itself. The accepted production runtime remains Cycle 9b B.2.c
-exact slice + Top-K at `320x320` until the benchmark matrix proves otherwise.
+The candidate is not skipped or neglected; it was benchmarked on production and
+the benchmark explains the decision. It meets the Step 2 speed target, but fails
+DB/signal correctness and reduces average GPU utilization. The accepted
+production runtime remains Cycle 9b B.2.c exact slice + Top-K at `320x320`.
 
 ## Next Recommendation
 
-Do not neglect `256x256`, but do not accept it either. Run the benchmark matrix
-and use the resulting metrics to decide. If the real run shows correctness
-regression, document the benchmark-backed rejection. If it improves throughput
-and preserves DB/signal parity, continue with the candidate and record the
-accepted baseline. Follow-up work remains:
+The next smaller-input attempt must explain and fix the behavior over-detection
+before rerunning 256. Follow-up work remains:
 
 - implement the lower-risk B.3.b/B.3.d kernel-tactic tuning on the dominant
   child at `320x320`;

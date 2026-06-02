@@ -80,7 +80,7 @@ context.
 | 36 | [`docs/cycle_10_lpm_phase1_results.md`](docs/cycle_10_lpm_phase1_results.md) | 2026-06-02 | Cycle 10 LPM Phase 1 NOT-ACCEPTED outcome + safety-fix re-run. |
 | 37 | [`docs/new_models_yoloe_depth_anything_v2_timing_decision.md`](docs/new_models_yoloe_depth_anything_v2_timing_decision.md) | 2026-06-01 | YOLOE / Depth Anything v2 timing-of-integration decision (DEFERRED until SLA reached). |
 | 37b | [`docs/cycle_11_input_size_investigation.md`](docs/cycle_11_input_size_investigation.md) | 2026-06-02 | Cycle 11 investigation (320 → 256 input). The Step 2 lever-attack design. |
-| 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A benchmark-required status: 256 input has a parity warning, benchmark matrix tooling, and no final decision until real prod evidence lands. |
+| 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A real benchmark result: 256 input improved Step 2/RTT but was not accepted because persisted behavior signals regressed. |
 
 ### Phase 4 — Triton-specific deep dives
 

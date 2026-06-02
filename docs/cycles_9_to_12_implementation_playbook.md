@@ -262,18 +262,21 @@ Set `POSE_PARALLEL_FRAMES=1` to restore serial behavior. The new code path falls
 
 ## 4. Cycle 11 — Smaller behavior input (320 × 320 → 256 × 256)
 
-**2026-06-02 outcome update:** Cycle 11.A was implemented and built on
-production, but it is **BENCHMARK REQUIRED / UNDECIDED**. The synthetic
+**2026-06-02 outcome update:** Cycle 11.A was implemented, built on
+production, and **NOT ACCEPTED by real production benchmark**. The synthetic
 pre-benchmark parity gate failed (`posture_model` class agreement `0.695`,
 `gaze_vertical_model` `0.955`, large centroid drift on posture / vertical /
-depth), so it is recorded as a correctness warning. Per the benchmark-first
-operator rule, the candidate is not accepted, rejected, skipped, or neglected
-until a real `combined.mp4` production benchmark records throughput and
-correctness evidence. Tooling now exists:
+depth), but that was recorded only as a warning. The full `combined.mp4`
+benchmark then ran and proved the speed hypothesis while failing correctness:
+Step 2 frame wall improved `540.399 s → 391.673 s`, behavior RTT mean improved
+`84.865 ms → 51.529 ms`, but detection/bbox rows regressed
+`72,762 → 101,213`, `attention_tracking` boxes regressed
+`11,781 → 20,558`, and average GPU utilization fell `9.344 % → 7.367 %`.
+Tooling now exists to reproduce the matrix:
 `tools/prod/prod_run_behavior_input_size_matrix.sh` and
 `tools/prod/prod_collect_benchmark_metrics.py`. Production was rolled back to
-the accepted 320 exact-slice + Top-K profile while the benchmark matrix remains
-pending. See [`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
+the accepted 320 exact-slice + Top-K profile. See
+[`docs/cycle_11_input_size_results.md`](cycle_11_input_size_results.md).
 
 ### Goal
 Reduce the per-crop GPU compute by re-exporting the 4 behavior TensorRT engines at a smaller input resolution. The model topology is unchanged — only `imgsz` shrinks.
@@ -305,7 +308,8 @@ At 256×256 the per-batch server compute should drop from ~14 ms to ~9 ms. Combi
    - Top-1 class agreement (must be ≥ 99.5 %).
    - Bounding-box centroid drift in normalized coords (must be ≤ 0.5 px @ 256 scale).
    - Per-class confidence delta (must be ≤ 5 % absolute).
-4. **Only if all three gates pass**, run the full `combined.mp4` benchmark with the flag flipped.
+4. Record parity as a warning signal, then run the full `combined.mp4`
+   benchmark before accepting, rejecting, skipping, or neglecting the candidate.
 
 ### Expected gains
 
@@ -325,10 +329,14 @@ real production benchmark and DB/signal parity comparison.
 Flip `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` and re-deploy the existing 320 engines (we never delete them). One env change + Triton restart.
 
 ### Acceptance criteria
-1. Accuracy parity probe passes all three gates.
+1. Accuracy parity probe is recorded as warning evidence.
 2. Prod benchmark Step 2 wall reduces ≥ 10 %.
-3. Per-class bbox counts within 1 % of Cycle 8 (looser bound here because the engines actually differ).
+3. Per-class bbox counts stay within the documented correctness gate.
 4. Overall FPS improves.
+
+**Actual 2026-06-02 decision:** criteria 2 and 4 passed, but criterion 3 failed
+badly. Cycle 11.A is not accepted and should not be retried until the
+over-detection cause is explained by a real-crop parity harness.
 
 ---
 
@@ -363,7 +371,7 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | 1–5 + 6 + 7 + 8 (accepted) | bundle + pose chunk + redis + embed | **1 312 s** | **3.46** | +14.4 min |
 | **+ Cycle 9** | Triton ensemble for 4 behavior models | ~1 180 s | ~3.85 | +12.1 min |
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
-| **+ Cycle 11** | Behavior input 320 → 256 | ~930 s | ~4.88 | +8.0 min |
+| **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
 | **+ Cycle 12** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
 
 **After Cycle 12 we are at ≈ 5 FPS (≈ 15.2 min total).** That is **still ~7.6 min over the 7.5-min SLA target**. The remaining gap is fundamental: Step 2 still dispatches 4 541 frames worth of GPU work *serially after decode*. To go further we need either:
