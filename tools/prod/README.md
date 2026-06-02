@@ -185,6 +185,27 @@ Production result `cycle9b-b4-maxframes4-20260602T175820Z` rejected
 tracking/model-agreement gates regressed. Keep the production default at
 `max_frames=2` unless a new cycle first addresses that instability.
 
+Cycle 9b B.1 decode-cost probe:
+
+```bash
+cd /home/bamby/grad_project
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
+PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings APP_ENV=prod \
+  backend/.venv/bin/python tools/prod/prod_probe_behavior_decode_cost.py \
+    --mode real \
+    --replay-key cycle9b-topk-crop-frame-20260602T041900 \
+    --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+    --batches 20 \
+    --batch-size 17 \
+    --output "backend/logs/cycle9b_b1_decode_cost_topk_${TS}.json" \
+    --markdown-output "backend/logs/cycle9b_b1_decode_cost_topk_${TS}.md"
+```
+
+This probe does not modify production state. It measures the accepted Top-K
+route's gRPC response parsing and Python `_decode_yolo_output0`/NMS cost so
+B.1 compact postprocessing is selected from evidence, not from the old
+pre-Top-K byte estimate.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash

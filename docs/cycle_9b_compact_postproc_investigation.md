@@ -106,6 +106,7 @@ instrumenting the decode/NMS sub-stage before implementing a backend.
 | Current accepted model route | `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk` in production `.env` |
 | Top-K flags | `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `TRITON_BEHAVIOR_TOP_K_VALUE=100` |
 | Compact parser gap | No `BEHAVIOR_COMPACT_BACKEND` setting or compact `[num_dets, 6]` parser exists yet |
+| Decode-cost probe | `tools/prod/prod_probe_behavior_decode_cost.py` |
 
 ### Triton Backend Capability Evidence
 
@@ -152,6 +153,31 @@ Minimum proof needed before selecting an implementation:
 4. If B.1.c is attempted, run exact decoded parity on the same crop batches
    before full production benchmark.
 
+### Measurement Harness
+
+The first B.1 code artifact is a probe only:
+
+```bash
+cd /home/bamby/grad_project
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
+PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings APP_ENV=prod \
+  backend/.venv/bin/python tools/prod/prod_probe_behavior_decode_cost.py \
+    --mode real \
+    --replay-key cycle9b-topk-crop-frame-20260602T041900 \
+    --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+    --batches 20 \
+    --batch-size 17 \
+    --output "backend/logs/cycle9b_b1_decode_cost_topk_${TS}.json" \
+    --markdown-output "backend/logs/cycle9b_b1_decode_cost_topk_${TS}.md"
+```
+
+It samples real `person_detection` boxes from the accepted Top-K baseline job,
+recreates 320x320 crop tensors, calls `behavior_ensemble_gaze_slice_topk`,
+times gRPC serialization/wait/`as_numpy`, then times the existing
+`_decode_yolo_output0` path per behavior model. The probe estimates compact
+bytes as `decoded_boxes * 6 floats * 4 bytes`. It does not change production
+env, model routing, Triton configs, or database rows.
+
 ## Risk Assessment
 
 | Risk | Level | Mitigation |
@@ -186,7 +212,8 @@ LPM_ENABLED=0
 
 B.1 is not accepted until all of the following are true:
 
-1. Investigation and decode/NMS micro-benchmark evidence are recorded.
+1. Investigation and decode/NMS micro-benchmark evidence are recorded with
+   `tools/prod/prod_probe_behavior_decode_cost.py`.
 2. Implementation is flag-gated by `BEHAVIOR_COMPACT_BACKEND`.
 3. The compact-output parser preserves per-model boxes versus the accepted
    Top-K baseline.

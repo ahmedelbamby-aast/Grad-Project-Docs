@@ -253,8 +253,11 @@ This file defines how agents should execute tests quickly and safely in this rep
   `distributed_addsub`, `dyna_sequence`, `implicit_state`, `iterative_sequence`,
   `query`, `sequence`, and `tensorrt`; there is no `python` backend in the
   pinned runtime, so B.1.a Python BLS is blocked until a controlled Triton
-  rebuild/switch is benchmarked. No B.1 code is implemented and no compact
-  backend is accepted.
+  rebuild/switch is benchmarked. The first B.1 artifact is measurement-only:
+  `tools/prod/prod_probe_behavior_decode_cost.py` samples accepted Top-K
+  `person_detection` crops, calls `behavior_ensemble_gaze_slice_topk`, and
+  records gRPC parse plus Python `_decode_yolo_output0`/NMS cost. No compact
+  backend is implemented or accepted.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

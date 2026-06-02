@@ -38,6 +38,25 @@ run on the Linux RTX 5090 server.
 | Student tracks | `53` | pending | pending | pending |
 | Model agreement F1@IoU0.5 | `100.000 %` reference | pending | pending | pending |
 
+## Decode-Cost Probe
+
+The first B.1 measurement artifact is
+`tools/prod/prod_probe_behavior_decode_cost.py`. It must be run on production
+before any compact backend implementation is selected.
+
+| Metric | Accepted Top-K probe |
+|---|---:|
+| Probe JSON | pending |
+| Probe Markdown | pending |
+| Total sampled crops | pending |
+| Mean behavior RTT with parse | pending |
+| Mean `as_numpy` time | pending |
+| Mean Python decode/NMS time | pending |
+| Decode ms per crop | pending |
+| Behavior output bytes per crop | pending |
+| Estimated compact bytes per crop | pending |
+| Estimated output reduction | pending |
+
 ## Decision
 
 Pending. B.1 remains unimplemented and unaccepted.
