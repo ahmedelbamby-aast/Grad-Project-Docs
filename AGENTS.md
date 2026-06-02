@@ -406,6 +406,19 @@ the next case.
   while avoiding two behavior jobs in flight. No decision exists until a real
   production `combined.mp4` benchmark records FPS, Step 2 wall, RTT, GPU,
   memory, DB parity, model agreement, and rollback proof.
+- **2026-06-03 Cycle 12.C single-inflight behavior overlap ACCEPTED**:
+  production benchmark `cycle12-single-inflight-overlap-20260602T225821Z`, job
+  `069a217f-fa43-48cc-bf18-c946d53bb3ee`, deployed SHA `f31ff39b`, completed
+  `4541/4541` frames. It improved Step 2 wall `540.399 s → 459.461 s`
+  (`-14.98 %`), DB FPS `4.439 → 4.854` (`+9.35 %`), DB elapsed
+  `1022.952 s → 935.516 s` (`-8.55 %`), and GPU avg `9.344 % → 10.332 %`.
+  Behavior RTT gate passed: mean `84.865 ms → 83.936 ms` (`-1.09 %`), p95
+  `128.056 ms → 130.200 ms` (`+1.67 %`). Correctness passed: tracks
+  `53 → 53`, rows within `0.02 %`, model-agreement F1 `>=99.716 %`.
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` is now part of the accepted optimized
+  production profile; rollback is setting it to `0` and restarting Celery
+  workers. Evidence: `docs/production_inference_benchmark.md` §26 and
+  `docs/cycle_12_single_inflight_overlap_results.md`.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

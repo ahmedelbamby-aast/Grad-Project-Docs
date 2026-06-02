@@ -233,12 +233,11 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 
 | Order | Task | Where the spec lives |
 |---|---|---|
-| 1 | **Cycle 12.B bounded behavior-wait overlap** — start from `docs/cycle_12_overlap_dispatcher_investigation.md`; run the guarded `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` candidate through the production benchmark before any decision | TODO § Z.2 |
-| 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Top-K baseline | TODO § B.3 |
+| 1 | **Cycle 13 persistence/render optimization** — total-wall cleanup now that Cycle 12.C is accepted; create the required investigation doc before code | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Cycle 12.C baseline | TODO § B.3 |
 | 3 | **B.1 compact postprocessing** — only if the candidate reduces wait/server execution; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
 | 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
 | 5 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
-| 6 | **Cycle 13 persistence/render optimization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
 B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
 accepted; Top-K is now the production baseline. Do not repeat the rejected
@@ -256,15 +255,18 @@ Cycle 12 Phase A is complete. Clean production replay
 `cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
 `dfa1f138-7086-418a-ba17-9999cd12b9ac` measured `349.643 s` async-dispatch
 blocking wall; `behavior_all` owned `338.779 s`. No persistent dispatcher
-candidate was deployed, so no decision exists. The next candidate must overlap
-behavior wait/server execution while preserving ordered frame commits. A change
-that only replaces `async_runner.run(...)` with another synchronous bridge is
-probably below the `>=10 %` Step 2 gate. The 2026-06-03 metric decision selects
-Cycle 12.B bounded behavior-wait overlap and rejects bridge-only work as the
-next implementation target. Use
-`tools/prod/prod_run_behavior_overlap_benchmark.sh` on `combined.mp4`; do not
-record an optimization decision until the production metrics, DB parity,
-model-agreement, RTT/GPU/memory, and rollback proof are documented.
+candidate was deployed in Phase A, so Phase A itself had no optimization
+decision. The metric decision selected bounded behavior-wait overlap and
+rejected bridge-only work as the next target because a change that only replaces
+`async_runner.run(...)` with another synchronous bridge was below the `>=10 %`
+Step 2 gate.
+
+Cycle 12.B was benchmarked and held back because RTT regressed. Cycle 12.C
+single-inflight overlap is now **ACCEPTED**: replay
+`cycle12-single-inflight-overlap-20260602T225821Z`, job
+`069a217f-fa43-48cc-bf18-c946d53bb3ee`, Step 2 wall `-14.98 %`, DB FPS
+`+9.35 %`, behavior RTT mean `-1.09 %`, model-agreement F1 `>=99.716 %`.
+Production optimized profile uses `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`.
 
 B.1 has an open investigation now. The key update is that the accepted Top-K
 baseline already reduced behavior outputs from the old `~17.1 MB/frame` dense

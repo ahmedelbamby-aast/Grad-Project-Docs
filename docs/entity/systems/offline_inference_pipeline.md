@@ -198,7 +198,7 @@ flowchart LR
 | `TRITON_BEHAVIOR_TOP_K_VALUE` | `100` | no | top-K anchor count for the Cycle 9b B.2.c adapters |
 | `GAZE_HORIZONTAL_HEAD_VARIANT` | `coco80` (default), `slice` (accepted prod) | no | selects horizontal-gaze output contract |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `320` (default + current accepted), `256` (Cycle 11.A — NOT ACCEPTED) | no | square input dim for behavior children |
-| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `0` | no | gates Cycle 12.B behavior-wait overlap candidate; requires production benchmark before acceptance |
+| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `1` (accepted prod) | no | Cycle 12.C single-in-flight behavior overlap |
 | `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME` | `behavior_ensemble` (default), `behavior_ensemble_gaze_slice_topk` (accepted prod) | no | route-level override for the `behavior_all` logical name |
 | `LPM_ENABLED` | `0` | no | gates Cycle 10 LPM constraint solver; currently `0` because Phase 1 was NOT ACCEPTED |
 | `TRITON_OFFLINE_BATCH_QUEUE_*` | per `base.py:594-604` | no | Cycle 1-5 batch queue tuning (max_frames=2, max_concurrency=2, max_wait_ms=40 in prod) |

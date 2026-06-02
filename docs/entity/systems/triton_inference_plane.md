@@ -238,7 +238,7 @@ flowchart LR
 | `TRITON_BEHAVIOR_TOP_K_VALUE` | `100` | no | Top-K anchor count |
 | `GAZE_HORIZONTAL_HEAD_VARIANT` | `coco80` (base), `slice` (prod) | no | selects gaze_horizontal output contract |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `320` (current accepted) | no | square input dim for behavior children |
-| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `0` | no | app-side Cycle 12.B overlap flag; no Triton model/config change |
+| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `1` (accepted prod) | no | app-side Cycle 12.C overlap flag; no Triton model/config change |
 | `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME` | `behavior_ensemble` (base), `behavior_ensemble_gaze_slice_topk` (prod) | no | logical-name route override |
 | `MODEL_ROUTE_GAZE_HORIZONTAL_MODEL_NAME` | `gaze_horizontal_model` (base), `gaze_horizontal_slice_adapter` (slice route) | no | route override for the standalone gaze_h fallback |
 

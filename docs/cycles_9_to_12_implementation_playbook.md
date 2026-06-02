@@ -385,6 +385,11 @@ therefore the Python orchestration boundary inside the accepted 320 Top-K route.
 - Cycle 12.B candidate: `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`, benchmarked by
   `tools/prod/prod_run_behavior_overlap_benchmark.sh`. No decision exists until
   the full production benchmark and correctness gates complete.
+- Cycle 12.C accepted: single-inflight ordering keeps
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` but prevents two behavior jobs from
+  being in flight. Replay `cycle12-single-inflight-overlap-20260602T225821Z`
+  improved Step 2 wall by `-14.98 %` and DB FPS by `+9.35 %` without material
+  RTT regression.
 
 ### Risk
 Medium. A persistent dispatcher can change task scheduling and result-order
@@ -427,7 +432,8 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
 | **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
 | **+ Cycle 12.A** | Persistent async dispatcher measurement | Phase A measured | no decision | complete |
-| **+ Cycle 12.B** | Bounded behavior-wait overlap dispatcher | staged behind env flag | no decision | candidate benchmark required |
+| **+ Cycle 12.B** | Bounded behavior-wait overlap dispatcher | NOT ACCEPTED | RTT regressed | replaced by Cycle 12.C |
+| **+ Cycle 12.C** | Single-inflight behavior overlap | **935.5 s measured** | **4.854** | +4.85 min |
 | **+ Cycle 13** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
 
 **After Cycle 13 we are projected at ≈ 5 FPS (≈ 15.2 min total)** only if the

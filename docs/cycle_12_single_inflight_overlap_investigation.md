@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** STAGED - production benchmark required before any decision.
+**Status:** ACCEPTED - see `docs/cycle_12_single_inflight_overlap_results.md`.
 
 Cycle 12.B proved that overlapping crop-frame behavior wait with later batch
 work can materially reduce Step 2 wall time, but it also proved that allowing

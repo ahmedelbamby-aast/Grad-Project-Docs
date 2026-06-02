@@ -48,6 +48,7 @@
 - [Cycle 12.B Behavior-Wait Overlap Dispatcher Investigation](cycle_12_overlap_dispatcher_investigation.md)
 - [Cycle 12.B Behavior-Wait Overlap Dispatcher Results](cycle_12_overlap_dispatcher_results.md)
 - [Cycle 12.C Single-In-Flight Behavior Overlap Investigation](cycle_12_single_inflight_overlap_investigation.md)
+- [Cycle 12.C Single-In-Flight Behavior Overlap Results](cycle_12_single_inflight_overlap_results.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)

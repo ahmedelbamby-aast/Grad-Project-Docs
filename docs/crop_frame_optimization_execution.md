@@ -1274,11 +1274,17 @@ behavior RTT mean regressed `+36.00 %` and p95 regressed `+75.44 %`. The next
 cycle is Cycle 12.C: keep the overlap but prevent two behavior jobs from being
 in flight at once.
 
+Cycle 12.C production benchmark
+`cycle12-single-inflight-overlap-20260602T225821Z` / job
+`069a217f-fa43-48cc-bf18-c946d53bb3ee` is **ACCEPTED**. Step 2 wall improved
+`-14.98 %`, DB FPS improved `+9.35 %`, GPU avg improved `+10.57 %`, behavior
+RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
+
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|
 | 12.A | Persistent async dispatcher measurement — quantify `async_runner.run(...)` boundary churn in `tasks.py` | measurement complete; no optimization decision | low; profiling flag rollback |
 | 12.B | Bounded behavior-wait overlap dispatcher — start `behavior_all` for batch N while preparing batch N+1, preserving ordered finalization | **needs further iteration**: wall/FPS improved, RTT gate failed | medium; rollback is `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0` |
-| 12.C | Single-inflight behavior overlap — prepare current batch, finalize pending behavior, then submit current behavior | target: preserve most 12.B wall gain while reducing RTT regression | medium; rollback is env-disable |
+| 12.C | Single-inflight behavior overlap — prepare current batch, finalize pending behavior, then submit current behavior | **ACCEPTED**: Step 2 `-14.98 %`, FPS `+9.35 %`, RTT mean `-1.09 %` | medium; rollback is `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0` |
 | 11.B / B.3 Step 2 | Kernel-tactic or batch-profile tuning on the dominant 320 behavior child after Top-K | bounded at ~4 % Step 2 | low-medium; engine rebuild only if parity holds |
 | 13 | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | ~20 s total-wall only | low; does not address Step 2 |
 | 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |

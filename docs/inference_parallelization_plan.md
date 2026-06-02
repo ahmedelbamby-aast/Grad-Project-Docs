@@ -814,6 +814,15 @@ failed the RTT gate because behavior RTT mean regressed `84.865 ms →
 115.420 ms` and p95 regressed `128.056 ms → 224.661 ms`. Next task: Cycle
 12.C single-inflight behavior overlap.
 
+Cycle 12.C production benchmark
+`cycle12-single-inflight-overlap-20260602T225821Z` / job
+`069a217f-fa43-48cc-bf18-c946d53bb3ee` is **ACCEPTED**. It improved Step 2
+wall `540.399 s → 459.461 s` (`-14.98 %`), DB FPS `4.439 → 4.854`
+(`+9.35 %`), and GPU avg `9.344 % → 10.332 %`, while preserving behavior RTT
+mean (`84.865 ms → 83.936 ms`) and model-agreement F1 `>=99.716 %`.
+`TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` is now part of the accepted optimized
+production profile.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity

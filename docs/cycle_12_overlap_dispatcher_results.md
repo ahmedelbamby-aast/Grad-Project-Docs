@@ -60,6 +60,9 @@ request RTT regressed materially.
 Decision: **NEEDS FURTHER ITERATION**. The candidate is not accepted because it
 fails the RTT/latency gate, even though it improves wall time.
 
+Supersession: Cycle 12.C single-inflight behavior overlap was later accepted and
+replaces this candidate for production rollout.
+
 ## Why The Metrics Moved
 
 The implementation overlaps useful work by allowing batch `N` behavior

@@ -1865,6 +1865,74 @@ GAZE_HORIZONTAL_HEAD_VARIANT=slice
 TRITON_BEHAVIOR_TOP_K_ENABLED=True
 ```
 
+## 26. 2026-06-03 Cycle 12.C — Single-In-Flight Behavior Overlap
+
+**Status:** **ACCEPTED.** This real production Linux RTX 5090 benchmark on
+`combined.mp4` preserved the useful Cycle 12.B overlap while avoiding the
+behavior RTT regression. The accepted production profile is now
+`TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_behavior_overlap_benchmark.sh` |
+| Replay key | `cycle12-single-inflight-overlap-20260602T225821Z` |
+| Job ID | `069a217f-fa43-48cc-bf18-c946d53bb3ee` |
+| Deployed SHA | `f31ff39b` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Candidate flag | `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` |
+| Final status | `completed`, `4541/4541` frames |
+| Metrics | `backend/logs/cycle12-single-inflight-overlap-20260602T225821Z/async_dispatch_profile_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle12-single-inflight-overlap-20260602T225821Z/model_agreement_320_topk_vs_async_dispatch_profile.json` / `.md` |
+| Results doc | `docs/cycle_12_single_inflight_overlap_results.md` |
+
+| Metric | Accepted 320 Top-K baseline | Cycle 12.C candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed elapsed | `1022.952 s` | `935.516 s` | `-8.55 %` |
+| DB-completed FPS | `4.439` | `4.854` | `+9.35 %` |
+| Step 2 frame wall | `540.399 s` | `459.461 s` | `-14.98 %` |
+| Step 2 through pose upload | `767.589 s` | `680.619 s` | `-11.33 %` |
+| Behavior RTT mean | `84.865 ms` | `83.936 ms` | `-1.09 %` |
+| Behavior RTT p95 | `128.056 ms` | `130.200 ms` | `+1.67 %` |
+| GPU avg util | `9.344 %` | `10.332 %` | `+10.57 %` |
+| GPU peak util | `53.000 %` | `53.000 %` | `0.00 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `-2.06 %` |
+| Detection rows | `72762` | `72744` | `-0.02 %` |
+| BBox rows | `72762` | `72744` | `-0.02 %` |
+| Embedding rows | `72596` | `72578` | `-0.02 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+Model agreement:
+
+| Model | Agreement F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `99.732 %` | `-0.09 %` |
+| `hand_raising` | `99.716 %` | `-0.11 %` |
+| `person_detection` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.935 %` | `0.01 %` |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Did production benchmark authority exist? | Replay `cycle12-single-inflight-overlap-20260602T225821Z` completed on the Linux RTX 5090. | Decision evidence is valid. |
+| Did the target wall metric improve? | Step 2 wall `540.399 s → 459.461 s` (`-14.98 %`). | Step 2 gate passed. |
+| Did total throughput improve? | DB FPS `4.439 → 4.854`; elapsed `1022.952 s → 935.516 s`. | Throughput gate passed. |
+| Did correctness regress? | Tracks unchanged; all model F1 values `>=99.716 %`; rows within `0.02 %`. | Correctness gate passed. |
+| Did RTT/latency regress materially? | Behavior RTT mean improved `-1.09 %`; p95 drift was `+1.67 %`. | RTT gate passed. |
+| Why did this work? | Current crop payloads are built, then pending behavior is finalized, then current behavior is submitted. | Useful overlap remains without two behavior jobs in flight. |
+| Decision | Required gates passed. | **ACCEPTED.** |
+
+Post-wrapper rollback was observed, then the accepted flag was restored for
+production with a Celery worker restart:
+
+```text
+TRITON_ASYNC_DISPATCH_PROFILING=0
+TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+```
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

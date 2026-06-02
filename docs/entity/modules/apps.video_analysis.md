@@ -310,7 +310,7 @@ Selection — full env taxonomy in `README.md` § "Root Pipeline And Model Varia
 | `TRITON_BEHAVIOR_ENSEMBLE` | `1` (prod) | route `behavior_all` through the ensemble |
 | `TRITON_BEHAVIOR_TOP_K_ENABLED` | `1` (prod) | Cycle 9b B.2.c Top-K route |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `320` (current accepted) | behavior child input dim |
-| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `0` | Cycle 12.B behavior-wait overlap candidate flag |
+| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `1` (prod) | Cycle 12.C single-in-flight behavior overlap |
 | `GAZE_HORIZONTAL_HEAD_VARIANT` | `slice` (prod) | horizontal-gaze output contract |
 | `LPM_ENABLED` | `0` | Cycle 10 LPM hook gate (Phase 1 NOT ACCEPTED) |
 | `TRITON_LOAD_MODEL` / `TRITON_DENY_MODEL` | per host | declarative model load list |
