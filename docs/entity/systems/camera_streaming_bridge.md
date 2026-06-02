@@ -221,7 +221,8 @@ sequenceDiagram
     N->>MMTX: POST /api/webrtc?src=camera_{id}
     MMTX-->>N: SDP answer
     N-->>Br: SDP answer
-    Br<->>MMTX: ICE + RTP video
+    Br->>MMTX: ICE candidates
+    MMTX-->>Br: ICE candidates + RTP video
 ```
 
 ## 10. State machine

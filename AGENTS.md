@@ -47,6 +47,7 @@ regression, not a style nit.**
 1. **Reading-order authority.** `README.md` § "Documentation Reading Order" wins over any individual file date.
 2. **Per-entity coverage.** Every System / Module / Phase / Script / Code / API entity MUST have exactly one entity doc under `docs/entity/<kind>/`.
 3. **Mermaid theme contract.** Every Mermaid diagram declares the matching theme initializer from `docs/mermaid_theme_contract.md` § 2.
+3a. **Mermaid compilation gate (constitution § 19.3.1).** Every Mermaid block in every project-owned `.md` file MUST compile to SVG via `mmdc`. `.github/workflows/mermaid-diagrams.yml` runs `scripts/ci/verify_mermaid_diagrams.py` on every push / PR touching a `.md` file. Compilation failure is CI-blocking; the failure JSON identifies file + line + parser error. To check locally before pushing: `npm install -g @mermaid-js/mermaid-cli@^11.4.0 && python scripts/ci/verify_mermaid_diagrams.py --paths <doc-or-dir>`.
 4. **Text-fitting.** Node labels ≤ 40 chars per logical line; multi-line uses `<br/>` or `\n`.
 5. **Diagram preservation.** When a diagram is updated, the old version is PRESERVED — never delete. Add an H3 `historical` section.
 6. **Source-of-truth references.** Every entity doc has a `## Source-of-truth references` table; every File / Symbol / Commit / Job / Workflow / Doc row MUST resolve in the working tree. Unsourced claims are hallucinations.
@@ -79,6 +80,7 @@ the next case.
 - "The function does Y" without a `<file>:<line>` citation
 - Quoted text from a doc that does not exist at the cited path
 - A Mermaid block missing `%%{init:`
+- A Mermaid block that `mmdc` cannot compile to SVG (the mermaid-diagrams workflow blocks the PR; check locally with `python scripts/ci/verify_mermaid_diagrams.py`)
 - A node label > 40 chars with no `<br/>` / `\n` break
 - A commit that nets-deletes a Mermaid block without a sibling `historical` version
 - A commit that advances two DSP cycles at once

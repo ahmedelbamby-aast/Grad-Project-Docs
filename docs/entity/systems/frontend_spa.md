@@ -217,7 +217,8 @@ sequenceDiagram
     N->>GW: /api/webrtc?src=camera_{id}
     GW-->>N: SDP answer
     N-->>SPA: SDP answer
-    SPA<->>GW: ICE + RTP video
+    SPA->>GW: ICE candidates
+    GW-->>SPA: ICE candidates + RTP video
     SPA-->>U: live preview frames
     CH-->>SPA: camera_status (down)
     SPA-->>U: status badge update

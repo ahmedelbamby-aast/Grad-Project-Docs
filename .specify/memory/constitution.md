@@ -1,6 +1,26 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.5.0 -> 2.5.1
+Bump rationale: PATCH - Adds Section 19.3.1 (Mermaid Diagram
+Compilation Gate) to make every Mermaid block in every project-owned
+markdown file mechanically verifiable. The amendment does not change
+the theme contract (§ 19.3) or text-fitting rule (§ 19.4); it adds the
+CI-enforceable proof that every diagram compiles. The verifier is
+`scripts/ci/verify_mermaid_diagrams.py` and the workflow is
+`.github/workflows/mermaid-diagrams.yml`; both landed in the same
+commit as this amendment. Matrix row added to § 14.25 / § 19.9.
+
+Triggering observation (proof the gate works): the verifier caught two
+real Mermaid syntax errors in `docs/entity/systems/camera_streaming_
+bridge.md` and `docs/entity/systems/frontend_spa.md` (invalid `<->>`
+arrow in sequence diagrams) the moment it first ran. Both were fixed
+in the same commit. Without a compile gate those errors would have
+shipped silently because GitHub-flavoured-markdown renders broken
+Mermaid as the source text rather than as an error.
+
+Prior MINOR (2.4.1 -> 2.5.0) text below.
+
 Version change: 2.4.1 -> 2.5.0
 Bump rationale: MINOR - Adds Section 19 (Documentation Systematization and
 Anti-Hallucination Governance) converting recurring documentation pain into
@@ -2217,6 +2237,49 @@ every doc.
 Diagrams pre-existing this section are grandfathered. Any new diagram
 or any update to an existing diagram MUST adopt the contract.
 
+#### 19.3.1 Mermaid compilation gate (mechanical)
+
+Every Mermaid block in every project-owned markdown file MUST compile
+to a valid SVG via `mmdc` (the official
+`@mermaid-js/mermaid-cli`). Compilation failure is a CI-blocking
+regression — silent rendering breakage in GitHub-flavoured-markdown
+is no longer acceptable evidence that a diagram "looks fine".
+
+The gate is two artefacts:
+
+| Artefact | Purpose |
+| --- | --- |
+| `scripts/ci/verify_mermaid_diagrams.py` | Walks every project-owned `.md`, extracts every fenced ```` ```mermaid ``` ```` block with `(path, line_start, line_end, body)` provenance, runs `mmdc -i <tmp> -o <tmp>.svg` per block in parallel, reports every failure with file + line + stderr |
+| `.github/workflows/mermaid-diagrams.yml` | Runs the verifier on every push / PR that touches any `.md` file or the verifier itself; uploads `mermaid_render_report.json` as a build artefact on failure |
+
+Out-of-scope buckets per § 9 of
+[`docs/documentation_systematization_plan.md`](../../docs/documentation_systematization_plan.md)
+are excluded from the gate (vendor, third-party, generated CI artefacts,
+pytest caches, tool-installed skill directories).
+
+Reviewer responsibilities:
+
+- A pull request that fails the mermaid-diagrams workflow MUST be
+  rejected; the failure JSON identifies the file, line range, and
+  mermaid parser error to fix.
+- Any new mermaid block authored after this section is ratified MUST
+  pass the gate before merge — pre-existing blocks are grandfathered
+  per § 19.3, but the *gate* runs on every block so grandfathered
+  blocks that ever stop compiling will surface immediately.
+- The verifier MUST NOT be skipped via `[skip-mermaid]` PR-title tokens
+  or any other bypass mechanism. The constitution permits no opt-out.
+
+Local invocation (for authors before pushing):
+
+```bash
+# install once
+npm install -g @mermaid-js/mermaid-cli@^11.4.0
+# render every block in a doc
+python scripts/ci/verify_mermaid_diagrams.py \
+  --paths docs/entity/systems/<my-doc>.md \
+  --jobs 2
+```
+
 #### 19.4 Text-fitting rule
 
 Mermaid node labels MUST fit inside their box:
@@ -2285,6 +2348,7 @@ closes.
 | Reading-order authority (19.1) | `scripts/ci/verify_doc_dates_and_reading_order.py` lists every project-owned narrative `.md` and asserts the README reading order covers it AND every reading-order link resolves |
 | Per-entity coverage (19.2) | DSP Cycle 8 verifier asserts every System / Module / Phase / Script / Code / API entity in the inventory has a corresponding doc under `docs/entity/<kind>/` |
 | Theme contract (19.3) | Every Mermaid block declares `%%{init:` and uses one of the registered diagram types from the theme contract § 2 |
+| Mermaid compilation gate (19.3.1) | `.github/workflows/mermaid-diagrams.yml` job `render-mermaid` runs `scripts/ci/verify_mermaid_diagrams.py` on every push / PR touching a `.md` file; every fenced ```` ```mermaid``` ```` block compiles to SVG via `mmdc`; failures are CI-blocking with file + line + stderr context |
 | Text-fitting (19.4) | No node label inside `[ ]`, `( )`, `(( ))`, `[/ /]`, `[\ \]` exceeds 40 chars without a `<br/>` or `\n` break |
 | Diagram preservation (19.5) | `git log` diff on a `.md` shows no net-removed Mermaid block without a sibling net-added block tagged `historical` in the same commit |
 | Source-of-truth references (19.6) | Every entity doc has the table; every row resolves in the working tree |
@@ -2300,6 +2364,7 @@ remove or re-order existing rows):
 | Documentation hallucination (claim without resolvable reference) | Asserting facts not backed by source-of-truth block | DSP Cycle 8 verifier resolves every File / Symbol / Commit / Job / Workflow / Doc row; broken row blocks merge |
 | Reading-order drift | New doc added without README entry | `scripts/ci/verify_doc_dates_and_reading_order.py` fails the doc-dates job if README does not cover the new doc |
 | Diagram theme drift | New Mermaid diagram without theme initializer | DSP Cycle 8 verifier fails on any `mermaid` block lacking `%%{init:` |
+| Mermaid syntax / render breakage | Broken diagram that GitHub renders as raw text | `.github/workflows/mermaid-diagrams.yml` runs `scripts/ci/verify_mermaid_diagrams.py`; every fenced ```` ```mermaid``` ```` block must compile to SVG via `mmdc`; failure JSON identifies file + line + parser error |
 | Node-label overflow | Long label without `<br/>` / `\n` break | DSP Cycle 8 verifier fails on labels >40 chars without break |
 | Silent diagram deletion | Mermaid block removed in update | DSP Cycle 8 verifier walks `git log`, fails on net-removed block without sibling `historical` block |
 | Missing per-entity doc | System / module / cycle / script / code / API present in repo but absent from `docs/entity/` | DSP Cycle 8 verifier inventory mismatch fails the build |
@@ -2363,4 +2428,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.5.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02
+**Version**: 2.5.1 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02
