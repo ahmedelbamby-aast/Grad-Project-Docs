@@ -1,5 +1,7 @@
 # OpenVINO + Ultralytics Integration Safety Checklist
 
+**Last updated:** 2026-05-22
+
 ## Purpose
 This checklist reduces integration failures when running Ultralytics-exported models with OpenVINO in this repository.
 

@@ -1,5 +1,7 @@
 # Cameras Module
 
+**Last updated:** 2026-05-13
+
 ## Purpose
 - Manages camera sources, connection lifecycle, and live-stream integration via pluggable stream providers.
 

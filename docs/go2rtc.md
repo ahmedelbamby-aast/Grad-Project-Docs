@@ -1,5 +1,7 @@
 # go2rtc.yaml
 
+**Last updated:** 2026-05-09
+
 ## Related Documents
 
 - [source](../go2rtc.yaml)

@@ -1,5 +1,7 @@
 # Cycle 9b Output Fusion Results
 
+**Last updated:** 2026-06-02
+
 **Status:** **B.2.b exact server-side slice ACCEPTED** and **B.2.c exact
 slice + Top-K ACCEPTED WITH CAVEAT.** The first standalone TensorRT
 output-slice variant (`gaze2`) is **NOT ACCEPTED**.

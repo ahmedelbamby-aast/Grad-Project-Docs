@@ -1,3 +1,5 @@
+**Last updated:** 2026-05-17
+
 ## Plan: Complete Only the ⚠️ Items in `rtmpose-engineering-validation-report.md` (Spec 007 Pose)
 
 ### Summary

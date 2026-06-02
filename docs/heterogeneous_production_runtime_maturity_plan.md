@@ -1,5 +1,7 @@
 # Heterogeneous Production Runtime Maturity Plan
 
+**Last updated:** 2026-05-29
+
 ## Status
 - **Plan state:** Active
 - **Execution state:** Not completed

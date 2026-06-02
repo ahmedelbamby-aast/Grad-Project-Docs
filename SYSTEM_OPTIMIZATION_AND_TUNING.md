@@ -1,4 +1,7 @@
 # System Optimization & Tuning Guide
+
+**Last updated:** 2026-05-29
+
 ## Exam Monitoring Dashboard — Complete Performance Audit
 
 **Date**: 2026-05-29  

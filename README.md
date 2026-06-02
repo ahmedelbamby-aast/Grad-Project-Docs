@@ -1,10 +1,172 @@
 # Exam Monitoring Dashboard
 
+**Last updated:** 2026-06-02
+
 Temporal behavioral intelligence platform with a Django backend, React
 frontend, WebSocket live updates, offline video analysis, camera streaming
 through go2rtc, and Triton-authoritative production inference.
 
 **Maintainer:** Eng.Ahmed ElBamby
+
+---
+
+## Documentation Reading Order (read these in this order to understand the complete project)
+
+This is the canonical reading path through every project-owned narrative
+document. The dates in the right column are each file's
+`**Last updated:**` header (auto-populated from each file's last git
+commit date if it had no header before). If a date and the reading order
+disagree, the **reading order is authoritative** — dates only reflect
+when a doc was last touched, not where it belongs in the narrative.
+
+The order below is grouped into 9 reading phases. Each phase has a
+purpose; you can stop after any phase if you only need that level of
+context.
+
+### Phase 0 — Orientation (start here, in this exact order)
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 1 | [`README.md`](README.md) | 2026-06-02 | You are here. The orientation map and quick-start environment knobs. |
+| 2 | [`quickstart.md`](quickstart.md) | 2026-05-30 | Step-by-step local + Linux production setup. Run the commands; don't just read. |
+| 3 | [`AGENTS.md`](AGENTS.md) | 2026-06-02 | Constitutional discipline + production server topology + the full log of every accepted / not-accepted optimization cycle. Memorize the "no acceptance without prod evidence" rule. |
+
+### Phase 1 — System architecture & module boundaries
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 4 | [`docs/INDEX.md`](docs/INDEX.md) | 2026-06-02 | Documentation index across the whole `docs/` tree (auto-generated mirrors + narrative docs). |
+| 5 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 2026-05-25 | High-level system architecture: Django + Celery + Triton + React shape. |
+| 6 | [`docs/architecture/modular-system-overview.md`](docs/architecture/modular-system-overview.md) | 2026-05-09 | The module-decomposition principle the codebase follows. |
+| 7 | [`docs/architecture/module-boundary-map.md`](docs/architecture/module-boundary-map.md) | 2026-05-09 | Per-module ownership and allowed cross-imports. |
+| 8 | [`docs/architecture/runtime-scenario-matrix.md`](docs/architecture/runtime-scenario-matrix.md) | 2026-05-25 | Live vs offline vs hybrid runtime profiles and which models load where. |
+| 9 | [`docs/architecture/compatibility-contracts.md`](docs/architecture/compatibility-contracts.md) | 2026-05-09 | Public contracts that can't break between modules. |
+| 10 | [`docs/architecture/coupling-risk-register.md`](docs/architecture/coupling-risk-register.md) | 2026-05-09 | Catalogued coupling hotspots. |
+| 11 | [`docs/architecture/documentation-diagram-coverage.md`](docs/architecture/documentation-diagram-coverage.md) | 2026-05-09 | How the mermaid coverage gate validates that every module is diagrammed. |
+
+### Phase 2 — Inference pipeline plan & SLA (the active optimization work)
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 12 | [`docs/runtime_sla_video_plus_5min.md`](docs/runtime_sla_video_plus_5min.md) | 2026-06-02 | **The SLA contract**: `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (4 541 frames, 2 m 31 s) that means total ≤ 7 m 31 s = **≥ 10.07 FPS overall**. |
+| 13 | [`docs/triton_models_and_tensor_anatomy.md`](docs/triton_models_and_tensor_anatomy.md) | 2026-06-01 | What every Triton-loaded model does + tensor shapes + byte math for the dense-output inefficiency the cycles attack. |
+| 14 | [`docs/inference_parallelization_plan.md`](docs/inference_parallelization_plan.md) | 2026-06-02 | The original parallelization plan (binary tensors, async fan-out, dynamic batching). |
+| 15 | [`docs/inference_bottlenecks_and_solution_matrix.md`](docs/inference_bottlenecks_and_solution_matrix.md) | 2026-05-22 | Catalog of bottlenecks ranked by leverage. |
+| 16 | [`docs/production_inference_benchmark.md`](docs/production_inference_benchmark.md) | 2026-06-02 | **The per-cycle benchmark table** — current-state and historical metrics for every prod run, with FPS column. |
+| 17 | [`docs/cycle_9_and_10_improvements_todo.md`](docs/cycle_9_and_10_improvements_todo.md) | 2026-06-02 | **The single TODO entry point.** § Z inside has the map of every cycle (accepted, not accepted, staged, planned, deferred). Start every new session here. |
+| 18 | [`docs/cycles_9_to_12_implementation_playbook.md`](docs/cycles_9_to_12_implementation_playbook.md) | 2026-06-02 | The full Cycles 9–12 implementation roadmap and projections. |
+| 19 | [`docs/next_agent_starter_prompt.md`](docs/next_agent_starter_prompt.md) | 2026-06-02 | The self-contained briefing for the next agent picking this work up. |
+
+### Phase 3 — Per-cycle investigation + results (read each pair in order; investigation → results)
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 20 | [`docs/crop_frame_optimization_audit.md`](docs/crop_frame_optimization_audit.md) | 2026-06-01 | Original crop-frame audit that kicked off the optimization plan. |
+| 21 | [`docs/crop_frame_optimization_execution.md`](docs/crop_frame_optimization_execution.md) | 2026-06-02 | Per-cycle execution log of the crop-frame pipeline changes. |
+| 22 | [`docs/crop_frame_rtx5090_bottleneck_investigation.md`](docs/crop_frame_rtx5090_bottleneck_investigation.md) | 2026-06-01 | RTX 5090 GPU-side bottleneck breakdown. |
+| 23 | [`docs/crop_gpu_vs_cpu_comparison.md`](docs/crop_gpu_vs_cpu_comparison.md) | 2026-05-31 | GPU vs CPU crop-preprocessing comparison. |
+| 24 | [`docs/rtt_root_cause_investigation_77650001.md`](docs/rtt_root_cause_investigation_77650001.md) | 2026-06-01 | The initial RTT decomposition for job `77650001` (192-212 ms baseline). |
+| 25 | [`docs/cycle_9_investigation.md`](docs/cycle_9_investigation.md) | 2026-06-01 | Cycle 9 investigation (Triton behavior ensemble). |
+| 26 | [`docs/cycle_9_results.md`](docs/cycle_9_results.md) | 2026-06-01 | Cycle 9 production outcome + post-mortem (NOT ACCEPTED — the canonical "name the lever" precedent). |
+| 27 | [`docs/cycle_9b_output_fusion_investigation.md`](docs/cycle_9b_output_fusion_investigation.md) | 2026-06-02 | Cycle 9b output-fusion design space (B.2.a/b/c). |
+| 28 | [`docs/cycle_9b_output_fusion_results.md`](docs/cycle_9b_output_fusion_results.md) | 2026-06-02 | Cycle 9b output-fusion comparison matrix (B.2.b rejected, slice + Top-K accepted). |
+| 29 | [`docs/cycle_9b_exact_slice_investigation.md`](docs/cycle_9b_exact_slice_investigation.md) | 2026-06-02 | Exact server-side slicing investigation (B.2.b ACCEPTED path). |
+| 30 | [`docs/cycle_9b_topk_anchor_packing_investigation.md`](docs/cycle_9b_topk_anchor_packing_investigation.md) | 2026-06-02 | Top-K anchor packing investigation (B.2.c). |
+| 31 | [`docs/cycle_9b_topk_anchor_packing_results.md`](docs/cycle_9b_topk_anchor_packing_results.md) | 2026-06-02 | Top-K accepted-with-caveat results (current accepted baseline: job `be4ba9ee`). |
+| 32 | [`docs/cycle_9b_child_critical_path_results.md`](docs/cycle_9b_child_critical_path_results.md) | 2026-06-02 | B.3 Step 1 measurement vs pre-Top-K baseline. |
+| 33 | [`docs/cycle_9b_child_critical_path_remeasure_topk_results.md`](docs/cycle_9b_child_critical_path_remeasure_topk_results.md) | 2026-06-02 | B.3 Step 1 **remeasurement** against the accepted Top-K baseline (most recent — read this for the next-Step-2 lever ranking). |
+| 34 | [`docs/logical_path_matrix_spec.md`](docs/logical_path_matrix_spec.md) | 2026-06-01 | Cycle 10 LPM formal mathematical spec (C1–C4 constraints, acceptance gates). |
+| 35 | [`docs/cycle_10_investigation.md`](docs/cycle_10_investigation.md) | 2026-06-01 | Cycle 10 LPM investigation. |
+| 36 | [`docs/cycle_10_lpm_phase1_results.md`](docs/cycle_10_lpm_phase1_results.md) | 2026-06-02 | Cycle 10 LPM Phase 1 NOT-ACCEPTED outcome + safety-fix re-run. |
+| 37 | [`docs/new_models_yoloe_depth_anything_v2_timing_decision.md`](docs/new_models_yoloe_depth_anything_v2_timing_decision.md) | 2026-06-01 | YOLOE / Depth Anything v2 timing-of-integration decision (DEFERRED until SLA reached). |
+
+### Phase 4 — Triton-specific deep dives
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 38 | [`docs/triton_inference_speed_stabilization_plan.md`](docs/triton_inference_speed_stabilization_plan.md) | 2026-05-25 | Triton stabilization plan covering memory pool sweep + readiness gates. |
+| 39 | [`docs/triton_strategy_implementation_matrix.md`](docs/triton_strategy_implementation_matrix.md) | 2026-05-15 | Strategy matrix for Triton routing decisions per model. |
+| 40 | [`docs/triton_throughput_latency_gpu_optimization.md`](docs/triton_throughput_latency_gpu_optimization.md) | 2026-05-10 | Triton GPU-utilization optimization guide. |
+| 41 | [`docs/triton_phase0_baseline_lock_report.md`](docs/triton_phase0_baseline_lock_report.md) | 2026-05-22 | Phase 0 baseline lock for the Triton plan. |
+
+### Phase 5 — Runtime / deployment / system tuning
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 42 | [`INFRASTRUCTURE_DEPLOYMENT_TUNING.md`](INFRASTRUCTURE_DEPLOYMENT_TUNING.md) | 2026-05-29 | Production deployment infrastructure tuning. |
+| 43 | [`SYSTEM_OPTIMIZATION_AND_TUNING.md`](SYSTEM_OPTIMIZATION_AND_TUNING.md) | 2026-05-29 | OS-level + service-level system tuning. |
+| 44 | [`OPTIMIZATION_QUICK_REFERENCE.md`](OPTIMIZATION_QUICK_REFERENCE.md) | 2026-05-29 | Quick-reference card for the optimization knobs that exist. |
+| 45 | [`THREADING_AND_MULTIPROCESSING_ANALYSIS.md`](THREADING_AND_MULTIPROCESSING_ANALYSIS.md) | 2026-05-30 | Threading / multiprocessing decisions in the Python pipeline. |
+| 46 | [`docs/heterogeneous_production_runtime_maturity_plan.md`](docs/heterogeneous_production_runtime_maturity_plan.md) | 2026-05-29 | Production-runtime maturity plan across heterogeneous backends. |
+| 47 | [`docs/hybrid_runtime_inference_adventure.md`](docs/hybrid_runtime_inference_adventure.md) | 2026-05-22 | Hybrid local + Triton inference exploration journal. |
+| 48 | [`docs/linux_production_optimization_execution_phases.md`](docs/linux_production_optimization_execution_phases.md) | 2026-05-29 | Linux production optimization phased execution log. |
+| 49 | [`docs/runtime_v2_optimization_log.md`](docs/runtime_v2_optimization_log.md) | 2026-05-22 | Runtime v2 optimization log. |
+| 50 | [`docs/runtime_ux_pass.md`](docs/runtime_ux_pass.md) | 2026-05-13 | Runtime UX pass. |
+
+### Phase 6 — Adjacent feature work (pose, models, identity)
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 51 | [`docs/pose_eval_workflow_step5.md`](docs/pose_eval_workflow_step5.md) | 2026-05-23 | Pose evaluation workflow. |
+| 52 | [`docs/pose_quality_occlusion_per_student_stability_plan.md`](docs/pose_quality_occlusion_per_student_stability_plan.md) | 2026-05-22 | Pose-quality + occlusion + per-student stability plan. |
+| 53 | [`docs/upload_pose_inference_activation_plan.md`](docs/upload_pose_inference_activation_plan.md) | 2026-05-22 | Upload-pose inference activation plan. |
+| 54 | [`docs/yolo26_pose.md`](docs/yolo26_pose.md) | 2026-06-02 | YOLO26 pose notes. |
+| 55 | [`rtmpose_plan.md`](rtmpose_plan.md) | 2026-05-17 | RTMPose integration plan. |
+| 56 | [`rtmpose_tasks.md`](rtmpose_tasks.md) | 2026-05-21 | RTMPose task breakdown. |
+| 57 | [`docs/openvino_ultralytics_integration_checklist.md`](docs/openvino_ultralytics_integration_checklist.md) | 2026-05-22 | OpenVINO + Ultralytics integration checklist (DEV-only path). |
+| 58 | [`docs/openvino_v2_sweep_results.md`](docs/openvino_v2_sweep_results.md) | 2026-05-22 | OpenVINO v2 sweep results. |
+| 59 | [`docs/teacher_student_rollout.md`](docs/teacher_student_rollout.md) | 2026-05-11 | Teacher / student detector rollout. |
+| 60 | [`docs/teacher_student_rollout_independent_system.md`](docs/teacher_student_rollout_independent_system.md) | 2026-05-11 | Teacher / student rollout as an independent system. |
+| 61 | [`docs/identity_consistency_frontend_backend_plan.md`](docs/identity_consistency_frontend_backend_plan.md) | 2026-05-22 | Identity-consistency plan between frontend + backend. |
+
+### Phase 7 — Operations & infrastructure
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 62 | [`docs/docker-compose.dev.md`](docs/docker-compose.dev.md) | 2026-05-22 | Development docker-compose layout. |
+| 63 | [`docs/nginx.md`](docs/nginx.md) | 2026-05-09 | Nginx reverse-proxy config notes. |
+| 64 | [`docs/go2rtc.md`](docs/go2rtc.md) | 2026-05-09 | go2rtc streaming bridge notes. |
+| 65 | [`docs/multimodal.md`](docs/multimodal.md) | 2026-06-02 | Multimodal integration notes. |
+| 66 | [`docs/protocol_decision_harness.md`](docs/protocol_decision_harness.md) | 2026-05-22 | Protocol-decision harness. |
+| 67 | [`docs/protocol_decision_summary_example.md`](docs/protocol_decision_summary_example.md) | 2026-05-22 | Protocol-decision summary example. |
+
+### Phase 8 — Release, gates, and miscellaneous
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 68 | [`docs/release-beta-signoff-checklist.md`](docs/release-beta-signoff-checklist.md) | 2026-05-21 | Beta release sign-off checklist (consolidated quality state). |
+| 69 | [`docs/diagram_compiler_plan.md`](docs/diagram_compiler_plan.md) | 2026-05-22 | Mermaid diagram compiler plan. |
+| 70 | [`docs/mermaid_drift_audit.md`](docs/mermaid_drift_audit.md) | 2026-05-22 | Diagram drift audit. |
+| 71 | [`closure_gaps.md`](closure_gaps.md) | 2026-05-27 | Closure-gap log across recent feature batches. |
+| 72 | [`docs/Tasks.md`](docs/Tasks.md) | 2026-05-22 | High-level tasks register. |
+
+### Phase 9 — App and component READMEs (skim once, return for details)
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 73 | [`backend/README.md`](backend/README.md) | 2026-05-24 | Backend overview, environment setup, run commands. |
+| 74 | [`backend/apps/pipeline/README.md`](backend/apps/pipeline/README.md) | 2026-05-25 | Pipeline app: model lifecycle, layers, orchestrator. |
+| 75 | [`backend/apps/video_analysis/README.md`](backend/apps/video_analysis/README.md) | 2026-05-23 | Video analysis app: offline jobs + Celery tasks. |
+| 76 | [`backend/apps/tracking/README.md`](backend/apps/tracking/README.md) | 2026-05-25 | Tracking app: ByteTrack / BoT-SORT + ReID. |
+| 77 | [`backend/apps/telemetry/README.md`](backend/apps/telemetry/README.md) | 2026-06-01 | Telemetry layer: sessions, dual-sink writer, ContextVar boundaries. |
+| 78 | [`backend/apps/cameras/README.md`](backend/apps/cameras/README.md) | 2026-05-13 | Cameras + go2rtc + ONVIF. |
+| 79 | [`backend/apps/sessions/README.md`](backend/apps/sessions/README.md) | 2026-05-08 | Monitoring sessions app. |
+| 80 | [`backend/apps/anomalies/README.md`](backend/apps/anomalies/README.md) | 2026-05-08 | Anomaly triage app. |
+| 81 | [`backend/apps/behavior/README.md`](backend/apps/behavior/README.md) | 2026-05-25 | Behavior app. |
+| 82 | [`backend/apps/detections/README.md`](backend/apps/detections/README.md) | 2026-03-05 | Detections app. |
+| 83 | [`backend/apps/health/README.md`](backend/apps/health/README.md) | 2026-05-08 | Health app. |
+| 84 | [`backend/apps/contracts/README.md`](backend/apps/contracts/README.md) | 2026-05-25 | Cross-app data contracts. |
+| 85 | [`backend/apps/telemetry_mcp/README.md`](backend/apps/telemetry_mcp/README.md) | 2026-05-23 | Telemetry MCP integration. |
+| 86 | [`frontend/README.md`](frontend/README.md) | 2026-03-05 | Frontend overview. |
+
+### Conventions used in this reading order
+
+- **Reading order is authoritative.** If a file has an old `**Last updated:**` date but appears in a later phase, that simply means the doc has been stable; it does NOT mean it can be skipped.
+- Every file above carries a `**Last updated:** YYYY-MM-DD` header at line 2 or 3. If you ever see one missing, run `python scripts/add_doc_date_header.py <path>` to repopulate it from the file's last git commit date.
+- The reading order intentionally skips auto-generated mirror docs under `docs/backend/`, `docs/frontend/`, `docs/scripts/`, and `docs/diagrams/` — those are produced by `scripts/ci/verify_docs_diagrams.py` and exist for one-page-per-source-file traceability, not narrative reading. Browse them from [`docs/INDEX.md`](docs/INDEX.md) when you need a specific file's per-source documentation.
+- Point-in-time evidence reports under `ci_evidence/` and feature specs under `specs/` are also not in the reading order — they are referenced from the relevant cycle / feature docs above.
+
+---
 
 ## Repository Status
 

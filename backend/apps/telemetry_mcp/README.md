@@ -1,5 +1,7 @@
 # Telemetry MCP Module
 
+**Last updated:** 2026-05-23
+
 Read-only telemetry MCP surface over normalized persisted runtime evidence.
 
 ## Purpose

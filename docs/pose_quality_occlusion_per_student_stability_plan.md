@@ -1,5 +1,7 @@
 # Pose Quality, Occlusion, and Per-Student Stability
 
+**Last updated:** 2026-05-22
+
 ## Summary
 
 Add a shared pose-quality layer for both offline uploads and live streaming. The system will keep raw RTMPose keypoints unchanged, then derive confidence-gated keypoints, per-frame quality, lower-body occlusion state, temporal stability, and per-student summaries grouped by `tracking_id`.

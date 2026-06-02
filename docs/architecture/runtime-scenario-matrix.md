@@ -1,5 +1,7 @@
 # Runtime Scenario Matrix
 
+**Last updated:** 2026-05-25
+
 ## Related Documents
 
 - [module boundary map](module-boundary-map.md)

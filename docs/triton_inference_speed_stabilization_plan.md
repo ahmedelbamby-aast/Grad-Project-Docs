@@ -1,5 +1,7 @@
 # Triton Throughput + Steady Utilization Plan (Phased)
 
+**Last updated:** 2026-05-25
+
 > **Superseded production instruction (2026-05-25):** This historical plan
 > originally proposed concurrent live and offline Triton endpoints. The active
 > production authority is

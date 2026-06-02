@@ -1,5 +1,7 @@
 # Teacher-Student Scene Behavior Rollout (Independent System)
 
+**Last updated:** 2026-05-11
+
 ## 1) Executive Summary
 
 This document defines a standalone **Teacher→Student training system** for scene behavior understanding:

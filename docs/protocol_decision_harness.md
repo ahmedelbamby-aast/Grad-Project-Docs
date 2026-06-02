@@ -1,5 +1,7 @@
 # Phase 5 Protocol Decision Harness (HTTP vs gRPC)
 
+**Last updated:** 2026-05-22
+
 `scripts/ci/protocol_decision_harness.py` enforces the Phase 5 rollout gate for protocol selection.
 
 ## Gate Rule

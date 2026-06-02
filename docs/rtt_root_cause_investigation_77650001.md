@@ -1,5 +1,7 @@
 # RTT Root Cause Investigation — Job `77650001-3c4b-4b0a-94aa-b4eb899b90df`
 
+**Last updated:** 2026-06-01
+
 **Status:** **INVESTIGATION COMPLETE — RTT ROOT CAUSE PROVEN**
 **Method:** prod-server measurement (no estimation). Triton stats deltas, gRPC probe with sub-stage instrumentation, multi-frame inflight throughput sweep, CPU-only micro-benchmarks for crop preprocessing and YOLO decode.
 **Production runtime:** native Linux, RTX 5090, Triton 2.55.0 offline (port 39100 HTTP / 39101 gRPC), TRT 10.16.1.11, FP16 engines, CUDA 12.8.

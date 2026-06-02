@@ -1,5 +1,7 @@
 # Crop-Frame RTX 5090 Bottleneck Investigation
 
+**Last updated:** 2026-06-01
+
 ## Context
 
 This report documents the production investigation of job

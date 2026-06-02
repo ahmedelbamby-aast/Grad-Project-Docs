@@ -1,5 +1,7 @@
 # Fast-v1 Custom Model Loop for Scene Behavior Distillation
 
+**Last updated:** 2026-05-11
+
 ## 1) Executive Summary
 
 This rollout defines an **external Teacher→Student pipeline** where a self-hosted VLM generates pseudo-labels for scene-level behavior from your existing image corpus (about 3M images), and a fast YOLO classification student model is trained from those labels.

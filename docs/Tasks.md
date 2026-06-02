@@ -1,5 +1,7 @@
 # Consolidated Implementation Tasks
 
+**Last updated:** 2026-05-22
+
 This file consolidates execution tasks from:
 - `docs/identity_consistency_frontend_backend_plan.md`
 - `docs/upload_pose_inference_activation_plan.md`

@@ -1,5 +1,7 @@
 # Cycle 9b B.3 Child Critical-Path — REMEASUREMENT vs Top-K Baseline
 
+**Last updated:** 2026-06-02
+
 **Status:** **STEP 1 REMEASUREMENT COMPLETE — NO OPTIMIZATION ACCEPTED.**
 
 This document records the required Cycle 9b B.3 Step 1 **remeasurement**

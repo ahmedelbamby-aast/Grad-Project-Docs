@@ -1,5 +1,7 @@
 # Exam Monitoring Dashboard — Backend Module
 
+**Last updated:** 2026-05-24
+
 Django REST + WebSocket API for real-time exam hall monitoring with YOLO-based
 multi-layer detection, anomaly alerting, triage workflows, session recording,
 and admin management.

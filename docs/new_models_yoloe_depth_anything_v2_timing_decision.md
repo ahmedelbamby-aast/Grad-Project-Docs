@@ -1,5 +1,7 @@
 # Adding YOLOE + Depth Anything v2 — When, Not Whether
 
+**Last updated:** 2026-06-01
+
 **Status:** Decision recommendation, 2026-06-01. The two models are not yet in the repository or Triton repo; this document only addresses *when* to land them.
 **Inputs to the decision:** current cycle-8 prod numbers, the projected cycle-9 → cycle-13 trajectory in `docs/cycles_9_to_12_implementation_playbook.md`, the SLA in `docs/runtime_sla_video_plus_5min.md`.
 

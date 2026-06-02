@@ -1,5 +1,7 @@
 # Upload Pose Inference Activation (RTMPose + Artifacts + API + UI)
 
+**Last updated:** 2026-05-22
+
 ## Summary
 Wire the real upload path (`video_analysis/tasks.py`) to run pose estimation on uploaded videos, persist pose artifacts, expose pose in API/WebSocket payloads, and render skeleton overlays in frontend playback.
 

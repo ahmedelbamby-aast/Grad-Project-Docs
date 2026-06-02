@@ -1,5 +1,7 @@
 # Sessions Module
 
+**Last updated:** 2026-05-08
+
 ## Purpose
 Manages exam monitoring sessions and provides real-time comment streaming for instructor collaboration.
 

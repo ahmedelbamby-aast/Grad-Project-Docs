@@ -1,5 +1,7 @@
 # System Architecture Overview
 
+**Last updated:** 2026-05-25
+
 This page is the architecture spine for the docs set. It reflects the implementation in `backend/`, `frontend/`, `infra/`, `docker-compose.dev.yml`, and `nginx.conf`, then links into deeper module-level docs.
 
 ## High-Level Runtime Topology

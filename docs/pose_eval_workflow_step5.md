@@ -1,5 +1,7 @@
 # Pose Evaluation Workflow (Step 5)
 
+**Last updated:** 2026-05-23
+
 This workflow compares `RTMPose` and `YOLO Pose` outputs from the same video/run context using shared metric definitions.
 
 ## Command

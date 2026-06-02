@@ -1,5 +1,7 @@
 # Pipeline
 
+**Last updated:** 2026-05-25
+
 Pipeline services for student detection, student cropping, behavior classification, and model lifecycle utilities.
 
 ## Public API

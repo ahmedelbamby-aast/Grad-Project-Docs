@@ -1,5 +1,7 @@
 # Cycle 9b Top-K Anchor Packing Results
 
+**Last updated:** 2026-06-02
+
 **Status:** **ACCEPTED WITH CAVEAT** for the combined exact-slice + Top-K route
 (`B.2.c`). The dense-output-byte lever moved: behavior output traffic dropped by
 about `95 %`, behavior RTT improved, Step 2 frame-inference wall improved, and

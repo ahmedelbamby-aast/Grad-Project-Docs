@@ -1,5 +1,7 @@
 # Project Diagram Compiler Plan
 
+**Last updated:** 2026-05-22
+
 ## Summary
 
 Build a canonical, generated diagram pipeline under `scripts/diagrams/` that extracts implementation facts from the repo, emits normalized graph JSON, generates Mermaid diagrams, renders `PNG`, `SVG`, and `PDF` through `mmdc_wrapper.py`, and fails CI when generated diagrams drift from committed output.

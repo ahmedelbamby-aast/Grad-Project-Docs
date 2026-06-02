@@ -1,5 +1,7 @@
 # Triton Models — Inventory, Roles, and Dense-Tensor Anatomy
 
+**Last updated:** 2026-06-01
+
 **Status:** Reference document. Captured from live Triton on the production
 Linux RTX 5090 server on 2026-06-01. Re-run the `curl` commands at the end
 to refresh; the byte-count math is structural and only changes when the

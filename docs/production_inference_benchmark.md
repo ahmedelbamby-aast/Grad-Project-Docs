@@ -1,5 +1,7 @@
 # Production Inference Benchmark & Issue Log
 
+**Last updated:** 2026-06-02
+
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
 **Branch:** master @ `dcefea9`  

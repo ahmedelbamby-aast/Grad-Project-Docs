@@ -1,5 +1,7 @@
 # Triton Phase 0 Baseline Lock Report (Skeleton)
 
+**Last updated:** 2026-05-22
+
 Generated: 2026-05-22T11:23:09.952936+00:00
 Host: DESKTOP-LN61TNQ
 Python: 3.12.0

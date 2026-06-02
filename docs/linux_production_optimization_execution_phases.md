@@ -1,5 +1,7 @@
 # Linux Production Optimization Execution Phases (RTX 5090)
 
+**Last updated:** 2026-05-29
+
 > **Superseded (2026-05-29):** This plan has been superseded by the
 > [Heterogeneous Production Runtime Maturity Plan](heterogeneous_production_runtime_maturity_plan.md)
 > which is the current top-level controlling plan. This document remains

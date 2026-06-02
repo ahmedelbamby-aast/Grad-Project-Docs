@@ -1,5 +1,7 @@
 # Inference Pipeline Parallelization Plan
 
+**Last updated:** 2026-06-02
+
 **Status:** IMPLEMENTATION COMPLETE — **ROI-320 production benchmark partial; final GPU-utilization acceptance pending.**
 **Owner:** runtime/inference
 **Created:** 2026-05-30

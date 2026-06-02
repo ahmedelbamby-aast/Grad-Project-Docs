@@ -1,6 +1,42 @@
 # Documentation Index
 
-**Last Updated**: 2026-05-21
+**Last Updated**: 2026-06-02
+
+> **Reading-order note (2026-06-02):** the canonical reading order through
+> every project-owned narrative doc lives in the README under
+> ["Documentation Reading Order"](../README.md#documentation-reading-order-read-these-in-this-order-to-understand-the-complete-project).
+> If a doc's `**Last updated:**` header disagrees with where it appears
+> in that reading order, **the reading order is authoritative.** Use this
+> file as a topical index; use the README for the narrative reading path.
+
+## Inference Pipeline Optimization (active work)
+
+- [Cycle 9 + Cycle 10 Improvements TODO — the single entry point](cycle_9_and_10_improvements_todo.md)
+- [Cycles 9–12 Implementation Playbook](cycles_9_to_12_implementation_playbook.md)
+- [Runtime SLA: video + 5 min](runtime_sla_video_plus_5min.md)
+- [Triton Models & Tensor Anatomy](triton_models_and_tensor_anatomy.md)
+- [Inference Parallelization Plan](inference_parallelization_plan.md)
+- [Inference Bottlenecks & Solution Matrix](inference_bottlenecks_and_solution_matrix.md)
+- [Production Inference Benchmark](production_inference_benchmark.md)
+- [Cycle 9 Investigation](cycle_9_investigation.md)
+- [Cycle 9 Results (post-mortem — NOT ACCEPTED)](cycle_9_results.md)
+- [Cycle 9b Output Fusion Investigation](cycle_9b_output_fusion_investigation.md)
+- [Cycle 9b Output Fusion Results](cycle_9b_output_fusion_results.md)
+- [Cycle 9b Exact Slice Investigation](cycle_9b_exact_slice_investigation.md)
+- [Cycle 9b Top-K Anchor Packing Investigation](cycle_9b_topk_anchor_packing_investigation.md)
+- [Cycle 9b Top-K Anchor Packing Results — current accepted baseline](cycle_9b_topk_anchor_packing_results.md)
+- [Cycle 9b Child Critical-Path Results (Step 1, pre-Top-K)](cycle_9b_child_critical_path_results.md)
+- [Cycle 9b Child Critical-Path REMEASURE vs Top-K (Step 1 redo)](cycle_9b_child_critical_path_remeasure_topk_results.md)
+- [Logical Path Matrix Spec (Cycle 10)](logical_path_matrix_spec.md)
+- [Cycle 10 Investigation](cycle_10_investigation.md)
+- [Cycle 10 LPM Phase 1 Results — NOT ACCEPTED](cycle_10_lpm_phase1_results.md)
+- [Next Agent Starter Prompt](next_agent_starter_prompt.md)
+- [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
+- [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)
+- [Crop-Frame Optimization Execution Log](crop_frame_optimization_execution.md)
+- [Crop-Frame RTX 5090 Bottleneck Investigation](crop_frame_rtx5090_bottleneck_investigation.md)
+- [Crop GPU vs CPU Comparison](crop_gpu_vs_cpu_comparison.md)
+- [RTT Root-Cause Investigation (job 77650001)](rtt_root_cause_investigation_77650001.md)
 
 ## Architecture Spine
 

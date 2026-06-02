@@ -1,5 +1,7 @@
 # Cycle 9 + Cycle 10 — Remaining Improvements (TODO)
 
+**Last updated:** 2026-06-02
+
 **Status:** Consolidated TODO list. Nothing in this document is accepted or
 flagged "done" until each improvement has its own production benchmark on
 the Linux RTX 5090 server that demonstrates (a) the targeted metric

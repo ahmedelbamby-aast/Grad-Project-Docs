@@ -1,5 +1,7 @@
 # Triton Strategy Gap Analysis Matrix
 
+**Last updated:** 2026-05-15
+
 ## Objective
 Compare recommended Triton optimization strategies against what is currently **Implemented**, **Partially Implemented**, or **Missing** in this codebase, then classify each into:
 - **Must be Implemented**

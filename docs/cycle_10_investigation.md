@@ -1,5 +1,7 @@
 # Cycle 10 Investigation: LPM Phase 1 Hook
 
+**Last updated:** 2026-06-01
+
 **Status:** Phase A/B record before code changes. This is not accepted until a
 fresh production benchmark satisfies `docs/logical_path_matrix_spec.md` §10.
 

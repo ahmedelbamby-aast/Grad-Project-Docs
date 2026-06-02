@@ -1,5 +1,7 @@
 # Health Module
 
+**Last updated:** 2026-05-08
+
 ## Purpose
 Provides system health monitoring and broadcasts infrastructure status (service health, storage warnings) to connected dashboard clients in real time.
 

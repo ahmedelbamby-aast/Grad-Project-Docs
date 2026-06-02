@@ -1,5 +1,7 @@
 # Anomalies Module
 
+**Last updated:** 2026-05-08
+
 ## Purpose
 Detects, records, and broadcasts anomaly events during exam monitoring sessions. Provides both session-scoped and admin-global WebSocket feeds.
 

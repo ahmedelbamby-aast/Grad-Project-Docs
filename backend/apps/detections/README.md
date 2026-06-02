@@ -1,5 +1,7 @@
 # Detections Module
 
+**Last updated:** 2026-03-05
+
 ## Purpose
 Real-time detection frame streaming and pyramid prediction delivery for monitoring sessions.
 

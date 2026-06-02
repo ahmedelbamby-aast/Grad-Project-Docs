@@ -1,5 +1,7 @@
 # Crop-Frame Optimization Execution Log
 
+**Last updated:** 2026-06-02
+
 **Active baseline:** job `77650001-3c4b-4b0a-94aa-b4eb899b90df` (replay key `roi320-running-crop-frame-20260601T012133`).
 Baseline metrics: 4541 / 4541 frames, **1.308 FPS overall**, step-2 wall 2 175 s, avg GPU util **3.95 %**, peak 34 %.
 

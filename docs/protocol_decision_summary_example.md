@@ -1,5 +1,7 @@
 # Phase 5 Protocol Decision Summary
 
+**Last updated:** 2026-05-22
+
 - Gate status: **PASS**
 - Recommended protocol: **grpc**
 - Threshold: **10.00%** minimum improvement for throughput and p99

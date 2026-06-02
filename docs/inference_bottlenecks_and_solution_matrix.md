@@ -1,5 +1,7 @@
 # Inference Bottlenecks and Solution Decision Matrix
 
+**Last updated:** 2026-05-22
+
 ## Table 1: Current Issues, Bottlenecks, and Direct Fixes
 
 | Area | Issue / Bottleneck | Evidence | Impact | Solution |

@@ -1,5 +1,7 @@
 # Crop-Frame Pipeline: GPU vs CPU Cropping — Comparison & Latency Strategy
 
+**Last updated:** 2026-05-31
+
 > Scope: Phase 7 (`crop_frame` mode) of the
 > [Inference Pipeline Parallelization Plan](inference_parallelization_plan.md).
 > This document compares performing the **person-crop step** on the **CPU**

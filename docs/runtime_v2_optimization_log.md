@@ -1,5 +1,7 @@
 # Runtime V2 Optimization Log
 
+**Last updated:** 2026-05-22
+
 - Timestamp: 2026-05-22 04:35:00 +03:00
 - Goal: TensorRT V2 + OpenVINO V2 optimization with V1 fallback preserved
 - VRAM budget target: 4GB RTX 3050 Ti (OpenVINO budget cap set to 3584MB)

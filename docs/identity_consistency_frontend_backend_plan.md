@@ -1,3 +1,5 @@
+**Last updated:** 2026-05-22
+
 ## Frontend Architecture Changes
 
 Add normalized entity handling while preserving current frame playback.

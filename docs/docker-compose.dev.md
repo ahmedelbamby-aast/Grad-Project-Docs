@@ -1,5 +1,7 @@
 # docker-compose.dev.yml
 
+**Last updated:** 2026-05-22
+
 ## Related Documents
 
 - [source](../docker-compose.dev.yml)

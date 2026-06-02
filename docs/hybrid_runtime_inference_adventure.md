@@ -1,5 +1,7 @@
 # Hybrid Runtime Inference Adventure (Arguing_004.mp4)
 
+**Last updated:** 2026-05-22
+
 ## Scope
 Use the same offline test video (`E:\grad_project\Raw Data\Arguing Students only\Arguing_004.mp4`) with a **hybrid runtime** strategy by splitting model execution across:
 - **NVIDIA GPU** (TensorRT path)

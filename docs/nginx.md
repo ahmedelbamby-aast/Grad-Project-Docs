@@ -1,5 +1,7 @@
 # nginx.conf
 
+**Last updated:** 2026-05-09
+
 ## Related Documents
 
 - [source](../nginx.conf)

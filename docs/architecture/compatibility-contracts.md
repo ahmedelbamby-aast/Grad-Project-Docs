@@ -1,5 +1,7 @@
 # Compatibility Contract Index
 
+**Last updated:** 2026-05-09
+
 ## Related Documents
 
 - [module boundary map](module-boundary-map.md)

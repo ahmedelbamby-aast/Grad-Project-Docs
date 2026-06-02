@@ -1,4 +1,7 @@
 # System Optimization Quick Reference
+
+**Last updated:** 2026-05-29
+
 ## Three-Document Summary & Priority Matrix
 
 ---

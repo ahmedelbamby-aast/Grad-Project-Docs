@@ -1,5 +1,7 @@
 # Triton Optimization Strategies for Live Streaming and Offline Video Processing
 
+**Last updated:** 2026-05-10
+
 ## Scope
 This guide focuses on optimizing:
 - Throughput

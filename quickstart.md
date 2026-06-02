@@ -1,5 +1,7 @@
 # Quickstart
 
+**Last updated:** 2026-05-30
+
 This guide brings up the current repository from a fresh checkout using the commands that actually exist in this project.
 
 ## What This Starts

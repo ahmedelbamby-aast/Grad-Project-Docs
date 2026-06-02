@@ -1,5 +1,7 @@
 # Agents Execution Guide
 
+**Last updated:** 2026-06-02
+
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
 

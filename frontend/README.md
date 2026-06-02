@@ -1,5 +1,7 @@
 # Exam Monitoring Dashboard — Frontend Module
 
+**Last updated:** 2026-03-05
+
 Frontend SPA for real-time exam monitoring and post-session review.
 
 Built with React 19 + TypeScript + Vite, using Zustand for state, Axios for REST, and WebSockets for live telemetry.

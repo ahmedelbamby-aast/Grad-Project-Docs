@@ -1,5 +1,7 @@
 # Runtime SLA: `total_wall ≤ video_duration + 5 min`
 
+**Last updated:** 2026-06-02
+
 **Status:** Plan adopted 2026-06-01. Latest accepted baseline updated
 2026-06-02 after Cycle 9b exact slice + Top-K. Acceptance only after each cycle
 is measured on prod with before/after numbers, per the constitution.

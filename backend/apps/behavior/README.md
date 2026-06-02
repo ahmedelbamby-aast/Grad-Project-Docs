@@ -1,5 +1,7 @@
 # Behavior App
 
+**Last updated:** 2026-05-25
+
 This app owns typed temporal sequence storage, behavioral ontology, feature
 windows, anomaly primitives, and reproducible behavior exports for the maturity
 closure waves.

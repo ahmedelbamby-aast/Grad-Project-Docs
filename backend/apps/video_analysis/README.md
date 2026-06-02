@@ -1,5 +1,7 @@
 # Video Analysis Module
 
+**Last updated:** 2026-05-23
+
 ## Boundary Summary
 
 | Field | Value |

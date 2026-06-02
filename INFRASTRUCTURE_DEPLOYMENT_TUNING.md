@@ -1,4 +1,7 @@
 # Infrastructure & Deployment Tuning
+
+**Last updated:** 2026-05-29
+
 ## Production Readiness & Performance Optimization
 
 **Date**: 2026-05-29  

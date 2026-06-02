@@ -1,5 +1,7 @@
 # OpenVINO v2 GPU Throughput Sweep Results
 
+**Last updated:** 2026-05-22
+
 - Device: `GPU`
 - Hint: `THROUGHPUT`
 - Warmup: `2.0s`, Run: `8.0s` per case

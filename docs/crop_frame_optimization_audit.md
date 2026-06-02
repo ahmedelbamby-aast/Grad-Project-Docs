@@ -1,5 +1,7 @@
 # Crop-Frame Pipeline — Optimization Audit (Evidence-Based)
 
+**Last updated:** 2026-06-01
+
 > Auditor roles: Senior Systems Architect · Performance Engineer · Triton Expert · GPU Optimization Reviewer
 > Date: 2026-05-31 · Method: every claim verified against actual code / Triton configs / telemetry.
 > **Rule applied:** documentation without implementation = FAIL. Code evidence overrides docs.

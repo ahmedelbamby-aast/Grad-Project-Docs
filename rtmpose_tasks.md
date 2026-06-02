@@ -1,5 +1,7 @@
 # RTMPose Tasks: ⚠️-Only Completion Plan
 
+**Last updated:** 2026-05-21
+
 **Input**: `rtmpose_plan` (repo root) and `specs/007-pose-behavior-pipeline/evidence/final/rtmpose-engineering-validation-report.md`  
 **Scope Rule**: Implement **all and only** ⚠️ items; keep all ❌ items untouched/out-of-scope.  
 **Architecture Rule**: Reuse current runtime architecture; no new major feature family and no new core DB tables.  

@@ -1,5 +1,7 @@
 # Telemetry Layer
 
+**Last updated:** 2026-06-01
+
 Single authoritative layer for collecting, computing, and persisting run metrics
 across all execution modes: offline video processing, RTSP live streaming, and
 test/benchmark runs.
