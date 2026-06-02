@@ -209,6 +209,19 @@ They cite real files / lines from this repo per constitution § 19.6
 | 95 | [`paper/latex/equations_manifest.md`](paper/latex/equations_manifest.md) | 2026-06-02 | LaTeX equations manifest. |
 | 96 | [`paper/latex/traceability_matrix.md`](paper/latex/traceability_matrix.md) | 2026-06-02 | LaTeX traceability matrix (figure/equation → claim). |
 
+### Phase 11 — DSP entity docs (one per System / Module / Phase / Script / Code / API)
+
+These are the per-entity deep-dive docs produced by DSP Cycles 2-7
+(see [`docs/documentation_systematization_plan.md`](docs/documentation_systematization_plan.md)
+§ 1, § 2 and constitution § 19.2). Each follows
+[`docs/per_entity_doc_template.md`](docs/per_entity_doc_template.md)
+exactly and carries a source-of-truth references block the CI gate
+validates against the working tree.
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-02 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 9b Top-K (job `be4ba9ee`, 4.43 FPS, 9.5-min SLA gap). |
+
 ### Conventions used in this reading order
 
 - **Reading order is authoritative.** If a file has an old `**Last updated:**` date but appears in a later phase, that simply means the doc has been stable; it does NOT mean it can be skipped.
