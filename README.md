@@ -225,6 +225,7 @@ validates against the working tree.
 | 99 | [`docs/entity/systems/triton_inference_plane.md`](docs/entity/systems/triton_inference_plane.md) | 2026-06-02 | DSP Cycle 2 — the production inference authority. TritonClient + ModelRouteService + ensemble validator + per-host engine repo. Active route: `behavior_ensemble_gaze_slice_topk`. |
 | 100 | [`docs/entity/systems/telemetry_pipeline.md`](docs/entity/systems/telemetry_pipeline.md) | 2026-06-02 | DSP Cycle 2 — dual-sink (PostgreSQL + JSON) per-Celery-task telemetry layer. ContextVar-bound from `task_prerun` / `task_postrun` signals; JSON-first so DB outages never silently lose data. |
 | 101 | [`docs/entity/systems/camera_streaming_bridge.md`](docs/entity/systems/camera_streaming_bridge.md) | 2026-06-02 | DSP Cycle 2 — RTSP / ONVIF ingestion + go2rtc / gst-mediamtx registration + nginx WHEP proxy for browser preview. Owns the `CameraSource` model + WHEP plumbing. |
+| 102 | [`docs/entity/systems/frontend_spa.md`](docs/entity/systems/frontend_spa.md) | 2026-06-02 | DSP Cycle 2 — React 19 + Vite 8 SPA. REST (axios `/api/v1`) + WS (`useWebSocket`) + WHEP (`useWhepClient`). Closes Cycle 2 (6 of 6 systems). |
 
 ### Conventions used in this reading order
 
