@@ -142,6 +142,8 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_YOLO_MAX_DECODE_CANDIDATES` | `100` | `apps.video_analysis.tasks._decode_yolo_output0` |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `640` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
 | `TRITON_BEHAVIOR_ENSEMBLE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference`, `apps.pipeline.services.triton_client.TritonClient` |
+| `TRITON_BEHAVIOR_TOP_K_ENABLED` | `false` | `tools/prod/prod_enable_behavior_topk.sh`, `apps.video_analysis.tasks._decode_yolo_output0` |
+| `TRITON_BEHAVIOR_TOP_K_VALUE` | `100` | `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_enable_behavior_topk.sh` |
 | `GAZE_HORIZONTAL_HEAD_VARIANT` | `coco80` | `apps.video_analysis.tasks._yolo_output_channels_for_task`, `tools/prod/prod_start_triton.sh`, `tools/prod/prod_enable_gaze_horizontal_slice.sh` (`slice` is the accepted Cycle 9b production profile; `gaze2` rejected) |
 | `TRITON_MODEL_BATCH_SIZE_OVERRIDES` | `object-models=8,behavior_all=32,pose=16` | `apps.video_analysis.tasks._effective_task_batch_size` |
 | `TRITON_OFFLINE_THREADED_DECODE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
