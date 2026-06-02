@@ -243,6 +243,18 @@ This file defines how agents should execute tests quickly and safely in this rep
   restored to `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`; do not repeat
   `max_frames=4` unless the tracking/model-agreement instability is addressed
   first.
+- **2026-06-02 Cycle 9b B.1 compact postprocessing investigation OPEN**:
+  `docs/cycle_9b_compact_postproc_investigation.md` records that the accepted
+  exact-slice + Top-K baseline has already reduced behavior output traffic from
+  the old `~17.1 MB/frame` dense-output problem to `~0.33 MB/frame`. B.1 is
+  therefore still a valid candidate, but it must be measured as a remaining
+  output-transfer plus Python decode/NMS lever, not as the original dense-byte
+  removal. Pinned production Triton backends currently list
+  `distributed_addsub`, `dyna_sequence`, `implicit_state`, `iterative_sequence`,
+  `query`, `sequence`, and `tensorrt`; there is no `python` backend in the
+  pinned runtime, so B.1.a Python BLS is blocked until a controlled Triton
+  rebuild/switch is benchmarked. No B.1 code is implemented and no compact
+  backend is accepted.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

@@ -147,10 +147,14 @@ before/after is the only acceptance evidence.
 never cross gRPC. Same problem, two implementation strategies — both must
 be built and benchmarked side-by-side before one is selected.
 
-**Why this matters most:** every frame currently moves ~17.1 MB of dense
-YOLO grid bytes from GPU → CPU → gRPC → Python, runs NMS 68 times
-(17 crops × 4 models), then discards 99.99 % of it. See
-`docs/triton_models_and_tensor_anatomy.md` for the byte math.
+**Why this matters:** before Cycle 9b B.2.c, every frame moved ~17.1 MB of
+dense behavior YOLO grid bytes from GPU → CPU → gRPC → Python, ran NMS 68
+times (17 crops × 4 models), then discarded 99.99 % of it. The accepted
+exact-slice + Top-K route already reduced behavior outputs to roughly
+`~0.33 MB/frame`, so B.1 must now be measured as a smaller but still relevant
+remaining-output + client decode/NMS lever. See
+`docs/triton_models_and_tensor_anatomy.md` and
+`docs/cycle_9b_compact_postproc_investigation.md` for the updated byte math.
 
 #### B.1 approaches to test
 
@@ -180,16 +184,16 @@ the rollback to legacy is a single env flip.
 Fill the table in a new file `docs/cycle_9b_compact_postproc_results.md`.
 Numbers must come from prod, not local — see § E hard rule #1.
 
-| Metric | Legacy (Cycle 9 baseline) | B.1.a BLS Python | B.1.b C++ custom | B.1.c TRT plugin |
+| Metric | Current Top-K baseline | B.1.a BLS Python | B.1.b C++ custom | B.1.c TRT plugin |
 |---|---:|---:|---:|---:|
-| Step 2 wall (s) | 858.1 | ? | ? | ? |
-| Step 2 wall Δ vs legacy | — | ? % | ? % | ? % |
-| Total DB-completed elapsed (s) | 1 110.7 | ? | ? | ? |
-| Overall FPS (DB completed) | 4.09 | ? | ? | ? |
-| Avg GPU util (%) | 9.36 | ? | ? | ? |
-| Behavior dense bytes / frame | 17.1 MB | ~2 KB | ~2 KB | ~2 KB |
-| Avg behavior RTT (ms) | 107.9 | ? | ? | ? |
-| p95 behavior RTT (ms) | 173.9 | ? | ? | ? |
+| Step 2 wall (s) | 540.399 | ? | ? | ? |
+| Step 2 wall Δ vs Top-K | — | ? % | ? % | ? % |
+| Total DB-completed elapsed (s) | 1 022.952 | ? | ? | ? |
+| Overall FPS (DB completed) | 4.439 | ? | ? | ? |
+| Avg GPU util (%) | 9.344 | ? | ? | ? |
+| Behavior output bytes / frame | ~0.33 MB | ~2 KB | ~2 KB | ~2 KB |
+| Avg behavior RTT (ms) | 84.865 | ? | ? | ? |
+| p95 behavior RTT (ms) | 128.056 | ? | ? | ? |
 | Per-class bbox parity (Δ %) | 0 | ≤ 0.05 ✓ | ≤ 0.05 ✓ | ≤ 0.05 ✓ |
 | Engineering effort (person-days) | — | ~1 | ~5 | ~3 |
 | Production deploy risk | — | medium | high | medium-high |

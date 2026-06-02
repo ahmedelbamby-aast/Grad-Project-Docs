@@ -234,7 +234,7 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 
 | Order | Task | Where the spec lives |
 |---|---|---|
-| 1 | **B.1 compact postprocessing** — preferably BLS only after verifying the prod Triton backend exists or rebuilding it intentionally | TODO § B.1 |
+| 1 | **B.1 compact postprocessing** — start from `docs/cycle_9b_compact_postproc_investigation.md`; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
 | 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Top-K baseline | TODO § B.3 |
 | 3 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
 | 4 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
@@ -251,6 +251,14 @@ input `320 → 256` was tried and then rejected by real production benchmark:
 Step 2 and behavior RTT improved, but persisted behavior signals regressed and
 average GPU utilization fell. Do not rerun 256 unless the over-detection cause
 is first explained by a real-crop parity harness.
+
+B.1 has an open investigation now. The key update is that the accepted Top-K
+baseline already reduced behavior outputs from the old `~17.1 MB/frame` dense
+payload to `~0.33 MB/frame`, so compact postprocessing must prove decode/NMS
+and remaining-output savings against the current baseline. The pinned production
+Triton backend directory does not include `python`; do not implement BLS Python
+until a controlled Triton backend rebuild or runtime switch is part of the cycle
+and is benchmarked.
 
 B.4 batch-window `2 → 4` was also tried and rejected by real production
 benchmark (`cycle9b-b4-maxframes4-20260602T175820Z`, job

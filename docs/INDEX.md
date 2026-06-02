@@ -27,6 +27,8 @@
 - [Cycle 9b Top-K Anchor Packing Results — current accepted baseline](cycle_9b_topk_anchor_packing_results.md)
 - [Cycle 9b Child Critical-Path Results (Step 1, pre-Top-K)](cycle_9b_child_critical_path_results.md)
 - [Cycle 9b Child Critical-Path REMEASURE vs Top-K (Step 1 redo)](cycle_9b_child_critical_path_remeasure_topk_results.md)
+- [Cycle 9b B.1 Compact Postprocessing Investigation](cycle_9b_compact_postproc_investigation.md)
+- [Cycle 9b B.1 Compact Postprocessing Results](cycle_9b_compact_postproc_results.md)
 - [Cycle 9b B.4 Batch Window Investigation](cycle_9b_batch_window_investigation.md)
 - [Cycle 9b B.4 Batch Window Results](cycle_9b_batch_window_results.md)
 - [Logical Path Matrix Spec (Cycle 10)](logical_path_matrix_spec.md)

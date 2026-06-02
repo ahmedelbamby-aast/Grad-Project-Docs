@@ -736,6 +736,17 @@ B.1 compact postprocessing and B.3 Step 2 remain unaccepted; standalone B.2.a
 Top-K without exact-slice was not separately benchmarked because the accepted
 baseline has moved to B.2.c.
 
+Cycle 9b B.1 compact postprocessing investigation is **OPEN**. The investigation
+document `docs/cycle_9b_compact_postproc_investigation.md` updates the original
+B.1 premise for the accepted Top-K baseline: B.1 is no longer removing the old
+`~17.1 MB/frame` dense behavior output payload, because B.2.c already reduced
+that to `~0.33 MB/frame`. The remaining lever is server-side compact
+postprocessing to remove almost all remaining output bytes and client-side
+Python decode/NMS work. Pinned production Triton currently has no `python`
+backend in its active backend directory, so Python BLS cannot be selected until
+a controlled backend rebuild or runtime switch is benchmarked. No B.1
+implementation is accepted.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity
