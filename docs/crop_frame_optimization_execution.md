@@ -1,6 +1,6 @@
 # Crop-Frame Optimization Execution Log
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 **Active baseline:** job `77650001-3c4b-4b0a-94aa-b4eb899b90df` (replay key `roi320-running-crop-frame-20260601T012133`).
 Baseline metrics: 4541 / 4541 frames, **1.308 FPS overall**, step-2 wall 2 175 s, avg GPU util **3.95 %**, peak 34 %.
@@ -1259,11 +1259,16 @@ and the clean production profile completed as
 async-dispatch blocking wall, dominated by `behavior_all` (`338.779 s`), but
 did not implement an optimization candidate. Cycle 12 remains active and
 incomplete; the next candidate must overlap behavior wait/server execution, not
-only replace the sync async-bridge.
+only replace the sync async-bridge. The 2026-06-03 metric decision stages
+Cycle 12.B bounded behavior-wait overlap behind
+`TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`; it must run through
+`tools/prod/prod_run_behavior_overlap_benchmark.sh` before any decision can be
+made.
 
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|
-| 12.A | Persistent async dispatcher measurement and candidate producer/consumer frame loop — quantify and then reduce `async_runner.run(...)` boundary churn in `tasks.py` | hypothesis +10–20 %, must be proven | medium refactor; rollback is env-disable |
+| 12.A | Persistent async dispatcher measurement — quantify `async_runner.run(...)` boundary churn in `tasks.py` | measurement complete; no optimization decision | low; profiling flag rollback |
+| 12.B | Bounded behavior-wait overlap dispatcher — start `behavior_all` for batch N while preparing batch N+1, preserving ordered finalization | hypothesis +10 %, must be proven | medium; rollback is `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0` |
 | 11.B / B.3 Step 2 | Kernel-tactic or batch-profile tuning on the dominant 320 behavior child after Top-K | bounded at ~4 % Step 2 | low-medium; engine rebuild only if parity holds |
 | 13 | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | ~20 s total-wall only | low; does not address Step 2 |
 | 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |

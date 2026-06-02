@@ -1,6 +1,6 @@
 # Exam Monitoring Dashboard
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 Temporal behavioral intelligence platform with a Django backend, React
 frontend, WebSocket live updates, offline video analysis, camera streaming
@@ -91,6 +91,7 @@ context.
 | 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A real benchmark result: 256 input improved Step 2/RTT but was not accepted because persisted behavior signals regressed. |
 | 37d | [`docs/cycle_12_persistent_dispatcher_investigation.md`](docs/cycle_12_persistent_dispatcher_investigation.md) | 2026-06-02 | Cycle 12 investigation: persistent async dispatcher / single-process orchestration measurement before implementation. |
 | 37e | [`docs/cycle_12_persistent_dispatcher_results.md`](docs/cycle_12_persistent_dispatcher_results.md) | 2026-06-02 | Cycle 12 Phase A production profiling results and next implementation constraint. |
+| 37f | [`docs/cycle_12_overlap_dispatcher_investigation.md`](docs/cycle_12_overlap_dispatcher_investigation.md) | 2026-06-03 | Cycle 12.B selected candidate: overlap behavior wait while preserving ordered frame commits. |
 
 ### Phase 4 — Triton-specific deep dives
 
@@ -222,13 +223,13 @@ validates against the working tree.
 
 | # | File | Last updated | Why read this here |
 |---|---|---|---|
-| 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-02 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 9b Top-K (job `be4ba9ee`, 4.43 FPS, 9.5-min SLA gap). |
+| 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-03 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 9b Top-K (job `be4ba9ee`, 4.43 FPS, 9.5-min SLA gap). |
 | 98 | [`docs/entity/systems/live_streaming_pipeline.md`](docs/entity/systems/live_streaming_pipeline.md) | 2026-06-02 | DSP Cycle 2 — sibling live pipeline. One Celery task per session/camera; live Triton endpoint `:39001`; live detection + anomaly events via Channels. |
-| 99 | [`docs/entity/systems/triton_inference_plane.md`](docs/entity/systems/triton_inference_plane.md) | 2026-06-02 | DSP Cycle 2 — the production inference authority. TritonClient + ModelRouteService + ensemble validator + per-host engine repo. Active route: `behavior_ensemble_gaze_slice_topk`. |
+| 99 | [`docs/entity/systems/triton_inference_plane.md`](docs/entity/systems/triton_inference_plane.md) | 2026-06-03 | DSP Cycle 2 — the production inference authority. TritonClient + ModelRouteService + ensemble validator + per-host engine repo. Active route: `behavior_ensemble_gaze_slice_topk`. |
 | 100 | [`docs/entity/systems/telemetry_pipeline.md`](docs/entity/systems/telemetry_pipeline.md) | 2026-06-02 | DSP Cycle 2 — dual-sink (PostgreSQL + JSON) per-Celery-task telemetry layer. ContextVar-bound from `task_prerun` / `task_postrun` signals; JSON-first so DB outages never silently lose data. |
 | 101 | [`docs/entity/systems/camera_streaming_bridge.md`](docs/entity/systems/camera_streaming_bridge.md) | 2026-06-02 | DSP Cycle 2 — RTSP / ONVIF ingestion + go2rtc / gst-mediamtx registration + nginx WHEP proxy for browser preview. Owns the `CameraSource` model + WHEP plumbing. |
 | 102 | [`docs/entity/systems/frontend_spa.md`](docs/entity/systems/frontend_spa.md) | 2026-06-02 | DSP Cycle 2 — React 19 + Vite 8 SPA. REST (axios `/api/v1`) + WS (`useWebSocket`) + WHEP (`useWhepClient`). Closes Cycle 2 (6 of 6 systems). |
-| 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-02 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
+| 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-03 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
 
 ### Conventions used in this reading order
 
@@ -830,6 +831,7 @@ These variables are present in the active root `.env` and are supported by the c
 | `TRITON_RETRY_TIMEOUT_SCALE` | `2.0` | `backend/config/settings/base.py` | Backoff scale applied between Triton retries. | Positive float. | Higher values back off more aggressively between attempts. |
 | `TRITON_OFFLINE_FRAME_STRIDE` | `10` | `backend/config/settings/base.py`, `backend/apps/video_analysis/tasks.py` | Thins frame submission cadence for offline Triton processing. | Positive integer. | Higher values reduce load and accuracy granularity; lower values process more frames. |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `640` | `backend/config/settings/base.py`, `backend/apps/video_analysis/tasks.py` | Selects the square crop-frame input size used only for posture/gaze behavior crops. | Integer >= 32 divisible by 32. Values below 640 require matching TensorRT plans and Triton configs built by `tools/prod/prod_enable_roi_crop_behavior.sh`. | Reduces crop-frame behavior pixels and Python/gRPC tensor traffic when paired with matching engines; mismatched configs make Triton reject requests. |
+| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `0` | `backend/config/settings/base.py`, `backend/apps/video_analysis/tasks.py`, `tools/prod/prod_run_behavior_overlap_benchmark.sh` | Enables the Cycle 12.B candidate that submits crop-frame `behavior_all` for batch N while preparing batch N+1. | Boolean-like values. Keep `0` unless running the documented production benchmark. | Intended to overlap measured behavior wait with useful next-batch work; rollback is `0` plus Celery worker restart. No acceptance decision is valid without the Linux RTX 5090 production benchmark and model-agreement gates. |
 | `TRITON_BEHAVIOR_ENSEMBLE` | `0` in base defaults, `1` in optimized production helper | `backend/config/settings/base.py`, `backend/apps/video_analysis/tasks.py`, `backend/apps/pipeline/services/triton_client.py`, `tools/prod/prod_start_triton.sh` | Routes crop-frame behavior fan-out through `behavior_ensemble` so one crop tensor upload feeds posture plus the three gaze models. | Boolean-like values. Requires `behavior_ensemble` in `TRITON_LOAD_MODEL` and a valid Triton ensemble config. | When enabled, reduces behavior request fragmentation; rollback is setting this to `0`, which restores the four standalone model calls. |
 | `TRITON_BEHAVIOR_TOP_K_ENABLED` | `0` | `backend/config/settings/base.py`, `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_enable_behavior_topk.sh` | Enables the accepted-with-caveat Cycle 9b B.2.c route that packs only the top task-valid behavior anchors inside Triton before returning outputs to Python. | Boolean-like values. Requires `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, `behavior_ensemble_gaze_slice_topk`, and four FP32 Top-K adapter plans loaded in Triton. | Production benchmark `cycle9b-topk-crop-frame-20260602T041900` passed decoded parity and improved Step 2 wall/RTT; average GPU utilization did not improve. Rollback is `0` plus `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice`. |
 | `TRITON_BEHAVIOR_TOP_K_VALUE` | `100` | `backend/config/settings/base.py`, `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_enable_behavior_topk.sh`, `tools/prod/prod_behavior_topk_parity.py` | Controls the number of behavior anchors kept per crop/model by the Top-K adapters. | Positive integer; must match `TRITON_YOLO_MAX_DECODE_CANDIDATES` for parity. | Lower values reduce output traffic but risk dropping detections; do not change without decoded parity and full production benchmark. |

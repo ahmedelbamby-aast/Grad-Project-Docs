@@ -1,6 +1,6 @@
 # Triton Operations Runbook
 
-**Updated**: 2026-05-25
+**Updated**: 2026-06-03
 
 ## Scope
 
@@ -141,6 +141,7 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `TRITON_TRUE_BATCH_REQUESTS` | `true` | `apps.video_analysis.services.inference_orchestrator.InferenceOrchestrator` |
 | `TRITON_YOLO_MAX_DECODE_CANDIDATES` | `100` | `apps.video_analysis.tasks._decode_yolo_output0` |
 | `TRITON_CROP_BEHAVIOR_INPUT_SIZE` | `640` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |
+| `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP` | `false` | `apps.video_analysis.tasks._run_triton_frame_level_inference`, `tools/prod/prod_run_behavior_overlap_benchmark.sh` |
 | `TRITON_BEHAVIOR_ENSEMBLE` | `true` | `apps.video_analysis.tasks._run_triton_frame_level_inference`, `apps.pipeline.services.triton_client.TritonClient` |
 | `TRITON_BEHAVIOR_TOP_K_ENABLED` | `false` | `tools/prod/prod_enable_behavior_topk.sh`, `apps.video_analysis.tasks._decode_yolo_output0` (`true` is the accepted-with-caveat Cycle 9b B.2.c profile when `GAZE_HORIZONTAL_HEAD_VARIANT=slice`) |
 | `TRITON_BEHAVIOR_TOP_K_VALUE` | `100` | `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_enable_behavior_topk.sh` (`100` must match the decoder candidate cap for parity) |

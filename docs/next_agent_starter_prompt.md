@@ -4,7 +4,7 @@
 self-contained — read it once, then act. Every link in here points to a
 file that already exists in this repository (verify with `git ls-files`).
 
-**Last updated:** 2026-06-02 (after Cycle 12 Phase A async-dispatch profiling).
+**Last updated:** 2026-06-03 (after Cycle 12.B metric decision and overlap staging).
 
 ---
 
@@ -233,7 +233,7 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 
 | Order | Task | Where the spec lives |
 |---|---|---|
-| 1 | **Cycle 12 persistent async dispatcher candidate** — start from `docs/cycle_12_persistent_dispatcher_results.md`; implement only a bounded overlap design that attacks behavior wait/server execution, not a cosmetic async-bridge replacement | TODO § Z.2 |
+| 1 | **Cycle 12.B bounded behavior-wait overlap** — start from `docs/cycle_12_overlap_dispatcher_investigation.md`; run the guarded `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` candidate through the production benchmark before any decision | TODO § Z.2 |
 | 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Top-K baseline | TODO § B.3 |
 | 3 | **B.1 compact postprocessing** — only if the candidate reduces wait/server execution; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
 | 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
@@ -259,7 +259,12 @@ blocking wall; `behavior_all` owned `338.779 s`. No persistent dispatcher
 candidate was deployed, so no decision exists. The next candidate must overlap
 behavior wait/server execution while preserving ordered frame commits. A change
 that only replaces `async_runner.run(...)` with another synchronous bridge is
-probably below the `>=10 %` Step 2 gate.
+probably below the `>=10 %` Step 2 gate. The 2026-06-03 metric decision selects
+Cycle 12.B bounded behavior-wait overlap and rejects bridge-only work as the
+next implementation target. Use
+`tools/prod/prod_run_behavior_overlap_benchmark.sh` on `combined.mp4`; do not
+record an optimization decision until the production metrics, DB parity,
+model-agreement, RTT/GPU/memory, and rollback proof are documented.
 
 B.1 has an open investigation now. The key update is that the accepted Top-K
 baseline already reduced behavior outputs from the old `~17.1 MB/frame` dense

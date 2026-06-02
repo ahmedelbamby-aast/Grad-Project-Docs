@@ -1,6 +1,6 @@
 # Agents Execution Guide
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
@@ -371,7 +371,16 @@ the next case.
   `HYPOTHESIS_ONLY`: no Cycle 12 optimization is accepted, rejected, skipped,
   or closed yet. The next candidate must overlap behavior wait/server execution;
   replacing only the sync async-bridge is probably below the `>=10 %` Step 2
-  acceptance gate.
+  acceptance gate. 2026-06-03 metric decision: the bridge-only dispatcher was
+  not selected for implementation; Cycle 12.B is the bounded behavior-wait
+  overlap candidate recorded in
+  `docs/cycle_12_overlap_dispatcher_investigation.md`. It is implemented only
+  behind `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`, with reproducible benchmark
+  wrapper `tools/prod/prod_run_behavior_overlap_benchmark.sh`. This is still
+  staged work only. No acceptance/rejection/skip/closure decision exists until
+  a completed `combined.mp4` production Linux RTX 5090 benchmark writes the
+  before/after table, model-agreement rows, DB parity, RTT/GPU/memory evidence,
+  and rollback proof.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

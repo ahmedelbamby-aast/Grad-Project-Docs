@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated**: 2026-06-02
+**Last Updated**: 2026-06-03
 
 > **Reading-order note (2026-06-02):** the canonical reading order through
 > every project-owned narrative doc lives in the README under
@@ -45,6 +45,7 @@
 - [Cycle 11 Input Size Results — real benchmark rejection](cycle_11_input_size_results.md)
 - [Cycle 12 Persistent Async Dispatcher Investigation](cycle_12_persistent_dispatcher_investigation.md)
 - [Cycle 12 Persistent Async Dispatcher Results](cycle_12_persistent_dispatcher_results.md)
+- [Cycle 12.B Behavior-Wait Overlap Dispatcher Investigation](cycle_12_overlap_dispatcher_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)

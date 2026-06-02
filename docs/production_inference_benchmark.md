@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -1784,7 +1784,8 @@ Decision explanation:
 | Did correctness stay comparable? | Rows within `0.02 %`, tracks unchanged at `53`, model F1 `>=99.716 %`. | Correctness gate is suitable for future candidate comparison. |
 | What did Phase A prove? | Async-dispatch blocking wall was `349.643 s`, with `behavior_all` responsible for `338.779 s`. | The next candidate must attack behavior wait, not only wrapper overhead. |
 | What is the pure overhead ceiling? | Behavior boundary mean `94.184 ms` vs behavior telemetry RTT mean `84.376 ms`, about `9.808 ms/call` or `35.3 s` over `3597` calls. | A candidate that only removes loop-crossing overhead is unlikely to pass the `>=10 %` Step 2 gate. |
-| What remains unresolved? | No persistent dispatcher candidate has been implemented or benchmarked. | Cycle 12 remains active and incomplete. |
+| Which candidate was selected from these metrics? | `behavior_all` owns `338.779 s`; bridge-only overhead is only about `35.3 s`. | Stage Cycle 12.B bounded behavior-wait overlap behind `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`; benchmark with `tools/prod/prod_run_behavior_overlap_benchmark.sh`. |
+| What remains unresolved? | No Cycle 12.B production candidate benchmark exists yet. | Cycle 12 remains active and incomplete. |
 
 Production was restored after the benchmark to:
 

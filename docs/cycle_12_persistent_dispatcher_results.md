@@ -1,6 +1,6 @@
 # Cycle 12 Persistent Async Dispatcher Results
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 **Status:** PHASE A MEASUREMENT COMPLETE. NO OPTIMIZATION DECISION.
 
@@ -104,3 +104,14 @@ The next candidate must explicitly overlap useful work:
 
 Until that candidate is implemented and benchmarked, Cycle 12 remains active
 and incomplete.
+
+## Candidate-Selection Decision
+
+| Option | Decision | Reason |
+|---|---|---|
+| Bridge-only async replacement | NOT SELECTED | The measured upper-bound gap is about `35.3 s`, below the `>=10 %` Step 2 gate. |
+| Bounded behavior-wait overlap | SELECTED FOR CYCLE 12.B | `behavior_all` owns `338.779 s` of async-dispatch blocking wall. |
+
+Implementation scope is documented in
+`docs/cycle_12_overlap_dispatcher_investigation.md`. This is a selection of the
+next task, not acceptance or rejection of Cycle 12 as an optimization.

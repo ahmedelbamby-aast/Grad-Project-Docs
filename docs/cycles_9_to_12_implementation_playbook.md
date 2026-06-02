@@ -1,7 +1,7 @@
 # Cycles 9-13 Implementation Playbook
 
 **Status:** Historical playbook plus execution roadmap — no acceptance until each cycle has its own measured before/after on prod RTX 5090 against the canonical `combined.mp4` benchmark.
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 **Filename note:** `cycles_9_to_12_implementation_playbook.md` is historical; the restaged sequence now includes Cycle 12 persistent async-dispatch measurement and shifts render/persistence cleanup to Cycle 13.
 **Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, **4.429 FPS overall (DB completed), 17.0 min total**. Earlier cycle projections in this file are retained as historical planning context; use `docs/cycle_9_and_10_improvements_todo.md` § Z and `docs/runtime_sla_video_plus_5min.md` for current sequencing.
 **SLA target** (per `docs/runtime_sla_video_plus_5min.md`): `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (2 m 31 s): **≤ 7 m 31 s = ≥ 10.07 FPS overall**.
@@ -368,6 +368,10 @@ therefore the Python orchestration boundary inside the accepted 320 Top-K route.
 4. If the production table proves material boundary cost, implement the
    persistent producer/consumer dispatcher behind an env flag and benchmark it
    against the same baseline.
+5. 2026-06-03 decision: do not implement a bridge-only dispatcher. Stage the
+   bounded behavior-wait overlap candidate instead; it starts `behavior_all`
+   for batch N while preparing batch N+1, then finalizes results in original
+   order.
 
 ### Expected gains
 - Measurement phase completed: clean production replay
@@ -378,6 +382,9 @@ therefore the Python orchestration boundary inside the accepted 320 Top-K route.
 - Candidate phase: must overlap behavior wait/server execution. A candidate
   that only removes the synchronous loop-crossing bridge is probably below the
   `>=10 %` Step 2 gate.
+- Cycle 12.B candidate: `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`, benchmarked by
+  `tools/prod/prod_run_behavior_overlap_benchmark.sh`. No decision exists until
+  the full production benchmark and correctness gates complete.
 
 ### Risk
 Medium. A persistent dispatcher can change task scheduling and result-order
@@ -419,7 +426,8 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | **+ Cycle 9** | Triton ensemble for 4 behavior models | ~1 180 s | ~3.85 | +12.1 min |
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
 | **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
-| **+ Cycle 12** | Persistent async dispatcher | Phase A measured | no decision | candidate benchmark required |
+| **+ Cycle 12.A** | Persistent async dispatcher measurement | Phase A measured | no decision | complete |
+| **+ Cycle 12.B** | Bounded behavior-wait overlap dispatcher | staged behind env flag | no decision | candidate benchmark required |
 | **+ Cycle 13** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
 
 **After Cycle 13 we are projected at ≈ 5 FPS (≈ 15.2 min total)** only if the

@@ -1,6 +1,6 @@
 # Inference Pipeline Parallelization Plan
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 **Status:** IMPLEMENTATION COMPLETE — **ROI-320 production benchmark partial; final GPU-utilization acceptance pending.**
 **Owner:** runtime/inference
@@ -797,6 +797,13 @@ was `349.643 s`, and `behavior_all` owned `338.779 s`. No optimization
 candidate was deployed, so no Cycle 12 acceptance/rejection decision exists.
 The next implementation must overlap behavior wait/server execution; removing
 only the loop-crossing bridge is probably below the `>=10 %` Step 2 gate.
+The 2026-06-03 metric decision therefore selects Cycle 12.B bounded
+behavior-wait overlap, documented in
+`docs/cycle_12_overlap_dispatcher_investigation.md`, over a bridge-only
+dispatcher. The candidate is guarded by
+`TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` and must be benchmarked with
+`tools/prod/prod_run_behavior_overlap_benchmark.sh` before any optimization
+decision is valid.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
