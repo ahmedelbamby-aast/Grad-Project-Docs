@@ -225,6 +225,30 @@ requires a documented benchmark comparison table. The helper waits for the job
 to reach a terminal state before collecting metrics, because `processed_frames`
 can reach `4541/4541` before embedding/finalization marks the job `completed`.
 
+Semi-real-time benchmark metrics watcher:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10
+```
+
+Watch a specific run by replay key or job id:
+
+```bash
+bash tools/prod/prod_watch_benchmark_metrics.sh \
+  --replay-key cycle9b-b1-fullbench-20260602T192344Z \
+  --interval 15
+
+bash tools/prod/prod_watch_benchmark_metrics.sh \
+  --job-id 00e0e1da-44b6-4198-ad39-39fd853e4e18 \
+  --once
+```
+
+The watcher is read-only. It prints tabular job progress, live GPU sample,
+benchmark GPU CSV summary, collected metrics JSON, DB counters, per-model bbox
+counts, inference-audit stage values, model RTT telemetry, model-agreement
+correctness evidence, and run summaries from PostgreSQL/Django.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash
