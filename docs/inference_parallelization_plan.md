@@ -724,7 +724,7 @@ Cycle 9b B.4 larger batch window is **NOT ACCEPTED**. Production benchmark
 `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` from `2` to `4` while keeping the
 accepted 320 Top-K route. The candidate completed `4541/4541` frames and
 improved Step 2 frame wall `540.399 s → 512.445 s` (`-5.17 %`) plus
-DB-completed FPS `4.439 → 4.572` (`+3.00 %`), with sampled worker RSS
+DB-completed FPS `4.439 → 4.471` (`+0.71 %`), with sampled worker RSS
 `1120.328 MiB`. It failed the acceptance gate because behavior RTT mean
 regressed `84.865 ms → 99.251 ms`, StudentTrack count dropped `53 → 47`, and
 baseline-agreement F1@IoU0.5 failed for `attention_tracking` (`24.531 %`),

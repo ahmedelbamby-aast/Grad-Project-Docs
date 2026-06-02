@@ -231,7 +231,7 @@ This file defines how agents should execute tests quickly and safely in this rep
   `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`.
   The run completed `4541/4541` frames and bounded sampled Celery RSS at
   `1120.328 MiB`. It improved Step 2 frame wall `540.399 s → 512.445 s`
-  (`-5.17 %`) and DB-completed FPS `4.439 → 4.572` (`+3.00 %`), but failed
+  (`-5.17 %`) and DB-completed FPS `4.439 → 4.471` (`+0.71 %`), but failed
   the acceptance gate: behavior RTT mean regressed `84.865 ms → 99.251 ms`,
   persisted StudentTrack count dropped `53 → 47`, GPU peak moved
   `53 % → 49 %`, and baseline-agreement F1@IoU0.5 failed for

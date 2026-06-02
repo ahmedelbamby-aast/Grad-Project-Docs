@@ -1131,7 +1131,7 @@ The production benchmark completed on `combined.mp4`:
 
 | Metric | 320 Top-K baseline | B.4 candidate | Delta |
 |---|---:|---:|---:|
-| DB-completed FPS | `4.439` | `4.572` | `+3.00 %` |
+| DB-completed FPS | `4.439` | `4.471` | `+0.71 %` |
 | Step 2 frame wall | `540.399 s` | `512.445 s` | `-5.17 %` |
 | Step 2 through pose upload | `767.589 s` | `739.389 s` | `-3.67 %` |
 | Behavior RTT mean | `84.865 ms` | `99.251 ms` | `+16.95 %` |

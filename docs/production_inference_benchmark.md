@@ -1464,8 +1464,8 @@ gain did not preserve model agreement and track continuity.
 |---|---:|---:|---:|
 | Status | `completed` | `completed` | pass |
 | Processed frames | `4541` | `4541` | `0` |
-| DB-completed FPS | `4.439` | `4.572` | `+3.00 %` |
-| DB-completed elapsed | `1022.952 s` | `993.178 s` | `-2.91 %` |
+| DB-completed FPS | `4.439` | `4.471` | `+0.71 %` |
+| DB-completed elapsed | `1022.952 s` | `1015.694 s` | `-0.71 %` |
 | Step 2 frame wall | `540.399 s` | `512.445 s` | `-5.17 %` |
 | Step 2 through pose upload | `767.589 s` | `739.389 s` | `-3.67 %` |
 | Behavior RTT mean | `84.865 ms` | `99.251 ms` | `+16.95 %` |
@@ -1522,7 +1522,7 @@ bash tools/prod/prod_run_batch_window_benchmark.sh \
 ```
 
 **Decision:** **NOT ACCEPTED.** The batch-window candidate improved Step 2
-wall by `5.17 %` and DB-completed FPS by `3.00 %`, but it increased behavior
+wall by `5.17 %` and DB-completed FPS by `0.71 %`, but it increased behavior
 RTT mean by `16.95 %`, reduced persisted StudentTrack count from `53` to `47`,
 and failed model-agreement gates for three behavior outputs. Keep the accepted
 Cycle 9b B.2.c `max_frames=2` profile.

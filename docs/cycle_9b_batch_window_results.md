@@ -43,7 +43,7 @@ The accepted production baseline remains Cycle 9b B.2.c:
 | Candidate batch window | `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=4` |
 | Candidate Step 2 frame wall | `512.445 s` |
 | Candidate Step 2 through pose upload | `739.389 s` |
-| Candidate DB-completed FPS | `4.572` |
+| Candidate DB-completed FPS | `4.471` |
 | RSS guardrail | `< 4096 MiB` peak sampled Celery worker RSS |
 | Sampled worker RSS peak | `1120.328 MiB` |
 
@@ -69,8 +69,8 @@ The accepted production baseline remains Cycle 9b B.2.c:
 | Metric | 320 Top-K baseline | B.4 candidate | Delta |
 |---|---:|---:|---:|
 | Status | `completed` | `completed` | pass |
-| DB-completed FPS | `4.439` | `4.572` | `+3.00 %` |
-| DB-completed elapsed | `1022.952 s` | `993.178 s` | `-2.91 %` |
+| DB-completed FPS | `4.439` | `4.471` | `+0.71 %` |
+| DB-completed elapsed | `1022.952 s` | `1015.694 s` | `-0.71 %` |
 | Step 2 frame wall | `540.399 s` | `512.445 s` | `-5.17 %` |
 | Step 2 through pose upload | `767.589 s` | `739.389 s` | `-3.67 %` |
 | Behavior RTT mean | `84.865 ms` | `99.251 ms` | `+16.95 %` |
@@ -108,7 +108,7 @@ accepted 320 Top-K baseline, not human-labeled accuracy:
 ## Decision
 
 **NOT ACCEPTED.** The candidate improved Step 2 frame wall by `5.17 %`,
-overall DB-completed FPS by `3.00 %`, and average GPU utilization by only
+overall DB-completed FPS by `0.71 %`, and average GPU utilization by only
 `1.23 %`. It also increased behavior RTT mean by `16.95 %`, lowered peak GPU
 utilization, reduced persisted `StudentTrack` count from `53` to `47`, and
 failed the model-agreement gate for three behavior models.
