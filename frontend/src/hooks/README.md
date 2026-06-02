@@ -1,5 +1,7 @@
 # Hooks Module
 
+**Last updated:** 2026-03-05
+
 ## Purpose
 - Reusable stateful logic for sockets, camera streaming, and session monitoring.
 

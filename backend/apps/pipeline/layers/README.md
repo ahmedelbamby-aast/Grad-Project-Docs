@@ -1,5 +1,7 @@
 # Layers
 
+**Last updated:** 2026-04-30
+
 Behavior-layer package for posture and gaze classification.
 
 ## Purpose

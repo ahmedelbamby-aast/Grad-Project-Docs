@@ -1,5 +1,7 @@
 # Tasks: Runtime Stability Remediation Plan
 
+**Last updated:** 2026-05-29
+
 **Input:** [docs/runtime_stability_remediation/plan.md](plan.md)
 
 **Status:** COMPLETED 2026-05-29 — all tasks done, merged to master (SHA 375cc84)

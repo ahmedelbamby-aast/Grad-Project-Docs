@@ -1,5 +1,7 @@
 # infra/systemd/triton-server.service
 
+**Last updated:** 2026-05-09
+
 ## Related Documents
 
 - [source](../../../infra/systemd/triton-server.service)

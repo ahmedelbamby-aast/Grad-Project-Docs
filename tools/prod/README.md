@@ -1,5 +1,7 @@
 # Production Queue Workers (No Docker / No sudo)
 
+**Last updated:** 2026-06-02
+
 This folder contains production-native scripts to launch dedicated Celery workers per queue and avoid queue contention between live/offline control paths and model-specific dispatch paths.
 
 The active implementation wave for this runbook is the behavioral maturity

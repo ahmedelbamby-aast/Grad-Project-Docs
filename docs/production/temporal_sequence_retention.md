@@ -1,5 +1,7 @@
 # Temporal Sequence Retention Runbook
 
+**Last updated:** 2026-05-25
+
 ## Policy
 - Raw temporal sequence records are retained.
 - Physical delete is forbidden during maturity closure.

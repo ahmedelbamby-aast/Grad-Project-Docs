@@ -1,5 +1,7 @@
 # API Module
 
+**Last updated:** 2026-05-25
+
 ## Purpose
 Centralised HTTP client and per-resource API functions for communicating with the backend REST API. All modules share a single Axios instance configured in `client.ts`.
 

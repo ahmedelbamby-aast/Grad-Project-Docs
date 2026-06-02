@@ -1,5 +1,7 @@
 # BSIL Frontend Surfaces
 
+**Last updated:** 2026-05-27
+
 BSIL components render reviewer-facing truth states and governed confidence
 bands. They must not convert backend `degraded`, `invalid`, `unknown` or
 `unavailable` states into successful UI states.

@@ -1,5 +1,7 @@
 # Model Lifecycle
 
+**Last updated:** 2026-04-30
+
 Model inventory, export, benchmark, deployment, and Triton repository utilities.
 
 ## Purpose

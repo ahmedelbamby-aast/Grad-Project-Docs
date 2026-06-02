@@ -1,5 +1,7 @@
 # Camera Components
 
+**Last updated:** 2026-03-05
+
 ## Purpose
 - UI components for camera tiles, grid behavior, overlays, and connection status.
 

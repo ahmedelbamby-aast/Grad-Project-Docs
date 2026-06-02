@@ -33,6 +33,7 @@ context.
 | 3a | [`docs/documentation_systematization_plan.md`](docs/documentation_systematization_plan.md) | 2026-06-02 | Documentation Systematization Program (DSP) master plan. Read before touching any markdown file. Constitution Section 19 backstops it. |
 | 3b | [`docs/per_entity_doc_template.md`](docs/per_entity_doc_template.md) | 2026-06-02 | The template every entity doc MUST follow. Required by constitution § 19.2. |
 | 3c | [`docs/mermaid_theme_contract.md`](docs/mermaid_theme_contract.md) | 2026-06-02 | The Mermaid theme + palette + label-fitting contract. Required by constitution § 19.3, § 19.4. |
+| 3d | [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | 2026-06-02 (v2.5.0) | Full constitutional text. Section 19 is the DSP backstop. Footer carries `**Version** \| **Ratified** \| **Last Amended**`. |
 
 ### Phase 1 — System architecture & module boundaries
 
@@ -111,6 +112,12 @@ context.
 | 48 | [`docs/linux_production_optimization_execution_phases.md`](docs/linux_production_optimization_execution_phases.md) | 2026-05-29 | Linux production optimization phased execution log. |
 | 49 | [`docs/runtime_v2_optimization_log.md`](docs/runtime_v2_optimization_log.md) | 2026-05-22 | Runtime v2 optimization log. |
 | 50 | [`docs/runtime_ux_pass.md`](docs/runtime_ux_pass.md) | 2026-05-13 | Runtime UX pass. |
+| 50a | [`docs/heterogeneous_production_runtime_maturity/tasks.md`](docs/heterogeneous_production_runtime_maturity/tasks.md) | 2026-05-29 | Per-task list for the heterogeneous-runtime maturity plan (mirror of plan §). |
+| 50b | [`docs/runtime_stability_remediation/plan.md`](docs/runtime_stability_remediation/plan.md) | 2026-05-29 | Runtime stability remediation plan (job lifecycle + vector integrity). Backstop for constitution § 17. |
+| 50c | [`docs/runtime_stability_remediation/tasks.md`](docs/runtime_stability_remediation/tasks.md) | 2026-05-29 | Remediation task list. |
+| 50d | [`docs/production/behavioral_ontology_v1.md`](docs/production/behavioral_ontology_v1.md) | 2026-05-25 | Behavioral ontology v1 — production label semantics. |
+| 50e | [`docs/production/runtime_maturity_operator_checklist.md`](docs/production/runtime_maturity_operator_checklist.md) | 2026-05-27 | Operator-facing runtime-maturity checklist. |
+| 50f | [`docs/production/temporal_sequence_retention.md`](docs/production/temporal_sequence_retention.md) | 2026-05-25 | Temporal-sequence retention policy. |
 
 ### Phase 6 — Adjacent feature work (pose, models, identity)
 
@@ -138,6 +145,11 @@ context.
 | 65 | [`docs/multimodal.md`](docs/multimodal.md) | 2026-06-02 | Multimodal integration notes. |
 | 66 | [`docs/protocol_decision_harness.md`](docs/protocol_decision_harness.md) | 2026-05-22 | Protocol-decision harness. |
 | 67 | [`docs/protocol_decision_summary_example.md`](docs/protocol_decision_summary_example.md) | 2026-05-22 | Protocol-decision summary example. |
+| 67a | [`docs/infra/docker/triton/Dockerfile.md`](docs/infra/docker/triton/Dockerfile.md) | 2026-05-09 | Triton Dockerfile commentary (dev profile only; production is no-Docker). |
+| 67b | [`docs/infra/systemd/triton-server.md`](docs/infra/systemd/triton-server.md) | 2026-05-09 | Triton systemd-service notes for prod runtime. |
+| 67c | [`tools/prod/README.md`](tools/prod/README.md) | 2026-06-02 | Index of every script under `tools/prod/`. Read before invoking any prod helper. |
+| 67d | [`scripts/ci/specs/README.md`](scripts/ci/specs/README.md) | 2026-05-22 | CI spec helpers index. |
+| 67e | [`scripts/models/README.md`](scripts/models/README.md) | 2026-05-10 | Model-management helper scripts index. |
 
 ### Phase 8 — Release, gates, and miscellaneous
 
@@ -148,6 +160,7 @@ context.
 | 70 | [`docs/mermaid_drift_audit.md`](docs/mermaid_drift_audit.md) | 2026-05-22 | Diagram drift audit. |
 | 71 | [`closure_gaps.md`](closure_gaps.md) | 2026-05-27 | Closure-gap log across recent feature batches. |
 | 72 | [`docs/Tasks.md`](docs/Tasks.md) | 2026-05-22 | High-level tasks register. |
+| 72a | [`waves/maturity_closure_plan.md`](waves/maturity_closure_plan.md) | 2026-05-25 | Production-maturity wave closure plan. |
 
 ### Phase 9 — App and component READMEs (skim once, return for details)
 
@@ -167,6 +180,34 @@ context.
 | 84 | [`backend/apps/contracts/README.md`](backend/apps/contracts/README.md) | 2026-05-25 | Cross-app data contracts. |
 | 85 | [`backend/apps/telemetry_mcp/README.md`](backend/apps/telemetry_mcp/README.md) | 2026-05-23 | Telemetry MCP integration. |
 | 86 | [`frontend/README.md`](frontend/README.md) | 2026-03-05 | Frontend overview. |
+| 86a | [`backend/apps/pipeline/layers/README.md`](backend/apps/pipeline/layers/README.md) | 2026-04-30 | Pipeline layers sub-app: preprocessing, postprocessing, dispatch. |
+| 86b | [`backend/apps/pipeline/model_lifecycle/README.md`](backend/apps/pipeline/model_lifecycle/README.md) | 2026-04-30 | Model lifecycle sub-app: loading, warming, eviction. |
+| 86c | [`frontend/WCAG_AUDIT.md`](frontend/WCAG_AUDIT.md) | 2026-05-23 | Frontend WCAG accessibility audit. |
+| 86d | [`frontend/src/AUDIT_FRONTEND_ASYNC_A11Y_RESPONSIVE.md`](frontend/src/AUDIT_FRONTEND_ASYNC_A11Y_RESPONSIVE.md) | 2026-05-23 | Frontend async + a11y + responsive audit. |
+| 86e | [`frontend/src/api/README.md`](frontend/src/api/README.md) | 2026-05-25 | Frontend REST client / Axios wrapper. |
+| 86f | [`frontend/src/hooks/README.md`](frontend/src/hooks/README.md) | 2026-03-05 | Frontend hooks index (WS, WHEP, paged data). |
+| 86g | [`frontend/src/components/camera/README.md`](frontend/src/components/camera/README.md) | 2026-03-05 | Camera UI components. |
+| 86h | [`frontend/src/constants/README.md`](frontend/src/constants/README.md) | 2026-03-05 | Frontend constants. |
+| 86i | [`frontend/src/features/bsil/README.md`](frontend/src/features/bsil/README.md) | 2026-05-27 | BSIL feature module (Behavioral Semantic Inference Layer). |
+
+### Phase 10 — Academic paper sources
+
+These docs are the source-of-truth chapters for the research paper.
+They cite real files / lines from this repo per constitution § 19.6
+(every Evidence: anchor maps to a `<file>:<line>` reference).
+
+| # | File | Last updated | Why read this here |
+|---|---|---|---|
+| 87 | [`paper/01_architecture_deployment.md`](paper/01_architecture_deployment.md) | 2026-06-02 | Architecture + deployment chapter (modular boundaries, Triton authority). |
+| 88 | [`paper/02_ingestion_orchestration.md`](paper/02_ingestion_orchestration.md) | 2026-06-02 | Ingestion + orchestration chapter (Celery, pipeline, dispatch). |
+| 89 | [`paper/03_detection_tracking.md`](paper/03_detection_tracking.md) | 2026-06-02 | Detection + tracking chapter (YOLO + ByteTrack + BoT-SORT + ReID). |
+| 90 | [`paper/04_pose_temporal_artifacts.md`](paper/04_pose_temporal_artifacts.md) | 2026-06-02 | Pose + temporal artifacts chapter (RTMPose + occlusion handling). |
+| 91 | [`paper/05_data_api_frontend.md`](paper/05_data_api_frontend.md) | 2026-06-02 | Data + API + frontend chapter (REST, WS, WHEP, schemas). |
+| 92 | [`paper/06_observability_testing_science.md`](paper/06_observability_testing_science.md) | 2026-06-02 | Observability + testing + scientific evidence chapter. |
+| 93 | [`paper/coverage_matrix.md`](paper/coverage_matrix.md) | 2026-06-02 | Per-section paper coverage matrix. |
+| 94 | [`paper/latex/figures_manifest.md`](paper/latex/figures_manifest.md) | 2026-06-02 | LaTeX figures manifest. |
+| 95 | [`paper/latex/equations_manifest.md`](paper/latex/equations_manifest.md) | 2026-06-02 | LaTeX equations manifest. |
+| 96 | [`paper/latex/traceability_matrix.md`](paper/latex/traceability_matrix.md) | 2026-06-02 | LaTeX traceability matrix (figure/equation → claim). |
 
 ### Conventions used in this reading order
 

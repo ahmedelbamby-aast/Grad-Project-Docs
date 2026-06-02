@@ -1,5 +1,7 @@
 # Behavioral Ontology v1
 
+**Last updated:** 2026-05-25
+
 ## Feature Families
 - `head`: direction proxy, glance duration, switching frequency
 - `wrist`: velocity, disappearance duration, visibility ratio

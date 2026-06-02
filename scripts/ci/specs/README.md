@@ -1,5 +1,7 @@
 # Triton Stabilization Spec Templates
 
+**Last updated:** 2026-05-22
+
 This directory contains concrete sample inputs to run the Triton stabilization orchestrator end-to-end in dry-run or execute mode.
 
 ## Phase 3

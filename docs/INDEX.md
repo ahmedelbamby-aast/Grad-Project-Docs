@@ -9,6 +9,13 @@
 > in that reading order, **the reading order is authoritative.** Use this
 > file as a topical index; use the README for the narrative reading path.
 
+## Documentation Systematization Program (DSP) — start here for any doc work
+
+- [DSP master plan](documentation_systematization_plan.md) — multi-cycle program for entity docs
+- [Per-entity doc template](per_entity_doc_template.md) — required template (constitution § 19.2)
+- [Mermaid theme contract](mermaid_theme_contract.md) — palette + label-fitting rules (constitution § 19.3, § 19.4)
+- [Constitution § 19](../.specify/memory/constitution.md) — anti-hallucination + diagram-preservation governance (v2.5.0)
+
 ## Inference Pipeline Optimization (active work)
 
 - [Cycle 9 + Cycle 10 Improvements TODO — the single entry point](cycle_9_and_10_improvements_todo.md)

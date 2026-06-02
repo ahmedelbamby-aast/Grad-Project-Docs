@@ -1,5 +1,7 @@
 # Runtime Maturity Operator Checklist
 
+**Last updated:** 2026-05-27
+
 Use this checklist with [docs/heterogeneous_production_runtime_maturity_plan.md](../heterogeneous_production_runtime_maturity_plan.md) and [docs/heterogeneous_production_runtime_maturity/tasks.md](../heterogeneous_production_runtime_maturity/tasks.md).
 
 ## Before Production Execution

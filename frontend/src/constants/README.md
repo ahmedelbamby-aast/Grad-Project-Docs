@@ -1,5 +1,7 @@
 # Constants Module
 
+**Last updated:** 2026-03-05
+
 ## Purpose
 - Centralized UI and runtime constants for frontend features.
 

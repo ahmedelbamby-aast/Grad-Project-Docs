@@ -1,5 +1,7 @@
 # Maturity Closure Waves For Production Behavioral Intelligence Readiness
 
+**Last updated:** 2026-05-25
+
 This plan is intentionally detailed for PR review. It contains full implementation-level work items for each wave, acceptance gates, test obligations, and evidence artifacts.
 
 ## Global Guardrails

@@ -1,5 +1,7 @@
 # Model Runtime Packs
 
+**Last updated:** 2026-05-10
+
 This folder provides cross-platform scripts for packaging and bootstrapping
 model artifacts by runtime:
 
