@@ -789,8 +789,14 @@ inside `inference_audit.json`, extend the production metric collector/watcher,
 and benchmark `combined.mp4` on the Linux RTX 5090 before implementing the
 persistent producer/consumer dispatcher. The instrumentation and reproducible
 wrapper `tools/prod/prod_run_async_dispatch_profile_benchmark.sh` are staged in
-code; the production measurement run is pending. No Cycle 12 optimization
-decision exists until that production benchmark table is recorded.
+code. Clean production replay
+`cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
+`dfa1f138-7086-418a-ba17-9999cd12b9ac` completed and is recorded in
+`docs/cycle_12_persistent_dispatcher_results.md`: async-dispatch blocking wall
+was `349.643 s`, and `behavior_all` owned `338.779 s`. No optimization
+candidate was deployed, so no Cycle 12 acceptance/rejection decision exists.
+The next implementation must overlap behavior wait/server execution; removing
+only the loop-crossing bridge is probably below the `>=10 %` Step 2 gate.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

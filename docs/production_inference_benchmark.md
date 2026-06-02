@@ -1716,4 +1716,86 @@ Decision authority result:
 
 ---
 
+## 24. 2026-06-02 Cycle 12 Phase A — Async Dispatch Profiling
+
+**Status:** **HYPOTHESIS_ONLY / NO OPTIMIZATION DECISION.** This was a real
+production Linux benchmark on `combined.mp4`, but it only enabled measurement
+instrumentation. No persistent dispatcher candidate was implemented, so Cycle
+12 is not accepted, rejected, skipped, closed, or complete.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_async_dispatch_profile_benchmark.sh` |
+| Clean replay key | `cycle12-async-dispatch-profile-clean-20260602T213441Z` |
+| Clean job ID | `dfa1f138-7086-418a-ba17-9999cd12b9ac` |
+| Deployed SHA | `3d2c8e8a` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Final status | `completed`, `4541/4541` frames |
+| Metrics | `backend/logs/cycle12-async-dispatch-profile-clean-20260602T213441Z/async_dispatch_profile_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle12-async-dispatch-profile-clean-20260602T213441Z/model_agreement_320_topk_vs_async_dispatch_profile.json` / `.md` |
+| Results doc | `docs/cycle_12_persistent_dispatcher_results.md` |
+
+An earlier profile run
+`cycle12-async-dispatch-profile-20260602T211343Z` / job
+`c7a1c069-48d1-46ae-ae56-00df62bad593` also completed, but the wrapper passed
+`--roi-behavior-input-size 320` and rebuilt the 320 behavior engines before the
+run. It remains evidence, but the clean no-rebuild repeat is the comparison row.
+
+| Metric | Accepted Top-K baseline | Cycle 12 clean profile | Delta |
+|---|---:|---:|---:|
+| Step 2 frame wall | `540.399 s` | `552.886 s` | `+2.31 %` |
+| Step 2 through pose upload | `767.589 s` | `778.491 s` | `+1.42 %` |
+| DB-completed elapsed | `1022.952 s` | `1034.673 s` | `+1.15 %` |
+| DB-completed FPS | `4.439` | `4.389` | `-1.13 %` |
+| Behavior RTT mean | `84.865 ms` | `84.376 ms` | `-0.58 %` |
+| Behavior RTT p95 | `128.056 ms` | `129.656 ms` | `+1.25 %` |
+| GPU avg util | `9.344 %` | `9.935 %` | `+6.32 %` |
+| GPU peak util | `53.000 %` | `87.000 %` | `+64.15 %` |
+| Peak VRAM | `16055 MiB` | `16045 MiB` | `-0.06 %` |
+| Detection rows | `72762` | `72744` | `-0.02 %` |
+| BBox rows | `72762` | `72744` | `-0.02 %` |
+| Embedding rows | `72596` | `72578` | `-0.02 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+Async-dispatch measurement from `inference_audit.json`:
+
+| Boundary | Calls | Total ms | Mean ms | Max ms |
+|---|---:|---:|---:|---:|
+| `ALL` | `4507` | `349643.451` | `77.578` | `171.388` |
+| `run_inference_batch:behavior_all` | `3597` | `338778.502` | `94.184` | `171.388` |
+| `run_inference_batch:person_detection` | `909` | `10864.072` | `11.952` | `33.261` |
+| `orchestrator.close` | `1` | `0.877` | `0.877` | `0.877` |
+
+Model agreement:
+
+| Model | Agreement F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `99.732 %` | `99.779 %` | `99.686 %` | `-0.09 %` |
+| `hand_raising` | `99.716 %` | `99.773 %` | `99.659 %` | `-0.11 %` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.935 %` | `99.930 %` | `99.939 %` | `0.01 %` |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Was this a production Linux RTX 5090 benchmark? | Yes: clean replay `cycle12-async-dispatch-profile-clean-20260602T213441Z` completed `4541/4541` frames. | Measurement evidence is valid. |
+| Was an optimization candidate deployed? | No: only `TRITON_ASYNC_DISPATCH_PROFILING=1` was enabled during the run. | No acceptance/rejection decision is allowed. |
+| Did correctness stay comparable? | Rows within `0.02 %`, tracks unchanged at `53`, model F1 `>=99.716 %`. | Correctness gate is suitable for future candidate comparison. |
+| What did Phase A prove? | Async-dispatch blocking wall was `349.643 s`, with `behavior_all` responsible for `338.779 s`. | The next candidate must attack behavior wait, not only wrapper overhead. |
+| What is the pure overhead ceiling? | Behavior boundary mean `94.184 ms` vs behavior telemetry RTT mean `84.376 ms`, about `9.808 ms/call` or `35.3 s` over `3597` calls. | A candidate that only removes loop-crossing overhead is unlikely to pass the `>=10 %` Step 2 gate. |
+| What remains unresolved? | No persistent dispatcher candidate has been implemented or benchmarked. | Cycle 12 remains active and incomplete. |
+
+Production was restored after the benchmark to:
+
+```text
+TRITON_ASYNC_DISPATCH_PROFILING=0
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+GAZE_HORIZONTAL_HEAD_VARIANT=slice
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+```
+
+---
+
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

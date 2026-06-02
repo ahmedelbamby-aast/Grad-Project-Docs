@@ -370,9 +370,14 @@ therefore the Python orchestration boundary inside the accepted 320 Top-K route.
    against the same baseline.
 
 ### Expected gains
-- Measurement phase: no optimization decision.
-- Candidate phase: hypothesis is `+10 %` to `+20 %` Step 2 wall reduction, but
-  this remains `HYPOTHESIS_ONLY` until the production benchmark records it.
+- Measurement phase completed: clean production replay
+  `cycle12-async-dispatch-profile-clean-20260602T213441Z` measured
+  `349.643 s` async-dispatch blocking wall and `338.779 s` inside
+  `behavior_all`. No optimization decision exists because no persistent
+  dispatcher candidate was deployed.
+- Candidate phase: must overlap behavior wait/server execution. A candidate
+  that only removes the synchronous loop-crossing bridge is probably below the
+  `>=10 %` Step 2 gate.
 
 ### Risk
 Medium. A persistent dispatcher can change task scheduling and result-order
@@ -414,7 +419,7 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | **+ Cycle 9** | Triton ensemble for 4 behavior models | ~1 180 s | ~3.85 | +12.1 min |
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
 | **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
-| **+ Cycle 12** | Persistent async dispatcher | measurement first | decision pending | benchmark required |
+| **+ Cycle 12** | Persistent async dispatcher | Phase A measured | no decision | candidate benchmark required |
 | **+ Cycle 13** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
 
 **After Cycle 13 we are projected at ≈ 5 FPS (≈ 15.2 min total)** only if the

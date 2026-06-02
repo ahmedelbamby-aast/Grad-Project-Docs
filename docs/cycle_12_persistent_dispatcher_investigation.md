@@ -2,8 +2,7 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** ACTIVE - Phase A measurement instrumentation staged; production
-benchmark pending.
+**Status:** PHASE A MEASUREMENT COMPLETE; implementation candidate pending.
 **Decision authority:** no acceptance, rejection, skip, closure, or priority
 change is valid without a completed production Linux RTX 5090 benchmark on
 `combined.mp4`.
@@ -95,9 +94,9 @@ Instrumentation is required before persistent-dispatch code:
 4. Extend production metric collection and watcher output to show this summary.
    **Staged in code.**
 5. Run `combined.mp4` on production with the accepted 320 Top-K route and the
-   profiling flag enabled. **Pending.**
+   profiling flag enabled. **Complete.**
 
-Reproducible command for the pending production benchmark:
+Reproducible command used for the clean production benchmark:
 
 ```bash
 cd /home/bamby/grad_project
@@ -105,9 +104,16 @@ bash tools/prod/prod_run_async_dispatch_profile_benchmark.sh \
   --tag cycle12-async-dispatch-profile-$(date -u +%Y%m%dT%H%M%SZ)
 ```
 
+Phase A result: see `docs/cycle_12_persistent_dispatcher_results.md`. Clean
+production replay `cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
+`dfa1f138-7086-418a-ba17-9999cd12b9ac` completed `4541/4541` frames. It
+measured `349.643 s` async-dispatch blocking wall, with `behavior_all`
+responsible for `338.779 s`. It did not implement a persistent dispatcher, so no
+Cycle 12 acceptance/rejection decision exists.
+
 ## Candidate Implementation After Measurement
 
-Only if Phase A proves the boundary has meaningful wall-time:
+Only if Phase A proves the candidate can overlap useful wall-time:
 
 1. Introduce a persistent bounded dispatcher coroutine that owns model dispatch
    requests for the offline job.
@@ -115,6 +121,11 @@ Only if Phase A proves the boundary has meaningful wall-time:
 3. Use a strict bounded queue and preserve `TRITON_MAX_INFLIGHT_REQUESTS`.
 4. Keep fallback to the current blocking path behind an env flag.
 5. Benchmark before any decision.
+
+Phase A changed the constraint: a candidate that only removes the synchronous
+loop-crossing bridge is unlikely to pass the `>=10 %` Step 2 gate. The next
+candidate must overlap behavior wait/server execution while preserving ordered
+frame commits.
 
 ## Risk Assessment
 

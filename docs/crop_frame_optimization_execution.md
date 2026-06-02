@@ -1252,8 +1252,14 @@ Listed in order. Only proceed if the staged cycles above do not lift FPS to the 
 The B.1 repeat benchmarks on 2026-06-02 measured decode/NMS as a small part of
 Step 2 while infer wait plus server/orchestration remained dominant, so the next
 cycle is persistent async dispatch instrumentation before another compact-output
-implementation attempt. Cycle 12 Phase A instrumentation and wrapper are staged;
-the production `combined.mp4` profiling benchmark is pending.
+implementation attempt. Cycle 12 Phase A instrumentation and wrapper are staged,
+and the clean production profile completed as
+`cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
+`dfa1f138-7086-418a-ba17-9999cd12b9ac`. It measured `349.643 s`
+async-dispatch blocking wall, dominated by `behavior_all` (`338.779 s`), but
+did not implement an optimization candidate. Cycle 12 remains active and
+incomplete; the next candidate must overlap behavior wait/server execution, not
+only replace the sync async-bridge.
 
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|

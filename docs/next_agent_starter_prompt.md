@@ -4,8 +4,7 @@
 self-contained — read it once, then act. Every link in here points to a
 file that already exists in this repository (verify with `git ls-files`).
 
-**Last updated:** 2026-06-02 (after Cycle 11.A input-size real benchmark was
-rejected for signal correctness regression).
+**Last updated:** 2026-06-02 (after Cycle 12 Phase A async-dispatch profiling).
 
 ---
 
@@ -234,11 +233,12 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 
 | Order | Task | Where the spec lives |
 |---|---|---|
-| 1 | **B.1 compact postprocessing** — start from `docs/cycle_9b_compact_postproc_investigation.md`; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
+| 1 | **Cycle 12 persistent async dispatcher candidate** — start from `docs/cycle_12_persistent_dispatcher_results.md`; implement only a bounded overlap design that attacks behavior wait/server execution, not a cosmetic async-bridge replacement | TODO § Z.2 |
 | 2 | **B.3 / Cycle 11.B Step 2** — kernel-tactic or batch-profile tuning on the dominant child at 320, benchmarked against the accepted Top-K baseline | TODO § B.3 |
-| 3 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
-| 4 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
-| 5 | **Cycle 12 persistence/render optimization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 3 | **B.1 compact postprocessing** — only if the candidate reduces wait/server execution; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
+| 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
+| 5 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 6 | **Cycle 13 persistence/render optimization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
 B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
 accepted; Top-K is now the production baseline. Do not repeat the rejected
@@ -251,6 +251,15 @@ input `320 → 256` was tried and then rejected by real production benchmark:
 Step 2 and behavior RTT improved, but persisted behavior signals regressed and
 average GPU utilization fell. Do not rerun 256 unless the over-detection cause
 is first explained by a real-crop parity harness.
+
+Cycle 12 Phase A is complete. Clean production replay
+`cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
+`dfa1f138-7086-418a-ba17-9999cd12b9ac` measured `349.643 s` async-dispatch
+blocking wall; `behavior_all` owned `338.779 s`. No persistent dispatcher
+candidate was deployed, so no decision exists. The next candidate must overlap
+behavior wait/server execution while preserving ordered frame commits. A change
+that only replaces `async_runner.run(...)` with another synchronous bridge is
+probably below the `>=10 %` Step 2 gate.
 
 B.1 has an open investigation now. The key update is that the accepted Top-K
 baseline already reduced behavior outputs from the old `~17.1 MB/frame` dense

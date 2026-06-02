@@ -44,6 +44,7 @@
 - [Cycle 11 Input Size Investigation](cycle_11_input_size_investigation.md)
 - [Cycle 11 Input Size Results — real benchmark rejection](cycle_11_input_size_results.md)
 - [Cycle 12 Persistent Async Dispatcher Investigation](cycle_12_persistent_dispatcher_investigation.md)
+- [Cycle 12 Persistent Async Dispatcher Results](cycle_12_persistent_dispatcher_results.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)

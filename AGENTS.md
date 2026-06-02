@@ -363,10 +363,15 @@ the next case.
   `backend/apps/video_analysis/tasks.py`, and
   `tools/prod/prod_collect_benchmark_metrics.py` plus
   `tools/prod/prod_watch_benchmark_metrics.sh` surface it. Reproducible wrapper:
-  `tools/prod/prod_run_async_dispatch_profile_benchmark.sh`. The production
-  `combined.mp4` benchmark is still pending. This is `HYPOTHESIS_ONLY` until a
-  completed production benchmark provides the comparison table; no Cycle 12
-  optimization is accepted, rejected, skipped, or closed yet.
+  `tools/prod/prod_run_async_dispatch_profile_benchmark.sh`. Clean production
+  replay `cycle12-async-dispatch-profile-clean-20260602T213441Z` / job
+  `dfa1f138-7086-418a-ba17-9999cd12b9ac` completed at deployed SHA `3d2c8e8a`.
+  It measured `349.643 s` async-dispatch blocking wall; `behavior_all` owned
+  `338.779 s`. No optimization candidate was deployed, so this remains
+  `HYPOTHESIS_ONLY`: no Cycle 12 optimization is accepted, rejected, skipped,
+  or closed yet. The next candidate must overlap behavior wait/server execution;
+  replacing only the sync async-bridge is probably below the `>=10 %` Step 2
+  acceptance gate.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
