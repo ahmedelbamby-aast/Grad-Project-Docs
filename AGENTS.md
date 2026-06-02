@@ -262,9 +262,12 @@ This file defines how agents should execute tests quickly and safely in this rep
   `59.651 ms`, mean `as_numpy` parse `0.114 ms`, and mean Python decode/NMS
   `3.125 ms` per 17-crop batch (`0.183823 ms/crop`). With `3597` accepted
   baseline behavior calls, decode/NMS is about `11.24 s` or `~2.08 %` of the
-  accepted `540.399 s` Step 2 wall. No compact backend is implemented or
-  accepted; pure Top-K decode/NMS removal is not enough evidence for the
-  `>=10 %` Step 2 gate.
+  accepted `540.399 s` Step 2 wall. The dominant measured time is still
+  gRPC/Triton wait plus server execution (`59.651 ms` of the `62.082 ms`
+  RTT-with-parse sample), so the next B.1 implementation must reduce that
+  remaining wait or model-side work, not only move Python Top-K decode/NMS.
+  No compact backend is implemented, rejected, skipped, or accepted; only a
+  full production benchmark can make that decision.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
@@ -315,6 +318,18 @@ This file defines how agents should execute tests quickly and safely in this rep
   designated acceptance gate (Step 2 wall) failed, so the cycle is held back
   even though the change is technically working. Every future cycle's
   acceptance section must cite the production replay key and job id.
+- **Benchmark decision explanation gate (2026-06-02)**: every optimization
+  cycle, production benchmark, and measurement-only probe must include a
+  comparison table that explains the decision. Required columns or equivalent
+  fields: baseline, candidate or measured component, target gate, delta,
+  correctness impact, decision status (`ACCEPTED`, `NOT ACCEPTED`,
+  `MEASUREMENT ONLY`, or `NEEDS FURTHER ITERATION`), reason for that status,
+  remaining bottleneck, and evidence paths. A result may not be described as
+  accepted, skipped, rejected, or neglected merely because one metric improved
+  or regressed; the documentation must explain why the metrics moved and what
+  unresolved bottleneck would have to be removed for better results. Component
+  probes must report an upper-bound wall-time calculation before they are used
+  to justify implementation priority.
 - **2026-06-01 Cycle 8 ACCEPTED** (largest single-cycle win since Cycles 1–5):
   bundled `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + lazy `cv2.VideoCapture` reads
   (skip `.set/.read` when every detection in a frame already has a cached

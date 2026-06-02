@@ -1578,6 +1578,18 @@ does mean a compact backend that only removes Python Top-K decode/NMS is not
 expected to hit the `>=10 %` Step 2 gate. Any B.1 candidate must still be proven
 by a full production benchmark before acceptance or rejection.
 
+Decision explanation:
+
+| Question | Evidence | Decision impact |
+|---|---|---|
+| Decision status | Production component probe only; no compact backend deployed. | `MEASUREMENT ONLY`; no acceptance, rejection, skip, or closure. |
+| Baseline authority | `cycle9b-topk-crop-frame-20260602T041900` / job `be4ba9ee-4786-48e9-8334-28feb237a1fb`. | Future B.1 candidates compare against accepted 320 Top-K. |
+| Target gate | `>=10 %` Step 2 wall reduction plus correctness parity in real production benchmark. | Probe cannot satisfy the gate alone. |
+| Measured removable component | `3.125 ms/batch` decode/NMS, `~11.24 s` total, `~2.08 %` of Step 2. | Decode-only compact postprocessing is too small by itself. |
+| Why results moved this way | Top-K already reduced output bytes to `19,200 bytes/crop`; remaining Python decode is small. | The original dense-output bottleneck is mostly resolved. |
+| Remaining bottleneck | gRPC/Triton wait is `59.651 ms` of `62.082 ms` RTT-with-parse. | Next candidate must reduce wait/server execution, not only response decode. |
+| Required next proof | Real candidate benchmark with replay key, job ID, FPS, Step 2 wall, RTT, GPU, DB parity, and model agreement. | B.1 remains open until that benchmark exists. |
+
 ---
 
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

@@ -1,6 +1,14 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.4.0 -> 2.4.1
+Bump rationale: PATCH - Adds the Benchmark Decision Explanation Gate to Section
+12. The amendment does not change runtime authority, but makes benchmark and
+probe interpretation stricter: every optimization result must include a
+baseline/candidate comparison, decision status, causal explanation, remaining
+bottleneck, and evidence paths before it can be described as accepted, rejected,
+skipped, or deprioritized.
+
 Version change: 2.2.0 -> 2.4.0
 Bump rationale: MINOR - Adds Section 17 (Runtime Job Lifecycle and Vector
 Integrity Constitution) converting recurring production-runtime failures into
@@ -43,9 +51,13 @@ Modified principles:
 - Production runtime authority -> Heterogeneous production runtime authority.
 - Evidence-based acceptance -> Replay and production evidence integrity.
 - Benchmark/scientific acceptance -> RTX 5090 production authority for
-  throughput and inference claims.
+  throughput and inference claims plus mandatory benchmark decision
+  explanation.
 - Compliance review -> Branch parity, preflight, lifecycle, GPU telemetry,
   causality and final closure evidence gates.
+
+Added sections (2.4.1):
+- Benchmark Decision Explanation Gate (Section 12.5)
 
 Added sections (2.4.0):
 - Source Control and CI File Visibility Constitution (Section 18)
@@ -1217,6 +1229,34 @@ Mock-only maturity claims, synthetic telemetry acceptance, fake benchmark pass
 logic, screenshots without raw evidence, self-baseline comparisons and silent
 KPI masking are prohibited.
 
+#### 12.5 Benchmark Decision Explanation Gate
+
+Every optimization benchmark, candidate run, and measurement-only probe MUST
+include an explicit decision explanation table before it is used for roadmap,
+acceptance, rejection, skip, or prioritization decisions. The table MUST state:
+
+| Required field | Minimum content |
+| --- | --- |
+| Baseline authority | accepted replay key/job ID or explicit reason no accepted baseline exists |
+| Candidate or probe scope | code/config/env delta, measured component, and whether a full candidate exists |
+| Target gate | numeric throughput, latency, GPU, correctness, memory, and stability thresholds |
+| Before/after or measured delta | metric values, units, denominator, and direction |
+| Correctness impact | detection, tracking, embedding, model-agreement, or scientific-quality effect |
+| Decision status | `ACCEPTED`, `NOT ACCEPTED`, `MEASUREMENT ONLY`, or `NEEDS FURTHER ITERATION` |
+| Decision reason | why the status follows from the gate, not from intuition |
+| Causal interpretation | why the measured metrics moved, including competing explanations when present |
+| Remaining bottleneck | measured unresolved limiter and the next validation needed to attack it |
+| Evidence paths | durable JSON/Markdown/log/GPU/DB artifacts and deployed SHA when applicable |
+
+A metric improvement is not sufficient evidence of success when the targeted
+gate fails, correctness regresses, or the improved component is not the dominant
+wall-time contributor. A metric regression is not sufficient evidence to skip
+or abandon a candidate when the run is only a component probe. Component probes
+MUST provide an upper-bound wall-time calculation against the accepted baseline
+before they can justify implementation priority. No cycle may be described as
+accepted, rejected, skipped, neglected, or complete without this comparison and
+causal explanation.
+
 ### 13. Cross-Wave Dependency Constitution
 
 #### 13.1 Dependency Hierarchy
@@ -2105,6 +2145,8 @@ explicitly state why a rule is not applicable. Review MUST block:
 - maturity claims without reproducible evidence;
 - CI success while production runtime reconciliation gaps remain;
 - benchmark pass states without baseline/candidate causality;
+- benchmark or probe conclusions without the Section 12.5 decision explanation
+  table, remaining-bottleneck statement, and evidence paths;
 - evidence artifacts that are placeholder-only, mutable, temporary-path-only,
   synthetic-only, dev-only for production claims, or SQLite-backed;
 - hidden xfails, silent degraded runtime states, unsupported fallback paths,
@@ -2118,4 +2160,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.4.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-05-29
+**Version**: 2.4.1 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02

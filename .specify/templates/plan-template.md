@@ -85,6 +85,15 @@
 > reporting; research claims require statistical method and effect
 > size disclosure.
 
+> **Benchmark Decision Explanation Gate (§12.5)**: Any optimization
+> benchmark, candidate run, or measurement-only probe MUST define a
+> comparison table covering baseline authority, candidate/probe scope,
+> target gate, before/after or measured delta, correctness impact,
+> decision status, decision reason, causal interpretation, remaining
+> bottleneck, evidence paths, and upper-bound calculation for component
+> probes. No acceptance, rejection, skip, or prioritization conclusion is
+> valid without this table.
+
 > **Live/Offline Validation Gate**: Video or inference features MUST
 > specify both live and offline validation when their behavior spans
 > both modes. Each run occurs in a separate valid active-profile

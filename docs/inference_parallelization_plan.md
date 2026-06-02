@@ -751,7 +751,11 @@ real accepted-Top-K crops and measured Python decode/NMS at `3.125 ms` per
 17-crop batch (`0.183823 ms/crop`) plus `0.114 ms` mean `as_numpy` parsing.
 Across the accepted run's `3597` behavior calls, that is about `11.24 s` or
 `~2.08 %` of the accepted `540.399 s` Step 2 wall, so pure client decode/NMS
-removal is unlikely to satisfy the `>=10 %` Step 2 gate.
+removal is unlikely to satisfy the `>=10 %` Step 2 gate. The same probe measured
+gRPC/Triton wait at `59.651 ms` of `62.082 ms` RTT-with-parse, so the remaining
+B.1 bottleneck is wait/server execution rather than Python decode. B.1 is not
+accepted, rejected, skipped, or closed; only a full production candidate
+benchmark with the required decision explanation table can make that decision.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

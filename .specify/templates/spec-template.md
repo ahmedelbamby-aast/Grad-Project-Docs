@@ -109,6 +109,11 @@
 - **Replay Policy**: [For lifecycle, benchmark, or acceptance flows, specify
   `reuse-success`, `fail-on-existing`, or `new-attempt`; failed replay lineage
   MUST NOT count as acceptance evidence]
+- **Benchmark Decision Evidence**: [For optimization or benchmark work, specify
+  the required comparison table: baseline, candidate/probe scope, target gate,
+  delta, correctness impact, decision status/reason, causal interpretation,
+  remaining bottleneck, upper-bound calculation for component probes, and
+  durable evidence paths]
 - **Runtime Reconciliation**: [Describe task, queue, database, artifact,
   telemetry and frontend state convergence, including mismatch handling]
 - **Evidence Lineage**: [Describe immutable evidence snapshots, artifact

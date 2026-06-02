@@ -81,8 +81,25 @@ for architecture cleanliness and future LPM placement, but Phase A evidence says
 client-side Top-K decode/NMS alone cannot plausibly satisfy the `>=10 %` Step 2
 acceptance gate.
 
+## Decision Explanation Table
+
+| Decision question | Evidence from last run | Decision impact |
+|---|---|---|
+| Is this a production candidate benchmark? | No. The run is a production component probe over accepted Top-K crops; no compact backend, env change, or model route change was deployed. | Status is `MEASUREMENT ONLY`; B.1 cannot be accepted or rejected from this run. |
+| What accepted baseline anchors the comparison? | `cycle9b-topk-crop-frame-20260602T041900`, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, Step 2 wall `540.399 s`, DB FPS `4.439`, behavior RTT mean `84.865 ms`. | All B.1 candidates must beat this baseline and preserve correctness. |
+| What component did the probe isolate? | Client response parse plus Python `_decode_yolo_output0`/NMS after `behavior_ensemble_gaze_slice_topk`. | The probe only bounds the value of moving Top-K decode/NMS out of Python. |
+| How large is the removable measured component? | `3.125 ms` decode/NMS per 17-crop batch, or about `11.24 s` across `3597` accepted behavior calls. | Pure decode/NMS removal is bounded at `~2.08 %` of accepted Step 2 wall. |
+| Does the measured component satisfy the target gate? | The cycle gate requires `>=10 %` Step 2 wall reduction plus correctness parity in a real production benchmark. | No implementation decision yet; a decode-only compact backend is not expected to pass the gate by itself. |
+| Why do the measured results look like this? | Top-K already reduced behavior output to `19,200 bytes/crop`; remaining Python decode/NMS is small. The dominant measured time is gRPC/Triton wait: `59.651 ms` of `62.082 ms` RTT-with-parse. | The earlier dense-byte bottleneck is mostly gone; the remaining limiter is wait/server execution rather than Python decode. |
+| What bottleneck remains to get better results? | `infer_wait_ms`/server-side child execution and scheduling dominate the sample, while `as_numpy` parse is only `0.114 ms`. | Next B.1 work must reduce the remaining wait or model-side work, not only compact already-Top-K outputs. |
+| Can B.1 be skipped or accepted now? | No full candidate benchmark exists. | B.1 remains open; only a real candidate benchmark can accept, reject, or close it. |
+
 ## Decision
 
 No B.1 implementation is selected yet. B.1 remains unimplemented and
 unaccepted; selecting Python BLS, C++ custom backend, or TRT plugin still
-requires a real production candidate benchmark.
+requires a real production candidate benchmark. The latest probe changes only
+the implementation priority: a candidate that merely returns compact boxes
+after the existing Top-K path must prove it also reduces the measured
+`infer_wait_ms`/server-side execution bottleneck, otherwise its expected Step 2
+gain is bounded near the measured `~2.08 %` decode/NMS ceiling.

@@ -1192,12 +1192,25 @@ The measurement-only probe ran on production:
 With `3597` accepted-baseline behavior calls, measured client decode/NMS is
 about `11.24 s`, or `~2.08 %` of the accepted `540.399 s` Step 2 frame wall.
 
+Decision explanation for the last run:
+
+| Question | Evidence | Decision impact |
+|---|---|---|
+| Was a compact backend benchmarked? | No; only `tools/prod/prod_probe_behavior_decode_cost.py` was run over accepted Top-K crops. | Status is `MEASUREMENT ONLY`. |
+| What did the probe isolate? | Client response parse plus Python `_decode_yolo_output0`/NMS. | It bounds only a decode/NMS optimization. |
+| Does that bound meet the cycle gate? | `~2.08 %` Step 2 ceiling vs. `>=10 %` required reduction. | Decode-only B.1 is not expected to be enough. |
+| Why are the results small despite `99.942 %` byte reduction potential? | Cycle 9b Top-K already reduced behavior output traffic, leaving only `19,200 bytes/crop`; Python decode/NMS is `3.125 ms/batch`. | The original dense-byte bottleneck has mostly been removed. |
+| What bottleneck remains? | Mean gRPC/Triton wait is `59.651 ms` of `62.082 ms` RTT-with-parse. | Better results require reducing wait/server execution, not just moving decode. |
+
 ### Phase 3: Decision
 
 No compact backend is implemented or accepted. A B.1 implementation that only
 moves Top-K decode/NMS out of Python is unlikely to satisfy the `>=10 %` Step 2
 gate. Python BLS remains blocked until the pinned Triton runtime includes a
-Python backend or a controlled runtime rebuild/switch is benchmarked.
+Python backend or a controlled runtime rebuild/switch is benchmarked. B.1 is
+not skipped or rejected; it remains open until a real production candidate
+benchmark proves whether a compact backend can reduce the remaining
+`infer_wait_ms`/server-side bottleneck.
 
 Detailed result doc:
 [`docs/cycle_9b_compact_postproc_results.md`](cycle_9b_compact_postproc_results.md).
