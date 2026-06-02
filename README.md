@@ -226,6 +226,7 @@ validates against the working tree.
 | 100 | [`docs/entity/systems/telemetry_pipeline.md`](docs/entity/systems/telemetry_pipeline.md) | 2026-06-02 | DSP Cycle 2 — dual-sink (PostgreSQL + JSON) per-Celery-task telemetry layer. ContextVar-bound from `task_prerun` / `task_postrun` signals; JSON-first so DB outages never silently lose data. |
 | 101 | [`docs/entity/systems/camera_streaming_bridge.md`](docs/entity/systems/camera_streaming_bridge.md) | 2026-06-02 | DSP Cycle 2 — RTSP / ONVIF ingestion + go2rtc / gst-mediamtx registration + nginx WHEP proxy for browser preview. Owns the `CameraSource` model + WHEP plumbing. |
 | 102 | [`docs/entity/systems/frontend_spa.md`](docs/entity/systems/frontend_spa.md) | 2026-06-02 | DSP Cycle 2 — React 19 + Vite 8 SPA. REST (axios `/api/v1`) + WS (`useWebSocket`) + WHEP (`useWhepClient`). Closes Cycle 2 (6 of 6 systems). |
+| 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-02 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
 
 ### Conventions used in this reading order
 
