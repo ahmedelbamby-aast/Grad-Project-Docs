@@ -348,6 +348,15 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
   `~6.85 → ~0.33 MB/frame`, correctness parity held. Caveat: average GPU
   utilization did not improve (`9.595 % → 9.3 %`), so the next cycle must target
   GPU occupancy / server-side execution / orchestration.
+- **Cycle 9b B.3 Step 1 REMEASURED 2026-06-02:** controlled probes against the
+  Top-K topology show dominant child is still `gaze_horizontal_model` (`18.79 ms`
+  server delta) but the gap to the next slowest shrank from `+33 %` to `+15 %`
+  (absolute `3.93 → 2.47 ms`). Ensemble RTT `63.59 ms` mean, server `30.13 ms`,
+  orchestration overhead `~8.7 ms / call`, per-crop compute constant at
+  `~0.94 ms/crop`. Per-child Step 2 ceiling is `~4 %` Step 2 wall reduction.
+  Next Step 2 must compare B.3.b/d kernel-tune (low risk, ≤ 4 %) against
+  Cycle 11 (320 → 256, ~10-13 %) per §E.6 multi-approach rule. Full evidence:
+  `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`.
 - **Cycle 10 (Logical Path Matrix):** NOT ACCEPTED. The hook and telemetry table
   ran on prod, but contradiction counters stayed zero and attention boxes
   regressed. Production remains `LPM_ENABLED=0`.

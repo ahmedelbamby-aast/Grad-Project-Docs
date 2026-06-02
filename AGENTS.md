@@ -150,6 +150,28 @@ This file defines how agents should execute tests quickly and safely in this rep
   orchestration rather than response-byte trimming alone. Rollback is
   `prod_enable_gaze_horizontal_slice.sh --input-size 320 --skip-build`, then
   restart Triton and workers.
+- **2026-06-02 Cycle 9b B.3 Step 1 REMEASURED against Top-K baseline (not an
+  accepted optimization)**: production stats and a controlled direct gRPC RTT
+  probe were re-run against the active `behavior_ensemble_gaze_slice_topk`
+  graph (job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, SHA `9bc53d86`). Probes:
+  `tools/prod/probe_child_stats_topk.py` (`backend/logs/probe_child_stats_topk_20260602T120051.json`)
+  and `tools/prod/probe_rtt_decompose_topk.py`
+  (`backend/logs/probe_rtt_decompose_topk_20260602T120240.json`). Dominant
+  child is still `gaze_horizontal_model` at `18.790 ms/exec` server delta vs
+  `16.324 ms` posture, `16.236 ms` vertical, `16.377 ms` depth, but the gap
+  shrank from `+33 %` pre-Top-K to `+15 %` (absolute gap `3.93 ms → 2.47 ms`).
+  Ensemble end-to-end RTT is `63.59 ms` mean / `30.13 ms` server work — so
+  server compute is only `47.4 %` of RTT and orchestration overhead is
+  `~8.7 ms/call`. Per-crop GPU compute is constant at `~0.94 ms/crop` across
+  bs=17 (probe) and bs=32 (prod aggregate). Per-child Step 2 ceiling is
+  therefore `~4 %` Step 2 wall reduction. The remeasurement names two
+  candidate Step 2 levers and ranks them in
+  `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`: (1) Cycle 11
+  input 320 → 256 — hits all four children, projected `−10 % to −13 %`
+  Step 2 wall; (2) B.3.b / B.3.d kernel-tactic tuning on `gaze_horizontal_model`
+  — bounded at `~4 %` Step 2 wall but lowest risk. Per §E.6 both must be
+  prod-benchmarked before one ships. No engine, route, or env flag was
+  changed by this remeasurement.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

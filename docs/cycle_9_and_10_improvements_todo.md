@@ -338,13 +338,29 @@ done'
 Record the per-child average and p95 in `docs/cycle_9b_child_critical_path_results.md`.
 **Do NOT proceed to B.3 Step 2 until this measurement exists.**
 
-**Current measured status (2026-06-02):** Step 1 is complete. Production stats
-and direct gRPC decomposition show `gaze_horizontal_model` is the dominant child:
-`16.058 ms/exec` server delta versus `12.133 ms` posture, `11.759 ms` vertical,
-and `11.909 ms` depth. The first B.2.b narrow-head TensorRT plan failed raw
-tensor parity, so the next implementation target should be either exact
-server-side slicing from the already-executed legacy output or B.1 compact
-postprocessing / BLS.
+**Current measured status (2026-06-02):** Step 1 was first completed against
+the pre-Top-K baseline and **REMEASURED** against the accepted Cycle 9b Top-K
+baseline (job `be4ba9ee-4786-48e9-8334-28feb237a1fb`). Production stats and
+direct gRPC decomposition under the Top-K topology now show:
+
+| Model | Pre-Top-K server avg | Post-Top-K server avg | Change |
+|---|---:|---:|---:|
+| `posture_model` | 12.133 ms | 16.324 ms | +4.19 ms |
+| `gaze_horizontal_model` | 16.058 ms | **18.790 ms** | +2.73 ms |
+| `gaze_vertical_model` | 11.759 ms | 16.236 ms | +4.48 ms |
+| `gaze_depth_model` | 11.909 ms | 16.377 ms | +4.47 ms |
+| Dominant-vs-next gap | +33 % | **+15 %** | shrank by 18 pp |
+| `behavior_ensemble_gaze_slice_topk` server avg | n/a | **30.133 ms** | — |
+| Orchestration overhead | n/a | **~8.7 ms / call** | — |
+
+`gaze_horizontal_model` is still the dominant child but the per-child
+optimization ceiling shrank to ~4 % Step 2 wall (gap = 2.47 ms out of
+30.13 ms ensemble). The remeasurement evidence and its lever-ranking
+recommendation are in
+`docs/cycle_9b_child_critical_path_remeasure_topk_results.md`. **Step 2
+must therefore compare per-child dominant tuning (B.3.b / B.3.d) against
+the higher-leverage all-children candidate (Cycle 11 input 320 → 256) per
+§E.6 multi-approach rule before any candidate ships.**
 
 #### B.3 Step 2 — approaches to test (only on the dominant child)
 
@@ -647,8 +663,8 @@ free).
 | 3 | **C.2.3 LPM Phase 1 prod benchmark** | 10 (Phase 1) | flip `LPM_ENABLED=1` for one bench, gate decides ACCEPTED / REJECTED |
 | 4 | **B.2b exact server-side `gaze_horizontal` slice** | 9b | accepted on production; superseded by B.2c as the current baseline |
 | 5 | **B.2c exact slice + Top-K anchor packing** | 9b | accepted with caveat on production; current baseline before B.1/B.3/B.4 |
-| 6 | **B.3 child critical-path analysis** | 9b | remeasure against the Top-K baseline first, then targeted optimization of the dominant child |
-| 7 | **B.1 server-side compact postprocessing (BLS)** | 9b | highest impact but highest risk — depends on B.2c learnings |
+| 6 | **B.3 child critical-path analysis — Step 1 REMEASURED 2026-06-02** | 9b | `gaze_horizontal_model` still dominant but gap shrank to +15 %; per-child ceiling ≤ 4 % Step 2 wall. See `docs/cycle_9b_child_critical_path_remeasure_topk_results.md` for the lever-ranking. Step 2 must compare B.3.b/d (dominant child kernel-tune) vs Cycle 11 (input 320 → 256) per §E.6 |
+| 7 | **B.1 server-side compact postprocessing (BLS)** | 9b | highest impact but highest risk — depends on B.2c learnings; also recovers the ~8.7 ms/call ensemble orchestration overhead measured in the B.3 remeasure |
 | 8 | **C.2.4 LPM Phase 2 (move math into BLS)** | 10 (Phase 2) | combines with B.1 — both land in the same BLS Python backend |
 | 9 | **B.4 larger ensemble batches** | 9b | secondary — measure after B.1 / B.3 with RSS guardrails |
 
@@ -769,7 +785,7 @@ quality of the diff.
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b remaining** | Compact postprocessing, child critical-path, larger ensemble batches, discipline rule | **PARTIALLY ACCEPTED — B.2.b EXACT SLICE AND B.2.c TOP-K ACCEPTED** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is ACCEPTED. Exact slice + Top-K behind `TRITON_BEHAVIOR_TOP_K_ENABLED=1` is ACCEPTED WITH CAVEAT. B.1, B.3 Step 2, and B.4 remain unaccepted; standalone B.2.a Top-K-only was not separately benchmarked and is lower priority than GPU-occupancy/server-side execution work. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_topk_anchor_packing_investigation.md`, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_output_fusion_results.md` |
+| **Cycle 9b remaining** | Compact postprocessing, child critical-path, larger ensemble batches, discipline rule | **PARTIALLY ACCEPTED — B.2.b EXACT SLICE AND B.2.c TOP-K ACCEPTED; B.3 STEP 1 REMEASURED 2026-06-02** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is ACCEPTED. Exact slice + Top-K behind `TRITON_BEHAVIOR_TOP_K_ENABLED=1` is ACCEPTED WITH CAVEAT. B.3 Step 1 has been **remeasured against the Top-K baseline** — dominant child is still `gaze_horizontal_model` but the gap to the next slowest shrank from +33 % to +15 %, capping any per-child Step 2 candidate at ~4 % Step 2 wall reduction. B.1, B.3 Step 2, and B.4 remain unaccepted; standalone B.2.a Top-K-only was not separately benchmarked and is lower priority than GPU-occupancy/server-side execution work. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_topk_anchor_packing_investigation.md`, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_output_fusion_results.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
