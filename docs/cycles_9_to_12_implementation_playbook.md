@@ -1,7 +1,8 @@
-# Cycles 9 – 12 Implementation Playbook
+# Cycles 9-13 Implementation Playbook
 
 **Status:** Historical playbook plus execution roadmap — no acceptance until each cycle has its own measured before/after on prod RTX 5090 against the canonical `combined.mp4` benchmark.
-**Date:** 2026-06-01
+**Last updated:** 2026-06-02
+**Filename note:** `cycles_9_to_12_implementation_playbook.md` is historical; the restaged sequence now includes Cycle 12 persistent async-dispatch measurement and shifts render/persistence cleanup to Cycle 13.
 **Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, **4.429 FPS overall (DB completed), 17.0 min total**. Earlier cycle projections in this file are retained as historical planning context; use `docs/cycle_9_and_10_improvements_todo.md` § Z and `docs/runtime_sla_video_plus_5min.md` for current sequencing.
 **SLA target** (per `docs/runtime_sla_video_plus_5min.md`): `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (2 m 31 s): **≤ 7 m 31 s = ≥ 10.07 FPS overall**.
 **Current gap to close:** ~9.5 min over budget.
@@ -340,7 +341,48 @@ over-detection cause is explained by a real-crop parity harness.
 
 ---
 
-## 5. Cycle 12 — Render & persistence cleanup
+## 5. Cycle 12 — Persistent async dispatcher
+
+### Goal
+Measure and then remove the single-process orchestration boundary around
+`async_runner.run(...)` in the crop-frame Step 2 loop. The first deliverable is
+measurement only: `TRITON_ASYNC_DISPATCH_PROFILING=1` records async-boundary
+cost in `inference_audit.json`, and the production benchmark on `combined.mp4`
+decides whether the persistent dispatcher implementation is worth shipping.
+
+### Why
+Cycle 9b B.2.c already reduced behavior output traffic to the Top-K contract,
+and two B.1 repeat benchmarks showed Python decode/NMS is small compared with
+infer wait plus server/orchestration. Cycle 11.A proved smaller 256 inputs are
+fast but not correct. Cycle 9b B.4 proved larger frame windows are not safe for
+tracking/model agreement. The remaining near-term inference-wall candidate is
+therefore the Python orchestration boundary inside the accepted 320 Top-K route.
+
+### How it is applied
+1. Add opt-in `TRITON_ASYNC_DISPATCH_PROFILING` and record each
+   `async_runner.run(...)` boundary in Step 2.
+2. Extend the production metric collector and watcher so async dispatch cost is
+   visible beside RTT, Step 2 wall, FPS, GPU, memory, and correctness.
+3. Run the measurement benchmark on production Linux RTX 5090 with
+   `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4`.
+4. If the production table proves material boundary cost, implement the
+   persistent producer/consumer dispatcher behind an env flag and benchmark it
+   against the same baseline.
+
+### Expected gains
+- Measurement phase: no optimization decision.
+- Candidate phase: hypothesis is `+10 %` to `+20 %` Step 2 wall reduction, but
+  this remains `HYPOTHESIS_ONLY` until the production benchmark records it.
+
+### Risk
+Medium. A persistent dispatcher can change task scheduling and result-order
+handling, so the rollout must preserve per-frame output ordering and use the
+accepted model-agreement parity gates. Rollback is disabling the env flag and
+returning to the current `_AsyncLoopRunner.run(...)` path.
+
+---
+
+## 6. Cycle 13 — Render & persistence cleanup
 
 ### Goal
 Soak up the last small structural costs: parallel render writers + PostgreSQL `COPY FROM` for persistence. Total budget impact ~15–25 s but it's needed to land at the SLA.
@@ -372,12 +414,17 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | **+ Cycle 9** | Triton ensemble for 4 behavior models | ~1 180 s | ~3.85 | +12.1 min |
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
 | **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
-| **+ Cycle 12** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
+| **+ Cycle 12** | Persistent async dispatcher | measurement first | decision pending | benchmark required |
+| **+ Cycle 13** | Parallel render + COPY persistence | ~910 s | ~4.99 | +7.6 min |
 
-**After Cycle 12 we are at ≈ 5 FPS (≈ 15.2 min total).** That is **still ~7.6 min over the 7.5-min SLA target**. The remaining gap is fundamental: Step 2 still dispatches 4 541 frames worth of GPU work *serially after decode*. To go further we need either:
+**After Cycle 13 we are projected at ≈ 5 FPS (≈ 15.2 min total)** only if the
+pending production benchmarks preserve correctness and produce the expected
+wall-time savings. That is **still ~7.6 min over the 7.5-min SLA target**. The
+remaining gap is fundamental: Step 2 still dispatches 4 541 frames worth of GPU
+work *serially after decode*. To go further we need either:
 
-- **Cycle 13a (architectural)**: move all per-frame fan-out (crop preprocess → behavior ensemble → pose → embedding-vector compute) onto the Triton server via a single **BLS (Business Logic Scripting) Python backend**. One gRPC per frame returns compact detection tuples. Removes the per-frame Python orchestration round-trip. Projected: 5 FPS → **8–10 FPS** (lands on the SLA boundary).
-- **Cycle 13b (parallelism)**: shard the offline pipeline across multiple Celery worker processes (currently `CELERY_OFFLINE_WORKER_CONCURRENCY=4` but each video runs on ONE process). Split a video into 4 segments processed in parallel, then stitch tracking + embeddings at the end. Projected: 5 FPS → **15–18 FPS**. Tracking stitching is the hard part.
+- **Cycle 14a (architectural)**: move all per-frame fan-out (crop preprocess → behavior ensemble → pose → embedding-vector compute) onto the Triton server via a single **BLS (Business Logic Scripting) Python backend**. One gRPC per frame returns compact detection tuples. Removes the per-frame Python orchestration round-trip. Projected: 5 FPS → **8–10 FPS** (lands on the SLA boundary).
+- **Cycle 14b (parallelism)**: shard the offline pipeline across multiple Celery worker processes (currently `CELERY_OFFLINE_WORKER_CONCURRENCY=4` but each video runs on ONE process). Split a video into 4 segments processed in parallel, then stitch tracking + embeddings at the end. Projected: 5 FPS → **15–18 FPS**. Tracking stitching is the hard part.
 
 Cycles 13+ are documented separately because they each cost a week-class engineering effort and need an accuracy/lifecycle review beyond the per-cycle constitution checklist.
 
@@ -406,4 +453,5 @@ The four cycles in this playbook are sequenced because each one's measurement is
 | **9** | `backend/models/triton_repository_cuda12/behavior_ensemble/config.pbtxt`, `backend/apps/pipeline/services/ensemble_validator.py` | `model_route_service.py`, `inference_orchestrator.py` (response split), `tasks.py` (`_run_crop_behaviour_for_items`) | `TRITON_BEHAVIOR_ENSEMBLE` | `test_behavior_ensemble_dispatch.py` |
 | **10** | (none — refactor) | `tasks.py` (pose loop), `apps/pipeline/services/pose_runtime.py` | `POSE_PARALLEL_FRAMES` | `test_pose_parallel_frames.py` |
 | **11** | (engines + configs only) | `tools/prod/prod_enable_roi_crop_behavior.sh` (default 256), `prod_enable_parallel_flow.sh` (env), `triton_repository_cuda12/*/config.pbtxt` | `TRITON_CROP_BEHAVIOR_INPUT_SIZE=256` | `test_engine_accuracy_parity.py` |
-| **12** | `apps/tracking/embeddings_copy_writer.py` | `tasks.py` (render dispatcher), `embeddings.py` (bulk path) | `EMBEDDING_USE_COPY_FROM`, `RENDER_PARALLEL=1` | `test_copy_from_writer.py`, `test_parallel_render.py` |
+| **12** | `docs/cycle_12_persistent_dispatcher_investigation.md`, `tools/prod/prod_run_async_dispatch_profile_benchmark.sh` | `tasks.py` (async-boundary summary), `prod_collect_benchmark_metrics.py`, `prod_watch_benchmark_metrics.sh` | `TRITON_ASYNC_DISPATCH_PROFILING`, candidate flag TBD after measurement | `test_concurrent_model_dispatch.py` |
+| **13** | `apps/tracking/embeddings_copy_writer.py` | `tasks.py` (render dispatcher), `embeddings.py` (bulk path) | `EMBEDDING_USE_COPY_FROM`, `RENDER_PARALLEL=1` | `test_copy_from_writer.py`, `test_parallel_render.py` |

@@ -777,6 +777,21 @@ The production watcher `tools/prod/prod_watch_benchmark_metrics.sh` now shows
 these metrics in bounded wrapping tables so long evidence paths and payloads
 stay inside the terminal boxes.
 
+Cycle 12 persistent async dispatcher is therefore the next staged cycle. Its
+investigation document is
+`docs/cycle_12_persistent_dispatcher_investigation.md`. It targets the
+single-process orchestration boundary in `backend/apps/video_analysis/tasks.py`:
+the accepted Top-K baseline already reduced output bytes, and the repeated B.1
+benchmarks show decode/NMS is small while infer wait plus server/orchestration
+dominates. Phase A is measurement-only: add
+`TRITON_ASYNC_DISPATCH_PROFILING`, record `async_runner.run(...)` boundary cost
+inside `inference_audit.json`, extend the production metric collector/watcher,
+and benchmark `combined.mp4` on the Linux RTX 5090 before implementing the
+persistent producer/consumer dispatcher. The instrumentation and reproducible
+wrapper `tools/prod/prod_run_async_dispatch_profile_benchmark.sh` are staged in
+code; the production measurement run is pending. No Cycle 12 optimization
+decision exists until that production benchmark table is recorded.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity

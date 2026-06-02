@@ -58,7 +58,7 @@ context.
 | 15 | [`docs/inference_bottlenecks_and_solution_matrix.md`](docs/inference_bottlenecks_and_solution_matrix.md) | 2026-05-22 | Catalog of bottlenecks ranked by leverage. |
 | 16 | [`docs/production_inference_benchmark.md`](docs/production_inference_benchmark.md) | 2026-06-02 | **The per-cycle benchmark table** — current-state and historical metrics for every prod run, with FPS column. |
 | 17 | [`docs/cycle_9_and_10_improvements_todo.md`](docs/cycle_9_and_10_improvements_todo.md) | 2026-06-02 | **The single TODO entry point.** § Z inside has the map of every cycle (accepted, not accepted, staged, planned, deferred). Start every new session here. |
-| 18 | [`docs/cycles_9_to_12_implementation_playbook.md`](docs/cycles_9_to_12_implementation_playbook.md) | 2026-06-02 | The full Cycles 9–12 implementation roadmap and projections. |
+| 18 | [`docs/cycles_9_to_12_implementation_playbook.md`](docs/cycles_9_to_12_implementation_playbook.md) | 2026-06-02 | Historical filename for the restaged Cycles 9-13 implementation roadmap and projections. |
 | 19 | [`docs/next_agent_starter_prompt.md`](docs/next_agent_starter_prompt.md) | 2026-06-02 | The self-contained briefing for the next agent picking this work up. |
 
 ### Phase 3 — Per-cycle investigation + results (read each pair in order; investigation → results)
@@ -89,6 +89,7 @@ context.
 | 37 | [`docs/new_models_yoloe_depth_anything_v2_timing_decision.md`](docs/new_models_yoloe_depth_anything_v2_timing_decision.md) | 2026-06-01 | YOLOE / Depth Anything v2 timing-of-integration decision (DEFERRED until SLA reached). |
 | 37b | [`docs/cycle_11_input_size_investigation.md`](docs/cycle_11_input_size_investigation.md) | 2026-06-02 | Cycle 11 investigation (320 → 256 input). The Step 2 lever-attack design. |
 | 37c | [`docs/cycle_11_input_size_results.md`](docs/cycle_11_input_size_results.md) | 2026-06-02 | Cycle 11.A real benchmark result: 256 input improved Step 2/RTT but was not accepted because persisted behavior signals regressed. |
+| 37d | [`docs/cycle_12_persistent_dispatcher_investigation.md`](docs/cycle_12_persistent_dispatcher_investigation.md) | 2026-06-02 | Cycle 12 investigation: persistent async dispatcher / single-process orchestration measurement before implementation. |
 
 ### Phase 4 — Triton-specific deep dives
 

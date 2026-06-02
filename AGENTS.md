@@ -353,6 +353,20 @@ the next case.
   `tools/prod/prod_watch_benchmark_metrics.sh` now renders bounded,
   wrapping tables and includes metrics, model agreement, decode cost,
   artifact presence, DB counters, GPU, audit, RTT, and wrapper-log tail.
+- **2026-06-02 Cycle 12 Persistent Async Dispatcher STAGED / Phase A active**:
+  the cycle map is restaged so the next inference-wall work measures
+  single-process orchestration before implementing another compact-output or
+  render/persistence change. Source doc:
+  `docs/cycle_12_persistent_dispatcher_investigation.md`. Local instrumentation
+  is staged: `TRITON_ASYNC_DISPATCH_PROFILING` records
+  `async_runner.run(...)` boundary wall in
+  `backend/apps/video_analysis/tasks.py`, and
+  `tools/prod/prod_collect_benchmark_metrics.py` plus
+  `tools/prod/prod_watch_benchmark_metrics.sh` surface it. Reproducible wrapper:
+  `tools/prod/prod_run_async_dispatch_profile_benchmark.sh`. The production
+  `combined.mp4` benchmark is still pending. This is `HYPOTHESIS_ONLY` until a
+  completed production benchmark provides the comparison table; no Cycle 12
+  optimization is accepted, rejected, skipped, or closed yet.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

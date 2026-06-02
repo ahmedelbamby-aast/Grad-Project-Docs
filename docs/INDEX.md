@@ -19,7 +19,7 @@
 ## Inference Pipeline Optimization (active work)
 
 - [Cycle 9 + Cycle 10 Improvements TODO — the single entry point](cycle_9_and_10_improvements_todo.md)
-- [Cycles 9–12 Implementation Playbook](cycles_9_to_12_implementation_playbook.md)
+- [Cycles 9–13 Implementation Playbook](cycles_9_to_12_implementation_playbook.md)
 - [Runtime SLA: video + 5 min](runtime_sla_video_plus_5min.md)
 - [Triton Models & Tensor Anatomy](triton_models_and_tensor_anatomy.md)
 - [Inference Parallelization Plan](inference_parallelization_plan.md)
@@ -43,6 +43,7 @@
 - [Cycle 10 LPM Phase 1 Results — NOT ACCEPTED](cycle_10_lpm_phase1_results.md)
 - [Cycle 11 Input Size Investigation](cycle_11_input_size_investigation.md)
 - [Cycle 11 Input Size Results — real benchmark rejection](cycle_11_input_size_results.md)
+- [Cycle 12 Persistent Async Dispatcher Investigation](cycle_12_persistent_dispatcher_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)

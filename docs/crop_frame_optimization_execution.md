@@ -1246,17 +1246,22 @@ Detailed result doc:
 
 ---
 
-## Pending Cycles (not implemented in this session)
+## Pending Cycles (restaged after B.1 repeat evidence)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.
+The B.1 repeat benchmarks on 2026-06-02 measured decode/NMS as a small part of
+Step 2 while infer wait plus server/orchestration remained dominant, so the next
+cycle is persistent async dispatch instrumentation before another compact-output
+implementation attempt. Cycle 12 Phase A instrumentation and wrapper are staged;
+the production `combined.mp4` profiling benchmark is pending.
 
 | # | Optimization | Expected lift | Cost / risk |
 |---:|---|---|---|
-| 6 | Persistent asyncio producer/consumer frame loop — drop `async_runner.run(...)` per-frame round-trip; one persistent dispatcher coroutine processes frames as they leave decode | +10–20 % | medium refactor of `_process_batch_items` and `_AsyncLoopRunner` |
-| 7 | Compact server-side BLS / postprocessing that returns detections instead of dense behavior grids. The simple four-model ensemble is already measured in Cycle 9 and was not accepted; exact-slice + Top-K reduced bytes but did not lift average GPU utilization. | unknown; must re-measure | high; requires compact output contract + parity test |
-| 8 | TRT NMS plugin server-side — return compact detections instead of dense `[84,2100]` / `[14,2100]` grids | small wall, large bandwidth | engine rebuild + decoder refactor |
-| 9 | Re-export behavior engines at 256×256 (smaller than current 320) | +20–40 % step-2 | medium — accuracy parity required |
-| 10 | Triton CUDA Shared Memory for input tensors | tiny | medium-high — SHM lifecycle |
+| 12.A | Persistent async dispatcher measurement and candidate producer/consumer frame loop — quantify and then reduce `async_runner.run(...)` boundary churn in `tasks.py` | hypothesis +10–20 %, must be proven | medium refactor; rollback is env-disable |
+| 11.B / B.3 Step 2 | Kernel-tactic or batch-profile tuning on the dominant 320 behavior child after Top-K | bounded at ~4 % Step 2 | low-medium; engine rebuild only if parity holds |
+| 13 | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | ~20 s total-wall only | low; does not address Step 2 |
+| 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |
+| 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 
 ---
 
