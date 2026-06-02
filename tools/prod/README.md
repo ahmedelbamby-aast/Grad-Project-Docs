@@ -203,8 +203,23 @@ PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings APP_ENV=prod \
 
 This probe does not modify production state. It measures the accepted Top-K
 route's gRPC response parsing and Python `_decode_yolo_output0`/NMS cost so
-B.1 compact postprocessing is selected from evidence, not from the old
-pre-Top-K byte estimate.
+B.1 compact postprocessing hypotheses are measured from evidence, not from the
+old pre-Top-K byte estimate. It has no acceptance, rejection, skip, closure, or
+deprioritization authority.
+
+Cycle 9b B.1 production-authoritative full benchmark + decode probe:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_b1_decode_cost_full_benchmark.sh \
+  --tag cycle9b-b1-fullbench-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+This wrapper first runs the complete `combined.mp4` production benchmark through
+the accepted 320 exact-slice + Top-K route, collects DB/GPU/RTT and
+model-agreement evidence, then runs the decode-cost probe against the fresh
+replay key. It emits `NO_DECISION_BENCHMARK_RECORDED`; the decision still
+requires a documented benchmark comparison table.
 
 ## 3) Stop all queue workers started by this repo
 

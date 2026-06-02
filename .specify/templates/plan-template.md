@@ -85,14 +85,16 @@
 > reporting; research claims require statistical method and effect
 > size disclosure.
 
-> **Benchmark Decision Explanation Gate (§12.5)**: Any optimization
-> benchmark, candidate run, or measurement-only probe MUST define a
-> comparison table covering baseline authority, candidate/probe scope,
-> target gate, before/after or measured delta, correctness impact,
-> decision status, decision reason, causal interpretation, remaining
-> bottleneck, evidence paths, and upper-bound calculation for component
-> probes. No acceptance, rejection, skip, or prioritization conclusion is
-> valid without this table.
+> **Production Benchmark Decision Authority Gate (§12.5/§12.6)**: Any
+> optimization decision MUST come from a completed end-to-end production
+> benchmark on the native Linux RTX 5090 workflow. Component probes, parity
+> probes, local tests, direct Triton microbenchmarks and upper bounds are
+> `PROBE_ONLY` / `HYPOTHESIS_ONLY`; they cannot accept, reject, skip, close,
+> or deprioritize a cycle. Plans MUST define the post-benchmark comparison
+> table covering baseline replay/job, candidate replay/job, exact video,
+> deployed SHA, env/config delta, target gates, FPS, Step 2/frame wall, RTT,
+> GPU, memory, correctness/model agreement, causal explanation, remaining
+> bottleneck, and durable evidence paths.
 
 > **Live/Offline Validation Gate**: Video or inference features MUST
 > specify both live and offline validation when their behavior spans

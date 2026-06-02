@@ -107,10 +107,12 @@ Examples of foundational tasks (adjust based on your project):
       evidence requirements
 - [ ] T018 [P] Define replay policy behavior and failed-lineage rejection for
       lifecycle, benchmark and acceptance evidence
-- [ ] T019 [P] Define benchmark decision explanation table requirements,
-      including baseline/candidate comparison, target gates, correctness
-      impact, causal explanation, remaining bottleneck, upper-bound
-      calculation for component probes, and durable evidence paths
+- [ ] T019 [P] Define production benchmark decision authority requirements,
+      including native Linux RTX 5090 end-to-end benchmark, baseline/candidate
+      replay keys and job IDs, exact video, deployed SHA, env/config delta,
+      target gates, FPS, Step 2/frame wall, RTT, GPU, memory, correctness/model
+      agreement, causal explanation, remaining bottleneck, durable evidence
+      paths, and a statement that component probes are hypothesis-only
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

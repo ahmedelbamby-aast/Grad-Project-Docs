@@ -1531,7 +1531,7 @@ Cycle 9b B.2.c `max_frames=2` profile.
 
 ## 22. 2026-06-02 Cycle 9b B.1 Phase A Probe — Top-K Decode/NMS Cost
 
-**Status:** **MEASUREMENT ONLY. No compact backend implemented or accepted.**
+**Status:** **PROBE_ONLY. NO DECISION. PRODUCTION LINUX BENCHMARK REQUIRED.**
 
 This production probe measured the accepted Top-K route's remaining Python
 decode/NMS and response parsing cost. It does not change production env,
@@ -1570,25 +1570,24 @@ Per-model decode/NMS timing:
 | `gaze_vertical` | `0.665` | `1.026` | `2.050` |
 | `gaze_depth` | `0.487` | `0.751` | `0.300` |
 
-**Interpretation:** the accepted benchmark has `3597`
+**Hypothesis-only interpretation:** the accepted benchmark has `3597`
 `behavior_ensemble_gaze_slice_topk` calls. At `3.125 ms` decode/NMS per sampled
 17-crop batch, client-side decode/NMS is about `11.24 s`, or `~2.08 %` of the
-accepted `540.399 s` Step 2 wall. This does not reject B.1 outright, but it
-does mean a compact backend that only removes Python Top-K decode/NMS is not
-expected to hit the `>=10 %` Step 2 gate. Any B.1 candidate must still be proven
-by a full production benchmark before acceptance or rejection.
+accepted `540.399 s` Step 2 wall. This is not a decision and cannot reject,
+skip, close, deprioritize, or accept B.1. It only defines what the next real
+production benchmark must prove.
 
-Decision explanation:
+Probe context table — no decision authority:
 
 | Question | Evidence | Decision impact |
 |---|---|---|
-| Decision status | Production component probe only; no compact backend deployed. | `MEASUREMENT ONLY`; no acceptance, rejection, skip, or closure. |
+| Decision status | Component probe only; no compact backend deployed. | `PROBE_ONLY`; no acceptance, rejection, skip, closure, or deprioritization. |
 | Baseline authority | `cycle9b-topk-crop-frame-20260602T041900` / job `be4ba9ee-4786-48e9-8334-28feb237a1fb`. | Future B.1 candidates compare against accepted 320 Top-K. |
-| Target gate | `>=10 %` Step 2 wall reduction plus correctness parity in real production benchmark. | Probe cannot satisfy the gate alone. |
-| Measured removable component | `3.125 ms/batch` decode/NMS, `~11.24 s` total, `~2.08 %` of Step 2. | Decode-only compact postprocessing is too small by itself. |
+| Target gate | `>=10 %` Step 2 wall reduction plus correctness parity in real production benchmark. | Gate cannot be evaluated by this probe. |
+| Measured removable component | `3.125 ms/batch` decode/NMS, `~11.24 s` total, `~2.08 %` of Step 2. | Upper-bound hypothesis only. |
 | Why results moved this way | Top-K already reduced output bytes to `19,200 bytes/crop`; remaining Python decode is small. | The original dense-output bottleneck is mostly resolved. |
-| Remaining bottleneck | gRPC/Triton wait is `59.651 ms` of `62.082 ms` RTT-with-parse. | Next candidate must reduce wait/server execution, not only response decode. |
-| Required next proof | Real candidate benchmark with replay key, job ID, FPS, Step 2 wall, RTT, GPU, DB parity, and model agreement. | B.1 remains open until that benchmark exists. |
+| Benchmark hypothesis | gRPC/Triton wait is `59.651 ms` of `62.082 ms` RTT-with-parse. | A full B.1 benchmark must prove whether the candidate reduces wait/server execution, not only response decode. |
+| Required next proof | `tools/prod/prod_run_b1_decode_cost_full_benchmark.sh` on `combined.mp4`, then decision table with replay key, job ID, FPS, Step 2 wall, RTT, GPU, DB parity, and model agreement. | `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. |
 
 ---
 

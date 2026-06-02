@@ -2,12 +2,12 @@
 SYNC IMPACT REPORT
 ==================
 Version change: 2.4.0 -> 2.4.1
-Bump rationale: PATCH - Adds the Benchmark Decision Explanation Gate to Section
-12. The amendment does not change runtime authority, but makes benchmark and
-probe interpretation stricter: every optimization result must include a
-baseline/candidate comparison, decision status, causal explanation, remaining
-bottleneck, and evidence paths before it can be described as accepted, rejected,
-skipped, or deprioritized.
+Bump rationale: PATCH - Adds the Production Benchmark Decision Authority Gate
+and Benchmark Decision Explanation Table to Section 12. The amendment does not
+change runtime authority, but makes benchmark and probe interpretation stricter:
+only completed native-Linux RTX 5090 end-to-end production benchmarks may create
+optimization decisions. Component probes are hypothesis evidence only and cannot
+accept, reject, skip, close, deprioritize, or complete a cycle.
 
 Version change: 2.2.0 -> 2.4.0
 Bump rationale: MINOR - Adds Section 17 (Runtime Job Lifecycle and Vector
@@ -51,13 +51,14 @@ Modified principles:
 - Production runtime authority -> Heterogeneous production runtime authority.
 - Evidence-based acceptance -> Replay and production evidence integrity.
 - Benchmark/scientific acceptance -> RTX 5090 production authority for
-  throughput and inference claims plus mandatory benchmark decision
-  explanation.
+  throughput and inference claims plus mandatory benchmark decision authority
+  and explanation.
 - Compliance review -> Branch parity, preflight, lifecycle, GPU telemetry,
   causality and final closure evidence gates.
 
 Added sections (2.4.1):
-- Benchmark Decision Explanation Gate (Section 12.5)
+- Production Benchmark Decision Authority Gate (Section 12.5)
+- Benchmark Decision Explanation Table (Section 12.6)
 
 Added sections (2.4.0):
 - Source Control and CI File Visibility Constitution (Section 18)
@@ -1229,20 +1230,39 @@ Mock-only maturity claims, synthetic telemetry acceptance, fake benchmark pass
 logic, screenshots without raw evidence, self-baseline comparisons and silent
 KPI masking are prohibited.
 
-#### 12.5 Benchmark Decision Explanation Gate
+#### 12.5 Production Benchmark Decision Authority Gate
 
-Every optimization benchmark, candidate run, and measurement-only probe MUST
-include an explicit decision explanation table before it is used for roadmap,
-acceptance, rejection, skip, or prioritization decisions. The table MUST state:
+Only a completed, end-to-end production benchmark on the native Linux RTX 5090
+server MAY create an optimization decision. The benchmark MUST run through the
+real production workflow, PostgreSQL, Redis/Celery queues, active native Triton
+endpoint, configured production model repository, GPU telemetry collection, and
+the canonical benchmark video unless a documented workload-comparability
+exception is approved before the run.
+
+Component probes, parity probes, direct Triton microbenchmarks, local tests,
+code review, theoretical upper bounds, sampled measurements, synthetic inputs,
+and partial-stage timings have NO DECISION AUTHORITY. They MAY only be recorded
+as `PROBE_ONLY` or `HYPOTHESIS_ONLY` evidence. They MUST NOT mark a cycle or
+candidate as `ACCEPTED`, `NOT ACCEPTED`, `REJECTED`, `SKIPPED`, `NEGLECTED`,
+`DEPRIORITIZED`, `CLOSED`, or `COMPLETE`.
+
+Before the production benchmark exists, the only valid decision statement is:
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. After the production benchmark
+exists, the decision remains invalid unless Section 12.6 is satisfied.
+
+#### 12.6 Benchmark Decision Explanation Table
+
+Every optimization decision based on a completed production benchmark MUST
+include an explicit decision explanation table. The table MUST state:
 
 | Required field | Minimum content |
 | --- | --- |
-| Baseline authority | accepted replay key/job ID or explicit reason no accepted baseline exists |
-| Candidate or probe scope | code/config/env delta, measured component, and whether a full candidate exists |
+| Baseline authority | accepted replay key/job ID, deployed SHA, video, env/config, and evidence paths |
+| Candidate authority | candidate replay key/job ID, deployed SHA, video, env/config delta, and evidence paths |
 | Target gate | numeric throughput, latency, GPU, correctness, memory, and stability thresholds |
-| Before/after or measured delta | metric values, units, denominator, and direction |
+| Before/after delta | metric values, units, denominator, direction, and comparability notes |
 | Correctness impact | detection, tracking, embedding, model-agreement, or scientific-quality effect |
-| Decision status | `ACCEPTED`, `NOT ACCEPTED`, `MEASUREMENT ONLY`, or `NEEDS FURTHER ITERATION` |
+| Decision status | `ACCEPTED`, `NOT ACCEPTED`, or `NEEDS FURTHER ITERATION` |
 | Decision reason | why the status follows from the gate, not from intuition |
 | Causal interpretation | why the measured metrics moved, including competing explanations when present |
 | Remaining bottleneck | measured unresolved limiter and the next validation needed to attack it |
@@ -1250,12 +1270,13 @@ acceptance, rejection, skip, or prioritization decisions. The table MUST state:
 
 A metric improvement is not sufficient evidence of success when the targeted
 gate fails, correctness regresses, or the improved component is not the dominant
-wall-time contributor. A metric regression is not sufficient evidence to skip
-or abandon a candidate when the run is only a component probe. Component probes
-MUST provide an upper-bound wall-time calculation against the accepted baseline
-before they can justify implementation priority. No cycle may be described as
-accepted, rejected, skipped, neglected, or complete without this comparison and
-causal explanation.
+wall-time contributor. A metric regression is not sufficient evidence to skip,
+reject, or abandon a candidate unless it occurred in the required production
+benchmark and the decision table explains the causal evidence. Component probes
+MUST provide upper-bound wall-time calculations only as hypotheses for what a
+future production benchmark must test. No cycle may be described as accepted,
+not accepted, rejected, skipped, neglected, deprioritized, complete, or closed
+without the Section 12.5 production benchmark and this comparison table.
 
 ### 13. Cross-Wave Dependency Constitution
 
@@ -2145,8 +2166,10 @@ explicitly state why a rule is not applicable. Review MUST block:
 - maturity claims without reproducible evidence;
 - CI success while production runtime reconciliation gaps remain;
 - benchmark pass states without baseline/candidate causality;
-- benchmark or probe conclusions without the Section 12.5 decision explanation
-  table, remaining-bottleneck statement, and evidence paths;
+- benchmark decisions without the Section 12.5 production benchmark authority
+  and Section 12.6 explanation table;
+- probe-only evidence presented as acceptance, rejection, skip, closure,
+  deprioritization, or completion authority;
 - evidence artifacts that are placeholder-only, mutable, temporary-path-only,
   synthetic-only, dev-only for production claims, or SQLite-backed;
 - hidden xfails, silent degraded runtime states, unsupported fallback paths,

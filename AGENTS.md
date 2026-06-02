@@ -318,18 +318,25 @@ This file defines how agents should execute tests quickly and safely in this rep
   designated acceptance gate (Step 2 wall) failed, so the cycle is held back
   even though the change is technically working. Every future cycle's
   acceptance section must cite the production replay key and job id.
-- **Benchmark decision explanation gate (2026-06-02)**: every optimization
-  cycle, production benchmark, and measurement-only probe must include a
-  comparison table that explains the decision. Required columns or equivalent
-  fields: baseline, candidate or measured component, target gate, delta,
-  correctness impact, decision status (`ACCEPTED`, `NOT ACCEPTED`,
-  `MEASUREMENT ONLY`, or `NEEDS FURTHER ITERATION`), reason for that status,
-  remaining bottleneck, and evidence paths. A result may not be described as
-  accepted, skipped, rejected, or neglected merely because one metric improved
-  or regressed; the documentation must explain why the metrics moved and what
-  unresolved bottleneck would have to be removed for better results. Component
-  probes must report an upper-bound wall-time calculation before they are used
-  to justify implementation priority.
+- **Production benchmark decision authority gate (2026-06-02)**: only a
+  completed end-to-end production benchmark on the native Linux RTX 5090 server
+  can create an optimization decision. Component probes, parity probes, local
+  tests, direct Triton microbenchmarks, code review, theoretical upper bounds,
+  and partial measurements have **NO DECISION AUTHORITY**. They may be recorded
+  only as `PROBE_ONLY` / `HYPOTHESIS_ONLY` evidence and must not mark a cycle
+  or candidate `ACCEPTED`, `NOT ACCEPTED`, `REJECTED`, `SKIPPED`, `NEGLECTED`,
+  `DEPRIORITIZED`, `CLOSED`, or `COMPLETE`.
+- **Benchmark decision explanation table (2026-06-02)**: after the required
+  production Linux benchmark exists, every optimization decision must include a
+  comparison table with baseline replay/job, candidate replay/job, exact video,
+  deployed SHA, env/config delta, target gate, FPS, Step 2/frame wall, total
+  wall, RTT, GPU utilization, memory, DB parity, model-agreement/correctness,
+  decision status, reason for the status, remaining bottleneck, and durable
+  evidence paths. A result may not be described as accepted, skipped, rejected,
+  or neglected merely because one metric improved or regressed; the
+  documentation must explain why the metrics moved and what unresolved
+  bottleneck would have to be removed for better results. Component probes must
+  report upper-bound wall-time calculations only as benchmark hypotheses.
 - **2026-06-01 Cycle 8 ACCEPTED** (largest single-cycle win since Cycles 1–5):
   bundled `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + lazy `cv2.VideoCapture` reads
   (skip `.set/.read` when every detection in a frame already has a cached

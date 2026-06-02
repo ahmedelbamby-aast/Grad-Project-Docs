@@ -110,10 +110,12 @@
   `reuse-success`, `fail-on-existing`, or `new-attempt`; failed replay lineage
   MUST NOT count as acceptance evidence]
 - **Benchmark Decision Evidence**: [For optimization or benchmark work, specify
-  the required comparison table: baseline, candidate/probe scope, target gate,
-  delta, correctness impact, decision status/reason, causal interpretation,
-  remaining bottleneck, upper-bound calculation for component probes, and
-  durable evidence paths]
+  the required native Linux RTX 5090 end-to-end benchmark authority and the
+  decision table: baseline replay/job, candidate replay/job, exact video,
+  deployed SHA, env/config delta, target gates, FPS, Step 2/frame wall, RTT,
+  GPU, memory, correctness/model agreement, causal interpretation, remaining
+  bottleneck, and durable evidence paths. Component probes are hypothesis-only
+  and cannot accept/reject/skip/close/deprioritize.]
 - **Runtime Reconciliation**: [Describe task, queue, database, artifact,
   telemetry and frontend state convergence, including mismatch handling]
 - **Evidence Lineage**: [Describe immutable evidence snapshots, artifact

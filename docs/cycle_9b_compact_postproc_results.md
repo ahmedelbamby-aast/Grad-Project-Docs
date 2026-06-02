@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-02
 
-**Status:** **PHASE A PROBE COMPLETE — NO OPTIMIZATION IMPLEMENTED OR ACCEPTED.**
+**Status:** **PROBE-ONLY EVIDENCE — NO DECISION. PRODUCTION BENCHMARK REQUIRED.**
 
 This file will record the Cycle 9b B.1 compact-postprocessing comparison matrix.
 It is intentionally empty of candidate metrics until a production benchmark is
@@ -72,34 +72,38 @@ Per-model decode/NMS timing from the accepted Top-K route:
 | `gaze_vertical` | `0.665` | `1.026` | `2.050` |
 | `gaze_depth` | `0.487` | `0.751` | `0.300` |
 
-Upper-bound implication: the accepted production benchmark has `3597`
+Hypothesis-only upper-bound implication: the accepted production benchmark has `3597`
 `behavior_ensemble_gaze_slice_topk` calls. At `3.125 ms` decode/NMS per
 17-crop call, the observed client decode/NMS work is about `11.24 s`, or only
 `~2.08 %` of the accepted `540.399 s` Step 2 frame wall. `as_numpy` parsing is
-about `0.41 s` across the same call count. A compact backend may still be useful
-for architecture cleanliness and future LPM placement, but Phase A evidence says
-client-side Top-K decode/NMS alone cannot plausibly satisfy the `>=10 %` Step 2
-acceptance gate.
+about `0.41 s` across the same call count. This arithmetic is not a decision:
+it only defines a hypothesis that a future production Linux benchmark must test.
 
-## Decision Explanation Table
+## Probe Context Table — No Decision Authority
 
 | Decision question | Evidence from last run | Decision impact |
 |---|---|---|
-| Is this a production candidate benchmark? | No. The run is a production component probe over accepted Top-K crops; no compact backend, env change, or model route change was deployed. | Status is `MEASUREMENT ONLY`; B.1 cannot be accepted or rejected from this run. |
+| Is this a production candidate benchmark? | No. The run is a component probe over accepted Top-K crops; no compact backend, env change, or model route change was deployed. | Status is `PROBE_ONLY`; B.1 cannot be accepted, rejected, skipped, closed, or deprioritized from this run. |
 | What accepted baseline anchors the comparison? | `cycle9b-topk-crop-frame-20260602T041900`, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, Step 2 wall `540.399 s`, DB FPS `4.439`, behavior RTT mean `84.865 ms`. | All B.1 candidates must beat this baseline and preserve correctness. |
 | What component did the probe isolate? | Client response parse plus Python `_decode_yolo_output0`/NMS after `behavior_ensemble_gaze_slice_topk`. | The probe only bounds the value of moving Top-K decode/NMS out of Python. |
 | How large is the removable measured component? | `3.125 ms` decode/NMS per 17-crop batch, or about `11.24 s` across `3597` accepted behavior calls. | Pure decode/NMS removal is bounded at `~2.08 %` of accepted Step 2 wall. |
-| Does the measured component satisfy the target gate? | The cycle gate requires `>=10 %` Step 2 wall reduction plus correctness parity in a real production benchmark. | No implementation decision yet; a decode-only compact backend is not expected to pass the gate by itself. |
+| Does the measured component satisfy the target gate? | Gate satisfaction cannot be evaluated by a component probe. The cycle gate requires `>=10 %` Step 2 wall reduction plus correctness parity in a real production benchmark. | `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. |
 | Why do the measured results look like this? | Top-K already reduced behavior output to `19,200 bytes/crop`; remaining Python decode/NMS is small. The dominant measured time is gRPC/Triton wait: `59.651 ms` of `62.082 ms` RTT-with-parse. | The earlier dense-byte bottleneck is mostly gone; the remaining limiter is wait/server execution rather than Python decode. |
-| What bottleneck remains to get better results? | `infer_wait_ms`/server-side child execution and scheduling dominate the sample, while `as_numpy` parse is only `0.114 ms`. | Next B.1 work must reduce the remaining wait or model-side work, not only compact already-Top-K outputs. |
+| What bottleneck hypothesis should the benchmark test? | `infer_wait_ms`/server-side child execution and scheduling dominate the sample, while `as_numpy` parse is only `0.114 ms`. | The next benchmark must prove whether any B.1 candidate reduces wait/server execution, not only compact already-Top-K outputs. |
 | Can B.1 be skipped or accepted now? | No full candidate benchmark exists. | B.1 remains open; only a real candidate benchmark can accept, reject, or close it. |
 
-## Decision
+## Required End-to-End Re-Run
 
-No B.1 implementation is selected yet. B.1 remains unimplemented and
-unaccepted; selecting Python BLS, C++ custom backend, or TRT plugin still
-requires a real production candidate benchmark. The latest probe changes only
-the implementation priority: a candidate that merely returns compact boxes
-after the existing Top-K path must prove it also reduces the measured
-`infer_wait_ms`/server-side execution bottleneck, otherwise its expected Step 2
-gain is bounded near the measured `~2.08 %` decode/NMS ceiling.
+The probe has no decision authority. Repeat B.1 evidence through the full
+production Linux path with:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_b1_decode_cost_full_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --tag cycle9b-b1-fullbench-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+That wrapper runs the canonical full benchmark first, collects DB/GPU/RTT and
+model-agreement metrics, then runs the decode-cost probe against the fresh
+replay key. Only the documented full benchmark can support a B.1 decision.
