@@ -29,7 +29,10 @@ context.
 |---|---|---|---|
 | 1 | [`README.md`](README.md) | 2026-06-02 | You are here. The orientation map and quick-start environment knobs. |
 | 2 | [`quickstart.md`](quickstart.md) | 2026-05-30 | Step-by-step local + Linux production setup. Run the commands; don't just read. |
-| 3 | [`AGENTS.md`](AGENTS.md) | 2026-06-02 | Constitutional discipline + production server topology + the full log of every accepted / not-accepted optimization cycle. Memorize the "no acceptance without prod evidence" rule. |
+| 3 | [`AGENTS.md`](AGENTS.md) | 2026-06-02 | Constitutional discipline + production server topology + the full log of every accepted / not-accepted optimization cycle. Memorize the "no acceptance without prod evidence" rule + the DSP non-negotiables. |
+| 3a | [`docs/documentation_systematization_plan.md`](docs/documentation_systematization_plan.md) | 2026-06-02 | Documentation Systematization Program (DSP) master plan. Read before touching any markdown file. Constitution Section 19 backstops it. |
+| 3b | [`docs/per_entity_doc_template.md`](docs/per_entity_doc_template.md) | 2026-06-02 | The template every entity doc MUST follow. Required by constitution § 19.2. |
+| 3c | [`docs/mermaid_theme_contract.md`](docs/mermaid_theme_contract.md) | 2026-06-02 | The Mermaid theme + palette + label-fitting contract. Required by constitution § 19.3, § 19.4. |
 
 ### Phase 1 — System architecture & module boundaries
 

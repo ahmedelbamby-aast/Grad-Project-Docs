@@ -30,6 +30,59 @@ This file defines how agents should execute tests quickly and safely in this rep
 - Active feature plan: [specs/011-bsil-semantic-runtime/plan.md](specs/011-bsil-semantic-runtime/plan.md)
 <!-- SPECKIT END -->
 
+## ⭐ Documentation Systematization Program (DSP) — BINDING
+
+**Constitution Section 19 (v2.5.0, ratified 2026-06-02) makes the
+following rules non-bypassable. Hallucinations are FORBIDDEN — a
+documentation claim without a resolvable reference is a CI-blocking
+regression, not a style nit.**
+
+### Read these first before any doc change
+1. [`docs/documentation_systematization_plan.md`](docs/documentation_systematization_plan.md) — the master multi-cycle plan
+2. [`docs/per_entity_doc_template.md`](docs/per_entity_doc_template.md) — the template every entity doc MUST follow
+3. [`docs/mermaid_theme_contract.md`](docs/mermaid_theme_contract.md) — the theme + palette + label rules
+4. [`.specify/memory/constitution.md`](.specify/memory/constitution.md) Section 19 — the constitutional text
+
+### The 8 non-negotiables (mirror of constitution § 19)
+1. **Reading-order authority.** `README.md` § "Documentation Reading Order" wins over any individual file date.
+2. **Per-entity coverage.** Every System / Module / Phase / Script / Code / API entity MUST have exactly one entity doc under `docs/entity/<kind>/`.
+3. **Mermaid theme contract.** Every Mermaid diagram declares the matching theme initializer from `docs/mermaid_theme_contract.md` § 2.
+4. **Text-fitting.** Node labels ≤ 40 chars per logical line; multi-line uses `<br/>` or `\n`.
+5. **Diagram preservation.** When a diagram is updated, the old version is PRESERVED — never delete. Add an H3 `historical` section.
+6. **Source-of-truth references.** Every entity doc has a `## Source-of-truth references` table; every File / Symbol / Commit / Job / Workflow / Doc row MUST resolve in the working tree. Unsourced claims are hallucinations.
+7. **Cycle discipline.** DSP Cycles 2-7 ship one entity per commit. A single commit MUST NOT advance two DSP cycles.
+8. **Diagram-deletion check.** `git log` walked by the CI gate fails on any net-removed Mermaid block without a sibling `historical` block.
+
+### The DSP cycle map
+| DSP Cycle | What lands | Status |
+|---|---|---|
+| 0 | Plan + governance hardening (this commit) | ACTIVE |
+| 1 | Inventory + reading-order refresh for ALL `.md` | PLANNED |
+| 2 | System-level entity docs | PLANNED |
+| 3 | Module-level entity docs (per Django app + frontend package) | PLANNED |
+| 4 | Phase / optimization-cycle docs | PLANNED |
+| 5 | Script + service + helper entity docs | PLANNED |
+| 6 | Code-level entity docs (hot files only) | PLANNED |
+| 7 | API surface entity docs | PLANNED |
+| 8 | CI gate proving coverage + theme + deletion compliance | PLANNED |
+
+### What to do if you cannot back a claim with a real reference
+**Delete the claim.** Do not invent a reference. Do not soften the
+claim to evade verification. Document the open question in the entity
+doc's § 16 "Open questions" with an owner and a target close date.
+Hallucination is the precedent that justified Section 19; do not be
+the next case.
+
+### Forbidden patterns (CI gate fails on these)
+- "Approximately N lines of code" without a `<file>` citation
+- "Around X ms" without an `inference_audit` / bench summary citation
+- "The function does Y" without a `<file>:<line>` citation
+- Quoted text from a doc that does not exist at the cited path
+- A Mermaid block missing `%%{init:`
+- A node label > 40 chars with no `<br/>` / `\n` break
+- A commit that nets-deletes a Mermaid block without a sibling `historical` version
+- A commit that advances two DSP cycles at once
+
 ## ⭐ Highest-Priority Plan — Inference Pipeline Parallelization
 - **This remains the top-priority runtime/performance plan, but the repo-side
   implementation is now signed complete as of 2026-05-31.**

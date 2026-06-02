@@ -1,6 +1,41 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.4.1 -> 2.5.0
+Bump rationale: MINOR - Adds Section 19 (Documentation Systematization and
+Anti-Hallucination Governance) converting recurring documentation pain into
+binding, non-bypassable invariants: every System / Module / Phase / Script /
+Code / API entity MUST have exactly one entity doc under `docs/entity/`
+following `docs/per_entity_doc_template.md`; the canonical reading order in
+`README.md` is authoritative over individual file dates; every Mermaid diagram
+MUST declare the theme initializer from `docs/mermaid_theme_contract.md`;
+node-label text MUST fit inside its box (≤ 40 chars per logical line);
+superseded diagrams are PRESERVED, never deleted; every entity doc MUST
+include a source-of-truth references block that the CI gate validates against
+the working tree. Hallucinations (claims without resolvable references) are
+treated as CI-blocking regressions. Adds matching rows to the Anti-Regression
+Enforcement Matrix (14.25).
+
+Triggering observation: documentation drift across 800+ markdown files, with
+inconsistent reading order, missing per-entity coverage, mixed Mermaid themes,
+overflowing node labels, and superseded diagrams silently deleted. Without
+governance these failures recur. The Documentation Systematization Program
+(DSP) defined in `docs/documentation_systematization_plan.md` is the
+remediation; Section 19 is its constitutional backstop.
+
+Remediation governance:
+- Master plan: docs/documentation_systematization_plan.md
+- Theme contract: docs/mermaid_theme_contract.md
+- Entity doc template: docs/per_entity_doc_template.md
+- DSP cycles map (Cycle 0 plan landed; Cycles 1-8 sequenced and binding).
+
+Section 19 gates propagate to AGENTS.md (DSP section) and to the CI pipeline
+via the inventory + theme + diagram-preservation + source-of-truth verifier
+delivered by DSP Cycle 8. Until DSP Cycle 8 lands, doc gaps are explicit
+gaps, not accepted maturity.
+
+Prior PATCH (2.4.0 -> 2.4.1) text below.
+
 Version change: 2.4.0 -> 2.4.1
 Bump rationale: PATCH - Adds the Production Benchmark Decision Authority Gate
 and Benchmark Decision Explanation Table to Section 12. The amendment does not
@@ -2125,6 +2160,151 @@ than a path resolution bug.
 | Extension exclusions audited (18.2) | Any new or modified `*.ext` gitignore rule is accompanied by a CI path audit and explicit exceptions for all CI-required matches |
 | Test path resolution (18.3) | Test files assert existence/content via `__file__`-anchored paths, not bare `Path("relative/string")`; verified by grep or linter |
 
+### 19. Documentation Systematization and Anti-Hallucination Governance
+
+This section converts persistent documentation drift, reading-order
+ambiguity, missing per-entity coverage, Mermaid theme inconsistency,
+overflowing node labels, silent deletion of superseded diagrams, and
+unsourced narrative claims into binding, non-bypassable invariants. The
+remediation program is the Documentation Systematization Program (DSP)
+defined in [`docs/documentation_systematization_plan.md`](../../docs/documentation_systematization_plan.md);
+this section is its constitutional backstop.
+
+**Hallucinations are FORBIDDEN.** A documentation claim that cannot be
+backed by a resolvable reference (file, symbol, commit, job, workflow)
+is a CI-blocking regression, not a style nit. Reviewers MUST reject any
+PR that introduces an unsourced claim.
+
+#### 19.1 Canonical reading-order authority
+
+The reading order declared in `README.md` § "Documentation Reading
+Order" is **authoritative** over any individual file's
+`**Last updated:**` header. Dates only reflect when a doc was last
+touched; they do NOT decide where a doc belongs in the narrative.
+
+A `.md` file added or modified to the repo MUST also be added to the
+README reading order in the same commit, OR be explicitly excluded by
+[`docs/documentation_systematization_plan.md`](../../docs/documentation_systematization_plan.md)
+§ 9 (out-of-scope list).
+
+#### 19.2 Per-entity coverage requirement
+
+Every project entity in the following five categories MUST have exactly
+one entity doc under `docs/entity/`:
+
+| Kind | Path pattern |
+| --- | --- |
+| System | `docs/entity/systems/<system>.md` |
+| Module | `docs/entity/modules/<app-or-package>.md` |
+| Phase / Cycle | `docs/entity/cycles/<cycle-id>.md` |
+| Script | `docs/entity/scripts/<path-with-double-underscores>.md` |
+| Code unit (hot files) | `docs/entity/code/<dotted-path>.md` |
+| API surface | `docs/entity/api/<kind>__<name>.md` |
+
+Each entity doc MUST follow
+[`docs/per_entity_doc_template.md`](../../docs/per_entity_doc_template.md).
+Removing the doc removes the entity from the supported surface; the
+removal MUST be paired with the entity's deletion in the same commit.
+
+#### 19.3 Mermaid diagram theme contract
+
+Every Mermaid diagram in a project-owned `.md` file MUST declare the
+matching theme initializer from
+[`docs/mermaid_theme_contract.md`](../../docs/mermaid_theme_contract.md)
+§ 2. The same diagram **type** MUST use the same theme + palette across
+every doc.
+
+Diagrams pre-existing this section are grandfathered. Any new diagram
+or any update to an existing diagram MUST adopt the contract.
+
+#### 19.4 Text-fitting rule
+
+Mermaid node labels MUST fit inside their box:
+
+- Hard cap of 40 characters per logical line.
+- Multi-line labels use `<br/>` (HTML) or `\n` (literal backslash-n) breaks.
+- Backticks for code spans inside nodes are forbidden (Mermaid does not
+  render them).
+- Long URLs in labels are forbidden; cite a footnote reference instead.
+
+Tables in entity docs MUST NOT contain unbreakable strings wider than
+the column budget declared by the surrounding doc.
+
+#### 19.5 Diagram preservation rule
+
+When a Mermaid diagram is updated, the previous version is PRESERVED.
+The doc adds a new H3 section titled
+`## <feature> diagram — vYYYY-MM-DD (current)` immediately above the
+old one (which is renamed
+`## <feature> diagram — vYYYY-MM-DD (historical)`). Both diagrams
+stay so the maturity arc is visible to future developers.
+
+**Deletion is forbidden.** The DSP Cycle 8 CI gate verifies, via
+`git log` on each `.md`, that no Mermaid block was removed without a
+sibling addition in the same commit.
+
+#### 19.6 Source-of-truth references requirement (anti-hallucination)
+
+Every entity doc MUST include a `## Source-of-truth references` section
+near the top, in the exact tabular shape declared by the per-entity
+template § "Source-of-truth references". The DSP Cycle 8 CI gate parses
+this block and verifies:
+
+| Row kind | Verification |
+| --- | --- |
+| File | `git ls-files <path>` returns the path |
+| Symbol | A grep for the symbol under the cited file finds it |
+| Commit | `git cat-file -e <sha>` succeeds |
+| Job | The 36-char UUID is referenced in some `inference_audit` JSON, bench summary JSON, or accepted cycle results doc |
+| Workflow | Path resolves under `.github/workflows/` |
+| Doc | Path resolves under `docs/` or repo root |
+
+A claim in the doc that does not correspond to at least one row above
+is a hallucination. Specifically forbidden:
+
+- "Approximately N lines of code" without a file citation.
+- "Around X ms" without an inference_audit / bench-summary citation.
+- "The function does Y" without a `<file>:<line>` citation.
+- Any quote from a doc that does not exist at the cited path.
+
+#### 19.7 Cycle discipline (DSP-internal)
+
+DSP Cycles 2-7 follow the same 4-phase template: investigate → write →
+cross-check against source → land. **No mass-generation across
+multiple entities in a single commit.** Each entity ships in its own
+commit so reviewers can verify the source-of-truth block.
+
+A single commit MUST NOT advance two DSP cycles at once. While DSP
+Cycle N is in progress, no DSP Cycle N+1 commits may land until N
+closes.
+
+#### 19.8 Documentation Systematization Compliance Gates
+
+| Principle | Required gate |
+| --- | --- |
+| Reading-order authority (19.1) | `scripts/ci/verify_doc_dates_and_reading_order.py` lists every project-owned narrative `.md` and asserts the README reading order covers it AND every reading-order link resolves |
+| Per-entity coverage (19.2) | DSP Cycle 8 verifier asserts every System / Module / Phase / Script / Code / API entity in the inventory has a corresponding doc under `docs/entity/<kind>/` |
+| Theme contract (19.3) | Every Mermaid block declares `%%{init:` and uses one of the registered diagram types from the theme contract § 2 |
+| Text-fitting (19.4) | No node label inside `[ ]`, `( )`, `(( ))`, `[/ /]`, `[\ \]` exceeds 40 chars without a `<br/>` or `\n` break |
+| Diagram preservation (19.5) | `git log` diff on a `.md` shows no net-removed Mermaid block without a sibling net-added block tagged `historical` in the same commit |
+| Source-of-truth references (19.6) | Every entity doc has the table; every row resolves in the working tree |
+| Cycle discipline (19.7) | A single commit references at most one DSP cycle; commits referencing two are rejected at review |
+
+### 19.9 Anti-Regression Enforcement Matrix rows
+
+The following rows are appended to Section 14.25's matrix (do not
+remove or re-order existing rows):
+
+| Risk | Bypass technique | Required gate |
+| --- | --- | --- |
+| Documentation hallucination (claim without resolvable reference) | Asserting facts not backed by source-of-truth block | DSP Cycle 8 verifier resolves every File / Symbol / Commit / Job / Workflow / Doc row; broken row blocks merge |
+| Reading-order drift | New doc added without README entry | `scripts/ci/verify_doc_dates_and_reading_order.py` fails the doc-dates job if README does not cover the new doc |
+| Diagram theme drift | New Mermaid diagram without theme initializer | DSP Cycle 8 verifier fails on any `mermaid` block lacking `%%{init:` |
+| Node-label overflow | Long label without `<br/>` / `\n` break | DSP Cycle 8 verifier fails on labels >40 chars without break |
+| Silent diagram deletion | Mermaid block removed in update | DSP Cycle 8 verifier walks `git log`, fails on net-removed block without sibling `historical` block |
+| Missing per-entity doc | System / module / cycle / script / code / API present in repo but absent from `docs/entity/` | DSP Cycle 8 verifier inventory mismatch fails the build |
+| Multi-cycle commit | One commit advances two DSP cycles | Reviewer rejects per § 19.7; PR template includes the cycle-isolation checkbox |
+
 ## Governance
 
 This constitution is the binding engineering, runtime and scientific maturity
@@ -2183,4 +2363,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.4.1 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02
+**Version**: 2.5.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02
