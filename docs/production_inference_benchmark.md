@@ -1123,4 +1123,86 @@ for the decision record.
 
 ---
 
-*Updated from production run on 2026-06-01. Update this file after each major pipeline change or hardware migration.*
+## 18. 2026-06-02 Cycle 9b B.2.b Production Benchmark — Exact Server-Side Slice
+
+**Status:** **ACCEPTED.** The exact server-side slice candidate completed the
+canonical production benchmark, passed post-benchmark raw tensor parity, reduced
+the targeted Step 2 wall by more than the gate, and preserved correctness.
+
+**Candidate:**
+
+1. Keep the legacy `gaze_horizontal_model` TensorRT plan unchanged.
+2. Add `gaze_horizontal_slice_model`, a tiny TensorRT gather over the legacy
+   dense output channels `[0,1,2,3,8,9]`.
+3. Route `behavior_all` through `behavior_ensemble_gaze_slice` so Python receives
+   `gaze_h_out [6,2100]` instead of the legacy `[84,2100]` horizontal tensor.
+4. Route standalone fallback through `gaze_horizontal_slice_adapter`.
+
+**Evidence:**
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9b-exactslice-crop-frame-20260601T233211` |
+| Job ID | `7933c1e5-a970-47a3-81c5-0c9bd01bd332` |
+| Candidate / deployed SHA | `ca69f02a8ceb214d7ef55cd2ae4b7ec75549c257` |
+| Telemetry session | `c0d59cb2-721e-419d-80a4-b2b1e4bffaa6` |
+| Bench summary | `backend/logs/bench_summary_20260602T023450.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260602T023450.csv` |
+| Inference audit | `backend/data/videos/7933c1e5-a970-47a3-81c5-0c9bd01bd332/inference_audit.json` |
+| Pre-benchmark parity | `backend/logs/gaze_horizontal_slice_parity_20260601T233131.json` (`max_abs_diff=0.0`) |
+| Post-benchmark parity | `backend/logs/gaze_horizontal_slice_parity_20260601T235623_postbench.json` (`max_abs_diff=0.0`) |
+| Final status | `completed` |
+
+**Before / after metrics:**
+
+| Metric | Cycle 8 Accepted Baseline | Cycle 9 Dense Ensemble | Cycle 9b Exact Slice | Delta vs Cycle 9 |
+|---|---:|---:|---:|---:|
+| Step 2 wall | `852.8 s` | `858.1 s` | `573.927 s` | `-284.173 s` / `-33.1 %` |
+| Step 2 FPS | `5.33` | `5.29` | `7.912` | `+49.6 %` |
+| DB-completed elapsed | `1312.3 s` | `1110.7 s` | `~1054 s` | `-56.7 s` / `-5.1 %` |
+| DB-completed FPS | `3.46` | `4.09` | `4.307` | `+5.3 %` |
+| `run.complete` wall | not primary | `923.1 s` telemetry wall | `865.419 s` audit wall | `-57.7 s` / `-6.3 %` |
+| Behavior RTT mean | `143-168 ms/model` | `107.9 ms` ensemble | `91.470 ms` `behavior_ensemble_gaze_slice` | `-15.2 %` |
+| Behavior RTT p95 | `248-277 ms/model` | `173.9 ms` ensemble | `146.015 ms` | `-16.0 %` |
+| App behavior calls | `14 391` | `3 597` | `3 597` | unchanged |
+| Horizontal dense output / frame | `~11.4 MB` | `~11.4 MB` | `~0.82 MB` | `~93 %` less |
+| Total behavior dense output / frame | `~17.1 MB` | `~17.1 MB` | `~6.5 MB` | `~62 %` less |
+| Avg GPU utilization | `9.65 %` | `9.36 %` | `9.595 %` | `+0.235 pp` |
+| Peak GPU utilization | `36 %` | `43 %` | `45 %` | `+2 pp` |
+| Peak VRAM | `15 663 MiB` | `15 663 MiB` | `16 023 MiB` | `+360 MiB` |
+
+**Model-call telemetry for accepted run:**
+
+| Model | Calls | Mean RTT | p95 RTT | Max RTT |
+|---|---:|---:|---:|---:|
+| `behavior_ensemble_gaze_slice` | `3597` | `91.470 ms` | `146.015 ms` | `175.274 ms` |
+| `person_detector` | `910` | `9.288 ms` | `13.795 ms` | `37.446 ms` |
+| `rtmpose_model` | `5047` | `18.901 ms` | `88.564 ms` | `378.673 ms` |
+| Shadow `gaze_horizontal_slice_adapter` | `1` | `21.944 ms` | `21.944 ms` | `21.944 ms` |
+| Shadow `gaze_vertical_model` | `1` | `20.167 ms` | `20.167 ms` | `20.167 ms` |
+| Shadow `posture_model` | `1` | `22.766 ms` | `22.766 ms` | `22.766 ms` |
+
+**Correctness parity:**
+
+| Counter | Cycle 9 Dense Ensemble | Cycle 9b Exact Slice | Delta |
+|---|---:|---:|---:|
+| Frames | `4541` | `4541` | 0 |
+| Detections | `72749` | `72747` | `-2` / `-0.0027 %` |
+| Bounding boxes | `72749` | `72747` | `-2` / `-0.0027 %` |
+| Frame embeddings | `72583` | `72581` | `-2` / `-0.0028 %` |
+| Student tracks | `53` | `53` | 0 |
+| `attention_tracking` boxes | `11776` | `11776` | 0 |
+| `hand_raising` boxes | `8800` | `8801` | `+1` |
+| `person_detection` boxes | `19162` | `19162` | 0 |
+| `sitting_standing` boxes | `33011` | `33008` | `-3` |
+| Tensor parity | legacy slice | `max_abs_diff=0.0` | pass |
+
+**Decision:** **ACCEPTED.** The named lever was dense output bytes, and the
+production run shows both the expected byte reduction and a measurable Step 2
+wall reduction without correctness regression. The broader B.2 multi-approach
+item remains open because B.2.a top-K and B.2.c combined top-K+slice have not
+been benchmarked.
+
+---
+
+*Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

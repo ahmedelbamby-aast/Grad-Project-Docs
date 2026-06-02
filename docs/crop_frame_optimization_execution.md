@@ -713,7 +713,7 @@ decoded-detection parity gate before any full benchmark.
 
 ---
 
-## Cycle 9b B.2.b — Exact Server-Side Horizontal Slice (STAGED)
+## Cycle 9b B.2.b — Exact Server-Side Horizontal Slice (ACCEPTED)
 
 ### Phase 1: Investigation
 
@@ -777,11 +777,60 @@ backend\.venv\Scripts\python.exe -m pytest \
 
 Result: `18 passed`; py_compile and shell syntax passed.
 
+### Phase 4: Production benchmark
+
+Production deployed SHA `ca69f02a8ceb214d7ef55cd2ae4b7ec75549c257`, built the
+slice plan, validated the ensemble repository, and completed the canonical
+`combined.mp4` benchmark:
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9b-exactslice-crop-frame-20260601T233211` |
+| Job ID | `7933c1e5-a970-47a3-81c5-0c9bd01bd332` |
+| Bench summary | `backend/logs/bench_summary_20260602T023450.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260602T023450.csv` |
+| Inference audit | `backend/data/videos/7933c1e5-a970-47a3-81c5-0c9bd01bd332/inference_audit.json` |
+| Post-benchmark parity | `backend/logs/gaze_horizontal_slice_parity_20260601T235623_postbench.json`, `max_abs_diff=0.0` |
+| Final status | `completed` |
+
+| Metric | Cycle 9 Dense Ensemble | Exact Slice | Delta |
+|---|---:|---:|---:|
+| Step 2 wall | `858.1 s` | `573.927 s` | `-33.1 %` |
+| Step 2 FPS | `5.29` | `7.912` | `+49.6 %` |
+| DB-completed elapsed | `1110.7 s` | `~1054 s` | `-5.1 %` |
+| DB-completed FPS | `4.09` | `4.307` | `+5.3 %` |
+| Behavior RTT mean | `107.9 ms` | `91.470 ms` | `-15.2 %` |
+| Behavior RTT p95 | `173.9 ms` | `146.015 ms` | `-16.0 %` |
+| Avg / peak GPU util | `9.36 % / 43 %` | `9.595 % / 45 %` | `+0.235 pp / +2 pp` |
+
+Correctness parity:
+
+| Counter | Cycle 9 | Exact Slice | Delta |
+|---|---:|---:|---:|
+| Frames | `4541` | `4541` | 0 |
+| Detections | `72749` | `72747` | `-2` |
+| Bounding boxes | `72749` | `72747` | `-2` |
+| Frame embeddings | `72583` | `72581` | `-2` |
+| Student tracks | `53` | `53` | 0 |
+| `attention_tracking` boxes | `11776` | `11776` | 0 |
+| `hand_raising` boxes | `8800` | `8801` | `+1` |
+| `person_detection` boxes | `19162` | `19162` | 0 |
+| `sitting_standing` boxes | `33011` | `33008` | `-3` |
+
 ### Decision
 
-**STAGED — not accepted.** Production still must build the slice plan, pass
-`tools/prod/prod_gaze_horizontal_slice_parity.py`, complete `combined.mp4`, and
-record before/after metrics.
+**ACCEPTED.** The named lever was dense output bytes, and production proved the
+candidate reduces the targeted Step 2 wall while preserving raw tensor parity and
+DB correctness. Production remains on `GAZE_HORIZONTAL_HEAD_VARIANT=slice` with
+`LPM_ENABLED=0`. Rollback is:
+
+```bash
+bash tools/prod/prod_enable_parallel_flow.sh --profile per-frame-signals
+```
+
+This accepts the exact-slice B.2.b subcandidate only. The broader B.2
+multi-approach item remains open until B.2.a and B.2.c are measured or formally
+deferred with evidence.
 
 ---
 

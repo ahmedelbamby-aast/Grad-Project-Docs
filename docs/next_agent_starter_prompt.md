@@ -4,7 +4,8 @@
 self-contained — read it once, then act. Every link in here points to a
 file that already exists in this repository (verify with `git ls-files`).
 
-**Last updated:** 2026-06-01 (after Cycle 10 LPM was staged).
+**Last updated:** 2026-06-02 (after Cycle 9b exact server-side slice was
+accepted).
 
 ---
 
@@ -22,15 +23,16 @@ For the canonical benchmark video `combined.mp4` (4 541 frames, 2 m 31 s
 @ 30 fps), that means **total wall ≤ 7 m 31 s = 451 s = ≥ 10.07 FPS
 overall**.
 
-**Current accepted baseline** (Cycle 8, job `d2de80a0`):
-- Total wall: **21.87 min** (1 312 s)
-- Overall FPS (DB completed basis): **3.46**
-- **Gap to SLA: 14.4 min**
+**Current accepted baseline** (Cycle 9b exact slice, job `7933c1e5`):
+- Total wall: **~17.6 min** (~1 054 s)
+- Overall FPS (DB completed basis): **4.307**
+- **Gap to SLA: ~10.0 min**
 
 You are not at the SLA. The plan is in mid-flight. Cycles 1–8 are ACCEPTED;
-Cycle 9 ran on prod but FAILED its acceptance gate; Cycle 10 LPM is STAGED
-but not yet wired into production. Future cycles (10b, 11, 12, 13a, 13b)
-are planned.
+Cycle 9 ran on prod but FAILED its Step 2 gate; Cycle 9b B.2.b exact slice is
+ACCEPTED; Cycle 10 LPM ran on prod but is NOT ACCEPTED and remains rolled back
+with `LPM_ENABLED=0`. Future cycles (9b remaining, 10b, 11, 12, 13a, 13b) are
+planned.
 
 You will not silently expand scope. You will not declare anything
 ACCEPTED without prod evidence on the Linux RTX 5090 server.
@@ -101,7 +103,7 @@ must be reverted and re-done.
    - `backend/logs/gpu_monitor_bench_*.csv`
 
    The metrics must be recorded in a row of the matching
-   `docs/cycle_*_results.md` file alongside the SLA Baseline (Cycle 8)
+   `docs/cycle_*_results.md` file alongside the latest accepted baseline
    and the SLA target row. No prod artefacts → STAGED, not ACCEPTED.
 
 6. **Multi-approach items (TODO § B.1, § B.2, § B.3) must measure ALL
@@ -231,19 +233,17 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 
 | Order | Task | Where the spec lives |
 |---|---|---|
-| 1 | **Wire the Cycle 10 LPM hook** into `_run_crop_behaviour_for_items` | TODO § C.2.1 |
-| 2 | **`telemetry_lpm_events` table + writer** | TODO § C.2.2, spec § 8 |
-| 3 | **Cycle 10 LPM Phase 1 prod benchmark** with `LPM_ENABLED=1` | TODO § C.2.3, spec § 10 |
-| 4 | **B.2.b** — re-export `gaze_horizontal_model` with a 2-class head (low risk, single biggest output trim) | TODO § B.2 |
-| 5 | **B.3 Step 1** — measure per-child Triton compute_infer to find which gaze model dominates `max(…)` | TODO § B.3 |
-| 6 | **B.1.a** — BLS Python backend for compact postprocessing (highest-impact ensemble continuation; also unlocks LPM Phase 2) | TODO § B.1 |
-| 7 | **C.2.4 LPM Phase 2** — migrate the same pure constraint math into a Triton BLS Python backend | TODO § C.2.4 |
-| 8 | **B.2.a** — top-K anchor packing (fallback if B.1 slips) | TODO § B.2 |
-| 9 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
+| 1 | **B.1 compact postprocessing** — preferably BLS only after verifying the prod Triton backend exists or rebuilding it intentionally | TODO § B.1 |
+| 2 | **B.2.a top-K anchor packing** or **B.2.c top-K + accepted slice** | TODO § B.2 |
+| 3 | **B.3 Step 2** — optimize the measured dominant child only if the exact-slice baseline still shows it dominates | TODO § B.3 |
+| 4 | **B.4** — bump `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES` 2 → 4 with RSS watch | TODO § B.4 |
+| 5 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
+| 6 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
 
-Items 1–3 unblock LPM acceptance. Items 4–6 are the path to the ≥ 10 %
-Step 2 wall reduction that Cycle 9 missed. Item 7 is the architectural
-cleanup once item 6 lands.
+B.2.b exact server-side slice is already accepted and is now the baseline.
+Do not repeat the rejected `gaze2` standalone output-slice plan. The remaining
+Step 2 work must reduce dense bytes further, reduce server-side child compute,
+or remove single-process Python orchestration.
 
 If you are not picking one of the above, you are scope-creeping. Don't.
 
@@ -328,16 +328,19 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
 ## 10. The current state of the world (snapshot — verify with `git log`)
 
 - **Branch:** `feature/phase7a-crop-frame-mode`
-- **Latest accepted baseline:** Cycle 8, job `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`,
-  21.87 min total, 3.46 FPS overall (DB completed)
+- **Latest accepted baseline:** Cycle 9b B.2.b exact server-side slice, job
+  `7933c1e5-a970-47a3-81c5-0c9bd01bd332`, replay key
+  `cycle9b-exactslice-crop-frame-20260601T233211`, ~17.6 min total,
+  4.307 FPS overall (DB completed)
 - **Cycle 9 (Triton behavior ensemble):** NOT ACCEPTED — Step 2 wall +0.6 %
   failed the ≥ 10 % reduction gate. Job `c1651663-e08a-4e29-9ee3-fd0f09884b98`.
-  Flag `TRITON_BEHAVIOR_ENSEMBLE` exists but is not on the SLA path.
-- **Cycle 10 (Logical Path Matrix):** STAGED. The pure-function math
-  module at `backend/apps/pipeline/services/logical_path_matrix.py`
-  exists with 28 passing unit tests. It is **not yet wired into
-  `tasks.py`**. `LPM_ENABLED=0` in prod env. Acceptance gate per spec § 10
-  has not been run.
+  Flag `TRITON_BEHAVIOR_ENSEMBLE` exists and is part of the accepted slice route,
+  but the plain dense ensemble by itself is not accepted.
+- **Cycle 9b B.2.b exact slice:** ACCEPTED — post-benchmark parity
+  `max_abs_diff=0.0`, Step 2 wall `858.1 → 573.927 s`, correctness parity held.
+- **Cycle 10 (Logical Path Matrix):** NOT ACCEPTED. The hook and telemetry table
+  ran on prod, but contradiction counters stayed zero and attention boxes
+  regressed. Production remains `LPM_ENABLED=0`.
 - **TODO file:** [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_todo.md)
   is the single source of truth for what is still open. Section Z is the
   map of every cycle past, present, and future.

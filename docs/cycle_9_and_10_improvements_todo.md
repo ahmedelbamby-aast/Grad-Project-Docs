@@ -4,7 +4,9 @@
 flagged "done" until each improvement has its own production benchmark on
 the Linux RTX 5090 server that demonstrates (a) the targeted metric
 improvement and (b) zero correctness regression vs. the prior accepted
-baseline (Cycle 8, job `d2de80a0`). See `AGENTS.md` re-affirmation and the
+baseline for that cycle. The latest accepted baseline is now Cycle 9b exact
+server-side slice, job `7933c1e5-a970-47a3-81c5-0c9bd01bd332`. See
+`AGENTS.md` re-affirmation and the
 Cycle 9 precedent for what "not accepted" means in practice.
 
 > **For the next agent reading this file first:** this TODO covers **only**
@@ -30,7 +32,7 @@ the §E hard-rule restated as a checklist gate):
    `combined.mp4` and the bench summary JSON, inference_audit JSON, and
    GPU monitor CSV are captured.
 5. The resulting metrics are recorded in the matching
-   `docs/cycle_*_results.md` file alongside the SLA Baseline (Cycle 8)
+   `docs/cycle_*_results.md` file alongside the latest accepted baseline
    and the SLA target.
 6. The corresponding row in § Z.1 / Z.2 of this file has been moved /
    updated to reflect the new accepted state.
@@ -38,7 +40,7 @@ the §E hard-rule restated as a checklist gate):
 Items per §B / §C:
 
 - [ ] **B.1** Compact-postprocessing: ALL three approaches (B.1.a BLS Python, B.1.b C++ custom, B.1.c TRT NMS plugin) measured on prod and recorded in `docs/cycle_9b_compact_postproc_results.md`; one approach selected via `BEHAVIOR_COMPACT_BACKEND`; CI gate updated for the new tests
-- [ ] **B.2** Output-fusion: ALL three approaches (B.2.a top-K, B.2.b 2-class gaze_h re-export, B.2.c both) measured on prod and recorded in `docs/cycle_9b_output_fusion_results.md`; one approach selected; CI gate updated
+- [ ] **B.2** Output-fusion: ALL three approaches (B.2.a top-K, B.2.b exact gaze_h slice, B.2.c both) measured on prod and recorded in `docs/cycle_9b_output_fusion_results.md`; one approach selected; CI gate updated
 - [ ] **B.3** Child critical-path: Step 1 measurement landed in `docs/cycle_9b_child_critical_path_results.md` (`gaze_horizontal_model` is the dominant child); ALL applicable Step 2 approaches still need implementation, prod measurement, and CI gate updates
 - [ ] **B.4** Larger-batch knob: prod-benchmarked with RSS watch; accept or reject documented in a results doc
 - [ ] **C.2.1** LPM hook wired into `_run_crop_behaviour_for_items`; integration unit test added; CI gate updated (**deployed and prod-proven, but Cycle 10 acceptance failed so checkbox remains open**)
@@ -116,13 +118,14 @@ ship the flag.
 | Cycles 1–5 | `74ec0432` | 2 186 s (36.4 min) | 2.077 | ACCEPTED |
 | Cycle 6 (pose chunking) | `a1a448b9` | 1 633 s (27.2 min) | 2.780 | ACCEPTED |
 | Cycle 7 (redis cache) | `515fe118` | 1 582 s (26.4 min) | 2.870 | ACCEPTED (caveat) |
-| Cycle 8 (embedding stage) | `d2de80a0` | 1 312 s (21.9 min) | 3.460 | **ACCEPTED** (latest accepted baseline) |
+| Cycle 8 (embedding stage) | `d2de80a0` | 1 312 s (21.9 min) | 3.460 | **ACCEPTED** (superseded by Cycle 9b exact slice) |
 | Cycle 9 (behavior ensemble) | `c1651663` | 1 111 s (18.5 min) | 4.090 | **NOT ACCEPTED** — Step 2 wall +0.6 % failed the ≥ 10 % gate |
 | Cycle 10 (LPM) | `17075418` | 1 076 s (17.9 min) | 4.219 | **NOT ACCEPTED** — telemetry worked, but C1/eliminated stayed 0 and `attention_tracking` boxes regressed 11 776 → 2 680 |
+| Cycle 9b B.2.b exact slice | `7933c1e5` | ~1 054 s (17.6 min) | 4.307 | **ACCEPTED** — Step 2 wall 858.1 → 573.927 s and correctness parity held |
 
 **SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
-= 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 8) is
-**21.9 min** — gap is **14.4 min**.
+= 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 9b exact
+slice) is **17.6 min** — gap is **~10.0 min**.
 
 ---
 
@@ -202,7 +205,8 @@ dense-grid path stays compiled in.
 1. Tensor parity probe: ≤ 1e-6 max abs diff between compact-output
    detections and the existing Python-NMS detections on the same crop
    batch.
-2. Per-class bbox count parity within 0.05 % of Cycle 8 baseline.
+2. Per-class bbox count parity within 0.05 % of the latest accepted baseline
+   for the cycle.
 3. Step 2 wall reduction ≥ 10 % on `combined.mp4`.
 4. All three approaches' bench numbers recorded in
    `docs/cycle_9b_compact_postproc_results.md` even if only one ships —
@@ -220,7 +224,7 @@ footprint than the full BLS path.
 |---|---|---|---:|
 | **B.2.a** | **Top-K anchor packing** — extra ensemble step (or tiny TensorRT op) returns only the top-K anchors per crop per model with `K = TRITON_YOLO_MAX_DECODE_CANDIDATES = 100` | Output shape per model becomes `[C, K]` instead of `[C, 2100]` — `100/2100 ≈ 4.8 %` of original | ~95 % per model |
 | **B.2.b** | **Class-channel trim for `gaze_horizontal_model`** — staged as an ONNX output-slice variant, not a retrained head | Output shape changes from `[84, 2100]` to `[6, 2100]`; compact class IDs are remapped back to legacy IDs `4/5` | ~93 % on this one model (689 KB → ~50 KB per crop = **~11 MB / frame** saved) |
-| **B.2.c** | **Combine B.2.a + B.2.b** — top-K packing AND a 2-class re-export of `gaze_horizontal_model` (the other three behavior models keep their 10-class head) | Stacked savings | ~99 % per crop on `gaze_horizontal_model`, ~95 % on the others |
+| **B.2.c** | **Combine B.2.a + B.2.b** — top-K packing AND the accepted exact slice for `gaze_horizontal_model` (the other three behavior models keep their 10-class head) | Stacked savings | ~99 % per crop on `gaze_horizontal_model`, ~95 % on the others |
 
 #### B.2 selection mechanism (.env-controlled)
 
@@ -251,29 +255,31 @@ legacy `behavior_ensemble` route. Remaining B.2 approaches are still open only
 if they can preserve parity, preferably by slicing the already-executed legacy
 output server-side or by passing an explicit decoded-detection parity gate.
 
-**Staged follow-up (2026-06-02):** exact server-side slicing is now implemented
-locally behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice`, but not accepted. It keeps
-`gaze_horizontal_model` unchanged, adds `gaze_horizontal_slice_model` to gather
-channels `[0,1,2,3,8,9]` from the legacy dense output inside Triton, routes
+**Accepted follow-up (2026-06-02):** exact server-side slicing is accepted behind
+`GAZE_HORIZONTAL_HEAD_VARIANT=slice`. It keeps `gaze_horizontal_model`
+unchanged, adds `gaze_horizontal_slice_model` to gather channels
+`[0,1,2,3,8,9]` from the legacy dense output inside Triton, routes
 `behavior_all` through `behavior_ensemble_gaze_slice`, and routes standalone
-fallback through `gaze_horizontal_slice_adapter`. Local focused validation passed
-(`18 passed`, py_compile, shell syntax). Production parity, full benchmark, and
-ACCEPTED/NOT ACCEPTED metrics are still required.
+fallback through `gaze_horizontal_slice_adapter`. Production benchmark
+`cycle9b-exactslice-crop-frame-20260601T233211` / job
+`7933c1e5-a970-47a3-81c5-0c9bd01bd332` completed, post-benchmark parity passed
+with `max_abs_diff=0.0`, and Step 2 wall improved `858.1 s → 573.927 s`.
+B.2.a top-K and B.2.c combined top-K plus slice remain unmeasured.
 
 #### B.2 measurement matrix (one prod bench per row)
 
 Record in `docs/cycle_9b_output_fusion_results.md`. All three rows must be
 benchmarked even if only one ships.
 
-| Metric | Legacy (Cycle 9) | B.2.a top-K only | B.2.b 2-class gaze_h only | B.2.c both |
+| Metric | Legacy (Cycle 9) | B.2.a top-K only | B.2.b exact gaze_h slice | B.2.c both |
 |---|---:|---:|---:|---:|
-| Step 2 wall (s) | 858.1 | ? | ? | ? |
-| Step 2 wall Δ vs legacy | — | ? % | ? % | ? % |
-| Total DB-completed elapsed (s) | 1 110.7 | ? | ? | ? |
-| Overall FPS (DB completed) | 4.09 | ? | ? | ? |
-| Behavior dense bytes / frame | 17.1 MB | ? MB | ~6.1 MB | ? MB |
-| Avg behavior RTT (ms) | 107.9 | ? | ? | ? |
-| Per-class bbox parity (Δ %) | 0 | ≤ 0.05 ✓ | ≤ 0.05 ✓ | ≤ 0.05 ✓ |
+| Step 2 wall (s) | 858.1 | ? | **573.927** | ? |
+| Step 2 wall Δ vs legacy | — | ? % | **−33.1 %** | ? % |
+| Total DB-completed elapsed (s) | 1 110.7 | ? | **~1 054** | ? |
+| Overall FPS (DB completed) | 4.09 | ? | **4.307** | ? |
+| Behavior dense bytes / frame | 17.1 MB | ? MB | **~6.5 MB** | ? MB |
+| Avg behavior RTT (ms) | 107.9 | ? | **91.470** | ? |
+| Per-class bbox parity (Δ %) | 0 | ≤ 0.05 ✓ | **pass** | ≤ 0.05 ✓ |
 | Engineering effort (person-days) | — | ~1.5 | ~2 (re-export + accuracy probe) | ~3 |
 | Production deploy risk | — | low | medium (engine swap) | medium |
 | Rollback complexity | trivial | env flip | env flip + engine swap | env flip + engine swap |
@@ -289,8 +295,8 @@ operating on a 6-channel `gaze_horizontal` output is even cheaper than one
 operating on 84-channel.
 
 **Risk:** Medium. Top-K `K` value must match
-`TRITON_YOLO_MAX_DECODE_CANDIDATES` exactly. B.2.b re-export must pass an
-accuracy parity probe (same gates as Cycle 11 smaller-input change).
+`TRITON_YOLO_MAX_DECODE_CANDIDATES` exactly. B.2.b exact slice has already
+passed raw tensor parity; any new B.2.b replacement must pass the same gate.
 
 **Rollback:** flip both env flags back to defaults.
 
@@ -628,7 +634,7 @@ free).
 | 1 | **C.2.1 LPM wiring** | 10 (Phase 1) | low risk, code already exists, prerequisite for C.2.3 |
 | 2 | **C.2.2 LPM telemetry table** | 10 (Phase 1) | small DB migration, prerequisite for C.2.3 |
 | 3 | **C.2.3 LPM Phase 1 prod benchmark** | 10 (Phase 1) | flip `LPM_ENABLED=1` for one bench, gate decides ACCEPTED / REJECTED |
-| 4 | **B.2b `gaze_horizontal` re-export** | 9b | first TensorRT output-slice implementation failed production parity; only revisit with exact server-side slicing or a documented decoded-parity gate |
+| 4 | **B.2b exact server-side `gaze_horizontal` slice** | 9b | accepted on production; use as the current baseline before B.1/B.2.a/B.2.c |
 | 5 | **B.3 child critical-path analysis** | 9b | server-side timing first, then targeted optimization of the dominant child |
 | 6 | **B.1 server-side compact postprocessing (BLS)** | 9b | highest impact but highest risk — depends on B.2b learnings |
 | 7 | **C.2.4 LPM Phase 2 (move math into BLS)** | 10 (Phase 2) | combines with B.1 — both land in the same BLS Python backend |
@@ -697,7 +703,7 @@ quality of the diff.
    the inference_audit was captured, and the GPU monitor CSV was captured.
    "Compared to the SLA Baseline" means the resulting metrics are recorded
    in a row of the matching `docs/cycle_*_results.md` file alongside the
-   prior accepted baseline (Cycle 8 for now) AND the SLA target row from
+   prior accepted baseline AND the SLA target row from
    `docs/runtime_sla_video_plus_5min.md`. Without all three artefacts plus
    the row in the results doc, the item stays STAGED, not ACCEPTED — even
    if the unit tests are green, even if the code reviewer signed off, even
@@ -744,13 +750,14 @@ quality of the diff.
 | Cycle 7 | Redis client caching | **ACCEPTED 2026-06-01 (with caveat)** | `515fe118-6009-4776-916d-6473fbf31ed7` | Embedding wall 467 → 451 s (−3.6 %), overall FPS 2.78 → 2.87. Hypothesis projected −69 %; only −3.6 % delivered (redis-py 5.x lazy pool was much cheaper than assumed) | `docs/production_inference_benchmark.md` §13 |
 | Cycle 8 | Embedding stage attack: track-level reuse + lazy cv2 + bulk_create | **ACCEPTED 2026-06-01** | `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8` | Embedding wall 451 → 174 s (−61.5 %), overall FPS 2.87 → 3.46 | `docs/production_inference_benchmark.md` §14, Cycle 8 section in `docs/crop_frame_optimization_execution.md` |
 | Cycle 9 | Triton behavior ensemble (4 → 1 gRPC call per frame) | **NOT ACCEPTED 2026-06-01** | `c1651663-e08a-4e29-9ee3-fd0f09884b98` | App calls −75 %, behavior RTT 143–168 → 107.9 ms, overall FPS 3.46 → 4.09 (+18 %) — but **Step 2 wall 852.8 → 858.1 s failed the ≥ 10 % reduction gate**. Ensemble kept available under `TRITON_BEHAVIOR_ENSEMBLE=1` but not on the SLA path | `docs/cycle_9_results.md` (full post-mortem), `docs/cycle_9_investigation.md` |
+| Cycle 9b B.2.b | Exact server-side horizontal-gaze slice | **ACCEPTED 2026-06-02** | `7933c1e5-a970-47a3-81c5-0c9bd01bd332` | Dense horizontal output returned to Python changed `[84,2100] → [6,2100]`, post-benchmark tensor parity `max_abs_diff=0.0`, Step 2 wall `858.1 → 573.927 s` (`−33.1 %`), DB FPS `4.09 → 4.307`, correctness parity held | `docs/production_inference_benchmark.md` §18, `docs/cycle_9b_output_fusion_results.md`, `docs/crop_frame_optimization_execution.md` |
 | Cycle 10 | Logical Path Matrix (LPM) Phase 1 | **NOT ACCEPTED 2026-06-01** | `17075418-4386-4b5f-85d4-ea23bec71f66`; safety proof `21666815-f4bd-4f5f-b90e-b9101b4d899d` | Telemetry table worked (`4541` rows), but contradictions were not detected (`C1=0`, `eliminated=0`) and `attention_tracking` boxes regressed 11 776 → 2 680. Safety proof at SHA `31edac44` restored most boxes (`2680 → 11122`) but still failed Cycle 9 parity (`11776`) and still recorded `C1=0`, `eliminated=0`. Prod rolled back to `LPM_ENABLED=0`. | `docs/production_inference_benchmark.md` §16, `docs/cycle_10_lpm_phase1_results.md` |
 
 ### Z.2 Cycles staged or in progress (code exists, awaiting prod evidence)
 
 | # | Title | Status | What is missing | Primary docs |
 |---|---|---|---|---|
-| **Cycle 9b** | Five concrete continuation options (compact postprocessing, output fusion, child critical-path, larger ensemble batches, discipline rule) | **PARTIALLY PROVEN — B.2.b EXACT SLICE STAGED** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is implemented locally but missing production parity and full `combined.mp4` benchmark. B.1, B.2.a, B.2.c, B.3 Step 2, and B.4 remain unaccepted. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_output_fusion_results.md` |
+| **Cycle 9b remaining** | Compact postprocessing, top-K output fusion, child critical-path, larger ensemble batches, discipline rule | **PARTIALLY ACCEPTED — B.2.b EXACT SLICE ACCEPTED** | B.2.b separate TensorRT output-slice code behind `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` is NOT ACCEPTED (`max_abs_diff=9.5`). Exact server-side slicing behind `GAZE_HORIZONTAL_HEAD_VARIANT=slice` is ACCEPTED (`max_abs_diff=0.0`, Step 2 wall `−33.1 %`). B.1, B.2.a, B.2.c, B.3 Step 2, and B.4 remain unaccepted. | This file, `docs/cycle_9_results.md`, `docs/cycle_9b_child_critical_path_results.md`, `docs/cycle_9b_output_fusion_investigation.md`, `docs/cycle_9b_exact_slice_investigation.md`, `docs/cycle_9b_output_fusion_results.md` |
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 
 ### Z.3 Cycles planned but not yet started (from the 9–12 playbook)
@@ -778,7 +785,7 @@ quality of the diff.
 | SLA contract | `total_wall ≤ duration(video) + 5 min` |
 | For `combined.mp4` | total wall ≤ **7 m 31 s** = 451 s |
 | Required overall FPS | **≥ 10.07** |
-| Current accepted baseline (Cycle 8) | 21.87 min = **3.46 FPS** (gap: 14.4 min) |
+| Current accepted baseline (Cycle 9b exact slice) | ~17.6 min = **4.307 FPS** (gap: ~10.0 min) |
 | Cycle 9 NOT ACCEPTED but produced | 18.51 min = 4.09 FPS (gap: 11.0 min) |
 | Cycle 10 NOT ACCEPTED but produced | 17.93 min = 4.219 FPS (invalid for baseline because correctness regressed) |
 
@@ -813,8 +820,8 @@ same commit so the rules cannot drift between the TODO and the cycle map.
    summary JSON from `tools/prod/prod_run_parallel_flow_benchmark.sh`, (b)
    inference_audit JSON, and (c) GPU monitor CSV — all from the prod
    Linux RTX 5090 server. The metrics must be recorded in a row of the
-   matching `docs/cycle_*_results.md` file alongside the SLA Baseline
-   (Cycle 8) and the SLA target row. No prod artefacts = STAGED, not
+   matching `docs/cycle_*_results.md` file alongside the prior accepted
+   baseline and the SLA target row. No prod artefacts = STAGED, not
    ACCEPTED.
 6. **Multi-approach items in this file (§B.1, §B.2, §B.3) must measure
    ALL their approaches on prod before one is selected.** A new

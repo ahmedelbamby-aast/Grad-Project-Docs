@@ -682,13 +682,21 @@ because the pre-benchmark parity gate failed. Production was rolled back to
 `GAZE_HORIZONTAL_HEAD_VARIANT=coco80`, `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`,
 and `LPM_ENABLED=0`.
 
-Cycle 9b exact server-side slice is **STAGED, not accepted**. This candidate
-keeps the legacy `gaze_horizontal_model` plan unchanged, then runs
+Cycle 9b exact server-side slice is **ACCEPTED**. This candidate keeps the
+legacy `gaze_horizontal_model` plan unchanged, then runs
 `gaze_horizontal_slice_model` on the legacy dense output inside Triton so the app
 receives `[6,2100]` instead of `[84,2100]`. The matching
 `behavior_ensemble_gaze_slice` and `gaze_horizontal_slice_adapter` are guarded by
-`GAZE_HORIZONTAL_HEAD_VARIANT=slice`. Production parity and a full `combined.mp4`
-benchmark are still required before any acceptance claim.
+`GAZE_HORIZONTAL_HEAD_VARIANT=slice`. Production benchmark
+`cycle9b-exactslice-crop-frame-20260601T233211` / job
+`7933c1e5-a970-47a3-81c5-0c9bd01bd332` completed at deployed SHA
+`ca69f02a8ceb214d7ef55cd2ae4b7ec75549c257`; post-benchmark parity
+`backend/logs/gaze_horizontal_slice_parity_20260601T235623_postbench.json`
+reported `max_abs_diff=0.0`. Step 2 wall improved `858.1 s → 573.927 s`
+(`-33.1 %`), behavior RTT mean improved `107.9 ms → 91.470 ms`, DB-completed
+FPS improved `4.09 → 4.307`, and correctness stayed within noise. This accepts
+only the exact-slice B.2.b subcandidate; B.2.a top-K, B.2.c combined top-K plus
+slice, B.1 compact postprocessing, B.3 Step 2, and B.4 remain unaccepted.
 
 Five concrete continuation options recorded in `docs/cycle_9_results.md` as
 Cycle 9b candidates; each STAGED until prod evidence selects which to

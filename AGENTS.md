@@ -85,10 +85,10 @@ This file defines how agents should execute tests quickly and safely in this rep
   `gaze_horizontal_model` as the dominant behavior child (`16.058 ms/exec`
   server delta vs. `12.133 ms` posture, `11.759 ms` vertical, `11.909 ms`
   depth). The same model also owns the widest dense output tensor
-  (`[84,2100]`). Next Cycle 9b implementation should target
-  `gaze_horizontal_model` first, preferably through B.2.b output fusion /
-  narrow-head work, but no Cycle 9b optimization is accepted until a fresh prod
-  benchmark proves Step 2/FPS improvement and correctness parity.
+  (`[84,2100]`). This measurement led to the B.2.b exact server-side slice
+  candidate below; future Cycle 9b work should use that accepted route as the
+  baseline before attempting B.1 compact postprocessing, B.2.a top-K, B.2.c, or
+  B.3 Step-2 engine variants.
 - **2026-06-02 Cycle 9b B.2.b TensorRT output-slice variant NOT ACCEPTED**:
   code added a guarded `GAZE_HORIZONTAL_HEAD_VARIANT=gaze2` path where
   `gaze_horizontal_gaze2_model` gathers legacy horizontal channels
@@ -104,19 +104,27 @@ This file defines how agents should execute tests quickly and safely in this rep
   `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble`, `LPM_ENABLED=0`,
   then Triton/workers were restarted. See
   `docs/cycle_9b_output_fusion_results.md`.
-- **2026-06-02 Cycle 9b exact server-side slice STAGED — not accepted**:
-  because the prod Triton build has no `python` backend, the next low-risk
+- **2026-06-02 Cycle 9b B.2.b exact server-side slice ACCEPTED**:
+  because the prod Triton build has no `python` backend, the accepted low-risk
   dense-byte candidate uses TensorRT only: `gaze_horizontal_model` remains the
   unchanged legacy producer, `gaze_horizontal_slice_model` gathers channels
   `[0,1,2,3,8,9]` from its dense `[84,2100]` output, and
   `behavior_ensemble_gaze_slice` returns `[6,2100]` as `gaze_h_out`.
   `gaze_horizontal_slice_adapter` provides the same 6-channel contract for
-  standalone fallback. This is guarded by `GAZE_HORIZONTAL_HEAD_VARIANT=slice`
-  plus route overrides from `tools/prod/prod_enable_gaze_horizontal_slice.sh`.
-  Local validation passed (`18 passed`, py_compile, shell syntax). It remains
-  STAGED until production builds the slice plan, passes
-  `tools/prod/prod_gaze_horizontal_slice_parity.py`, completes the canonical
-  `combined.mp4` benchmark, and documents ACCEPTED/NOT ACCEPTED metrics.
+  standalone fallback. Production benchmark
+  `cycle9b-exactslice-crop-frame-20260601T233211` / job
+  `7933c1e5-a970-47a3-81c5-0c9bd01bd332` deployed SHA
+  `ca69f02a8ceb214d7ef55cd2ae4b7ec75549c257` and completed
+  `4541/4541` frames. Post-benchmark tensor parity
+  `backend/logs/gaze_horizontal_slice_parity_20260601T235623_postbench.json`
+  passed with `max_abs_diff=0.0`. Step 2 wall improved `858.1 s →
+  573.927 s` (`-33.1%`), behavior ensemble RTT improved `107.9 ms →
+  91.470 ms`, DB-completed FPS improved `4.09 → 4.307`, average GPU util
+  moved `9.36% → 9.595%`, and correctness stayed within noise
+  (`attention_tracking` unchanged at `11776`, detections/bboxes `-2`,
+  embeddings `-2`, tracks unchanged). Production remains on
+  `GAZE_HORIZONTAL_HEAD_VARIANT=slice` with `LPM_ENABLED=0`; rollback is
+  `prod_enable_parallel_flow.sh --profile per-frame-signals`.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
