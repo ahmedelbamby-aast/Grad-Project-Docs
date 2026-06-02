@@ -741,8 +741,14 @@ loaded during future 256 runs. Real benchmark
 `84.865 ms → 51.529 ms` (`-39.28 %`), but regressed persisted signals:
 detection rows `72,762 → 101,213` (`+39.10 %`) and `attention_tracking`
 boxes `11,781 → 20,558` (`+74.50 %`). Average GPU utilization also fell
-`9.344 % → 7.367 %`. Evidence is in
-`backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json`.
+`9.344 % → 7.367 %`. Step 2 FPS improved `8.403 → 11.594` (`+37.97 %`),
+but model-agreement accuracy proxy (`F1@IoU0.5` against the accepted 320
+baseline, not human-labeled accuracy) fell to `31.195 %` for
+`attention_tracking`, `38.032 %` for `hand_raising`, and `65.250 %` for
+`sitting_standing`; `person_detection` stayed `100.000 %`. Evidence is in
+`backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json`
+and
+`backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json`.
 Production was rolled back to the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`
 exact-slice + Top-K profile.
 

@@ -196,14 +196,21 @@ This file defines how agents should execute tests quickly and safely in this rep
   rows `72,762 → 101,213` (`+39.10 %`), bbox rows `72,762 → 101,213`
   (`+39.10 %`), `attention_tracking` boxes `11,781 → 20,558`
   (`+74.50 %`), and average GPU utilization `9.344 % → 7.367 %`
-  (`-21.16 %`). Evidence:
+  (`-21.16 %`). Additional model-agreement measurement against the accepted
+  320 Top-K baseline (`F1@IoU0.5`, not human-labeled accuracy) showed
+  `attention_tracking=31.195 %`, `hand_raising=38.032 %`,
+  `person_detection=100.000 %`, and `sitting_standing=65.250 %`; Step 2 FPS
+  improved `8.403 → 11.594` (`+37.97 %`). Evidence:
   `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json`
-  and `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md`.
+  / `.md` plus
+  `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json`
+  / `.md`.
   Reproducibility tooling:
   `tools/prod/prod_run_behavior_input_size_matrix.sh` runs the 320/256
   production matrix, and `tools/prod/prod_collect_benchmark_metrics.py`
   captures DB correctness, telemetry RTT, GPU CSV, and inference-audit metrics
-  into JSON/Markdown evidence bundles. Production was rolled back with
+  into JSON/Markdown evidence bundles. `tools/prod/prod_compare_benchmark_accuracy.py`
+  captures per-model baseline-agreement metrics. Production was rolled back with
   `prod_set_behavior_input_size.sh --input-size 320 --topk 100`, workers were
   restarted, and final verified state is the accepted Cycle 9b B.2.c profile:
   `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,

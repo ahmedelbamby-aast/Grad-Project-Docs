@@ -1334,8 +1334,11 @@ behavior/detection rows by about `39 %` and reducing average GPU utilization.
 | Matrix directory | `backend/logs/cycle11-input256-realbench-20260602T161641Z/` |
 | Candidate metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
 | Candidate metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
+| Model agreement JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json` |
+| Model agreement Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.md` |
 | Matrix runner | `tools/prod/prod_run_behavior_input_size_matrix.sh` |
 | Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` |
+| Model agreement collector | `tools/prod/prod_compare_benchmark_accuracy.py` |
 
 The candidate did reduce synthetic capture time, but failed correctness gates:
 
@@ -1367,6 +1370,7 @@ behavior_ensemble_gaze_slice_topk = READY
 | Job ID | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |  |
 | DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
 | DB-completed elapsed | `1022.952 s` | `942.127 s` | `-7.90 %` |
+| Step 2 FPS | `8.403` | `11.594` | `+37.97 %` |
 | Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
 | Step 2 through pose upload | `767.589 s` | `615.070 s` | `-19.87 %` |
 | Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
@@ -1378,6 +1382,14 @@ behavior_ensemble_gaze_slice_topk = READY
 | BBox rows | `72,762` | `101,213` | `+39.10 %` |
 | Embedding rows | `72,596` | `101,047` | `+39.19 %` |
 | Student tracks | `53` | `53` | `0` |
+| `attention_tracking` agreement accuracy proxy | `100.000 %` | `31.195 %` | `-68.805 pp` |
+| `hand_raising` agreement accuracy proxy | `100.000 %` | `38.032 %` | `-61.968 pp` |
+| `person_detection` agreement accuracy proxy | `100.000 %` | `100.000 %` | `0 pp` |
+| `sitting_standing` agreement accuracy proxy | `100.000 %` | `65.250 %` | `-34.750 pp` |
+
+The agreement accuracy proxy is `F1@IoU0.5` against the accepted 320 Top-K
+baseline. It is not human-labeled accuracy; the benchmark currently has no
+ground-truth labels.
 
 **Persisted behavior signal deltas:**
 
@@ -1396,6 +1408,18 @@ bash tools/prod/prod_run_behavior_input_size_matrix.sh \
   --sizes "320 256" \
   --tag cycle11-input-size-realbench-$(date -u +%Y%m%dT%H%M%SZ) \
   --timeout 7200
+```
+
+Reproducible per-model agreement command:
+
+```bash
+cd /home/bamby/grad_project
+PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings.production \
+  backend/.venv/bin/python tools/prod/prod_compare_benchmark_accuracy.py \
+    --baseline-replay-key cycle9b-topk-crop-frame-20260602T041900 \
+    --candidate-replay-key cycle11-input256-realbench-20260602T161641Z-input256 \
+    --output backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json \
+    --markdown-output backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.md
 ```
 
 **Decision:** **NOT ACCEPTED.** The real benchmark confirms the performance

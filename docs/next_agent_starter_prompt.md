@@ -368,7 +368,9 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
   `540.399 s → 391.673 s`, behavior RTT mean `84.865 ms → 51.529 ms`, and
   DB-completed FPS `4.439 → 4.820`, but detection rows regressed
   `72,762 → 101,213`, `attention_tracking` boxes regressed
-  `11,781 → 20,558`, and average GPU utilization fell `9.344 % → 7.367 %`.
+  `11,781 → 20,558`, model-agreement F1@IoU0.5 fell to `31.195 %` for
+  `attention_tracking`, `38.032 %` for `hand_raising`, and `65.250 %` for
+  `sitting_standing`, and average GPU utilization fell `9.344 % → 7.367 %`.
   Production was rolled back to the accepted `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`
   Top-K profile. Evidence:
   `docs/cycle_11_input_size_results.md`.

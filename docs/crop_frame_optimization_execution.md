@@ -1028,16 +1028,27 @@ Evidence:
 | Job ID | `822b0da4-fbf2-4186-a5a6-dd066f2eb571` |
 | Metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
 | Metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
+| Model agreement JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json` |
+| Model agreement Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.md` |
 | Matrix TSV | `backend/logs/cycle11-input256-realbench-20260602T161641Z/matrix_runs.tsv` |
 
 | Metric | 320 Top-K baseline | 256 candidate | Delta |
 |---|---:|---:|---:|
 | DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
+| Step 2 FPS | `8.403` | `11.594` | `+37.97 %` |
 | Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
 | Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
 | GPU avg util | `9.344 %` | `7.367 %` | `-21.16 %` |
 | Detection rows | `72,762` | `101,213` | `+39.10 %` |
 | BBox rows | `72,762` | `101,213` | `+39.10 %` |
+| `attention_tracking` agreement F1@IoU0.5 | `100.000 %` | `31.195 %` | `-68.805 pp` |
+| `hand_raising` agreement F1@IoU0.5 | `100.000 %` | `38.032 %` | `-61.968 pp` |
+| `person_detection` agreement F1@IoU0.5 | `100.000 %` | `100.000 %` | `0 pp` |
+| `sitting_standing` agreement F1@IoU0.5 | `100.000 %` | `65.250 %` | `-34.750 pp` |
+
+The agreement rows are baseline-reference metrics from
+`tools/prod/prod_compare_benchmark_accuracy.py`; they are not human-labeled
+ground-truth accuracy.
 
 ### Decision
 

@@ -38,8 +38,11 @@ baseline (`320`, exact slice + Top-K).
 | Matrix directory | `backend/logs/cycle11-input256-realbench-20260602T161641Z/` |
 | Candidate metrics JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.json` |
 | Candidate metrics Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/input_256_metrics.md` |
+| Model agreement JSON | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json` |
+| Model agreement Markdown | `backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.md` |
 | Reproducible matrix runner | `tools/prod/prod_run_behavior_input_size_matrix.sh` |
 | Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` |
+| Model agreement collector | `tools/prod/prod_compare_benchmark_accuracy.py` |
 
 The candidate did show lower synthetic capture wall per child, which confirms
 the performance hypothesis directionally:
@@ -118,6 +121,7 @@ behavior_ensemble_gaze_slice_topk = READY
 | Status | `completed` | `completed` |  |
 | DB-completed FPS | `4.439` | `4.820` | `+8.58 %` |
 | DB-completed elapsed | `1022.952 s` | `942.127 s` | `-7.90 %` |
+| Step 2 FPS | `8.403` | `11.594` | `+37.97 %` |
 | Step 2 frame wall | `540.399 s` | `391.673 s` | `-27.52 %` |
 | Step 2 through pose upload | `767.589 s` | `615.070 s` | `-19.87 %` |
 | Behavior RTT mean | `84.865 ms` | `51.529 ms` | `-39.28 %` |
@@ -129,6 +133,14 @@ behavior_ensemble_gaze_slice_topk = READY
 | BBox rows | `72,762` | `101,213` | `+39.10 %` |
 | Embedding rows | `72,596` | `101,047` | `+39.19 %` |
 | Student tracks | `53` | `53` | `0` |
+| `attention_tracking` agreement accuracy proxy | `100.000 %` | `31.195 %` | `-68.805 pp` |
+| `hand_raising` agreement accuracy proxy | `100.000 %` | `38.032 %` | `-61.968 pp` |
+| `person_detection` agreement accuracy proxy | `100.000 %` | `100.000 %` | `0 pp` |
+| `sitting_standing` agreement accuracy proxy | `100.000 %` | `65.250 %` | `-34.750 pp` |
+
+The agreement accuracy proxy is `F1@IoU0.5` against the accepted 320 Top-K
+baseline, not human-labeled ground-truth accuracy. The benchmark has no manual
+labels; therefore 320 is the reference by definition and scores `100 %`.
 
 Per-class persisted signal changes:
 
@@ -142,6 +154,15 @@ Per-class persisted signal changes:
 The candidate improved speed by shrinking behavior input compute, but it changed
 the persisted behavior signal distribution substantially. This violates the
 correctness/parity requirement for per-frame signals.
+
+Per-model baseline agreement:
+
+| Model | 320 reference accuracy proxy | 256 agreement F1@IoU0.5 | Precision vs 320 | Recall vs 320 | Frame-count match | 320 boxes | 256 boxes | Count delta |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `attention_tracking` | `100.000 %` | `31.195 %` | `24.535 %` | `42.815 %` | `13.213 %` | `11,781` | `20,558` | `+74.50 %` |
+| `hand_raising` | `100.000 %` | `38.032 %` | `29.522 %` | `53.434 %` | `16.957 %` | `8,809` | `15,944` | `+81.00 %` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `100.000 %` | `100.000 %` | `19,162` | `19,162` | `0.00 %` |
+| `sitting_standing` | `100.000 %` | `65.250 %` | `56.269 %` | `77.643 %` | `9.866 %` | `33,010` | `45,549` | `+37.99 %` |
 
 ## Reproduction Commands
 
@@ -181,6 +202,19 @@ The matrix produces:
 - `matrix_runs.tsv`
 - `input_<size>_metrics.json`
 - `input_<size>_metrics.md`
+
+To reproduce the per-model agreement table:
+
+```bash
+cd /home/bamby/grad_project
+
+PYTHONPATH=backend DJANGO_SETTINGS_MODULE=config.settings.production \
+  backend/.venv/bin/python tools/prod/prod_compare_benchmark_accuracy.py \
+    --baseline-replay-key cycle9b-topk-crop-frame-20260602T041900 \
+    --candidate-replay-key cycle11-input256-realbench-20260602T161641Z-input256 \
+    --output backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.json \
+    --markdown-output backend/logs/cycle11-input256-realbench-20260602T161641Z/model_agreement_320_vs_256.md
+```
 
 ## Decision
 
