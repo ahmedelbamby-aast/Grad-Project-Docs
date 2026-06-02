@@ -256,8 +256,15 @@ This file defines how agents should execute tests quickly and safely in this rep
   rebuild/switch is benchmarked. The first B.1 artifact is measurement-only:
   `tools/prod/prod_probe_behavior_decode_cost.py` samples accepted Top-K
   `person_detection` crops, calls `behavior_ensemble_gaze_slice_topk`, and
-  records gRPC parse plus Python `_decode_yolo_output0`/NMS cost. No compact
-  backend is implemented or accepted.
+  records gRPC parse plus Python `_decode_yolo_output0`/NMS cost. Production
+  probe `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` sampled
+  `340` real crops: mean RTT with parse `62.082 ms`, mean gRPC/Triton wait
+  `59.651 ms`, mean `as_numpy` parse `0.114 ms`, and mean Python decode/NMS
+  `3.125 ms` per 17-crop batch (`0.183823 ms/crop`). With `3597` accepted
+  baseline behavior calls, decode/NMS is about `11.24 s` or `~2.08 %` of the
+  accepted `540.399 s` Step 2 wall. No compact backend is implemented or
+  accepted; pure Top-K decode/NMS removal is not enough evidence for the
+  `>=10 %` Step 2 gate.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

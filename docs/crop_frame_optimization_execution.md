@@ -1157,6 +1157,53 @@ Detailed result doc:
 
 ---
 
+## Cycle 9b B.1 — Compact Postprocessing (PHASE A PROBE COMPLETE)
+
+### Phase 1: Investigation
+
+Detailed investigation:
+[`docs/cycle_9b_compact_postproc_investigation.md`](cycle_9b_compact_postproc_investigation.md).
+
+The accepted exact-slice + Top-K baseline already reduced behavior output
+traffic from the old dense-output problem (`~17.1 MB/frame`) to roughly
+`~0.33 MB/frame`. B.1 is therefore no longer evaluated as a large dense-byte
+removal by default; it must prove remaining response-byte and Python decode/NMS
+savings against the current Top-K route.
+
+### Phase 2: Production Decode-Cost Probe
+
+The measurement-only probe ran on production:
+
+| Item | Value |
+|---|---|
+| Probe JSON | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` |
+| Probe Markdown | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.md` |
+| Baseline replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Sampled crops | `340` |
+| Batches | `20` |
+| Mean RTT with parse | `62.082 ms` |
+| Mean gRPC/Triton wait | `59.651 ms` |
+| Mean `as_numpy` parse | `0.114 ms` |
+| Mean Python decode/NMS | `3.125 ms/batch` |
+| Decode/NMS per crop | `0.183823 ms` |
+| Output bytes per crop | `19,200` |
+| Estimated compact bytes per crop | `11.2` |
+
+With `3597` accepted-baseline behavior calls, measured client decode/NMS is
+about `11.24 s`, or `~2.08 %` of the accepted `540.399 s` Step 2 frame wall.
+
+### Phase 3: Decision
+
+No compact backend is implemented or accepted. A B.1 implementation that only
+moves Top-K decode/NMS out of Python is unlikely to satisfy the `>=10 %` Step 2
+gate. Python BLS remains blocked until the pinned Triton runtime includes a
+Python backend or a controlled runtime rebuild/switch is benchmarked.
+
+Detailed result doc:
+[`docs/cycle_9b_compact_postproc_results.md`](cycle_9b_compact_postproc_results.md).
+
+---
+
 ## Pending Cycles (not implemented in this session)
 
 Listed in order. Only proceed if the staged cycles above do not lift FPS to the target.

@@ -178,6 +178,34 @@ times gRPC serialization/wait/`as_numpy`, then times the existing
 bytes as `decoded_boxes * 6 floats * 4 bytes`. It does not change production
 env, model routing, Triton configs, or database rows.
 
+### Production Probe Result
+
+The Phase A probe ran on production at deployed SHA `cd6780d0`:
+
+| Item | Value |
+|---|---|
+| Probe JSON | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` |
+| Probe Markdown | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.md` |
+| Mode | accepted Top-K baseline real crops |
+| Replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Sampled crops | `340` |
+| Batches | `20` |
+| Mean RTT with parse | `62.082 ms` |
+| Mean gRPC/Triton wait | `59.651 ms` |
+| Mean `as_numpy` parse | `0.114 ms` |
+| Mean Python decode/NMS | `3.125 ms/batch` |
+| Decode/NMS per crop | `0.183823 ms` |
+| Output bytes per crop | `19,200` |
+| Estimated compact bytes per crop | `11.2` |
+| Estimated output reduction | `99.942 %` |
+
+For the accepted production benchmark, telemetry recorded `3597` behavior
+ensemble calls. Multiplying by the measured `3.125 ms/batch` decode/NMS cost
+gives an approximate `11.24 s` client decode/NMS upper bound. That is only
+`~2.08 %` of the accepted `540.399 s` Step 2 frame wall. The Phase A evidence
+therefore does not justify selecting B.1 as a pure client decode/NMS removal
+candidate for the `>=10 %` Step 2 acceptance gate.
+
 ## Risk Assessment
 
 | Risk | Level | Mitigation |

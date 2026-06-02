@@ -199,6 +199,15 @@ Numbers must come from prod, not local — see § E hard rule #1.
 | Production deploy risk | — | medium | high | medium-high |
 | Rollback complexity | trivial | env flip | env flip + binary swap | env flip + engine swap |
 
+**Phase A decode-cost probe (2026-06-02):** production probe
+`backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` sampled `340`
+real accepted-Top-K crops. Mean Python decode/NMS was `3.125 ms` per 17-crop
+batch (`0.183823 ms/crop`), mean `as_numpy` parse was `0.114 ms`, and behavior
+output bytes were already only `19,200 bytes/crop`. With `3597` accepted
+baseline behavior calls, observed client decode/NMS is about `11.24 s`
+(`~2.08 %` of Step 2 wall). B.1 remains open, but a candidate that only moves
+Top-K decode/NMS out of Python is unlikely to satisfy the `>=10 %` Step 2 gate.
+
 **Selection rule:** pick the approach that delivers ≥ 10 % Step 2 wall
 reduction with the **lowest** engineering effort and rollback complexity.
 Ties go to the approach that also unlocks Cycle 10 LPM Phase 2 (B.1.a).

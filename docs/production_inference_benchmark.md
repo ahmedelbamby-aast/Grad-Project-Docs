@@ -1529,4 +1529,55 @@ Cycle 9b B.2.c `max_frames=2` profile.
 
 ---
 
+## 22. 2026-06-02 Cycle 9b B.1 Phase A Probe — Top-K Decode/NMS Cost
+
+**Status:** **MEASUREMENT ONLY. No compact backend implemented or accepted.**
+
+This production probe measured the accepted Top-K route's remaining Python
+decode/NMS and response parsing cost. It does not change production env,
+Triton model configs, DB rows, or the accepted baseline.
+
+| Item | Value |
+|---|---|
+| Probe | `tools/prod/prod_probe_behavior_decode_cost.py` |
+| Deployed SHA | `cd6780d0` |
+| Baseline replay key | `cycle9b-topk-crop-frame-20260602T041900` |
+| Baseline job | `be4ba9ee-4786-48e9-8334-28feb237a1fb` |
+| Probe JSON | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` |
+| Probe Markdown | `backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.md` |
+| Sampled crops | `340` |
+| Batches | `20` |
+| Behavior route | `behavior_ensemble_gaze_slice_topk` |
+
+| Metric | Value |
+|---|---:|
+| Mean RTT with parse | `62.082 ms` |
+| Mean gRPC/Triton wait | `59.651 ms` |
+| Mean serialization | `2.317 ms` |
+| Mean `as_numpy` parse | `0.114 ms` |
+| Mean Python decode/NMS | `3.125 ms/batch` |
+| Decode/NMS per crop | `0.183823 ms` |
+| Output bytes per crop | `19,200` |
+| Estimated compact bytes per crop | `11.2` |
+| Estimated output reduction | `99.942 %` |
+
+Per-model decode/NMS timing:
+
+| Model | Decode mean ms/batch | Decode p95 ms/batch | Boxes mean/batch |
+|---|---:|---:|---:|
+| `posture_detection` | `1.475` | `2.488` | `5.600` |
+| `gaze_horizontal` | `0.498` | `0.885` | `0.000` |
+| `gaze_vertical` | `0.665` | `1.026` | `2.050` |
+| `gaze_depth` | `0.487` | `0.751` | `0.300` |
+
+**Interpretation:** the accepted benchmark has `3597`
+`behavior_ensemble_gaze_slice_topk` calls. At `3.125 ms` decode/NMS per sampled
+17-crop batch, client-side decode/NMS is about `11.24 s`, or `~2.08 %` of the
+accepted `540.399 s` Step 2 wall. This does not reject B.1 outright, but it
+does mean a compact backend that only removes Python Top-K decode/NMS is not
+expected to hit the `>=10 %` Step 2 gate. Any B.1 candidate must still be proven
+by a full production benchmark before acceptance or rejection.
+
+---
+
 *Updated from production run on 2026-06-02. Update this file after each major pipeline change or hardware migration.*

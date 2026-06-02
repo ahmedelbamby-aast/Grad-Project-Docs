@@ -745,7 +745,13 @@ postprocessing to remove almost all remaining output bytes and client-side
 Python decode/NMS work. Pinned production Triton currently has no `python`
 backend in its active backend directory, so Python BLS cannot be selected until
 a controlled backend rebuild or runtime switch is benchmarked. No B.1
-implementation is accepted.
+implementation is accepted. Phase A production probe
+`backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` sampled `340`
+real accepted-Top-K crops and measured Python decode/NMS at `3.125 ms` per
+17-crop batch (`0.183823 ms/crop`) plus `0.114 ms` mean `as_numpy` parsing.
+Across the accepted run's `3597` behavior calls, that is about `11.24 s` or
+`~2.08 %` of the accepted `540.399 s` Step 2 wall, so pure client decode/NMS
+removal is unlikely to satisfy the `>=10 %` Step 2 gate.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

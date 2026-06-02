@@ -258,7 +258,12 @@ payload to `~0.33 MB/frame`, so compact postprocessing must prove decode/NMS
 and remaining-output savings against the current baseline. The pinned production
 Triton backend directory does not include `python`; do not implement BLS Python
 until a controlled Triton backend rebuild or runtime switch is part of the cycle
-and is benchmarked.
+and is benchmarked. Phase A probe
+`backend/logs/cycle9b_b1_decode_cost_topk_20260602T185559Z.json` measured
+accepted Top-K Python decode/NMS at only `3.125 ms` per 17-crop batch
+(`~11.24 s`, `~2.08 %` of Step 2 wall, across the accepted run's `3597`
+behavior calls), so a candidate that only moves Top-K decode/NMS out of Python
+is unlikely to satisfy the `>=10 %` Step 2 gate.
 
 B.4 batch-window `2 → 4` was also tried and rejected by real production
 benchmark (`cycle9b-b4-maxframes4-20260602T175820Z`, job
