@@ -167,12 +167,70 @@ fresh completed job:
 | Estimated compact bytes | `222,936` |
 | Estimated byte reduction | `99.939 %` |
 
+### Production Full-Benchmark Repeat 2
+
+The second end-to-end repeat was executed after hardening
+`tools/prod/prod_watch_benchmark_metrics.sh` so the live watcher can keep all
+benchmark metrics inside bounded terminal tables. It also kept the accepted
+320 exact-slice + Top-K route and did not deploy a B.1 compact backend.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9b-b1-fullbench-repeat2-20260602T195517Z` |
+| Job ID | `df7f832f-de81-4f92-89c7-fd213bdba7fa` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Pipeline | `crop_frame`, accepted 320 exact-slice + Top-K |
+| Final status | `completed`, `4541/4541` frames |
+| Evidence directory | `backend/logs/cycle9b-b1-fullbench-repeat2-20260602T195517Z/` |
+| Decision status | `NO_DECISION_BENCHMARK_RECORDED` |
+
+| Metric | Accepted Top-K baseline | Repeat 1 | Repeat 2 | Repeat 2 delta |
+|---|---:|---:|---:|---:|
+| Step 2 frame wall | `540.399 s` | `540.748 s` | `546.702 s` | `+1.17 %` |
+| Step 2 FPS | `8.403` | `8.394` | `8.303` | `-1.19 %` |
+| DB-completed FPS | `4.439` | `4.346` | `4.411` | `-0.63 %` |
+| DB-completed elapsed | `1022.952 s` | `1044.988 s` | `1029.439 s` | `+0.63 %` |
+| Behavior RTT mean | `84.865 ms` | `85.201 ms` | `84.360 ms` | `-0.60 %` |
+| Behavior RTT p95 | `128.056 ms` | `128.792 ms` | `129.011 ms` | `+0.75 %` |
+| GPU avg util | `9.344 %` | `11.962 %` | `9.660 %` | `+7.02 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `51.000 %` | `-3.77 %` |
+| Detection rows | `72762` | `72750` | `72754` | `-0.01 %` |
+| BBox rows | `72762` | `72750` | `72754` | `-0.01 %` |
+| Embedding rows | `72596` | `72584` | `72588` | `-0.01 %` |
+| Student tracks | `53` | `53` | `53` | `0.00 %` |
+
+Repeat-2 model agreement against the accepted baseline remained high:
+
+| Model | Agreement F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `99.707 %` | `-0.08 %` |
+| `hand_raising` | `99.727 %` | `-0.07 %` |
+| `person_detection` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.853 %` | `+0.02 %` |
+
+Repeat-2 decode-cost evidence:
+
+| Decode metric | Value |
+|---|---:|
+| Batches | `1127` |
+| Total crops | `19146` |
+| Mean RTT with parse | `47.154 ms` |
+| Mean infer wait | `44.162 ms` |
+| Mean serialization | `2.873 ms` |
+| Mean `as_numpy` parse | `0.120 ms` |
+| Mean decode/NMS | `4.243 ms/batch` |
+| Decode/NMS per crop | `0.250 ms` |
+| Total behavior output bytes | `367,603,200` |
+| Estimated compact bytes | `222,984` |
+| Estimated byte reduction | `99.939 %` |
+
 ### Decision Authority Result
 
-This full production run still does not accept or reject B.1 because it did not
-deploy a compact-postprocessing candidate. It proves the benchmark path and
-refreshes the bottleneck measurement on `combined.mp4`: the accepted route's
-Step 2 wall and behavior RTT are effectively unchanged, while direct all-crop
-decode/NMS is a small measured component. A future B.1 candidate must change
-code/config, run this same production benchmark, and then compare against the
-accepted 320 Top-K baseline before any acceptance or non-acceptance decision.
+These full production runs still do not accept or reject B.1 because neither
+deployed a compact-postprocessing candidate. They prove the benchmark path and
+refresh the bottleneck measurement on `combined.mp4`: the accepted route's
+Step 2 wall and behavior RTT stay inside small run-to-run variance, while
+direct all-crop decode/NMS remains a small measured component. A future B.1
+candidate must change code/config, run this same production benchmark, and then
+compare against the accepted 320 Top-K baseline before any acceptance or
+non-acceptance decision.

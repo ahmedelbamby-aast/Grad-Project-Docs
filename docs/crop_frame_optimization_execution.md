@@ -1229,6 +1229,18 @@ infer wait `42.704 ms`, and decode/NMS `2.040 ms/batch` (`0.120 ms/crop`).
 Evidence directory:
 `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/`.
 
+The second production repeat completed as
+`cycle9b-b1-fullbench-repeat2-20260602T195517Z`, job
+`df7f832f-de81-4f92-89c7-fd213bdba7fa`, with wrapper status
+`NO_DECISION_BENCHMARK_RECORDED`. It also kept the accepted 320 exact-slice +
+Top-K route: Step 2 wall `546.702 s`, DB FPS `4.411`, behavior RTT mean
+`84.360 ms`, GPU avg `9.660 %`, DB rows within `0.01 %`, StudentTracks
+unchanged at `53`, and model-agreement F1@IoU0.5 `>=99.707 %`. Fresh decode
+evidence from `19,146` crops measured RTT `47.154 ms`, infer wait
+`44.162 ms`, and decode/NMS `4.243 ms/batch` (`0.250 ms/crop`). Evidence
+directory:
+`backend/logs/cycle9b-b1-fullbench-repeat2-20260602T195517Z/`.
+
 Detailed result doc:
 [`docs/cycle_9b_compact_postproc_results.md`](cycle_9b_compact_postproc_results.md).
 

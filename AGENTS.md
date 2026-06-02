@@ -341,6 +341,18 @@ the next case.
   `2.040 ms/batch` (`0.120 ms/crop`), output `367,603,200` bytes vs estimated
   compact `222,936` bytes. Evidence lives under
   `backend/logs/cycle9b-b1-fullbench-20260602T192344Z/`.
+  The required second repeat also completed:
+  `cycle9b-b1-fullbench-repeat2-20260602T195517Z`, job
+  `df7f832f-de81-4f92-89c7-fd213bdba7fa`, status `completed`, wrapper status
+  `NO_DECISION_BENCHMARK_RECORDED`. It again kept the accepted route. Repeat-2
+  Step 2 wall was `546.702 s`, DB FPS `4.411`, behavior RTT mean
+  `84.360 ms`, GPU avg `9.660 %`, rows stayed within `0.01 %`, tracks stayed
+  `53`, and model-agreement F1@IoU0.5 stayed `>=99.707 %`. Repeat-2 decode
+  evidence measured `47.154 ms` RTT, `44.162 ms` infer wait, and
+  `4.243 ms/batch` decode/NMS over `19,146` crops. Watcher script
+  `tools/prod/prod_watch_benchmark_metrics.sh` now renders bounded,
+  wrapping tables and includes metrics, model agreement, decode cost,
+  artifact presence, DB counters, GPU, audit, RTT, and wrapper-log tail.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

@@ -1650,15 +1650,69 @@ Decode-cost evidence from the completed job:
 | Estimated compact bytes | `222,936` |
 | Estimated byte reduction | `99.939 %` |
 
+Second full repeat, requested after the watcher hardening:
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle9b-b1-fullbench-repeat2-20260602T195517Z` |
+| Job ID | `df7f832f-de81-4f92-89c7-fd213bdba7fa` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Final status | `completed`, `4541/4541` frames |
+| Full metrics | `backend/logs/cycle9b-b1-fullbench-repeat2-20260602T195517Z/full_benchmark_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle9b-b1-fullbench-repeat2-20260602T195517Z/model_agreement_320_topk_vs_full_benchmark.json` / `.md` |
+| Decode evidence | `backend/logs/cycle9b-b1-fullbench-repeat2-20260602T195517Z/decode_cost_full_benchmark.json` / `.md` |
+| Wrapper status | `NO_DECISION_BENCHMARK_RECORDED`, `bench_rc=0` |
+
+| Metric | Accepted Top-K baseline | B.1 repeat 1 | B.1 repeat 2 | Repeat 2 delta vs baseline |
+|---|---:|---:|---:|---:|
+| Step 2 frame wall | `540.399 s` | `540.748 s` | `546.702 s` | `+1.17 %` |
+| Step 2 FPS | `8.403` | `8.394` | `8.303` | `-1.19 %` |
+| DB-completed FPS | `4.439` | `4.346` | `4.411` | `-0.63 %` |
+| DB-completed elapsed | `1022.952 s` | `1044.988 s` | `1029.439 s` | `+0.63 %` |
+| Behavior RTT mean | `84.865 ms` | `85.201 ms` | `84.360 ms` | `-0.60 %` |
+| Behavior RTT p95 | `128.056 ms` | `128.792 ms` | `129.011 ms` | `+0.75 %` |
+| GPU avg util | `9.344 %` | `11.962 %` | `9.660 %` | `+7.02 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `51.000 %` | `-3.77 %` |
+| Peak VRAM | `16055 MiB` | `15725 MiB` | `15731 MiB` | `-2.02 %` |
+| Detection rows | `72762` | `72750` | `72754` | `-0.01 %` |
+| BBox rows | `72762` | `72750` | `72754` | `-0.01 %` |
+| Embedding rows | `72596` | `72584` | `72588` | `-0.01 %` |
+| Student tracks | `53` | `53` | `53` | `0.00 %` |
+
+Repeat-2 model agreement:
+
+| Model | Agreement F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `99.707 %` | `99.745 %` | `99.669 %` | `-0.08 %` |
+| `hand_raising` | `99.727 %` | `99.761 %` | `99.693 %` | `-0.07 %` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `99.853 %` | `99.843 %` | `99.864 %` | `+0.02 %` |
+
+Repeat-2 decode-cost evidence:
+
+| Decode metric | Value |
+|---|---:|
+| Batches | `1127` |
+| Total crops | `19146` |
+| Mean RTT with parse | `47.154 ms` |
+| Mean infer wait | `44.162 ms` |
+| Mean serialization | `2.873 ms` |
+| Mean `as_numpy` parse | `0.120 ms` |
+| Mean decode/NMS | `4.243 ms/batch` |
+| Decode/NMS per crop | `0.250 ms` |
+| Total behavior output bytes | `367,603,200` |
+| Estimated compact bytes | `222,984` |
+| Estimated byte reduction | `99.939 %` |
+
 Decision authority result:
 
 | Question | Evidence | Result |
 |---|---|---|
-| Was this a real production Linux benchmark? | Yes: full `combined.mp4` job completed on the production RTX 5090 workflow. | Benchmark evidence is valid. |
-| Was a B.1 compact backend candidate deployed? | No: route remained accepted `behavior_ensemble_gaze_slice_topk` at `320x320`. | No B.1 acceptance or non-acceptance decision is allowed. |
-| Did correctness regress in the repeat? | No material regression: rows within `0.02 %`, tracks unchanged, all model F1 values `>=99.724 %`. | Repeat is comparable to baseline. |
-| Did throughput materially change? | Step 2 wall changed `+0.06 %`; behavior RTT changed `+0.40 %`; DB FPS changed `-2.11 %`. | Accepted route is repeatable; no optimization delta exists. |
-| What bottleneck should a future B.1 candidate attack? | Direct probe shows infer wait dominates decode probe RTT (`42.704 ms` of `45.160 ms`), while decode/NMS is `2.040 ms/batch`. | Future B.1 must prove it reduces production Step 2/RTT, not just response bytes. |
+| Were these real production Linux benchmarks? | Yes: both repeats completed full `combined.mp4` jobs on the production RTX 5090 workflow. | Benchmark evidence is valid for repeatability, not for a B.1 candidate decision. |
+| Was a B.1 compact backend candidate deployed? | No: both repeats kept accepted `behavior_ensemble_gaze_slice_topk` at `320x320`. | No B.1 acceptance or non-acceptance decision is allowed. |
+| Did correctness regress in repeat 2? | No material regression: rows within `0.01 %`, tracks unchanged, all repeat-2 model F1 values `>=99.707 %`. | Repeat 2 is comparable to the accepted baseline. |
+| Did throughput materially change? | Repeat 2 Step 2 wall changed `+1.17 %`; behavior RTT changed `-0.60 %`; DB FPS changed `-0.63 %`. | Accepted route is repeatable within small run-to-run variance; no optimization delta exists. |
+| What bottleneck should a future B.1 candidate attack? | Repeat 2 again shows infer wait dominates decode probe RTT (`44.162 ms` of `47.154 ms`), while decode/NMS is `4.243 ms/batch`. | Future B.1 must prove it reduces production Step 2/RTT, not just response bytes. |
 
 ---
 

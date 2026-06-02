@@ -766,6 +766,16 @@ kept the accepted Top-K route and therefore records
 tracks unchanged, and model agreement `>=99.724 %`. Fresh decode evidence from
 the completed job measured `19,146` crops, `45.160 ms` RTT, `42.704 ms` infer
 wait, and `2.040 ms/batch` decode/NMS.
+The required second repeat
+`cycle9b-b1-fullbench-repeat2-20260602T195517Z` / job
+`df7f832f-de81-4f92-89c7-fd213bdba7fa` also completed with wrapper status
+`NO_DECISION_BENCHMARK_RECORDED`: Step 2 wall `546.702 s`, DB FPS `4.411`,
+behavior RTT `84.360 ms`, rows within `0.01 %`, tracks unchanged, and
+model agreement `>=99.707 %`. Its decode evidence measured `47.154 ms` RTT,
+`44.162 ms` infer wait, and `4.243 ms/batch` decode/NMS over `19,146` crops.
+The production watcher `tools/prod/prod_watch_benchmark_metrics.sh` now shows
+these metrics in bounded wrapping tables so long evidence paths and payloads
+stay inside the terminal boxes.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
