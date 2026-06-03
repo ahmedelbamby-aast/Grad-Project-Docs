@@ -225,11 +225,23 @@ requires a documented benchmark comparison table. The helper waits for the job
 to reach a terminal state before collecting metrics, because `processed_frames`
 can reach `4541/4541` before embedding/finalization marks the job `completed`.
 
+Cycle 13 embedding-stage profiling benchmark:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh \
+  --tag cycle13-embedding-profile-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+This wrapper keeps the accepted Cycle 12.C profile and adds only
+`EMBEDDING_STAGE_PROFILING=1`. It emits measurement evidence for the embedding
+tail; it does not accept or reject a Cycle 13 optimization by itself.
+
 Semi-real-time benchmark metrics watcher:
 
 ```bash
 cd /home/bamby/grad_project
-bash tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10
+bash tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10 --clear
 ```
 
 Watch a specific run by replay key or job id:
@@ -247,7 +259,8 @@ bash tools/prod/prod_watch_benchmark_metrics.sh \
 The watcher is read-only. It prints tabular job progress, live GPU sample,
 benchmark GPU CSV summary, collected metrics JSON, DB counters, per-model bbox
 counts, inference-audit stage values, model RTT telemetry, model-agreement
-correctness evidence, and run summaries from PostgreSQL/Django.
+correctness evidence, Cycle 13 embedding-stage profile values when available,
+and run summaries from PostgreSQL/Django.
 
 ## 3) Stop all queue workers started by this repo
 

@@ -823,12 +823,19 @@ mean (`84.865 ms → 83.936 ms`) and model-agreement F1 `>=99.716 %`.
 `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` is now part of the accepted optimized
 production profile.
 
-Cycle 13 Phase A is now started in
+Cycle 13 Phase A is now measured in
 `docs/cycle_13_persistence_render_investigation.md`. It targets
 post-inference persistence/render cleanup after the accepted Cycle 12.C
-baseline, but no code has been changed and no optimization decision exists.
-The required first step is to extract current Cycle 12.C Step 3 persistence,
-render, and embedding wall from production evidence before implementation.
+baseline, but no optimization decision exists. The Cycle 12.C evidence shows
+Step 3 persistence at `39.820 s`, render at `25.692 s`, and the
+post-run-complete embedding/finalization tail at `189.323 s`; PostgreSQL
+`FrameEmbedding.created_at` bounds the embedding write span at `187.139 s`.
+Therefore Cycle 13 starts with measurement-only embedding sub-stage profiling,
+not a render-only change. The staged wrapper is
+`tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh`, guarded by
+`EMBEDDING_STAGE_PROFILING=1`, and the live watcher now surfaces the Cycle 13
+embedding table. This profiling run is hypothesis evidence only until a real
+production `combined.mp4` benchmark completes and writes the comparison table.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15
 sequence, not inserted ahead of it. The Redis roadmap lives in

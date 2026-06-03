@@ -1933,6 +1933,51 @@ GAZE_HORIZONTAL_HEAD_VARIANT=slice
 TRITON_BEHAVIOR_TOP_K_ENABLED=1
 ```
 
+## 27. 2026-06-03 Cycle 13 Phase A — Post-Stage Baseline Extraction
+
+**Status:** **MEASUREMENT ONLY.** This section extracts the Cycle 13
+persistence/render/embedding baseline from the accepted Cycle 12.C production
+run. It does not accept, reject, skip, or close any Cycle 13 optimization.
+
+| Item | Value |
+|---|---|
+| Source replay key | `cycle12-single-inflight-overlap-20260602T225821Z` |
+| Source job ID | `069a217f-fa43-48cc-bf18-c946d53bb3ee` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Recollected metrics | `backend/logs/cycle12-single-inflight-overlap-20260602T225821Z/cycle13_phase_a_recollected_metrics.json` |
+| Inference audit | `backend/data/videos/069a217f-fa43-48cc-bf18-c946d53bb3ee/inference_audit.json` |
+| Cycle doc | `docs/cycle_13_persistence_render_investigation.md` |
+| Next wrapper | `tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh` |
+
+| Stage metric | Cycle 12.C measured value | Interpretation |
+|---|---:|---|
+| DB-completed elapsed | `935.516 s` | Total production completion basis. |
+| Run-complete wall | `746.193 s` | Main processing task reached `run.complete`. |
+| Step 2 frame wall | `459.461 s` | Accepted Cycle 12.C inference wall. |
+| Step 2 through pose upload | `680.619 s` | Inference plus pose upload wall. |
+| Step 3 persistence wall | `39.820 s` | Material, but smaller than embedding tail. |
+| Render wall | `25.692 s` | Too small to be first Cycle 13 target alone. |
+| Post-run-complete tail | `189.323 s` | Dominant post-stage target. |
+| Embedding created-at span | `187.139 s` | PostgreSQL bounds the embedding write window. |
+| Embedding rows | `72,578` | Correctness parity input for Cycle 13. |
+| Reused embedding rows | `72,525` | Track-level reuse already active. |
+| Detection rows | `72,744` | Baseline DB parity. |
+| BBox rows | `72,744` | Baseline DB parity. |
+| Student tracks | `53` | Baseline tracking parity. |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Is Cycle 13 still ordered next? | `docs/cycle_9_and_10_improvements_todo.md` lists Cycle 13 before Cycle 14/15/16. | Yes. |
+| Is render the dominant post-stage wall? | Render is `25.692 s`; post-run-complete tail is `189.323 s`. | No; render-only is de-ranked. |
+| Is persistence alone the dominant post-stage wall? | Step 3 persistence is `39.820 s`. | Not first without sub-stage proof. |
+| What should Cycle 13 measure next? | Embedding created-at span is `187.139 s` across `72,578` rows. | Instrument embedding DB/Redis/query/vector sub-stages. |
+| Does this create an optimization decision? | No candidate benchmark has run with a changed optimization path. | **No decision. Measurement only.** |
+
+The next production run must enable only `EMBEDDING_STAGE_PROFILING=1` on the
+accepted Cycle 12.C profile and benchmark `combined.mp4` end to end.
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

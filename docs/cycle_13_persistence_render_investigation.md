@@ -2,10 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase A investigation started. No code has been changed for Cycle
-13. No optimization decision exists until a production Linux RTX 5090 benchmark
-on `combined.mp4` completes and is compared against the latest accepted
-baseline.
+**Status:** Phase A baseline extraction complete; Cycle 13.A measurement
+instrumentation is staged. No optimization decision exists until a production
+Linux RTX 5090 benchmark on `combined.mp4` completes and is compared against
+the latest accepted baseline.
 
 ## Problem Statement
 
@@ -43,6 +43,8 @@ total wall, but it is not expected to close the full SLA gap alone.
 | File | `backend/apps/tracking/embeddings.py` | `persist_embeddings_bulk` and Redis embedding helpers used after inference. |
 | Tool | `tools/prod/prod_collect_benchmark_metrics.py` | Captures benchmark metrics and correctness evidence. |
 | Tool | `tools/prod/prod_watch_benchmark_metrics.sh` | Live benchmark watch tool that should surface Cycle 13 metrics. |
+| Tool | `tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh` | Reproducible production wrapper for Cycle 13 embedding profiling. |
+| File | `backend/config/settings/base.py` | Defines `EMBEDDING_STAGE_PROFILING`, the measurement-only Cycle 13 flag. |
 
 ## Root Cause Hypothesis
 
@@ -77,6 +79,55 @@ from production evidence:
 If these measurements cannot bound Cycle 13's maximum possible gain, the next
 action is to improve the measurement script, not implement persistence/render
 changes.
+
+## Phase A Production Baseline Extraction
+
+Cycle 13 Phase A was extracted from the accepted Cycle 12.C production run:
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle12-single-inflight-overlap-20260602T225821Z` |
+| Job ID | `069a217f-fa43-48cc-bf18-c946d53bb3ee` |
+| Evidence bundle | `backend/logs/cycle12-single-inflight-overlap-20260602T225821Z/` |
+| Recollected metrics | `backend/logs/cycle12-single-inflight-overlap-20260602T225821Z/cycle13_phase_a_recollected_metrics.json` |
+| Inference audit | `backend/data/videos/069a217f-fa43-48cc-bf18-c946d53bb3ee/inference_audit.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260603T015844.csv` |
+
+Measured decomposition:
+
+| Stage | Measurement | Evidence source |
+|---|---:|---|
+| DB-completed elapsed | `935.516 s` | Recollected metrics JSON |
+| Run-complete wall | `746.193 s` | `run.complete` in inference audit |
+| Step 2 frame wall | `459.461 s` | `step2.frame_stage_timings` |
+| Step 2 through pose upload | `680.619 s` | `step2.pose_upload` |
+| Step 3 persistence wall | `39.820 s` | `step3.persistence.start` -> `step3.persistence.complete` |
+| Render wall | `25.692 s` | `step3.persistence.complete` -> `step4.render.complete` |
+| Post-run-complete tail | `189.323 s` | DB elapsed minus run-complete wall |
+| Embedding created-at span | `187.139 s` | PostgreSQL `FrameEmbedding.created_at` min/max |
+| Embedding rows | `72,578` | PostgreSQL `FrameEmbedding` count |
+| Embedding reused rows | `72,525` | `job.metadata.embedding_summary` |
+| DB rows | `4,541` frames, `72,744` detections, `72,744` boxes, `53` tracks | PostgreSQL counters |
+| GPU utilization | `10.332 %` avg, `53.000 %` peak, `15,725 MiB` peak VRAM | GPU CSV summary |
+
+Decision from Phase A:
+
+| Candidate | Evidence | Phase A decision |
+|---|---|---|
+| Render-only optimization | Render wall is `25.692 s`, or `2.75 %` of DB-completed elapsed. | De-rank as first Cycle 13 candidate. It cannot recover the main post-stage tail alone. |
+| Step 3 persistence-only optimization | Persistence wall is `39.820 s`, or `4.26 %` of DB-completed elapsed. | Worth keeping, but not first without sub-stage proof. |
+| Embedding/finalization optimization | Embedding created-at span is `187.139 s`; post-run-complete tail is `189.323 s`. | Start Cycle 13 with embedding sub-stage profiling. |
+
+The first implementation is therefore measurement-only:
+
+| Change | Purpose | Decision authority |
+|---|---|---|
+| `EMBEDDING_STAGE_PROFILING=1` | Record embedding sub-stage wall inside `embedding_summary.profile`. | Not an optimization and not acceptance evidence by itself. |
+| `tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh` | Reproduce a full `combined.mp4` production run against the Cycle 12.C baseline. | Required before selecting a Cycle 13 optimization candidate. |
+| Collector/watcher updates | Surface embedding DB span, DB flush, Redis flush/read, existence checks, track lookup, vector compute, and cv2 read time. | Evidence collection only. |
+
+No render, PostgreSQL `COPY`, Redis coalescing, or finalization optimization is
+accepted, rejected, skipped, or closed by this Phase A extraction.
 
 ## Expected Gain
 
@@ -125,8 +176,20 @@ Cycle 13 may be accepted only if all conditions are true:
 
 ## Immediate Next Action
 
-Run a Cycle 13 Phase A baseline extraction against the Cycle 12.C evidence
-bundle. If post-stage wall is below the expected gain threshold, de-rank Cycle
-13 and move to the next planned inference-wall cycle. If post-stage wall is
-material, implement only the highest measured Cycle 13 candidate and benchmark
-it on production.
+Deploy the measurement-only Cycle 13 instrumentation, run:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh \
+  --tag cycle13-embedding-profile-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+Then watch it with:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10 --clear
+```
+
+Only after that production benchmark records the embedding sub-stage table may
+Cycle 13 choose an optimization candidate.
