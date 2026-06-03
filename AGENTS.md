@@ -575,6 +575,18 @@ the next case.
   `633.939 s -> 643.184 s`, and RTMPose p95 regressed
   `46.952 ms -> 100.563 ms`. DB/model parity and pose records were preserved
   in both scenarios. Production remains on accepted batch `16`.
+- **2026-06-03 Cycle 14.C3 batch-32 provider chunk parallelism STAGED**:
+  `docs/cycle_14c3_batch32_parallel_chunks_investigation.md` records the
+  batch-32-specific follow-up requested after Cycle 14.C2. The candidate keeps
+  `POSE_CROSS_FRAME_BATCH_SIZE=32` but sets
+  `POSE_PROVIDER_CHUNK_PARALLELISM=2` so the two internal 16-crop RTMPose
+  provider chunks can run concurrently. Default `1` preserves the accepted
+  batch-16 profile. Reproducible wrapper:
+  `tools/prod/prod_run_cycle14c3_batch32_parallel_chunks_benchmark.sh`. No
+  acceptance/rejection/skip/closure decision exists until the wrapper completes
+  a real production `combined.mp4` benchmark and records FPS, Step 2
+  through-pose, RTMPose p95, GPU, memory, DB parity, model agreement, and
+  rollback proof against both accepted batch `16` and prior rejected batch `32`.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

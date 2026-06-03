@@ -1295,6 +1295,7 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 14.B2 | RTMPose ordered cross-frame batching | **ACCEPTED after fixed rerun**: replay `cycle14b-cross-frame-batch16-r2-20260603T150000Z`; DB FPS `+6.22 %`, pose tail `-22.56 %`, RTMPose calls `-76.24 %`, exact DB/model parity | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
 | 14.C1 | RTMPose cross-frame batch cap 8 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch8`; DB FPS `-2.85 %`, Step 2 through-pose `+3.42 %`, provider chunks doubled | rollback is accepted batch 16 |
 | 14.C2 | RTMPose cross-frame batch cap 32 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch32`; GPU avg improved but DB FPS `-0.98 %`, Step 2 through-pose `+1.46 %`, RTMPose p95 `+114.18 %` | rollback is accepted batch 16 |
+| 14.C3 | RTMPose batch-32 parallel provider chunks | **STAGED**: tests `POSE_CROSS_FRAME_BATCH_SIZE=32` plus `POSE_PROVIDER_CHUNK_PARALLELISM=2` to repair the prior batch-32 p95/provider-wall regression | rollback is accepted batch 16 plus `POSE_PROVIDER_CHUNK_PARALLELISM=1` |
 | 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
@@ -1349,6 +1350,15 @@ benchmarks and are not accepted. Batch `8` doubled provider chunks and
 regressed DB FPS/through-pose wall. Batch `32` improved GPU utilization but
 regressed DB FPS, through-pose wall, and RTMPose p95. The accepted production
 profile remains `POSE_CROSS_FRAME_BATCH_SIZE=16`.
+
+Cycle 14.C3 staging note (2026-06-03): batch `32` is not accepted as measured,
+but it exposed one specific follow-up: the outer flush count dropped to `600`
+while provider chunks stayed at `1199`, meaning each full batch-32 flush still
+ran as two RTMPose engine-cap chunks. Cycle 14.C3 adds a guarded
+`POSE_PROVIDER_CHUNK_PARALLELISM` candidate and benchmarks value `2` only for
+batch `32`. The candidate must beat prior batch `32` on RTMPose p95/provider
+async wall and justify itself against accepted batch `16`; otherwise the next
+sorted cycle starts.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

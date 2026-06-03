@@ -16,6 +16,13 @@ Batch `8` doubled RTMPose provider chunks and regressed total throughput. Batch
 DB FPS or Step 2 through-pose wall and regressed RTMPose p95 latency. Both
 scenarios preserved DB/model parity, but neither beat the accepted baseline.
 
+Cycle 14.C3 is staged after this result as a narrow batch-32 repair candidate:
+keep `POSE_CROSS_FRAME_BATCH_SIZE=32`, add guarded
+`POSE_PROVIDER_CHUNK_PARALLELISM=2`, and benchmark whether concurrent internal
+provider chunks reduce the prior batch-32 p95/provider-wall regression. This
+does not change the Cycle 14.C decision; batch `16` remains accepted until a
+new production benchmark proves otherwise.
+
 ## Source-of-Truth References
 
 | Kind | Reference | Why it matters |
@@ -28,6 +35,7 @@ scenarios preserved DB/model parity, but neither beat the accepted baseline.
 | Scenario comparison | `backend/logs/cycle14c-pose-batch-matrix-20260603T154945Z/batch32_vs_batch8_metrics.json` | Direct batch-32 versus batch-8 metric comparison. |
 | Scenario agreement | `backend/logs/cycle14c-pose-batch-matrix-20260603T154945Z/model_agreement_batch8_vs_batch32.json` | Direct batch-32 versus batch-8 correctness comparison. |
 | Tool | `tools/prod/prod_run_cycle14c_pose_batch_size_matrix.sh` | Reproducible matrix wrapper. |
+| Follow-up investigation | `docs/cycle_14c3_batch32_parallel_chunks_investigation.md` | Stages the batch-32-specific provider-chunk parallelism candidate. |
 
 ## Production Runs
 

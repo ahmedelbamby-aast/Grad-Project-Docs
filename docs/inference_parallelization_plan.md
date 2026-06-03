@@ -912,6 +912,16 @@ DB FPS regressed `-0.98 %`, Step 2 through-pose wall regressed `+1.46 %`, and
 RTMPose p95 regressed `+114.18 %` despite higher GPU utilization. Batch `16`
 remains the accepted production cap.
 
+Cycle 14.C3 is staged in
+`docs/cycle_14c3_batch32_parallel_chunks_investigation.md` as a narrow
+batch-32 repair candidate, not a new accepted default. It keeps
+`POSE_CROSS_FRAME_BATCH_SIZE=32` and tests
+`POSE_PROVIDER_CHUNK_PARALLELISM=2` so the two internal 16-crop RTMPose chunks
+can be dispatched concurrently. The wrapper
+`tools/prod/prod_run_cycle14c3_batch32_parallel_chunks_benchmark.sh` must
+compare the candidate against both the accepted batch-16 baseline and the prior
+rejected batch-32 run before any decision is valid.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

@@ -2506,4 +2506,47 @@ Detailed result doc:
 
 ---
 
+## 35. Cycle 14.C3 Batch-32 Parallel Provider Chunks
+
+Cycle 14.C3 is staged to test a batch-32-specific repair, not to accept batch
+32 from theory. The candidate keeps the rejected Cycle 14.C2 outer batch cap
+but enables internal provider chunk parallelism:
+
+```text
+POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch
+POSE_CROSS_FRAME_BATCH_SIZE=32
+POSE_PROVIDER_CHUNK_PARALLELISM=2
+```
+
+Required benchmark wrapper:
+`tools/prod/prod_run_cycle14c3_batch32_parallel_chunks_benchmark.sh`.
+
+### 35.1 Required Comparison Table
+
+Fill this table only after a completed production Linux RTX 5090 benchmark on
+`combined.mp4`.
+
+| Metric | Batch 16 accepted | Prior batch 32 | C3 batch32 parallel2 | Delta vs 16 | Delta vs prior 32 |
+|---|---:|---:|---:|---:|---:|
+| DB FPS | `5.680314` | `5.624745` | pending | pending | pending |
+| DB elapsed | `799.428 s` | `807.326 s` | pending | pending | pending |
+| Step 2 through pose | `633.939 s` | `643.184 s` | pending | pending | pending |
+| RTMPose RTT p95 | `46.952 ms` | `100.563 ms` | pending | pending | pending |
+| Provider async wall | `108.482 s` | `120.029 s` | pending | pending | pending |
+| GPU avg util | `12.168 %` | `14.288 %` | pending | pending | pending |
+| Peak VRAM | `15731 MiB` | `15725 MiB` | pending | pending | pending |
+| Pose subjects/results | `19180 / 19180` | `19180 / 19180` | pending | pending | pending |
+| DB rows | `72744 / 72744 / 72578` | `72744 / 72744 / 72578` | pending | pending | pending |
+| Student tracks | `53` | `53` | pending | pending | pending |
+| Model agreement F1 | baseline | `100.000 %` | pending | pending | pending |
+
+### 35.2 Decision Gate
+
+No decision exists yet. Acceptance requires the completed benchmark to improve
+the prior batch-32 RTMPose p95/provider wall and justify the candidate against
+accepted batch 16 without correctness regression. Otherwise batch 32 remains
+not accepted and the next sorted cycle starts.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*
