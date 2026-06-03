@@ -2142,6 +2142,11 @@ TRITON_BEHAVIOR_TOP_K_ENABLED=1
 LPM_ENABLED=0
 ```
 
+Next measurement cycle: Cycle 13.C / 16.A is started in
+`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md` to profile
+Redis command cost and DB side-effect wall before any Redis pipeline, Streams,
+script, or PostgreSQL bulk-write implementation is considered.
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

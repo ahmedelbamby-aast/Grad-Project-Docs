@@ -845,7 +845,9 @@ exact DB/model parity. The accepted optimized profile now includes
 `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`. The next measured post-stage bottlenecks
 are Redis flush `59.874 s` and DB flush `38.773 s`; because Cycle 7
 overestimated Redis savings, the next Redis-related step must first measure
-command count and command wall before changing Redis semantics.
+command count and command wall before changing Redis semantics. Phase A for
+that measurement is now started in
+`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15
 sequence, not inserted ahead of it. The Redis roadmap lives in

@@ -100,6 +100,7 @@ context.
 | 37l | [`docs/cycle_13_embedding_profile_results.md`](docs/cycle_13_embedding_profile_results.md) | 2026-06-03 | Cycle 13.A production profiling result: embedding sub-stage evidence only, no optimization decision. |
 | 37m | [`docs/cycle_13_embedding_track_lookup_investigation.md`](docs/cycle_13_embedding_track_lookup_investigation.md) | 2026-06-03 | Cycle 13.B investigation: prefetch-aware embedding track lookup candidate before code. |
 | 37n | [`docs/cycle_13_embedding_track_lookup_results.md`](docs/cycle_13_embedding_track_lookup_results.md) | 2026-06-03 | Cycle 13.B accepted result: track lookup removed from the embedding hot path with exact DB/model parity. |
+| 37o | [`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`](docs/cycle_13c_redis_db_side_effect_measurement_investigation.md) | 2026-06-03 | Cycle 13.C / 16.A investigation: measurement-only Redis and DB side-effect command-cost profiling before any Redis semantic change. |
 
 ### Phase 4 — Triton-specific deep dives
 

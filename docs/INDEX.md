@@ -54,6 +54,7 @@
 - [Cycle 13.A Embedding Stage Profile Results](cycle_13_embedding_profile_results.md)
 - [Cycle 13.B Embedding Track Lookup Investigation](cycle_13_embedding_track_lookup_investigation.md)
 - [Cycle 13.B Embedding Track Lookup Results](cycle_13_embedding_track_lookup_results.md)
+- [Cycle 13.C / 16.A Redis DB Side-Effect Measurement Investigation](cycle_13c_redis_db_side_effect_measurement_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)
 - [YOLOE / Depth Anything v2 Timing Decision — DEFERRED](new_models_yoloe_depth_anything_v2_timing_decision.md)
 - [Crop-Frame Optimization Audit](crop_frame_optimization_audit.md)

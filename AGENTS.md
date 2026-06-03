@@ -465,7 +465,10 @@ the next case.
   restarting Celery. Next bottleneck: Redis flush `59.874 s` and DB flush
   `38.773 s`; because Cycle 7 overestimated Redis savings, the next
   Redis-related step must first measure command count/wall before changing
-  Redis semantics.
+  Redis semantics. That next step is now started as Phase A in
+  `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`; it is
+  measurement-only and cannot accept, reject, skip, close, or deprioritize any
+  Redis implementation without a completed production `combined.mp4` benchmark.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
