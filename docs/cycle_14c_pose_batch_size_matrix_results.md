@@ -16,12 +16,11 @@ Batch `8` doubled RTMPose provider chunks and regressed total throughput. Batch
 DB FPS or Step 2 through-pose wall and regressed RTMPose p95 latency. Both
 scenarios preserved DB/model parity, but neither beat the accepted baseline.
 
-Cycle 14.C3 is staged after this result as a narrow batch-32 repair candidate:
+Cycle 14.C3 was run after this result as a narrow batch-32 repair candidate:
 keep `POSE_CROSS_FRAME_BATCH_SIZE=32`, add guarded
 `POSE_PROVIDER_CHUNK_PARALLELISM=2`, and benchmark whether concurrent internal
-provider chunks reduce the prior batch-32 p95/provider-wall regression. This
-does not change the Cycle 14.C decision; batch `16` remains accepted until a
-new production benchmark proves otherwise.
+provider chunks reduce the prior batch-32 p95/provider-wall regression. It is
+also not accepted; batch `16` remains accepted.
 
 ## Source-of-Truth References
 
@@ -36,6 +35,7 @@ new production benchmark proves otherwise.
 | Scenario agreement | `backend/logs/cycle14c-pose-batch-matrix-20260603T154945Z/model_agreement_batch8_vs_batch32.json` | Direct batch-32 versus batch-8 correctness comparison. |
 | Tool | `tools/prod/prod_run_cycle14c_pose_batch_size_matrix.sh` | Reproducible matrix wrapper. |
 | Follow-up investigation | `docs/cycle_14c3_batch32_parallel_chunks_investigation.md` | Stages the batch-32-specific provider-chunk parallelism candidate. |
+| Follow-up results | `docs/cycle_14c3_batch32_parallel_chunks_results.md` | Records the rejected Cycle 14.C3 production benchmark. |
 
 ## Production Runs
 
@@ -76,6 +76,17 @@ new production benchmark proves otherwise.
 | 14.C1 batch 8 | NOT ACCEPTED | It preserved correctness, but DB FPS regressed `-2.85 %`, Step 2 through-pose wall regressed `+3.42 %`, and provider chunks doubled. |
 | 14.C2 batch 32 | NOT ACCEPTED | It improved GPU average utilization, but DB FPS still regressed `-0.98 %`, Step 2 through-pose wall regressed `+1.46 %`, and RTMPose p95 regressed `+114.18 %`. |
 | Batch 16 baseline | REMAINS ACCEPTED | It remains the best measured batch cap by total throughput and pose-tail wall. |
+
+## Cycle 14.C3 Follow-Up
+
+Cycle 14.C3 replay `cycle14c3-batch32-parallel2-20260603T170117Z`, job
+`d71802b2-4c20-4f31-9c06-9854ebbc4eed`, tested batch `32` with
+`POSE_PROVIDER_CHUNK_PARALLELISM=2`. It preserved exact DB/model parity but is
+**NOT ACCEPTED** because DB FPS regressed `-3.79 %` versus accepted batch `16`,
+RTMPose p95 regressed `+87.16 %` versus prior batch `32`, provider async wall
+regressed `+15.91 %` versus prior batch `32`, and GPU average fell below both
+comparators. Detailed result:
+[`docs/cycle_14c3_batch32_parallel_chunks_results.md`](cycle_14c3_batch32_parallel_chunks_results.md).
 
 ## Production State
 

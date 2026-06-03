@@ -2508,9 +2508,9 @@ Detailed result doc:
 
 ## 35. Cycle 14.C3 Batch-32 Parallel Provider Chunks
 
-Cycle 14.C3 is staged to test a batch-32-specific repair, not to accept batch
-32 from theory. The candidate keeps the rejected Cycle 14.C2 outer batch cap
-but enables internal provider chunk parallelism:
+Cycle 14.C3 tested a batch-32-specific repair, not a theory-only acceptance.
+The candidate kept the rejected Cycle 14.C2 outer batch cap but enabled
+internal provider chunk parallelism:
 
 ```text
 POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch
@@ -2518,34 +2518,48 @@ POSE_CROSS_FRAME_BATCH_SIZE=32
 POSE_PROVIDER_CHUNK_PARALLELISM=2
 ```
 
-Required benchmark wrapper:
-`tools/prod/prod_run_cycle14c3_batch32_parallel_chunks_benchmark.sh`.
+Production replay
+`cycle14c3-batch32-parallel2-20260603T170117Z`, job
+`d71802b2-4c20-4f31-9c06-9854ebbc4eed`, completed `4541/4541` frames at
+deployed SHA `6642046`.
 
-### 35.1 Required Comparison Table
+### 35.1 Comparison
 
-Fill this table only after a completed production Linux RTX 5090 benchmark on
-`combined.mp4`.
-
-| Metric | Batch 16 accepted | Prior batch 32 | C3 batch32 parallel2 | Delta vs 16 | Delta vs prior 32 |
+| Metric | Batch 16 accepted | Prior batch 32 | C3 parallel2 | Delta vs 16 | Delta vs prior 32 |
 |---|---:|---:|---:|---:|---:|
-| DB FPS | `5.680314` | `5.624745` | pending | pending | pending |
-| DB elapsed | `799.428 s` | `807.326 s` | pending | pending | pending |
-| Step 2 through pose | `633.939 s` | `643.184 s` | pending | pending | pending |
-| RTMPose RTT p95 | `46.952 ms` | `100.563 ms` | pending | pending | pending |
-| Provider async wall | `108.482 s` | `120.029 s` | pending | pending | pending |
-| GPU avg util | `12.168 %` | `14.288 %` | pending | pending | pending |
-| Peak VRAM | `15731 MiB` | `15725 MiB` | pending | pending | pending |
-| Pose subjects/results | `19180 / 19180` | `19180 / 19180` | pending | pending | pending |
-| DB rows | `72744 / 72744 / 72578` | `72744 / 72744 / 72578` | pending | pending | pending |
-| Student tracks | `53` | `53` | pending | pending | pending |
-| Model agreement F1 | baseline | `100.000 %` | pending | pending | pending |
+| DB FPS | `5.680` | `5.625` | `5.465` | `-3.79 %` | `-2.84 %` |
+| DB elapsed s | `799.428` | `807.326` | `830.947` | `+3.94 %` | `+2.93 %` |
+| Step2 frame wall s | `462.188` | `459.750` | `460.775` | `-0.31 %` | `+0.22 %` |
+| Step2 through pose s | `633.939` | `643.184` | `665.406` | `+4.96 %` | `+3.45 %` |
+| GPU avg % | `12.168` | `14.288` | `12.092` | `-0.62 %` | `-15.37 %` |
+| GPU peak % | `51.000` | `86.000` | `54.000` | `+5.88 %` | `-37.21 %` |
+| Peak VRAM MiB | `15731.000` | `15725.000` | `15731.000` | `+0.00 %` | `+0.04 %` |
+| Behavior RTT mean ms | `84.171` | `84.276` | `84.255` | `+0.10 %` | `-0.02 %` |
+| Behavior RTT p95 ms | `130.802` | `130.372` | `130.928` | `+0.10 %` | `+0.43 %` |
+| RTMPose RTT mean ms | `44.055` | `49.731` | `125.063` | `+183.88 %` | `+151.48 %` |
+| RTMPose RTT p95 ms | `46.952` | `100.563` | `188.211` | `+300.86 %` | `+87.16 %` |
+| Provider async wall ms | `108481.746` | `120029.376` | `139131.828` | `+28.25 %` | `+15.91 %` |
+| Provider chunks | `1199` | `1199` | `1199` | `+0.00 %` | `+0.00 %` |
+| Pose subjects/results | `19180 / 19180` | `19180 / 19180` | `19180 / 19180` | preserved | preserved |
+| DB rows | `72744 / 72744 / 72578` | `72744 / 72744 / 72578` | `72744 / 72744 / 72578` | preserved | preserved |
+| Student tracks | `53` | `53` | `53` | preserved | preserved |
+| Model agreement F1 | baseline | `100.000 %` | `100.000 %` | preserved | preserved |
 
 ### 35.2 Decision Gate
 
-No decision exists yet. Acceptance requires the completed benchmark to improve
-the prior batch-32 RTMPose p95/provider wall and justify the candidate against
-accepted batch 16 without correctness regression. Otherwise batch 32 remains
-not accepted and the next sorted cycle starts.
+| Gate | Result | Explanation |
+|---|---|---|
+| Completion | PASS | Job completed `4541/4541`. |
+| Correctness | PASS | DB counters and model agreement were exact. |
+| Batch-32 repair | FAIL | RTMPose p95 regressed `+87.16 %` and provider async wall regressed `+15.91 %` versus prior batch 32. |
+| Production value | FAIL | DB FPS regressed versus accepted batch 16 and prior batch 32. |
+| GPU value | FAIL | GPU average fell below both accepted batch 16 and prior batch 32. |
+
+**Decision:** NOT ACCEPTED. Batch `32` remains rejected. Production was restored
+to `POSE_CROSS_FRAME_BATCH_SIZE=16` and `POSE_PROVIDER_CHUNK_PARALLELISM=1`.
+
+Detailed result doc:
+`docs/cycle_14c3_batch32_parallel_chunks_results.md`.
 
 ---
 

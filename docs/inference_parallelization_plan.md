@@ -922,6 +922,23 @@ can be dispatched concurrently. The wrapper
 compare the candidate against both the accepted batch-16 baseline and the prior
 rejected batch-32 run before any decision is valid.
 
+Cycle 14.C3 completed in
+`docs/cycle_14c3_batch32_parallel_chunks_results.md` and is **NOT ACCEPTED**.
+Production replay `cycle14c3-batch32-parallel2-20260603T170117Z` / job
+`d71802b2-4c20-4f31-9c06-9854ebbc4eed` preserved exact correctness but made
+the batch-32 performance problem worse: DB FPS regressed `-3.79 %` versus
+accepted batch `16`, RTMPose p95 regressed `+87.16 %` versus prior batch `32`,
+provider async wall regressed `+15.91 %` versus prior batch `32`, and GPU
+average fell below both comparators. Batch `16` remains accepted, and the next
+sorted cycle is Cycle 14.D.
+
+Cycle 14.D is now started as Phase A in
+`docs/cycle_14d_server_side_compact_postproc_investigation.md`. The cycle is
+split into 14.D1 Python BLS feasibility, 14.D2 TensorRT-only compact
+postprocessing/plugin, and 14.D3 fused behavior output contract. No
+implementation should start until Phase A measurements prove which sub-cycle
+can reduce wait/server execution against the accepted batch-16 profile.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

@@ -587,6 +587,28 @@ the next case.
   a real production `combined.mp4` benchmark and records FPS, Step 2
   through-pose, RTMPose p95, GPU, memory, DB parity, model agreement, and
   rollback proof against both accepted batch `16` and prior rejected batch `32`.
+- **2026-06-03 Cycle 14.C3 decision recorded**:
+  production replay `cycle14c3-batch32-parallel2-20260603T170117Z`, job
+  `d71802b2-4c20-4f31-9c06-9854ebbc4eed`, deployed SHA `6642046`, completed
+  `4541/4541` frames. Correctness was exact against both accepted batch `16`
+  and prior rejected batch `32`, but performance failed the repair gate:
+  DB FPS `5.680 -> 5.465` versus batch `16` (`-3.79 %`) and `5.625 -> 5.465`
+  versus prior batch `32` (`-2.84 %`), Step 2 through-pose `633.939 s ->
+  665.406 s` (`+4.96 %`) versus batch `16`, RTMPose p95 `100.563 ms ->
+  188.211 ms` (`+87.16 %`) versus prior batch `32`, and GPU average
+  `14.288 % -> 12.092 %` versus prior batch `32`. Cycle 14.C3 is **NOT
+  ACCEPTED**. The wrapper restored production to accepted
+  `POSE_CROSS_FRAME_BATCH_SIZE=16`, `POSE_PROVIDER_CHUNK_PARALLELISM=1`,
+  `POSE_TAIL_PROFILING=0`, and `EMBEDDING_STAGE_PROFILING=0`. Evidence:
+  `docs/cycle_14c3_batch32_parallel_chunks_results.md`.
+- **2026-06-03 Cycle 14.D server-side compact postprocessing PHASE A
+  STARTED**: `docs/cycle_14d_server_side_compact_postproc_investigation.md`
+  starts the next sorted cycle after the batch-32 repair failed. The cycle is
+  split before code into 14.D1 Python BLS feasibility, 14.D2 TensorRT-only
+  compact postprocessing/plugin, and 14.D3 fused behavior output contract. No
+  BLS/plugin/fused route may be implemented until Phase A measurements prove a
+  single highest-ROI candidate against the accepted batch-16 profile. No 14.D
+  acceptance/rejection/skip/closure decision exists yet.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

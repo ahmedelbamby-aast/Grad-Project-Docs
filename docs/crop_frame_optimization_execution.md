@@ -1295,8 +1295,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 14.B2 | RTMPose ordered cross-frame batching | **ACCEPTED after fixed rerun**: replay `cycle14b-cross-frame-batch16-r2-20260603T150000Z`; DB FPS `+6.22 %`, pose tail `-22.56 %`, RTMPose calls `-76.24 %`, exact DB/model parity | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
 | 14.C1 | RTMPose cross-frame batch cap 8 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch8`; DB FPS `-2.85 %`, Step 2 through-pose `+3.42 %`, provider chunks doubled | rollback is accepted batch 16 |
 | 14.C2 | RTMPose cross-frame batch cap 32 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch32`; GPU avg improved but DB FPS `-0.98 %`, Step 2 through-pose `+1.46 %`, RTMPose p95 `+114.18 %` | rollback is accepted batch 16 |
-| 14.C3 | RTMPose batch-32 parallel provider chunks | **STAGED**: tests `POSE_CROSS_FRAME_BATCH_SIZE=32` plus `POSE_PROVIDER_CHUNK_PARALLELISM=2` to repair the prior batch-32 p95/provider-wall regression | rollback is accepted batch 16 plus `POSE_PROVIDER_CHUNK_PARALLELISM=1` |
-| 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
+| 14.C3 | RTMPose batch-32 parallel provider chunks | **NOT ACCEPTED**: replay `cycle14c3-batch32-parallel2-20260603T170117Z`; correctness exact, but DB FPS `-3.79 %` vs batch 16, RTMPose p95 `+87.16 %` vs prior batch 32, provider async wall `+15.91 %` vs prior batch 32 | rollback proven: accepted batch 16 plus `POSE_PROVIDER_CHUNK_PARALLELISM=1` |
+| 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | **PHASE A STARTED** in `docs/cycle_14d_server_side_compact_postproc_investigation.md`; split into D1 Python BLS, D2 TensorRT/plugin, D3 fused output contract before code | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
@@ -1351,14 +1351,24 @@ regressed DB FPS/through-pose wall. Batch `32` improved GPU utilization but
 regressed DB FPS, through-pose wall, and RTMPose p95. The accepted production
 profile remains `POSE_CROSS_FRAME_BATCH_SIZE=16`.
 
-Cycle 14.C3 staging note (2026-06-03): batch `32` is not accepted as measured,
-but it exposed one specific follow-up: the outer flush count dropped to `600`
-while provider chunks stayed at `1199`, meaning each full batch-32 flush still
-ran as two RTMPose engine-cap chunks. Cycle 14.C3 adds a guarded
-`POSE_PROVIDER_CHUNK_PARALLELISM` candidate and benchmarks value `2` only for
-batch `32`. The candidate must beat prior batch `32` on RTMPose p95/provider
-async wall and justify itself against accepted batch `16`; otherwise the next
-sorted cycle starts.
+Cycle 14.C3 decision note (2026-06-03): batch `32` is still not accepted.
+Replay `cycle14c3-batch32-parallel2-20260603T170117Z`, job
+`d71802b2-4c20-4f31-9c06-9854ebbc4eed`, tested
+`POSE_PROVIDER_CHUNK_PARALLELISM=2` for the two internal RTMPose chunks. It
+preserved exact DB/model parity, but DB FPS regressed against accepted batch
+`16`, RTMPose p95 regressed against prior batch `32`, and GPU average lost the
+only benefit that made batch `32` worth testing. The evidence indicates
+parallel chunks create RTMPose contention rather than useful overlap. Production
+was restored to batch `16` and chunk parallelism `1`. The next sorted cycle is
+Cycle 14.D.
+
+Cycle 14.D start note (2026-06-03):
+`docs/cycle_14d_server_side_compact_postproc_investigation.md` starts Phase A.
+Because the candidate space includes Python BLS, TensorRT-only compacting or
+plugins, and fused output contracts, it is split before code. The first 14.D
+task is measurement and feasibility selection against the accepted batch-16
+profile; do not implement a BLS/plugin/fused route until one sub-cycle has
+evidence.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
