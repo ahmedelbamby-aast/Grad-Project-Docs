@@ -2758,4 +2758,75 @@ Detailed result doc:
 
 ---
 
+## 39. Cycle 15.B Pre-Shard Baseline Benchmark
+
+After the read-only shard design probe, a full production benchmark was run on
+the accepted non-sharded runtime to create the comparator that any future 15.B1
+two-shard implementation must beat. This was not a sharded runtime benchmark,
+so it does not accept, reject, skip, or close runtime sharding.
+
+| Field | Value |
+|---|---|
+| Replay key | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Job id | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Runtime deployed SHA | `74afc9d` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Pipeline mode | `crop_frame` |
+| Status | `completed` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Metrics JSON | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json` |
+| Metrics Markdown | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.md` |
+
+### 39.1 Baseline Metrics
+
+| Metric | Value |
+|---|---:|
+| Processed frames | `4541/4541` |
+| DB completed elapsed | `808.038 s` |
+| DB completed FPS | `5.620` |
+| Step 2 frame wall | `467.450 s` |
+| Step 2 frame-loop FPS | `9.714` |
+| Step 2 through-pose wall | `641.154 s` |
+| Run complete wall | `707.716 s` |
+| GPU average utilization | `11.846 %` |
+| GPU peak utilization | `57.000 %` |
+| Peak VRAM | `15725.000 MiB` |
+| Behavior ensemble mean RTT | `83.530 ms` |
+| Behavior ensemble p95 RTT | `129.514 ms` |
+| Pose tail over frame loop | `173.704 s` |
+| Embedding created span | `98.578 s` |
+| Detection rows | `72744` |
+| Bounding-box rows | `72744` |
+| Embedding rows | `72578` |
+| Student tracks | `53` |
+
+### 39.2 Model Counters
+
+| BBox model | Rows |
+|---|---:|
+| `attention_tracking` | `11770` |
+| `hand_raising` | `8799` |
+| `person_detection` | `19162` |
+| `sitting_standing` | `33013` |
+
+| Model | Calls | Mean RTT | P95 RTT | Shape |
+|---|---:|---:|---:|---|
+| `behavior_ensemble_gaze_slice_topk` | `3597` | `83.530 ms` | `129.514 ms` | `[32, 3, 320, 320]` |
+| `rtmpose_model` | `1199` | `44.778 ms` | `47.186 ms` | `[16, 3, 256, 192]` |
+| `person_detector` | `910` | `12.394 ms` | `19.478 ms` | `[1, 3, 640, 640]` |
+
+### 39.3 Decision
+
+| Decision item | Result |
+|---|---|
+| Runtime sharding decision | `NO_DECISION_BASELINE_ONLY` |
+| Why no acceptance | No sharded runtime candidate was implemented or run. |
+| What this benchmark enables | Future 15.B1 runtime must beat `5.620` DB FPS, `467.450 s` Step 2 frame wall, `641.154 s` through-pose wall, and `83.530 ms` behavior RTT mean while preserving DB/model parity. |
+| Bottleneck signal carried forward | The single-job baseline still spends `173.704 s` after the frame loop in pose-tail/upload work and `98.578 s` creating embeddings, so sharding must include post-frame coordination and not only frame-loop splitting. |
+
+Detailed result doc:
+`docs/cycle_15b_shard_design_probe_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

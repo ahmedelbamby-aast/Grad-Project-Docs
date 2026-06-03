@@ -22,6 +22,8 @@ HLS fallback, and all live stream profiles.
 | Unit test | `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` | Verifies exact coverage and overhead math. |
 | Production evidence | `/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z/shard_plan.json` | Raw production shard plan. |
 | Production markdown | `/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z/shard_plan.md` | Human-readable production evidence. |
+| Pre-shard baseline metrics | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json` | Full production baseline metrics for the accepted single-job runtime before any sharded runtime implementation. |
+| Pre-shard baseline markdown | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.md` | Human-readable baseline evidence bundle. |
 
 ## Production Evidence
 
@@ -83,3 +85,61 @@ Start a narrow 15.B1 runtime implementation plan only after specifying:
 No FPS, latency, throughput, or GPU-utilization improvement can be claimed from
 this dry-run. Those require a future full production benchmark after a sharded
 runtime candidate exists.
+
+## Pre-Shard Baseline Benchmark
+
+This benchmark was started after the design proof to create the required
+single-job comparator for a future 15.B1 runtime implementation. It did not
+run sharded inference and therefore does not accept, reject, skip, or close
+runtime sharding.
+
+| Field | Value |
+|---|---|
+| Replay key | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Job id | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Runtime deployed SHA | `74afc9d` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Pipeline mode | `crop_frame` |
+| Status | `completed` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z` |
+
+| Metric | Value |
+|---|---:|
+| Processed frames | `4541/4541` |
+| DB completed elapsed | `808.038 s` |
+| DB completed FPS | `5.620` |
+| Step 2 frame wall | `467.450 s` |
+| Step 2 frame-loop FPS | `9.714` |
+| Step 2 through-pose wall | `641.154 s` |
+| Run complete wall | `707.716 s` |
+| GPU average utilization | `11.846 %` |
+| GPU peak utilization | `57.000 %` |
+| Peak VRAM | `15725.000 MiB` |
+| Behavior ensemble mean RTT | `83.530 ms` |
+| Behavior ensemble p95 RTT | `129.514 ms` |
+| Pose tail over frame loop | `173.704 s` |
+| Embedding created span | `98.578 s` |
+| Detection rows | `72744` |
+| Bounding-box rows | `72744` |
+| Embedding rows | `72578` |
+| Student tracks | `53` |
+
+| BBox model | Rows |
+|---|---:|
+| `attention_tracking` | `11770` |
+| `hand_raising` | `8799` |
+| `person_detection` | `19162` |
+| `sitting_standing` | `33013` |
+
+| Model | Calls | Mean RTT | P95 RTT | Shape |
+|---|---:|---:|---:|---|
+| `behavior_ensemble_gaze_slice_topk` | `3597` | `83.530 ms` | `129.514 ms` | `[32, 3, 320, 320]` |
+| `rtmpose_model` | `1199` | `44.778 ms` | `47.186 ms` | `[16, 3, 256, 192]` |
+| `person_detector` | `910` | `12.394 ms` | `19.478 ms` | `[1, 3, 640, 640]` |
+
+| Decision item | Result |
+|---|---|
+| Runtime sharding decision | `NO_DECISION_BASELINE_ONLY` |
+| Why no acceptance | No sharded runtime candidate was implemented or run. |
+| What this benchmark enables | Future 15.B1 runtime must beat `5.620` DB FPS, `467.450 s` Step 2 frame wall, `641.154 s` through-pose wall, `83.530 ms` behavior RTT mean, and preserve DB/model parity. |
+| Observed bottleneck signal | The completed baseline still spends `173.704 s` after the frame loop in pose-tail/upload work and `98.578 s` creating embeddings, so sharding must account for post-frame coordination rather than only splitting the frame loop. |

@@ -984,6 +984,16 @@ has the lower boundary count and `0.704691 %` context overhead. No FPS,
 latency, throughput, or GPU-utilization improvement can be claimed until a
 future sharded runtime benchmark runs.
 
+A pre-shard baseline benchmark for that future runtime comparison completed as
+`cycle15b-pre-shard-baseline-20260603T193531Z` / job
+`74561b05-105f-4ca8-aeaf-f510f4f802de` on the accepted single-job profile.
+It is recorded in `docs/production_inference_benchmark.md` §39 and
+`docs/cycle_15b_shard_design_probe_results.md`. This benchmark is
+`NO_DECISION_BASELINE_ONLY`: runtime sharding is still blocked, but 15.B1 must
+beat `5.620` DB FPS, `467.450 s` Step 2 frame wall, `641.154 s`
+through-pose wall, and `83.530 ms` behavior RTT mean while preserving
+DB/model parity.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

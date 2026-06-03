@@ -753,6 +753,18 @@ Per § 8.6.2:
   (`0.704691 %` overhead); 15.B2 has `96` (`2.114072 %`). Runtime sharding is
   still blocked until stitching, duplicate suppression, PostgreSQL idempotency,
   parent/shard terminal-state coordination, and rollback are implemented.
+- **2026-06-03 Cycle 15.B pre-shard baseline benchmark RECORDED**:
+  production replay `cycle15b-pre-shard-baseline-20260603T193531Z` / job
+  `74561b05-105f-4ca8-aeaf-f510f4f802de` completed `4541/4541` frames on the
+  accepted non-sharded `crop_frame` profile at runtime deployed SHA `74afc9d`.
+  Evidence is stored in
+  `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json`
+  and `.md`. This is `NO_DECISION_BASELINE_ONLY`, not a sharding acceptance:
+  DB FPS `5.620`, Step 2 frame wall `467.450 s`, Step 2 through-pose wall
+  `641.154 s`, behavior RTT mean `83.530 ms`, GPU average `11.846 %`, GPU
+  peak `57.000 %`, detection rows `72744`, bbox rows `72744`, embeddings
+  `72578`, tracks `53`. Future 15.B1 runtime must beat these metrics while
+  preserving DB/model parity.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
