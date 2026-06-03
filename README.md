@@ -255,6 +255,7 @@ validates against the working tree.
 | 117 | [`docs/entity/modules/apps.exams.md`](docs/entity/modules/apps.exams.md) | 2026-06-03 | DSP Cycle 3 — exam-room reference data. 3 ORM models (`Room`, `Exam`, `ExamStudent`), 3 DRF ModelViewSets; static metadata referenced by `MonitoringSession.room`. |
 | 118 | [`docs/entity/modules/apps.exports.md`](docs/entity/modules/apps.exports.md) | 2026-06-03 | DSP Cycle 3 — async per-session exports. `SessionExport` row + `SessionExportViewSet` 3-action surface (initiate / status / download) + `generate_session_export` Celery task + `cleanup_expired_exports` beat task. Nested under sessions URL tree. |
 | 119 | [`docs/entity/modules/apps.telemetry_mcp.md`](docs/entity/modules/apps.telemetry_mcp.md) | 2026-06-03 | DSP Cycle 3 — MCP read shim over `apps.telemetry` tables. 3 REST views (list, detail, tool-query) + `enforce_role` + `Bounds` + `apply_bounds` + `redact_payload` + audit logging. No models. |
+| 120 | [`docs/entity/modules/frontend.src.api.md`](docs/entity/modules/frontend.src.api.md) | 2026-06-03 | DSP Cycle 3 — frontend REST-client module. Single `axios` instance (`client.ts`) + 13 per-domain wrapper files covering every `/api/v1/*` endpoint. First frontend module entity doc. |
 
 ### Conventions used in this reading order
 
