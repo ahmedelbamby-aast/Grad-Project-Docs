@@ -38,6 +38,8 @@ can move a benchmark metric that the optimization plan already records:
 | Doc | `docs/crop_frame_optimization_execution.md` | Cycle 7 and Cycle 8 evidence for Redis client caching and embedding-stage redesign. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and Cycle 7 measured result. |
 | Doc | `docs/cycle_12_single_inflight_overlap_results.md` | Latest accepted baseline before the Redis roadmap was staged. |
+| Doc | `docs/cycle_13c_redis_db_side_effect_measurement_results.md` | Completed Cycle 16.A command-cost measurement and next-candidate decision. |
+| Doc | `docs/cycle_16b_redis_side_effect_coalescing_investigation.md` | Active Cycle 16.B Phase A investigation. |
 
 ## Current Repo Evidence
 
@@ -61,6 +63,8 @@ command count, command wall time, bytes, and Redis memory impact on production.
 
 ### Cycle 16.A — Redis Command-Cost Instrumentation
 
+**Status:** measurement complete / `HYPOTHESIS_ONLY`.
+
 **Purpose:** measure Redis command volume and wall time during a real
 `combined.mp4` benchmark without changing behavior.
 
@@ -77,13 +81,17 @@ optional instrumentation layer behind a flag such as
 | `redis_errors` | Ensures profiling does not hide degraded Redis behavior. |
 | `redis_peak_memory` / `INFO memory` | Prevents hidden memory growth from stream/pipeline candidates. |
 
-**Decision authority:** probe-only. It can authorize or de-rank Redis
-implementation candidates, but cannot accept/reject an optimization.
+**Production result:** replay `cycle13c-redis-command-profile-20260603T020723Z`
+/ job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb` completed. Redis server command
+wall was only `530.485 ms`, while profiled Redis flush wall was `92.397 s`.
+The measurement authorized Cycle 16.B client-side side-effect coalescing and
+de-ranked Redis server tuning as the first fix.
 
 ### Cycle 16.B — Redis Pipeline Coalescing For Embedding/Tracking Side Effects
 
-**Purpose:** reduce embedding-stage and total-wall cost if Cycle 16.A proves
-Redis command wall is material.
+**Purpose:** reduce embedding-stage and total-wall cost because Cycle 16.A
+proved the material wall is client-side helper/payload/pipeline overhead, not
+Redis server command execution.
 
 **Mechanism:** replace per-item helper calls in the embedding flush path with a
 job-scoped Redis pipeline writer. The existing code currently flushes DB rows
@@ -167,13 +175,13 @@ covered by rollback to the non-script path.
 
 ## Restaged Redis Roadmap
 
-These cycles are appended after the current Cycle 13/14/15 sequence:
+These cycles are now sorted by the completed Cycle 16.A measurement:
 
 | Cycle | Title | Status | Primary metric target |
 |---|---|---|---|
-| 16.A | Redis command-cost instrumentation | PLANNED | Evidence quality; upper bound for Redis optimization |
-| 16.B | Redis pipeline coalescing for embedding/tracking side effects | PLANNED AFTER 16.A | Embedding wall; total wall |
-| 17 | Redis Streams for progress/benchmark sampling | PLANNED AFTER 16.A | DB polling/write overhead; evidence quality |
+| 16.A | Redis command-cost instrumentation | MEASUREMENT COMPLETE / HYPOTHESIS_ONLY | Evidence quality; upper bound for Redis optimization |
+| 16.B | Redis pipeline coalescing for embedding/tracking side effects | PHASE A STARTED | Embedding wall; total wall |
+| 17 | Redis Streams for progress/benchmark sampling | PLANNED AFTER 16.B | DB polling/write overhead; evidence quality |
 | 18 | Redis boundary-state cache for future sharding | PLANNED AFTER Cycle 15 decision | Sharding stitch stability; total wall if sharding is selected |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | CONDITIONAL | Only the Redis hotspot proven by 16.A |
 
@@ -192,8 +200,7 @@ These cycles are appended after the current Cycle 13/14/15 sequence:
 
 ## Immediate Recommendation
 
-Do not preempt Cycle 13 with Redis implementation. Add the Redis cycles after
-the current roadmap, then start Cycle 13 investigation. The first Redis work
-should be Cycle 16.A instrumentation, because Cycle 7 already proved Redis
-optimization hypotheses can be badly overestimated without command-level
-production measurements.
+Start Cycle 16.B Redis side-effect coalescing. Cycle 16.A produced the required
+production command-level evidence and showed the first Redis fix should reduce
+client-side helper calls, payload serialization, and pipeline executes. Do not
+start Redis Streams or scripts before the coalescing candidate is benchmarked.

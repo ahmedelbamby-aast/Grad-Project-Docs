@@ -465,16 +465,37 @@ the next case.
   restarting Celery. Next bottleneck: Redis flush `59.874 s` and DB flush
   `38.773 s`; because Cycle 7 overestimated Redis savings, the next
   Redis-related step must first measure command count/wall before changing
-  Redis semantics. That next step is now started as Phase A in
-  `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`; it is
-  measurement-only and cannot accept, reject, skip, close, or deprioritize any
-  Redis implementation without a completed production `combined.mp4` benchmark.
-  Phase B instrumentation is staged behind `OFFLINE_REDIS_COMMAND_PROFILING=1`:
-  `backend/apps/video_analysis/tasks.py` records Redis helper counts,
-  estimated command counts, payload bytes, Redis server `INFO commandstats`
-  deltas, memory deltas, and profiling overhead; the reproducible wrapper is
-  `tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`. This is
-  still not an optimization decision.
+  Redis semantics. That next step completed as Cycle 13.C / 16.A measurement:
+  replay `cycle13c-redis-command-profile-20260603T020723Z`, job
+  `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`, deployed SHA `bea98cb9a0bc`,
+  status `completed`, exact DB/model parity. Results: DB FPS
+  `5.205675 -> 5.024795` (`-3.47 %` because profiling only), Step 2 wall
+  `458.696 s -> 458.532 s`, behavior RTT mean `86.545 ms -> 86.203 ms`,
+  embedding wall `121.681 s -> 152.771 s`, Redis flush
+  `59.874 s -> 92.397 s`, DB flush `38.773 s -> 37.348 s`.
+  Redis decomposition recorded `870936` estimated helper commands, `72578`
+  estimated pipeline executes, `1017733` Redis server calls, but only
+  `530.485 ms` Redis server command wall. Conclusion:
+  `docs/cycle_13c_redis_db_side_effect_measurement_results.md` is
+  **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**; Redis server tuning is not the
+  first fix. The next staged implementation cycle is
+  `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`, targeting
+  client-side helper/payload/pipeline coalescing with PostgreSQL remaining
+  authoritative.
+- **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
+  `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
+  answers the current architecture question. Current offline `crop_frame`
+  behavior writes authoritative `Frame`/`Detection`/`BoundingBox` rows in Step 3
+  after the in-memory frame inference aggregation, then queues follow-up
+  tracking confirmation and embedding generation after render/audit
+  finalization. `OFFLINE_OFFLOAD_POST_STAGES=1` offloads the follow-up chain
+  after finalization; it does not stream DB rows or embeddings while the same
+  job's inference is still running. Cycle 20 is acceptable only as a future
+  governed lifecycle cycle with a disabled-by-default rollback flag, bounded
+  queue/backpressure, idempotent PostgreSQL writes, terminal-state coordination,
+  and a full production `combined.mp4` before/after benchmark. It is sorted last
+  after Cycle 19 unless completed production evidence proves post-stage overlap
+  is the next dominant limiter.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

@@ -2142,13 +2142,93 @@ TRITON_BEHAVIOR_TOP_K_ENABLED=1
 LPM_ENABLED=0
 ```
 
-Next measurement cycle: Cycle 13.C / 16.A is started in
-`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md` to profile
-Redis command cost and DB side-effect wall before any Redis pipeline, Streams,
-script, or PostgreSQL bulk-write implementation is considered. The staged
-production wrapper is
-`tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`; it records
-measurement evidence only and cannot create an optimization decision by itself.
+Next measurement cycle: Cycle 13.C / 16.A completed in §30 and is documented in
+`docs/cycle_13c_redis_db_side_effect_measurement_results.md`. It profiled Redis
+command cost and DB side-effect wall before any Redis pipeline, Streams, script,
+or PostgreSQL bulk-write implementation is considered.
+
+---
+
+## 30. Cycle 13.C / 16.A Redis DB Side-Effect Measurement
+
+This run implemented profiling only. It is a production benchmark authority for
+the Redis command-cost hypothesis, not an optimization acceptance run.
+
+| Field | Value |
+|---|---|
+| Baseline replay | `cycle13-track-lookup-20260603T011324Z` |
+| Baseline job | `c9f75d55-6043-4f27-bf9e-b2826d299459` |
+| Candidate replay | `cycle13c-redis-command-profile-20260603T020723Z` |
+| Candidate job | `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb` |
+| Candidate deployed SHA | `bea98cb9a0bce6875975712d1ed967569f6b8b05` |
+| Video | `combined.mp4` |
+| Candidate status | `completed`, `4541/4541` frames |
+| Metrics evidence | `backend/logs/cycle13c-redis-command-profile-20260603T020723Z/redis_command_profile_metrics.json` |
+| Agreement evidence | `backend/logs/cycle13c-redis-command-profile-20260603T020723Z/model_agreement_cycle13b_vs_redis_command_profile.json` |
+
+### 30.1 Comparison
+
+| Metric | Cycle 13.B baseline | Cycle 13.C profiled run | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.205675` | `5.024795` | `-3.47 %` |
+| DB-completed elapsed | `872.317 s` | `903.718 s` | `+3.60 %` |
+| Step 2 frame wall | `458.696 s` | `458.532 s` | `-0.04 %` |
+| Step 2 through pose upload | `680.422 s` | `684.303 s` | `+0.57 %` |
+| GPU avg util | `11.003 %` | `10.840 %` | `-1.48 %` |
+| GPU peak util | `50.000 %` | `50.000 %` | `0.00 %` |
+| Behavior RTT mean | `86.545 ms` | `86.203 ms` | `-0.40 %` |
+| Behavior RTT p95 | `132.448 ms` | `131.898 ms` | `-0.42 %` |
+| Embedding wall | `121.681 s` | `152.771 s` | `+25.55 %` |
+| Redis flush wall | `59.874 s` | `92.397 s` | `+54.32 %` |
+| DB flush wall | `38.773 s` | `37.348 s` | `-3.68 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+### 30.2 Redis Decomposition
+
+| Metric | Value |
+|---|---:|
+| Estimated helper commands | `870936` |
+| Estimated pipeline executes | `72578` |
+| Redis server command calls | `1017733` |
+| Redis server command wall | `530.485 ms` |
+| Payload bytes estimate | `4446643934` |
+| Payload serialization wall | `32410.536 ms` |
+| `cache_embedding` helper wall | `15614.956 ms` |
+| `cache_job_track_embedding` helper wall | `11534.170 ms` |
+| Analysis cache helper wall | `32572.304 ms` |
+| Redis helper errors | `0` |
+| Redis memory delta | `10537392 bytes` |
+| Profiling overhead | `2.018 ms` |
+
+### 30.3 Correctness
+
+| Model | Candidate agreement F1@IoU0.5 | Boxes |
+|---|---:|---:|
+| `attention_tracking` | `100.000 %` | `11770 -> 11770` |
+| `hand_raising` | `100.000 %` | `8799 -> 8799` |
+| `person_detection` | `100.000 %` | `19162 -> 19162` |
+| `sitting_standing` | `100.000 %` | `33013 -> 33013` |
+
+### 30.4 Decision Explanation
+
+| Required field | Result |
+|---|---|
+| Decision status | `MEASUREMENT COMPLETE / HYPOTHESIS_ONLY` |
+| Why not accepted | The run was profiling-only and intentionally changed measurement overhead, not runtime behavior. |
+| Causal interpretation | Redis server command wall is only `530.485 ms`; the measured limiter is client-side helper loops, payload serialization, and `72578` estimated pipeline executes. |
+| Remaining bottleneck | Redis side-effect write path inside embedding generation, followed by DB flush. |
+| Next task | Start Cycle 16.B in `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`; target coalescing, not Redis server tuning. |
+
+Cycle 20 is also staged as a future investigation in
+`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. It
+asks whether Step 3 persistence and embedding can safely overlap with inference.
+Current code does not do that for the same job: Step 3 persists the aggregated
+`Frame`/`Detection`/`BoundingBox` rows after frame inference aggregation, and
+embedding starts after finalization/follow-up handoff. No benchmark decision
+exists for Cycle 20.
 
 ---
 

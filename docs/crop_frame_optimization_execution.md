@@ -1288,19 +1288,28 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 11.B / B.3 Step 2 | Kernel-tactic or batch-profile tuning on the dominant 320 behavior child after Top-K | bounded at ~4 % Step 2 | low-medium; engine rebuild only if parity holds |
 | 13.A | Embedding sub-stage profiling after Cycle 12.C | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13-embedding-profile-20260603T003853Z`, job `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd`; embedding wall `188.620 s`, track lookup `66.223 s`, Redis flush `59.304 s`, DB flush `38.467 s`, exact DB/model parity | rollback proven: `EMBEDDING_STAGE_PROFILING=0` |
 | 13.B | Prefetch-aware embedding track lookup | **ACCEPTED**: replay `cycle13-track-lookup-20260603T011324Z`, job `c9f75d55-6043-4f27-bf9e-b2826d299459`; DB elapsed `935.516 s -> 872.317 s`, DB FPS `4.854005 -> 5.205675`, track lookup `66.223 s -> 0.447 s`, exact DB/model parity | rollback is `EMBEDDING_PREFETCH_TRACK_LOOKUP=0` |
-| 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **PHASE B INSTRUMENTATION STAGED** in `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`: guarded `OFFLINE_REDIS_COMMAND_PROFILING=1` records helper counts, estimated commands, Redis server commandstats deltas, memory, bytes, and overhead before any Redis semantic change | low; measurement first |
+| 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
+| 16.B | Redis side-effect coalescing for embedding/tracking side effects | **PHASE A STARTED** in `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`; target helper/payload/pipeline overhead, not Redis server tuning | low-medium; Redis remains non-authoritative |
 | 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
-| 16.A | Redis command-cost instrumentation | evidence / upper-bound only | low; profiling must not become decision authority |
-| 16.B | Redis pipeline coalescing for embedding/tracking side effects | embedding wall / total wall only if 16.A proves Redis command wall is material | low-medium; Redis remains non-authoritative |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | conditional on Cycle 16.A proof | medium; rollback to non-script path |
+| 20 | Streaming DB persistence and embedding overlap with inference | total wall reduction only if post-stage tail remains dominant | high; lifecycle, idempotency, and terminal-state contract change |
 
 Redis roadmap note (2026-06-03): broader Redis strategies are documented in
 `docs/redis_broader_optimization_opportunities.md`. Cycle 7 proved Redis
 hypotheses can be overestimated, so the first Redis cycle must be command-cost
-instrumentation, not implementation.
+instrumentation, not implementation. Cycle 13.C completed that measurement and
+promoted Cycle 16.B because the measured bottleneck is client-side Redis helper,
+payload, and pipeline overhead.
+
+Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
+answers the current architecture question. Today Step 3 persists rows after the
+frame inference aggregation, and embedding starts after finalization/follow-up
+handoff. The idea is acceptable only as a future governed cycle because it
+changes job lifecycle semantics; keep it last unless production evidence proves
+post-stage tail should outrank the current Cycle 16.B and Cycle 14-19 sequence.
 
 ---
 

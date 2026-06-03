@@ -2,11 +2,11 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase B instrumentation staged. This cycle is measurement-only
-until a completed production Linux RTX 5090 benchmark on `combined.mp4` proves
-Redis command count, Redis wall, Redis memory, DB flush wall, and correctness
-impact. No Redis semantic optimization is accepted, rejected, skipped, or
-closed by this document.
+**Status:** Measurement complete / `HYPOTHESIS_ONLY`. Production replay
+`cycle13c-redis-command-profile-20260603T020723Z`, job
+`aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`, completed on `combined.mp4` and wrote
+the required Redis command-cost evidence. No Redis semantic optimization is
+accepted, rejected, skipped, or closed by this document.
 
 ## Problem Statement
 
@@ -112,7 +112,7 @@ pipeline coalescing, Streams, server-side scripts, or PostgreSQL bulk changes
 until this cycle's production benchmark proves which side-effect bucket is
 actually controllable.
 
-## Phase B Instrumentation Staged
+## Phase B Instrumentation
 
 The staged implementation adds only measurement surfaces:
 
@@ -128,3 +128,25 @@ contracts. The Redis `INFO commandstats` delta is the server-side command
 counter evidence. The production benchmark must interpret both together and
 must subtract or at least disclose profiling overhead before ranking a Redis
 implementation candidate.
+
+## Phase C Production Measurement Result
+
+The completed production benchmark is recorded in
+`docs/cycle_13c_redis_db_side_effect_measurement_results.md`.
+
+| Metric | Cycle 13.B baseline | Cycle 13.C profiled run | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.205675` | `5.024795` | `-3.47 %` |
+| DB-completed elapsed | `872.317 s` | `903.718 s` | `+3.60 %` |
+| Step 2 frame wall | `458.696 s` | `458.532 s` | `-0.04 %` |
+| Behavior RTT mean | `86.545 ms` | `86.203 ms` | `-0.40 %` |
+| Embedding wall | `121.681 s` | `152.771 s` | `+25.55 %` |
+| Redis flush wall | `59.874 s` | `92.397 s` | `+54.32 %` |
+| DB flush wall | `38.773 s` | `37.348 s` | `-3.68 %` |
+
+The Redis server is not the dominant wall-time source: Redis commandstats
+reported `1017733` server calls but only `530.485 ms` server command wall.
+The material side-effect buckets are client-side helper loops, payload
+serialization, and `72578` estimated pipeline executions.
+
+Next cycle: `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`.

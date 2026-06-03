@@ -101,6 +101,9 @@ context.
 | 37m | [`docs/cycle_13_embedding_track_lookup_investigation.md`](docs/cycle_13_embedding_track_lookup_investigation.md) | 2026-06-03 | Cycle 13.B investigation: prefetch-aware embedding track lookup candidate before code. |
 | 37n | [`docs/cycle_13_embedding_track_lookup_results.md`](docs/cycle_13_embedding_track_lookup_results.md) | 2026-06-03 | Cycle 13.B accepted result: track lookup removed from the embedding hot path with exact DB/model parity. |
 | 37o | [`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`](docs/cycle_13c_redis_db_side_effect_measurement_investigation.md) | 2026-06-03 | Cycle 13.C / 16.A investigation: measurement-only Redis and DB side-effect command-cost profiling before any Redis semantic change. |
+| 37p | [`docs/cycle_13c_redis_db_side_effect_measurement_results.md`](docs/cycle_13c_redis_db_side_effect_measurement_results.md) | 2026-06-03 | Cycle 13.C / 16.A production measurement result: Redis server time is tiny; client-side helper/pipeline overhead is the next Redis target. |
+| 37q | [`docs/cycle_16b_redis_side_effect_coalescing_investigation.md`](docs/cycle_16b_redis_side_effect_coalescing_investigation.md) | 2026-06-03 | Cycle 16.B investigation: Redis side-effect coalescing candidate staged from Cycle 13.C metrics before code. |
+| 37r | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
 
 ### Phase 4 — Triton-specific deep dives
 

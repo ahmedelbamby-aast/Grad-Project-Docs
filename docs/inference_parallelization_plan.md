@@ -166,7 +166,7 @@ application implementation.
 | **Across frame-batches** | ✅ opt-in overlap | `TRITON_OFFLINE_PIPELINE_OVERLAP=1` runs decode/preprocess for batch K+1 while batch K dispatches/postprocesses; final persistence remains ordered |
 | Transport | ✅ gRPC in optimized prod env / HTTP fallback | `TRITON_PROTOCOL_PREFERENCE=grpc` + `TRITON_GRPC_ENABLED=1`; HTTP fallback retained |
 | Tensor encoding | ✅ binary opt-in | `TRITON_BINARY_TENSORS=1` sends raw float bytes; JSON materialization remains fallback |
-| Post-stages (tracking/pose/ReID/persist/render) | ⚠️ partially offloadable | optimized prod env sets `OFFLINE_OFFLOAD_POST_STAGES=1`; render still runs inline |
+| Post-stages (tracking/pose/ReID/persist/render) | ⚠️ partially offloadable | optimized prod env sets `OFFLINE_OFFLOAD_POST_STAGES=1`; render still runs inline; persistence and embedding are not streamed during inference yet |
 | DB writes | ✅ bulk/progress-throttled in optimized prod env | optimized prod env sets `OFFLINE_PROGRESS_UPDATE_EVERY_N=25`, `OFFLINE_DB_BATCH_WRITES=1`, `OFFLINE_DB_BATCH_SIZE=1000` |
 
 **Diagnosis:** the GPU is idle because each frame is dominated by **CPU JSON
@@ -843,25 +843,34 @@ track lookup. Production replay `cycle13-track-lookup-20260603T011324Z` / job
 wall `188.620 s -> 121.681 s`, and track lookup `66.223 s -> 0.447 s`, with
 exact DB/model parity. The accepted optimized profile now includes
 `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`. The next measured post-stage bottlenecks
-are Redis flush `59.874 s` and DB flush `38.773 s`; because Cycle 7
-overestimated Redis savings, the next Redis-related step must first measure
-command count and command wall before changing Redis semantics. Phase A for
-that measurement is now started in
-`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`. Phase B
-instrumentation is staged behind `OFFLINE_REDIS_COMMAND_PROFILING=1` with the
-production wrapper
-`tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`; this remains
-measurement-only until a completed production benchmark writes the comparison
-table.
+were Redis flush `59.874 s` and DB flush `38.773 s`; because Cycle 7
+overestimated Redis savings, Cycle 13.C / 16.A first measured command count and
+command wall before changing Redis semantics. Production replay
+`cycle13c-redis-command-profile-20260603T020723Z`, job
+`aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`, is recorded in
+`docs/cycle_13c_redis_db_side_effect_measurement_results.md`. It proved Redis
+server command wall is tiny (`530.485 ms`) compared with the profiled Redis
+flush wall (`92.397 s`) and identified client-side helper/payload/pipeline
+overhead as the next Redis target. Cycle 16.B is therefore started in
+`docs/cycle_16b_redis_side_effect_coalescing_investigation.md`.
 
-Broader Redis strategies are appended after the current Cycle 13/14/15
-sequence, not inserted ahead of it. The Redis roadmap lives in
-`docs/redis_broader_optimization_opportunities.md` and starts with Cycle 16.A
-command-cost instrumentation. This ordering is deliberate: Cycle 7 already
-proved Redis optimization hypotheses can be overestimated, so no Redis
-pipeline, stream, script, or sharding-state change may be implemented as an
-optimization until production command count, Redis wall, bytes, memory, and
-errors bound its expected gain.
+Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
+unless production measurement promotes a specific Redis candidate. Cycle 13.C
+did promote Cycle 16.B side-effect coalescing because Redis command count,
+pipeline execute count, payload bytes, memory, errors, and server command wall
+were measured on production. Redis Streams, Redis scripts, and sharding-state
+cache remain later-cycle ideas in
+`docs/redis_broader_optimization_opportunities.md`.
+
+Cycle 20 is now staged in
+`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a
+future streaming persistence and embedding overlap architecture. Current code
+persists `Frame`/`Detection`/`BoundingBox` rows in Step 3 after the in-memory
+frame inference aggregation, and `generate_embeddings` starts after
+finalization/follow-up handoff. Cycle 20 is intentionally last in the sorted
+roadmap because it changes lifecycle, idempotency, terminal-state, and evidence
+contracts; it may move earlier only if completed production benchmark evidence
+shows post-stage tail is the next dominant limiter after the active cycles.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
