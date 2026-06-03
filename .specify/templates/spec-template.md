@@ -102,6 +102,11 @@
   behavior ontology/feature version, and invalid-window rules]
 - **Deployment Boundary**: [Describe dev/test assumptions and production
   native Linux, NVIDIA GPU, no-Docker, no-sudo, single-active-mode rules]
+- **Concurrency/Worker Scaling Boundary**: [If worker/thread/concurrency
+  values change, describe the baseline and candidate Celery queue topology,
+  pool type, worker counts, in-process batch concurrency, GPU cap, PostgreSQL
+  and Redis budgets, duplicate-worker detection, rollback path, and why the
+  workload has parallel work for extra workers. Otherwise state N/A.]
 - **Heterogeneous Authority Boundary**: [Describe which checks are local
   contract-only and which checks require native Linux RTX 5090 production
   evidence; include Git SHA, `backend/.env`, PostgreSQL, Redis, Celery,
@@ -190,3 +195,7 @@
   reconciler declared (§17.1); vector dimension/payload enforced at DB write
   boundary (§17.2); stage error-ratio fail-closed threshold declared (§17.3);
   idempotency key documented and re-run test present (§17.4)]
+- **SC-014**: [§8.1.1 compliance — for worker/thread/concurrency changes:
+  production benchmark proves the extra workers improve target metrics without
+  RTT, GPU, memory, DB/Redis, lifecycle, duplicate-worker, or correctness
+  regression; otherwise the candidate remains hypothesis-only]

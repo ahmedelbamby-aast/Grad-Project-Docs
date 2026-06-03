@@ -32,8 +32,8 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ## ⭐ Documentation Systematization Program (DSP) — BINDING
 
-**Constitution Section 19 (v2.5.0, ratified 2026-06-02) makes the
-following rules non-bypassable. Hallucinations are FORBIDDEN — a
+**Constitution Section 19 (added in v2.5.0; current constitution v2.6.0)
+makes the following rules non-bypassable. Hallucinations are FORBIDDEN — a
 documentation claim without a resolvable reference is a CI-blocking
 regression, not a style nit.**
 
@@ -496,6 +496,21 @@ the next case.
   and a full production `combined.mp4` before/after benchmark. It is sorted last
   after Cycle 19 unless completed production evidence proves post-stage overlap
   is the next dominant limiter.
+- **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
+  `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
+  operator permission to increase Celery workers/threads only as a governed
+  candidate. Current metrics do **not** justify a blind production increase:
+  one `process_video_upload` task owns the single-video frame loop, one
+  `generate_embeddings` task owns the embedding loop, and Cycle 13.C proved the
+  next concrete bottleneck is client-side Redis side-effect overhead inside
+  that task (`72578` estimated pipeline executes, Redis server wall only
+  `530.485 ms`). Extra workers become useful only when there are multiple
+  independent jobs, video shards, split persistence/render/embedding tasks, or
+  a completed production matrix proves hidden queue parallelism. Constitution
+  §8.1.1 is binding: any worker/thread/queue/GPU-cap increase must document
+  baseline/candidate topology, duplicate-worker checks, CPU/RSS/VRAM/DB/Redis
+  budgets, full `combined.mp4` benchmark evidence, correctness/model agreement,
+  and rollback by env reset plus clean worker restart.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

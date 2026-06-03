@@ -73,6 +73,16 @@
 > transitions where applicable, and fail-stop/degraded evidence
 > handling.
 
+> **Concurrency Scaling Authority Gate (§8.1.1)**: Any plan that increases
+> Celery worker count, worker pool/thread count, queue concurrency, in-process
+> batch concurrency or GPU concurrency cap MUST prove the workload has parallel
+> work for the extra workers to consume. The plan MUST declare baseline and
+> candidate queue topology, parent worker count, pool type, child concurrency,
+> prefetch/ack behavior, task limits, GPU cap, PostgreSQL/Redis/CPU/RSS/VRAM
+> budgets, duplicate-worker detection, rollback env reset, and the required
+> production benchmark table. Extra workers for a single monolithic task are
+> hypothesis-only until the native Linux RTX 5090 benchmark proves otherwise.
+
 > **Contract and Storage Gate**: Every external or persisted payload
 > MUST have a governed versioned schema, explicit serializer exposure,
 > idempotency and migration/retention rules. `fields = '__all__'`,

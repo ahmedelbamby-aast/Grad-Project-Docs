@@ -2230,6 +2230,13 @@ Current code does not do that for the same job: Step 3 persists the aggregated
 embedding starts after finalization/follow-up handoff. No benchmark decision
 exists for Cycle 20.
 
+Cycle 21 is staged in
+`docs/cycle_21_celery_concurrency_scaling_investigation.md`. It covers Celery
+worker/thread/concurrency increases. No production concurrency increase is
+accepted or applied by this document; the current evidence says extra workers
+are unlikely to speed one monolithic video task or one monolithic embedding
+task unless later cycles create independent work for those workers.
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

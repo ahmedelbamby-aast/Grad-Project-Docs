@@ -838,8 +838,9 @@ quality of the diff.
 | **Cycle 15** | CUDA shared memory or sharding architecture decision | **PLANNED AFTER CYCLE 14 EVIDENCE** | high only if bottleneck shifts | `docs/crop_frame_optimization_execution.md`, `docs/cycles_9_to_12_implementation_playbook.md` §6 |
 | **Cycle 17** | Redis Streams for non-authoritative progress and benchmark sampling | **PLANNED AFTER 16.B** | DB polling/write overhead or evidence quality | `docs/redis_broader_optimization_opportunities.md` |
 | **Cycle 18** | Redis boundary-state cache for future sharding | **PLANNED AFTER CYCLE 15 SHARDING DECISION** | stitch stability for multi-process sharding | `docs/redis_broader_optimization_opportunities.md` |
-| **Cycle 19** | Redis server-side scripts for measured read/compute/write hotspots | **CONDITIONAL** | only if Cycle 16.A proves a Redis hotspot pipelining cannot remove | `docs/redis_broader_optimization_opportunities.md` |
-| **Cycle 20** | Streaming DB persistence and embedding overlap with inference | **PLANNED LAST / PHASE A STAGED** | total wall reduction only if post-stage tail remains the dominant limiter after active cycles | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` |
+| **Cycle 19** | Redis server-side scripts for measured read/compute/write hotspots | **CONDITIONAL** | only if Cycle 16.B leaves a measured Redis read/compute/write hotspot that pipelining cannot remove | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 20** | Streaming DB persistence and embedding overlap with inference | **PLANNED LATE / PHASE A STAGED** | total wall reduction only if post-stage tail remains the dominant limiter after active cycles | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` |
+| **Cycle 21** | Celery worker/thread/concurrency scaling matrix | **PLANNED AFTER PARALLEL WORK EXISTS / PHASE A STAGED** | only if extra workers have independent work to consume; otherwise likely idle capacity or contention | `docs/cycle_21_celery_concurrency_scaling_investigation.md` |
 
 ### Z.4 Deferred decisions / out-of-scope here
 

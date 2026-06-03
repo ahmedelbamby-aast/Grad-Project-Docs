@@ -137,7 +137,9 @@ future implementation explicitly documents a schema migration.
 ## Ordering Decision
 
 Stage this as **Cycle 20** after Cycle 16.B and the planned Cycle 14-19
-roadmap. It is last by default because it is a broader lifecycle contract
+roadmap. It is late by default because it is a broader lifecycle contract
 change. It may be moved earlier only after a completed production benchmark
 decision table proves that post-stage tail, not inference wall or Redis
-side-effect coalescing, is the next dominant limiter.
+side-effect coalescing, is the next dominant limiter. If Cycle 20 creates
+independent streaming persistence or embedding tasks, run the Cycle 21
+concurrency matrix afterward rather than raising worker counts blindly.

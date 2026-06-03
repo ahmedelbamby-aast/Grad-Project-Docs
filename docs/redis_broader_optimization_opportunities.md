@@ -183,7 +183,7 @@ These cycles are now sorted by the completed Cycle 16.A measurement:
 | 16.B | Redis pipeline coalescing for embedding/tracking side effects | PHASE A STARTED | Embedding wall; total wall |
 | 17 | Redis Streams for progress/benchmark sampling | PLANNED AFTER 16.B | DB polling/write overhead; evidence quality |
 | 18 | Redis boundary-state cache for future sharding | PLANNED AFTER Cycle 15 decision | Sharding stitch stability; total wall if sharding is selected |
-| 19 | Redis server-side scripts for measured read/compute/write hotspots | CONDITIONAL | Only the Redis hotspot proven by 16.A |
+| 19 | Redis server-side scripts for measured read/compute/write hotspots | CONDITIONAL AFTER 16.B | Only a Redis hotspot that coalescing cannot remove |
 
 ## Acceptance Criteria For Any Redis Optimization
 

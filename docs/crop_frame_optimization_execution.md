@@ -1296,6 +1296,7 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | conditional on Cycle 16.A proof | medium; rollback to non-script path |
 | 20 | Streaming DB persistence and embedding overlap with inference | total wall reduction only if post-stage tail remains dominant | high; lifecycle, idempotency, and terminal-state contract change |
+| 21 | Celery worker/thread/concurrency scaling matrix | only if extra workers can consume independent work | medium-high; can regress RTT, DB/Redis wall, RSS, or duplicate-worker safety |
 
 Redis roadmap note (2026-06-03): broader Redis strategies are documented in
 `docs/redis_broader_optimization_opportunities.md`. Cycle 7 proved Redis
@@ -1309,7 +1310,15 @@ answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up
 handoff. The idea is acceptable only as a future governed cycle because it
 changes job lifecycle semantics; keep it last unless production evidence proves
-post-stage tail should outrank the current Cycle 16.B and Cycle 14-19 sequence.
+post-stage tail should outrank the current Cycle 16.B and Cycle 14-19 sequence;
+if it creates independent tasks, run the Cycle 21 concurrency matrix afterward.
+
+Cycle 21 note (2026-06-03):
+`docs/cycle_21_celery_concurrency_scaling_investigation.md` stages the worker
+increase idea. Current metrics do not justify a blind production increase:
+single-video inference and embedding still contain monolithic task sections, so
+extra workers are likely idle or can add contention. Worker/thread increases are
+allowed only through the constitution §8.1.1 topology and benchmark gate.
 
 ---
 

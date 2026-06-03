@@ -91,6 +91,15 @@ The launcher reads worker time limits, concurrency, and guardrails from `backend
 shell environment variables taking precedence.
 Run `prod_stop_celery_workers.sh` before every restart to remove stale children.
 
+Concurrency scaling is governed by constitution §8.1.1 and
+`docs/cycle_21_celery_concurrency_scaling_investigation.md`. Do not raise
+worker counts, thread/pool values, queue concurrency, or GPU caps as a default
+optimization unless a completed `combined.mp4` production benchmark proves the
+candidate improves the target metric without RTT, GPU, memory, PostgreSQL,
+Redis, lifecycle, duplicate-worker, or correctness regression. For one
+monolithic offline job, extra Celery workers are usually idle unless the code
+has been split into independent tasks or shards.
+
 Wave 2 queue governance notes:
 - active/inactive control routing is resolved from `apps.pipeline.queue_routes`
 - dead-letter names follow the `.dlq` suffix contract

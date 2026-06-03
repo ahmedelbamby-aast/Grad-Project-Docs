@@ -1,6 +1,19 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.5.1 -> 2.6.0
+Bump rationale: MINOR - Adds Section 8.1.1 (Concurrency Scaling Authority)
+after production optimization discussions raised increasing Celery workers,
+threads and worker counts as a possible speed lever. The amendment makes such
+changes legal only as benchmarked, reversible optimization candidates with
+declared queue topology, resource ceilings, duplicate-worker checks, GPU/DB/Redis
+contention evidence and the Section 12.5/12.6 production benchmark decision
+table. Adds a matching row to § 14.25. Propagated to Spec Kit plan/spec/tasks
+templates, AGENTS.md, README.md, tools/prod/README.md and the active
+optimization roadmap docs.
+
+Prior PATCH (2.5.0 -> 2.5.1) text below.
+
 Version change: 2.5.0 -> 2.5.1
 Bump rationale: PATCH - Adds Section 19.3.1 (Mermaid Diagram
 Compilation Gate) to make every Mermaid block in every project-owned
@@ -969,6 +982,36 @@ amendment proves another configuration preserves correctness under worker loss
 and overload. A worker MUST NOT consume queues outside its approved runtime
 mode activation.
 
+#### 8.1.1 Concurrency Scaling Authority
+
+Increasing Celery worker count, worker pool type, thread count, queue
+concurrency, in-process batch concurrency, or GPU concurrency cap is an
+optimization candidate, not an accepted improvement by configuration change
+alone. The plan MUST state whether the target workload has parallel work that
+additional workers can consume: multiple independent jobs, sharded video
+segments, split persistence/embedding/render tasks, or bounded per-stage
+producer/consumer queues. For a single monolithic Celery task, extra workers
+MUST be treated as idle capacity unless production evidence proves otherwise.
+
+Every concurrency increase MUST define the baseline and candidate topology:
+queue names, parent worker count, pool type, child concurrency, prefetch,
+acknowledgment behavior, task time limits, `max_tasks_per_child`, GPU
+concurrency cap, in-process batch limits, PostgreSQL connection budget, Redis
+command budget, CPU/RSS/VRAM budget, and duplicate-worker detection. Candidate
+acceptance MUST include a completed Section 12.5/12.6 production benchmark on
+the native Linux RTX 5090 workflow with FPS, total wall, Step 2 wall, RTT,
+GPU utilization, worker RSS, CPU utilization, DB/Redis wall, queue wait,
+correctness/model agreement, and rollback proof. A regression in correctness,
+non-terminal lifecycle behavior, stale duplicate workers, DB/Redis saturation,
+or Triton RTT caused by contention MUST block acceptance even if one throughput
+metric improves.
+
+The rollback for concurrency changes MUST be an environment reset plus a clean
+worker stop/start unless a feature plan explicitly documents a schema or task
+contract migration. Production worker launches MUST run through governed
+scripts that stop stale workers before restart and verify exactly one intended
+worker set is consuming each active queue.
+
 #### 8.2 Retry, DLQ, and Poison Message Laws
 
 Retries MUST be bounded by fault class. Every retryable task MUST define a
@@ -1799,6 +1842,7 @@ reproduce the claimed result.
 | Silently swallowed stage errors | Stage outcome audit | Fail-closed thresholds (17.3) | created/skipped/error counts + threshold decision | fail stage gate | fail closed (FAILED/partial) | reprocess affected stage | backend owner |
 | Non-idempotent stage re-entry | Re-run/duplicate scan | Stage idempotency (17.4) | existence-guarded write + idempotency key | fail system gate | dedupe on commit | remove duplicate rows | backend owner |
 | CI-required file gitignored | .gitignore audit vs CI paths | CI file visibility (18.1) | explicit tracked exception + CI path verification | fail CI validation gate | add exception + commit file | restore file from prior commit | release owner |
+| Unbenchmarked concurrency increase | Worker topology + production benchmark audit | Concurrency scaling authority (8.1.1) | baseline/candidate queue topology, resource budgets, duplicate-worker check and Section 12.5/12.6 benchmark | fail performance gate | revert env and restart workers | restore accepted worker profile | ops + AI infra owners |
 
 ### 15. Final Architectural Positioning
 
@@ -2428,4 +2472,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.5.1 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-02
+**Version**: 2.6.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03

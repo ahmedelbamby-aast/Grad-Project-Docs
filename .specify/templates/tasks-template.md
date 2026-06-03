@@ -28,6 +28,13 @@ deadline declared and scheduled reconciler present; (§17.2) vector dimension an
 payload-size contract enforced at the DB write boundary with regression tests;
 (§17.3) stage outcome accounting with error-ratio fail-closed threshold; (§17.4)
 existence-guarded durable writes with documented idempotency key and re-run test.
+Any feature changing Celery worker counts, thread/pool settings, queue
+concurrency, in-process batch concurrency, or GPU concurrency caps MUST include
+tasks for: (§8.1.1) baseline/candidate queue topology, duplicate-worker
+detection, resource budgets, rollback env reset, and a completed native Linux
+RTX 5090 production benchmark proving the concurrency change improves the
+target metric without correctness, RTT, GPU, memory, DB/Redis, or lifecycle
+regression.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -113,6 +120,10 @@ Examples of foundational tasks (adjust based on your project):
       target gates, FPS, Step 2/frame wall, RTT, GPU, memory, correctness/model
       agreement, causal explanation, remaining bottleneck, durable evidence
       paths, and a statement that component probes are hypothesis-only
+- [ ] T020 [P] If concurrency changes are proposed, define the worker topology
+      matrix, pool/thread/concurrency values, GPU cap, DB/Redis/CPU/RSS/VRAM
+      budgets, duplicate-worker check, rollback command, and production
+      benchmark acceptance gate required by constitution §8.1.1
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

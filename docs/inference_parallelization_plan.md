@@ -872,6 +872,17 @@ roadmap because it changes lifecycle, idempotency, terminal-state, and evidence
 contracts; it may move earlier only if completed production benchmark evidence
 shows post-stage tail is the next dominant limiter after the active cycles.
 
+Cycle 21 is staged in
+`docs/cycle_21_celery_concurrency_scaling_investigation.md` for Celery worker,
+thread, queue-concurrency, and GPU-cap tuning. The current metric-based
+recommendation is not to raise production worker counts yet: one
+`process_video_upload` task owns the single-video frame loop, one
+`generate_embeddings` task owns the embedding loop, and Cycle 13.C showed the
+next concrete bottleneck is client-side Redis side-effect work inside that
+single embedding task. Extra workers become credible only after sharding,
+streaming persistence/embedding, multiple independent jobs, or a production
+matrix proves hidden queue parallelism exists.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity
