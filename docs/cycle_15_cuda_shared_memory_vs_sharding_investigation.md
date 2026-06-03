@@ -30,6 +30,7 @@ Cycle 15 must decide the next architecture lever with evidence:
 | Benchmark history | `docs/production_inference_benchmark.md` | Stores before/after production metrics and decision tables. |
 | Execution log | `docs/crop_frame_optimization_execution.md` | Owns the current sorted roadmap. |
 | Plan | `docs/inference_parallelization_plan.md` | Owns the production benchmark authority rule. |
+| Phase A wrapper | `tools/prod/prod_run_cycle15_phase_a_measurements.sh` | Reproducible read-only measurement wrapper for 15.A/15.B triage. |
 | Live watcher | `tools/prod/prod_watch_benchmark_metrics.sh` | Shows live production metrics during any candidate benchmark. |
 | Collector | `tools/prod/prod_collect_benchmark_metrics.py` | Captures benchmark JSON/Markdown evidence bundles. |
 | Offline task code | `backend/apps/video_analysis/tasks.py` | Owns current single-video orchestration and post-stage lifecycle. |
@@ -82,7 +83,8 @@ contract exists.
 
 ## Next Step
 
-Create a measurement wrapper that captures copy/serialization, per-model bytes,
-current queue topology, and shardability evidence against the accepted batch
-`16` baseline. Do not implement CUDA shared memory or sharding until that
-wrapper identifies one highest-ROI scenario.
+Run `tools/prod/prod_run_cycle15_phase_a_measurements.sh` on production. It
+captures copy/serialization, per-model bytes, current queue topology, shared
+memory registration status, and shardability evidence against the accepted
+batch `16` baseline. Do not implement CUDA shared memory or sharding until
+that wrapper identifies one highest-ROI scenario.
