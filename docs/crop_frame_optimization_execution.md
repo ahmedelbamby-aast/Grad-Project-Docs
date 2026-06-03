@@ -1509,6 +1509,24 @@ attention, hand, person, and sitting/standing). Behavior RTT also regressed
 `83.530 ms -> 89.717 ms`. Decision: **NOT ACCEPTED**. The next current-cycle
 candidate is 15.B1.C2 majority-vote track canonicalization, not 15.B2.
 
+Cycle 15.B1.C2 majority-vote decision (2026-06-04): production benchmark
+`cycle15b1c2-majority-vote-20260603T223932Z`, parent job
+`78388c2c-d7f5-42b7-afa4-321216d23b11`, completed at deployed SHA `ed3d766`.
+The candidate retained throughput gains (DB FPS `5.620 -> 7.833`, Step 2 wall
+`467.450 s -> 243.909 s`, GPU avg `11.846 % -> 17.891 %`) but failed
+identity/model correctness: shard 1 mapped only `10/36` tracks, `26/36` fell
+back to offset IDs, `StudentTracks` increased `53 -> 64`, agreement F1 stayed
+`53.730 %` - `61.109 %`, and behavior RTT regressed `83.530 ms -> 90.372 ms`.
+Decision: **NOT ACCEPTED**. Keep sharding disabled and majority-vote default
+off. Cycle 15.B2 remains blocked; next sorted cycle is Cycle 17.
+
+Cycle 17 note (2026-06-04): `docs/cycle_17_redis_streams_progress_sampling_investigation.md`
+starts the next sorted cycle after Cycle 15's measured sharding candidates
+failed correctness. Scope is bounded Redis Streams for non-authoritative
+progress/evidence sampling; it is not an inference-wall optimization unless a
+full production benchmark proves total-wall or FPS gain. PostgreSQL remains the
+terminal-state authority.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up

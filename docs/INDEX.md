@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated**: 2026-06-03
+**Last Updated**: 2026-06-04
 
 > **Reading-order note (2026-06-02):** the canonical reading order through
 > every project-owned narrative doc lives in the README under
@@ -78,6 +78,7 @@
 - [Cycle 15.B2 Four-Shard Design-Proof Investigation](cycle_15b2_four_shard_design_proof_investigation.md)
 - [Cycle 15.B Shard Design Probe Results](cycle_15b_shard_design_probe_results.md)
 - [Cycle 15.B1 Two-Shard Runtime Investigation](cycle_15b1_two_shard_runtime_investigation.md)
+- [Cycle 17 Redis Streams Progress Sampling Investigation](cycle_17_redis_streams_progress_sampling_investigation.md)
 - [Cycle 20 Streaming Persistence and Embedding Overlap Investigation](cycle_20_streaming_persistence_embedding_overlap_investigation.md)
 - [Cycle 21 Celery Concurrency Scaling Investigation](cycle_21_celery_concurrency_scaling_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)

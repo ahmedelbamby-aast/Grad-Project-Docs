@@ -606,3 +606,67 @@ Acceptance requires a completed production benchmark, improved throughput
 versus the accepted pre-shard baseline, `StudentTracks=53`, and per-model
 agreement near the accepted single-job baseline. If C2 still fails model
 agreement, 15.B1 remains blocked and 15.B2 must not start.
+
+### Production Benchmark Evidence
+
+| Field | Value |
+|---|---|
+| Replay key | `cycle15b1c2-majority-vote-20260603T223932Z` |
+| Parent job | `78388c2c-d7f5-42b7-afa4-321216d23b11` |
+| Child jobs | `3dfe14db-9816-4a65-b6e2-fe74ab5a2f4e`, `fdbfd73d-e42b-4942-91ed-d114a47c21fa` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c2-majority-vote-20260603T223932Z` |
+| Metrics | `metrics.json`, `metrics.md` |
+| Model agreement | `model_agreement.json`, `model_agreement.md` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou` after wrapper cleanup. |
+
+Benchmark metrics versus the accepted pre-shard baseline:
+
+| Metric | Baseline | Majority-vote candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.620` | `7.833` | `+39.37 %` |
+| DB completed elapsed | `808.038 s` | `579.761 s` | `-28.25 %` |
+| Step 2 frame wall | `467.450 s` | `243.909 s` | `-47.82 %` |
+| Step 2 through pose upload | `641.154 s` | `340.942 s` | `-46.82 %` |
+| GPU avg util | `11.846 %` | `17.891 %` | `+51.03 %` |
+| GPU peak util | `57.000 %` | `87.000 %` | `+52.63 %` |
+| Behavior RTT mean | `83.530 ms` | `90.372 ms` | `+8.19 %` |
+| StudentTracks | `53` | `64` | `+20.75 %` |
+
+Model agreement:
+
+| Model | F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `58.997 %` | `0.00 %` |
+| `hand_raising` | `61.109 %` | `0.00 %` |
+| `person_detection` | `60.933 %` | `+0.38 %` |
+| `sitting_standing` | `53.730 %` | `0.00 %` |
+
+Track-map diagnostics:
+
+| Shard | Mode | Track count | Mapped to existing parent | Offset fallbacks |
+|---|---|---:|---:|---:|
+| `3dfe14db-9816-4a65-b6e2-fe74ab5a2f4e` | `identity` | `38` | `38` | `0` |
+| `fdbfd73d-e42b-4942-91ed-d114a47c21fa` | `majority_vote` | `36` | `10` | `26` |
+
+### Decision
+
+Cycle 15.B1.C2 majority-vote canonicalizer is **NOT ACCEPTED**. It preserves
+most of the two-shard throughput improvement, but fails the correctness gate:
+only `10/36` shard-1 tracks map to existing parent IDs, `26/36` fall back to
+offset IDs, `StudentTracks` increases to `64`, agreement remains `53.730 %` -
+`61.109 %`, and behavior RTT regresses. The implementation stays default-off
+for reproducibility, but must not be enabled in production.
+
+Current Cycle 15 decision:
+
+| Candidate | Status |
+|---|---|
+| 15.B1 context `32` runtime | `NOT ACCEPTED` |
+| 15.B1.C1 context `256` | `NOT ACCEPTED` |
+| 15.B1.C2 majority vote | `NOT ACCEPTED` |
+| 15.B2 four-shard runtime | `BLOCKED` |
+
+Next sorted cycle: Cycle 17 Redis Streams investigation. Further sharding work
+requires a new identity-state design proof; repeating context/vote tuning is no
+longer justified by the production measurements above.

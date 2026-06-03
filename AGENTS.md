@@ -868,6 +868,32 @@ Per § 8.6.2:
   `best_iou` and sharding remains disabled after wrapper cleanup. No C2
   acceptance/rejection exists until a full production benchmark completes and
   writes model-agreement evidence.
+- **2026-06-04 Cycle 15.B1.C2 majority-vote canonicalizer NOT ACCEPTED**:
+  production benchmark `cycle15b1c2-majority-vote-20260603T223932Z`, parent job
+  `78388c2c-d7f5-42b7-afa4-321216d23b11`, completed `4541/4541` frames on
+  `combined.mp4` at deployed SHA `ed3d766`. It kept context `256` and enabled
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote` with IoU `0.50`, min
+  matches `3`, and purity `0.85`. Performance stayed improved versus the
+  accepted pre-shard baseline (DB FPS `5.620 -> 7.833`, Step 2 frame wall
+  `467.450 s -> 243.909 s`, GPU avg `11.846 % -> 17.891 %`), but correctness
+  failed harder: shard 1 mapped only `10/36` tracks to existing parent IDs,
+  `26/36` fell back to offset IDs, `StudentTracks` rose `53 -> 64`, and
+  model-agreement F1@IoU0.5 stayed low (attention `58.997 %`, hand `61.109 %`,
+  person `60.933 %`, sitting/standing `53.730 %`). Behavior RTT regressed
+  `83.530 ms -> 90.372 ms`. Decision: **NOT ACCEPTED**. Keep majority-vote
+  default-off for reproducibility; do not enable it in production. Cycle 15.B2
+  remains blocked. Next sorted cycle is Cycle 17 Redis Streams investigation;
+  further sharding work needs a new identity-state design proof.
+- **2026-06-04 Cycle 17 Redis Streams progress sampling PHASE A STARTED**:
+  dedicated investigation file
+  `docs/cycle_17_redis_streams_progress_sampling_investigation.md` is now the
+  next sorted cycle after measured Cycle 15 sharding candidates failed
+  correctness. Scope is bounded, non-authoritative progress/evidence mirroring
+  only. PostgreSQL remains terminal-state authority; Redis Streams must use
+  capped `MAXLEN`, live-safe bounded consumers, DB fallback in the watcher, and
+  full production `combined.mp4` benchmark evidence before any acceptance. This
+  cycle must not claim Step 2 inference-wall improvement unless total-wall/FPS
+  metrics prove it.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

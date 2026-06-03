@@ -3148,8 +3148,73 @@ production remains `best_iou`.
 | Wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh --track-map-mode majority_vote` |
 | Streaming compatibility | `offline-only`; sharding remains forbidden on live profiles. |
 
-No acceptance or rejection exists for 15.B1.C2 until a full production
-`combined.mp4` benchmark completes and writes metrics/model-agreement evidence.
+### 39.12 Cycle 15.B1.C2 Majority-Vote Production Benchmark
+
+Cycle 15.B1.C2 was then production-benchmarked end-to-end on the same Linux RTX
+5090 server and the canonical `combined.mp4` video. It kept context `256` and
+enabled the guarded majority-vote parent track canonicalizer.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle15b1c2-majority-vote-20260603T223932Z` |
+| Parent job | `78388c2c-d7f5-42b7-afa4-321216d23b11` |
+| Child jobs | `3dfe14db-9816-4a65-b6e2-fe74ab5a2f4e`, `fdbfd73d-e42b-4942-91ed-d114a47c21fa` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c2-majority-vote-20260603T223932Z` |
+| Candidate flags | `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_IOU_THRESHOLD=0.50`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_MIN_MATCHES=3`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_PURITY_THRESHOLD=0.85` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | Wrapper restored sharding disabled and `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`. |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | Majority-vote candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.620` | `7.833` | `+39.37 %` |
+| DB completed elapsed | `808.038 s` | `579.761 s` | `-28.25 %` |
+| Step 2 frame wall | `467.450 s` | `243.909 s` | `-47.82 %` |
+| Step 2 through pose upload | `641.154 s` | `340.942 s` | `-46.82 %` |
+| GPU avg util | `11.846 %` | `17.891 %` | `+51.03 %` |
+| GPU peak util | `57.000 %` | `87.000 %` | `+52.63 %` |
+| Behavior RTT mean | `83.530 ms` | `90.372 ms` | `+8.19 %` |
+| Behavior RTT p95 | `129.514 ms` | `148.484 ms` | `+14.65 %` |
+| StudentTracks | `53` | `64` | `+20.75 %` |
+
+Model-agreement gate:
+
+| Model | Candidate F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `58.997 %` | `58.997 %` | `58.997 %` | `0.00 %` |
+| `hand_raising` | `61.109 %` | `61.109 %` | `61.109 %` | `0.00 %` |
+| `person_detection` | `60.933 %` | `60.819 %` | `61.048 %` | `+0.38 %` |
+| `sitting_standing` | `53.730 %` | `53.730 %` | `53.730 %` | `0.00 %` |
+
+Majority-vote diagnostics showed that shard 1 mapped only `10` of `36` child
+tracks to existing parent IDs and left `26` tracks on offset fallback IDs.
+That explains why `StudentTracks` increased to `64` and why model agreement did
+not recover.
+
+Decision: **Cycle 15.B1.C2 majority-vote canonicalizer is NOT ACCEPTED**. It
+preserves most of the sharding throughput gain, but fails the correctness gate
+more severely than C1: `StudentTracks` increases to `64`, agreement remains
+`53.730 %` - `61.109 %`, and behavior RTT regresses. Keep the code
+default-off for reproducibility, but do not enable majority-vote in production.
+Cycle 15.B2 remains blocked.
+
+### 39.13 Cycle 15 Current-Cycle Decision
+
+The current Cycle 15 sharding path produced one accepted design proof and three
+production/runtime conclusions:
+
+| Candidate | Decision | Reason |
+|---|---|---|
+| 15.B1 two-shard runtime, context `32` | `NOT ACCEPTED` | Throughput improved but shard-1 identity/model agreement failed. |
+| 15.B1.C1 context `256` | `NOT ACCEPTED` | More context improved speed but model agreement stayed `53.730 %` - `61.767 %`. |
+| 15.B1.C2 majority vote | `NOT ACCEPTED` | Only `10/36` shard-1 tracks mapped; StudentTracks rose to `64`. |
+| 15.B2 four-shard runtime | `BLOCKED` | Two-shard identity is not correct; four shards add more boundaries. |
+
+Next cycle selection: advance to Cycle 17 Redis Streams investigation from the
+sorted roadmap. Do not run more sharding benchmarks until a new identity-state
+design proof exists; repeating context or simple vote tuning has already failed
+real production correctness gates.
 
 ---
 

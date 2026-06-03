@@ -1,6 +1,6 @@
 # Redis Broader Optimization Opportunities
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 **Status:** Investigation and roadmap staging only. No Redis-backed strategy in
 this document is accepted, rejected, skipped, or closed until a completed
@@ -120,6 +120,9 @@ DB/model parity was exact. Pipeline executes fell from the Cycle 13.C measured
 de-ranked because candidate Redis server command wall was only `194.039 ms`.
 
 ### Cycle 17 — Redis Streams For Non-Authoritative Progress And Benchmark Sampling
+
+**Status:** Phase A active in
+`docs/cycle_17_redis_streams_progress_sampling_investigation.md`.
 
 **Purpose:** improve benchmark observability and possibly reduce DB polling /
 progress-write pressure during long jobs.

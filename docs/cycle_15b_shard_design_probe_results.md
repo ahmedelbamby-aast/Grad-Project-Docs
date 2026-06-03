@@ -222,3 +222,11 @@ but is **NOT ACCEPTED** because model-agreement F1 remained `53.730 %` -
 regressed. The next sharding work is 15.B1.C2 majority-vote canonicalization
 behind `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`; 15.B2 remains
 blocked.
+
+Majority-vote benchmark follow-up (2026-06-04): 15.B1.C2 ran as
+`cycle15b1c2-majority-vote-20260603T223932Z`, parent job
+`78388c2c-d7f5-42b7-afa4-321216d23b11`, and is also **NOT ACCEPTED**. It
+completed and preserved throughput, but shard 1 mapped only `10/36` tracks to
+existing parent IDs, `StudentTracks` increased to `64`, and model-agreement F1
+remained `53.730 %` - `61.109 %`. Cycle 15.B2 remains blocked; further
+sharding requires a new identity-state design proof before runtime benchmarking.

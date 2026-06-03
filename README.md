@@ -1,6 +1,6 @@
 # Exam Monitoring Dashboard
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 Temporal behavioral intelligence platform with a Django backend, React
 frontend, WebSocket live updates, offline video analysis, camera streaming
@@ -124,6 +124,7 @@ context.
 | 37aa9 | [`docs/cycle_15b2_four_shard_design_proof_investigation.md`](docs/cycle_15b2_four_shard_design_proof_investigation.md) | 2026-06-03 | Cycle 15.B2 investigation: four-shard offline-only design proof. |
 | 37aa10 | [`docs/cycle_15b_shard_design_probe_results.md`](docs/cycle_15b_shard_design_probe_results.md) | 2026-06-03 | Cycle 15.B production dry-run result: two-shard and four-shard authoritative ownership proof. |
 | 37aa11 | [`docs/cycle_15b1_two_shard_runtime_investigation.md`](docs/cycle_15b1_two_shard_runtime_investigation.md) | 2026-06-03 | Cycle 15.B1 runtime investigation: two-shard parent/shard implementation contract before code. |
+| 37aa12 | [`docs/cycle_17_redis_streams_progress_sampling_investigation.md`](docs/cycle_17_redis_streams_progress_sampling_investigation.md) | 2026-06-04 | Cycle 17 investigation: bounded Redis Streams for non-authoritative benchmark progress sampling after measured sharding candidates failed correctness. |
 | 37ab | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
 | 37ac | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
 

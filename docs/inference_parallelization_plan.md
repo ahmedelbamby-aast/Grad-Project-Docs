@@ -1091,6 +1091,19 @@ is therefore 15.B1.C2, a guarded majority-vote track canonicalizer behind
 `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`. Do not start 15.B2 until
 15.B1.C2 has either passed or failed a full production benchmark.
 
+Cycle 15.B1.C2 majority-vote was production-benchmarked as
+`cycle15b1c2-majority-vote-20260603T223932Z`, parent job
+`78388c2c-d7f5-42b7-afa4-321216d23b11`, at deployed SHA `ed3d766`. It
+completed `4541/4541` frames and retained the sharding performance gain
+(DB FPS `5.620 -> 7.833`, Step 2 frame wall `467.450 s -> 243.909 s`, GPU avg
+`11.846 % -> 17.891 %`), but is **NOT ACCEPTED**. Shard 1 mapped only `10/36`
+tracks to existing parent IDs, `26/36` fell back to offset IDs, `StudentTracks`
+rose `53 -> 64`, model-agreement F1 remained `53.730 %` - `61.109 %`, and
+behavior RTT regressed `83.530 ms -> 90.372 ms`. Cycle 15.B2 remains blocked.
+The next sorted cycle is Cycle 17 Redis Streams investigation; further sharding
+requires a new identity-state design proof before more production runtime
+benchmarks.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,
@@ -1098,6 +1111,14 @@ pipeline execute count, payload bytes, memory, errors, and server command wall
 were measured on production. Redis Streams, Redis scripts, and sharding-state
 cache remain later-cycle ideas in
 `docs/redis_broader_optimization_opportunities.md`.
+
+Cycle 17 Phase A has now started in
+`docs/cycle_17_redis_streams_progress_sampling_investigation.md`. Its scope is
+bounded Redis Streams for non-authoritative benchmark progress sampling and
+watcher evidence, not inference-wall reduction. PostgreSQL terminal state
+remains authoritative; acceptance requires a full production `combined.mp4`
+benchmark proving either lower DB polling/progress pressure, better evidence
+completeness without regression, or total-wall/FPS improvement.
 
 Cycle 20 is now staged in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a
