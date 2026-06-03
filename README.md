@@ -97,6 +97,8 @@ context.
 | 37i | [`docs/cycle_12_single_inflight_overlap_results.md`](docs/cycle_12_single_inflight_overlap_results.md) | 2026-06-03 | Cycle 12.C accepted result: Step 2/FPS/GPU improved with RTT restored near baseline. |
 | 37j | [`docs/redis_broader_optimization_opportunities.md`](docs/redis_broader_optimization_opportunities.md) | 2026-06-03 | Redis roadmap investigation: broader Redis strategies are appended after the active cycles and start with command-cost instrumentation. |
 | 37k | [`docs/cycle_13_persistence_render_investigation.md`](docs/cycle_13_persistence_render_investigation.md) | 2026-06-03 | Cycle 13 Phase A: persistence/render cleanup investigation after the accepted Cycle 12.C baseline. |
+| 37l | [`docs/cycle_13_embedding_profile_results.md`](docs/cycle_13_embedding_profile_results.md) | 2026-06-03 | Cycle 13.A production profiling result: embedding sub-stage evidence only, no optimization decision. |
+| 37m | [`docs/cycle_13_embedding_track_lookup_investigation.md`](docs/cycle_13_embedding_track_lookup_investigation.md) | 2026-06-03 | Cycle 13.B investigation: prefetch-aware embedding track lookup candidate before code. |
 
 ### Phase 4 — Triton-specific deep dives
 
@@ -237,6 +239,7 @@ validates against the working tree.
 | 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-03 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
 | 104 | [`docs/entity/modules/apps.pipeline.md`](docs/entity/modules/apps.pipeline.md) | 2026-06-03 | DSP Cycle 3 — shared inference infrastructure. `TritonClient` + `ModelRouteService` + `runtime_policy` + `ensemble_validator` + LPM solver + `model_lifecycle/` + `layers/` sub-packages. The single gRPC entry point to Triton. |
 | 105 | [`docs/entity/modules/apps.tracking.md`](docs/entity/modules/apps.tracking.md) | 2026-06-03 | DSP Cycle 3 — tracking + ReID + render layer. `ByteSortTracker` + `TrackingService` + ReID with conservative-decision policy + Redis-cached embeddings + annotated-video renderer + live RTSP capture. |
+| 106 | [`docs/entity/modules/apps.telemetry.md`](docs/entity/modules/apps.telemetry.md) | 2026-06-03 | DSP Cycle 3 — Django app implementing the dual-sink telemetry layer (the system view lives in `telemetry_pipeline.md`). 8 in-memory dataclasses + 6 ORM tables + ContextVar binding + Celery signal handlers + `flush_session` JSON-first writer. |
 
 ### Conventions used in this reading order
 
