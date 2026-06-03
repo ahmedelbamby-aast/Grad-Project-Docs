@@ -243,6 +243,7 @@ validates against the working tree.
 | 107 | [`docs/entity/modules/apps.cameras.md`](docs/entity/modules/apps.cameras.md) | 2026-06-03 | DSP Cycle 3 — Django app implementing the camera-streaming-bridge: ONVIF resolution, `EncryptedTextField`-protected `CameraSource`, `StreamGateway` (gst-mediamtx default / go2rtc legacy), `CameraStatusConsumer` WS, `stream_health_check` Celery beat task. |
 | 108 | [`docs/entity/modules/apps.detections.md`](docs/entity/modules/apps.detections.md) | 2026-06-03 | DSP Cycle 3 — live per-session detection persistence + WS push. `DetectionFrame` / `Detection` / `PyramidPrediction` models, `DetectionConsumer` WS, `publish_detection_frame` group-send helpers, `DetectionService` wrapper. |
 | 109 | [`docs/entity/modules/apps.anomalies.md`](docs/entity/modules/apps.anomalies.md) | 2026-06-03 | DSP Cycle 3 — anomaly triage + BSIL baselining + drift + review-label persistence. 5 ORM models, 5 ViewSets, `TriageService`, two governed WS consumers, baseline-snapshot engine, drift policy. |
+| 110 | [`docs/entity/modules/apps.sessions.md`](docs/entity/modules/apps.sessions.md) | 2026-06-03 | DSP Cycle 3 — monitoring-session lifecycle: `MonitoringSession` + `InstructorComment` models, 4 ViewSets (operator + dashboard + admin + comments), `SessionService`, `SessionCommentsConsumer` WS, the per-camera live-task fan-out at start. |
 
 ### Conventions used in this reading order
 
