@@ -264,6 +264,7 @@ validates against the working tree.
 | 120 | [`docs/entity/modules/frontend.src.api.md`](docs/entity/modules/frontend.src.api.md) | 2026-06-03 | DSP Cycle 3 — frontend REST-client module. Single `axios` instance (`client.ts`) + 13 per-domain wrapper files covering every `/api/v1/*` endpoint. First frontend module entity doc. |
 | 121 | [`docs/entity/modules/frontend.src.hooks.md`](docs/entity/modules/frontend.src.hooks.md) | 2026-06-03 | DSP Cycle 3 — frontend live-transport React-hook layer. `useWebSocket` (typed WS manager) + `useWhepClient` (WHEP/WebRTC) + 4 feature-wrapped sockets + `useAuth` + `useBulkFailure` + `useLiveSessionOverlay` + `useVideoAnalysisLive` + `useKeyboardNav`. |
 | 122 | [`docs/entity/modules/frontend.src.components.md`](docs/entity/modules/frontend.src.components.md) | 2026-06-03 | DSP Cycle 3 — frontend component library. 13 sub-folders + 2 top-level files (79 source files total): `ui/` primitives + `auth/RouteGuards` + `layout/` shell + `VideoPlayer/OverlayCanvas` + `PreviewPlayer` + 5 domain folders. |
+| 123 | [`docs/entity/modules/frontend.src.features.bsil.md`](docs/entity/modules/frontend.src.features.bsil.md) | 2026-06-03 | DSP Cycle 3 — BSIL feature UI module. 5 panel components (`SemanticStatePanel`, `TemporalStateTimeline`, `BehavioralEpisodePanel`, `InteractionGraphPanel`, `AnomalyReviewPanel`) consuming `apps.behavior` + `apps.anomalies` REST. **Closes Cycle 3 (21 of 21 modules)**. |
 
 ### Conventions used in this reading order
 
