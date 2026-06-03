@@ -2883,6 +2883,23 @@ Local validation before production deployment:
 | Readiness audit | `blocked_no_runtime_candidate`, `5` critical blockers, `0` warnings. |
 | Decision | `NO_RUNTIME_BENCHMARK_STARTED`; runtime candidate still absent. |
 
+Production deployment and audit:
+
+| Field | Value |
+|---|---|
+| Deployed SHA | `74631e6` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z` |
+| Readiness JSON | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z/readiness.json` |
+| Readiness Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z/readiness.md` |
+| Overall status | `blocked_no_runtime_candidate` |
+| Ready for runtime benchmark | `False` |
+| Critical blockers | `5` |
+| Warnings | `0` |
+| Production tests | `5 passed`: Cycle 15.B1 sharding guard plus shard planner. |
+| Env defaults | `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. |
+| Accepted profile preserved | Top-K behavior ensemble, behavior overlap, embedding prefetch, Redis coalescing, and pose cross-frame batch remain enabled. |
+| Worker state | Celery workers and beat restarted at deployed SHA; active-task inspect returned empty queues. |
+
 The remaining blockers are the implemented runtime candidate, reproducible
 two-shard benchmark wrapper, parent merge helper, detection/bounding-box
 provenance, and embedding provenance.

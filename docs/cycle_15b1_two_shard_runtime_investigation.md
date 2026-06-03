@@ -193,6 +193,28 @@ Local validation:
 | Documentation date/reading-order gate | `python scripts/ci/verify_doc_dates_and_reading_order.py` passed: `241` priority docs. |
 | Local readiness audit | `blocked_no_runtime_candidate`, `5` critical blockers, `0` warnings. |
 
+Production deployment and readiness audit:
+
+| Field | Value |
+|---|---|
+| Deployed SHA | `74631e6` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z/readiness.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z/readiness.md` |
+| Overall status | `blocked_no_runtime_candidate` |
+| Ready for runtime benchmark | `False` |
+| Critical blockers | `5` |
+| Warnings | `0` |
+| Production unit validation | `5 passed` for `test_cycle15b1_sharding_guard.py` plus `test_prod_plan_video_shards.py`. |
+| Production env proof | `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. |
+| Accepted profile preserved | `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`, `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`. |
+| Worker state | Celery workers and beat restarted; active-task inspect returned empty queues. |
+
+Production Mermaid validation note: the date/reading-order verifier passed on
+production, but Mermaid rendering could not run because `mmdc` is not installed
+on the production host. The same changed-doc Mermaid set passed locally with
+`5 / 5` rendered blocks before deployment.
+
 Remaining blockers:
 
 | Blocker | Why it still blocks benchmark |

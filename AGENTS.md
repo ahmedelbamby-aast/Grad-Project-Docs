@@ -782,9 +782,13 @@ Per § 8.6.2:
   `cycle15b1_sharding_runtime_not_implemented` if a sharding flag or shard
   metadata appears before the runtime candidate exists. Focused unit tests
   passed and the local readiness audit now reports
-  `blocked_no_runtime_candidate` with `5` critical blockers. This is safety
-  and reproducibility work only: no two-shard runtime benchmark has started,
-  and no acceptance/rejection/skip/closure decision exists.
+  `blocked_no_runtime_candidate` with `5` critical blockers. Production
+  deployed SHA `74631e6`, ran the focused guard/planner tests (`5 passed`), set
+  `OFFLINE_VIDEO_SHARDING_ENABLED=0`, restarted Celery workers, preserved the
+  accepted Top-K/overlap profile, and wrote readiness evidence to
+  `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
+  This is safety and reproducibility work only: no two-shard runtime benchmark
+  has started, and no acceptance/rejection/skip/closure decision exists.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

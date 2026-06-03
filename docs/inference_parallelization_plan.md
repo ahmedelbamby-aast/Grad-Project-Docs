@@ -1012,8 +1012,12 @@ Cycle 15.B1 safe-default slice is staged after that audit:
 `cycle15b1_sharding_runtime_not_implemented` if sharding is requested before the
 runtime exists. Local validation passed focused guard tests and the readiness
 audit now reports `blocked_no_runtime_candidate` with `5` critical blockers.
-This is safety/config work only: it does not implement, accept, reject, skip, or
-close runtime sharding.
+Production deployed SHA `74631e6`, set the safe env defaults, restarted Celery
+workers, and wrote readiness evidence to
+`/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
+The production audit is still `blocked_no_runtime_candidate` with `5` critical
+blockers. This is safety/config work only: it does not implement, accept,
+reject, skip, or close runtime sharding.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C

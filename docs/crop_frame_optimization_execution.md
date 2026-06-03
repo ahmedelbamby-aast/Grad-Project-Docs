@@ -1438,9 +1438,13 @@ disabled sharding knobs now exist in settings/profile management,
 `process_video_upload` fails closed with
 `cycle15b1_sharding_runtime_not_implemented` if sharding is requested before a
 real runtime exists. Focused unit tests passed and the local readiness audit is
-still `blocked_no_runtime_candidate` with `5` critical blockers. No sharded
-benchmark has been started, and no acceptance/rejection/skip/closure decision
-exists.
+still `blocked_no_runtime_candidate` with `5` critical blockers. Production
+deployed SHA `74631e6`, set `OFFLINE_VIDEO_SHARDING_ENABLED=0`, restarted
+Celery workers, preserved the accepted Top-K/overlap profile, and wrote
+readiness evidence to
+`/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
+No sharded benchmark has been started, and no acceptance/rejection/skip/closure
+decision exists.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

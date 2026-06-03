@@ -161,4 +161,6 @@ sets only those keys, and `process_video_upload` fails closed with
 `cycle15b1_sharding_runtime_not_implemented` if sharding is requested before a
 runtime exists. The readiness audit is still `blocked_no_runtime_candidate`
 with `5` critical blockers: runtime candidate, benchmark wrapper, parent merge
-helper, detection/bbox provenance, and embedding provenance.
+helper, detection/bbox provenance, and embedding provenance. Production
+deployed SHA `74631e6` and wrote the safe-default readiness audit to
+`/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
