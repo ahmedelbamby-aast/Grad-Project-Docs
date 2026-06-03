@@ -1,6 +1,35 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.7.0 -> 2.8.0
+Bump rationale: MINOR - Adds Section 8.6 (Video Streaming Source Support and
+Collapse-Prevention Doctrine) and a matching Section 14.25 enforcement row.
+The system supports both offline file ingestion AND live video streams over
+RTSP / RTSPS / WHEP-WebRTC (bridged via `go2rtc` and `gst-mediamtx`); several
+accepted offline-only optimizations cannot ship to the live path without
+collapsing the system, because they assume whole-video access, unbounded
+frame buffering, post-decode mutation, or input-pixel reductions that would
+amplify false positives a live operator cannot retry. The new section
+enumerates the supported stream protocols, the forbidden-on-streaming
+optimization classes (the offline-only levers of Cycles 5, 8, 9b B.4, 10,
+11.A, 14a, 15.B), the required streaming guarantees (frame-drop is signal,
+per-camera bounded queues, fail-stop on persistence failure), and the
+per-cycle `streaming_compatibility` declaration that every future
+optimization MUST carry. The matching enforcement row makes shipping an
+offline-only cycle to the live profile a CI-blocking regression.
+
+Triggering observation: review of the Cycle 4 entity docs showed that
+several ACCEPTED cycles silently rely on offline-only invariants
+(whole-job concat memoisation in Cycle 5; per-job `track_vector_cache` +
+lazy `cv2_cap.grab()` forward-skip in Cycle 8; planned Cycle 15.B video
+sharding) and would catastrophically fail on a continuous RTSP stream
+(unbounded memory growth, missing frames after backward seeks, parent/shard
+coordination meaningless when there is no "whole file"). The doctrine
+prevents future optimization candidates from being shipped to the live
+profile without an explicit streaming-compatibility decision.
+
+Prior MINOR (2.6.0 -> 2.7.0) text below.
+
 Version change: 2.6.0 -> 2.7.0
 Bump rationale: MINOR - Adds Section 7.1.1 (Precision Benchmark Measurement
 Contract) and expands Section 12.6 so optimization decisions cannot be made
@@ -1111,6 +1140,123 @@ surface an operator fault. A mode MUST fail stop when integrity or production
 inference authority is lost; it MAY continue non-authoritative visualization
 only when clearly labeled and segregated from accepted evidence.
 
+#### 8.6 Video Streaming Source Support and Collapse-Prevention Doctrine
+
+The system ingests video from two source classes that share the inference
+plane but have incompatible runtime invariants:
+
+| Source class | Examples | Owning system entity |
+| --- | --- | --- |
+| **Offline files** | uploaded `.mp4`, ingested archives, `runtime_ingest_video` jobs | `docs/entity/systems/offline_inference_pipeline.md` |
+| **Live streams** | RTSP, RTSPS, WHEP/WebRTC (bridged via `go2rtc` and `gst-mediamtx`), HLS-as-fallback only | `docs/entity/systems/live_streaming_pipeline.md` + `docs/entity/systems/camera_streaming_bridge.md` |
+
+Live streams MUST follow the §8.4 RTSP State Machine Doctrine regardless of
+underlying transport (RTSP, RTSPS, WHEP). The state machine, bounded
+exponential backoff, ceiling on reconnect attempts, and source/session/camera
+scope on every state transition apply identically; the transport is a detail.
+
+##### 8.6.1 Streaming-incompatible optimization classes (forbidden on the live profile)
+
+The following optimization patterns are ACCEPTED on offline jobs but MUST
+NOT be enabled on the live profile, because each one assumes an offline-only
+invariant whose violation collapses the live pipeline. They are listed by
+the lever they exploit, with the originating cycle citation:
+
+| Forbidden lever | Why it collapses live | Originating cycle |
+| --- | --- | --- |
+| Whole-job true-batch concat memoisation | Live has no "whole job" — frames arrive continuously and a memo keyed on job ID grows unbounded | `docs/entity/cycles/cycles_1_to_5_bundle.md` (Cycle 5 lever) |
+| Per-job process-local `track_vector_cache` reuse | Live tracks span hours and have no terminal flush — the dict becomes a memory leak; ReID semantics also differ when a track has not been re-observed for an SLO-bounded interval | `docs/entity/cycles/cycle_8_embedding_stage.md` (Cycle 8 lever 1) |
+| Lazy `cv2.VideoCapture.grab()` forward-skip | Only valid when the codec is seekable AND the operator can re-run on the full file; live decoders are forward-only and dropping a frame loses it forever | `docs/entity/cycles/cycle_8_embedding_stage.md` (Cycle 8 lever 2) |
+| `persist_embeddings_bulk` with unbounded buffer | Live must flush on a wall-time budget, not a row count; a 500-row buffer can stall for seconds when detections are sparse | `docs/entity/cycles/cycle_8_embedding_stage.md` (Cycle 8 lever 3) — bounded-time variant required for live |
+| LPM Phase 1 post-decode box suppression | Already NOT-ACCEPTED on offline; on live the operator cannot re-run the past, so a false suppression is unrecoverable | `docs/entity/cycles/cycle_10_lpm_phase1.md` |
+| Behavior input-size reduction `320→256` (or any unretrained shrink) | Already NOT-ACCEPTED on offline; on live the false-positive amplification produces alerts the operator cannot retroactively suppress | `docs/entity/cycles/cycle_11_input_size.md` |
+| Larger batch windows that wait N frames before dispatch | Live SLO is bounded latency per frame; waiting for a window violates the latency budget and can stall the camera state machine | `docs/cycle_9b_batch_window_investigation.md` (Cycle 9b B.4 — NOT ACCEPTED for offline; explicitly forbidden for live) |
+| Pose-tail batching / decomposition strategies that wait for a frame-group flush | Same latency-budget violation as above | `docs/cycle_14a_pose_tail_decomposition_investigation.md` |
+| Video sharding / parent-shard coordination | "Whole file" is undefined on a live stream; there are no deterministic shard boundaries | `docs/cycle_15b_video_sharding_design_proof_investigation.md` |
+
+Streaming-compatible optimizations from the same cycle history (these MAY
+be enabled on the live profile and are the recommended levers when live
+throughput is constrained):
+
+| Stream-safe lever | Why it survives live | Originating cycle |
+| --- | --- | --- |
+| Per-frame pose chunking to `max_batch_size` | Pure per-frame fix; no cross-frame state | `docs/entity/cycles/cycle_6_pose_chunking.md` |
+| Process-local cached Redis client | Cache is process-local and self-invalidating on `RedisError` | `docs/entity/cycles/cycle_7_redis_client_cache.md` |
+| Triton ensembles, server-side slice, Top-K adapters | Per-request changes inside Triton; no buffering, no whole-job state | `docs/entity/cycles/cycle_9_behavior_ensemble.md`, `docs/entity/cycles/cycle_9b_b2b_exact_slice.md`, `docs/entity/cycles/cycle_9b_b2c_topk.md` |
+| Dual-sink JSON-first telemetry writer | Bounded buffer with periodic flush; survives DB outages | `docs/entity/modules/apps.telemetry.md` |
+| `_provider_infer_batch` chunking at gRPC dispatch | Per-batch fix with no cross-frame state | `docs/entity/cycles/cycle_6_pose_chunking.md` |
+
+##### 8.6.2 Required live-profile guarantees (so the system cannot collapse)
+
+Live ingestion MUST observe the following invariants. Violation is a CI-
+blocking regression per §14.25 row "Offline-only optimization shipped to
+live" and a production-blocking event per §11.
+
+1. **Frame-drop is a first-class signal, not a defect.** Each camera MUST
+   publish drop counters (received / decoded / processed / dropped) per
+   bounded interval. Drops below the SLO ceiling are normal; drops above
+   the ceiling are an operator alert per §8.3.
+2. **Bounded per-camera queue.** Each camera state machine MUST own a
+   bounded queue between decoder and inference dispatch. Overflow MUST
+   drop the oldest frame and emit a telemetry drop event; overflow MUST
+   NOT block the decoder, MUST NOT silently merge into a neighbour
+   camera's queue, and MUST NOT spawn an unbounded thread.
+3. **No retroactive mutation of persisted live evidence.** Once a live
+   frame's detections are persisted, no subsequent optimization (LPM-style
+   post-decode suppression, smoothing, late-fusion correction) MAY mutate
+   that row. Corrections MUST be appended as new rows with a `superseded_
+   by` lineage field if the schema supports one, and a non-authoritative
+   `display_only` flag otherwise.
+4. **Latency budget is per-frame, not per-window.** Optimizations that
+   improve throughput by amortising over N frames MUST declare and respect
+   a maximum dispatch delay matching the live SLO; if the delay budget
+   cannot be met, the optimization MUST disable itself in live mode (env
+   guard) rather than silently buffering.
+5. **Process-local state, not job-local state.** Per-job dictionaries,
+   per-job buffers, and per-job caches (legal on offline) MUST be replaced
+   with process-local or per-camera-bounded equivalents on live, with an
+   explicit eviction policy.
+6. **Fail-stop on persistence error.** When the live writer cannot persist
+   an essential identity, time, or detection row, the affected camera MUST
+   transition to `degraded` per §8.4 and stop emitting authoritative
+   evidence; it MUST NOT silently drop the row.
+7. **No reliance on file-system seekability.** Any code path that calls
+   `cv2.VideoCapture.set(...)`, requests a backward seek, or assumes the
+   ability to re-decode a past frame MUST be gated off in live mode.
+8. **Reconnection MUST NOT fabricate continuity.** Per §8.4, a reconnect
+   MUST report the temporal gap and MUST NOT fill the gap with synthetic
+   frames or carry a stale identity across the boundary beyond validated
+   recovery rules.
+
+##### 8.6.3 Per-cycle streaming compatibility declaration (binding from amendment date forward)
+
+Every new optimization-cycle entity doc under `docs/entity/cycles/` MUST
+include a `Streaming compatibility:` field in its Section 1 (Purpose and
+scope) with one of these values:
+
+| Value | Meaning |
+| --- | --- |
+| `stream-safe` | The cycle's lever has no cross-frame, whole-job, or backward-seek dependency; CAN be enabled on the live profile without changes |
+| `stream-safe-with-config` | The lever is safe IF a stated env knob / bound is configured for live (e.g. `EMBEDDING_BULK_BATCH_TIMEOUT_MS` for bounded-time flushing); the doc MUST cite the knob and its live-profile value |
+| `offline-only` | The lever MUST NOT be enabled on the live profile; the env knob that ships it MUST be enumerated in the offline profile block of `tools/prod/prod_enable_parallel_flow.sh` and explicitly disabled in the live profile block |
+| `requires-stream-investigation` | Cycle has not yet decided; until decided, the candidate MUST default OFF in live mode |
+
+The DSP Cycle 8 verifier (already governed by §19) will be extended to
+fail the build when an entity doc under `docs/entity/cycles/` is missing
+the `Streaming compatibility:` field. Existing cycle docs landed before
+this amendment SHOULD be backfilled in the same DSP Cycle 4 window;
+absence of the field on a pre-amendment doc is a documentation gap, not a
+constitutional violation.
+
+##### 8.6.4 Profile-block enforcement in `prod_enable_parallel_flow.sh`
+
+`tools/prod/prod_enable_parallel_flow.sh` MUST maintain three distinct
+profile blocks (per `--profile`): `per-frame-signals` (offline-accepted
+baseline), `live` (live-profile env), and any experimental candidate.
+Every env knob shipping an `offline-only` lever (per §8.6.3) MUST appear
+in the offline block AND MUST be explicitly disabled in the live block;
+the live block MUST NOT inherit offline-only knobs implicitly.
+
 ### 9. API, Contract, and Schema Constitution
 
 #### 9.1 Contract Authority and Versioning
@@ -1883,6 +2029,7 @@ reproduce the claimed result.
 | Non-idempotent stage re-entry | Re-run/duplicate scan | Stage idempotency (17.4) | existence-guarded write + idempotency key | fail system gate | dedupe on commit | remove duplicate rows | backend owner |
 | CI-required file gitignored | .gitignore audit vs CI paths | CI file visibility (18.1) | explicit tracked exception + CI path verification | fail CI validation gate | add exception + commit file | restore file from prior commit | release owner |
 | Unbenchmarked concurrency increase | Worker topology + production benchmark audit | Concurrency scaling authority (8.1.1) | baseline/candidate queue topology, resource budgets, duplicate-worker check and Section 12.5/12.6 benchmark | fail performance gate | revert env and restart workers | restore accepted worker profile | ops + AI infra owners |
+| Offline-only optimization shipped to live | Profile-block + cycle-doc `Streaming compatibility:` audit | Streaming source doctrine (8.6) | offline-only env knob present in `tools/prod/prod_enable_parallel_flow.sh` live block, OR cycle entity doc missing the `Streaming compatibility:` field, OR live profile inheriting offline knob implicitly | fail streaming-safety gate | disable knob in live block + add explicit `0` assignment | restart live workers with the corrected profile | live runtime + AI infra owners |
 
 ### 15. Final Architectural Positioning
 
@@ -2512,4 +2659,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.7.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03
+**Version**: 2.8.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03

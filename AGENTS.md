@@ -85,6 +85,104 @@ the next case.
 - A commit that nets-deletes a Mermaid block without a sibling `historical` version
 - A commit that advances two DSP cycles at once
 
+## ⭐ Streaming-Source Compatibility — BINDING
+
+**Constitution Section 8.6 (added in v2.8.0) makes the following rules
+non-bypassable. Shipping an offline-only optimization to the live profile
+is a CI-blocking regression per § 14.25 row "Offline-only optimization
+shipped to live", not a tuning oversight.**
+
+### Why this exists
+
+The repo supports two input source classes that share the inference plane:
+
+| Source class | Examples | Owning entity doc |
+|---|---|---|
+| **Offline files** | uploaded `.mp4`, `runtime_ingest_video`, archive replays | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) |
+| **Live streams** | RTSP, RTSPS, WHEP/WebRTC (bridged via `go2rtc` + `gst-mediamtx`), HLS-as-fallback only | [`docs/entity/systems/live_streaming_pipeline.md`](docs/entity/systems/live_streaming_pipeline.md) + [`docs/entity/systems/camera_streaming_bridge.md`](docs/entity/systems/camera_streaming_bridge.md) |
+
+Several ACCEPTED offline optimizations rely on offline-only invariants
+(whole-video access, unbounded buffering, backward seek, post-decode
+mutation, input-pixel reduction without retraining). Enabling them on a
+continuous live stream collapses the system: unbounded memory growth,
+missed frames after backward seeks, false-positive amplification an
+operator cannot retroactively suppress, latency-budget violations that
+trip the RTSP state machine into `degraded`.
+
+### Forbidden on the live profile (offline-only levers)
+
+Per constitution § 8.6.1. Each row cites the originating cycle entity doc:
+
+| Forbidden lever | Cycle |
+|---|---|
+| Whole-job true-batch concat memoisation | [Cycle 5 in cycles_1_to_5_bundle](docs/entity/cycles/cycles_1_to_5_bundle.md) |
+| Per-job process-local `track_vector_cache` reuse | [Cycle 8 lever 1](docs/entity/cycles/cycle_8_embedding_stage.md) |
+| Lazy `cv2.VideoCapture.grab()` forward-skip | [Cycle 8 lever 2](docs/entity/cycles/cycle_8_embedding_stage.md) |
+| `persist_embeddings_bulk` with row-count-only flush (no time bound) | [Cycle 8 lever 3](docs/entity/cycles/cycle_8_embedding_stage.md) — live needs a bounded-time variant |
+| LPM Phase 1 post-decode box suppression | [Cycle 10](docs/entity/cycles/cycle_10_lpm_phase1.md) (already NOT-ACCEPTED everywhere) |
+| Behavior input-size shrink without retraining | [Cycle 11.A](docs/entity/cycles/cycle_11_input_size.md) (already NOT-ACCEPTED everywhere) |
+| Larger batch windows that wait N frames | `docs/cycle_9b_batch_window_investigation.md` (Cycle 9b B.4) |
+| Pose-tail batching that waits for a frame group | `docs/cycle_14a_pose_tail_decomposition_investigation.md` |
+| Video sharding / parent-shard coordination | `docs/cycle_15b_video_sharding_design_proof_investigation.md` |
+
+### Stream-safe levers (the recommended live-throughput knobs)
+
+| Stream-safe lever | Cycle |
+|---|---|
+| Per-frame pose chunking to `max_batch_size=16` | [Cycle 6](docs/entity/cycles/cycle_6_pose_chunking.md) |
+| Process-local cached Redis client | [Cycle 7](docs/entity/cycles/cycle_7_redis_client_cache.md) |
+| Triton ensembles + server-side slice + Top-K adapters | [Cycle 9b B.2.b](docs/entity/cycles/cycle_9b_b2b_exact_slice.md) + [Cycle 9b B.2.c](docs/entity/cycles/cycle_9b_b2c_topk.md) |
+| Dual-sink JSON-first telemetry writer | [`apps.telemetry`](docs/entity/modules/apps.telemetry.md) |
+
+### What every new optimization-cycle entity doc MUST declare
+
+Per § 8.6.3, every new file under `docs/entity/cycles/` MUST carry a
+`Streaming compatibility:` field in its Section 1 with one of:
+
+- `stream-safe` — no cross-frame / whole-job / backward-seek dependency
+- `stream-safe-with-config` — safe IF a stated env knob / bound is set for live; cite the knob + value
+- `offline-only` — MUST be enumerated in the offline block of `tools/prod/prod_enable_parallel_flow.sh` AND explicitly disabled in the live block
+- `requires-stream-investigation` — defaults OFF in live until decided
+
+A new cycle doc without this field will fail the (DSP Cycle 8) verifier
+once the gate ships. Until then, pre-amendment cycle docs landed under
+DSP Cycle 4 SHOULD be backfilled opportunistically; missing field on a
+pre-amendment doc is a documentation gap, not a constitutional violation.
+
+### Pre-commit checklist for any cycle that touches inference or persistence
+
+1. Does the change introduce per-job state (dict, buffer, cache) keyed on
+   `job_id` or `session_id`? If yes, decide its eviction policy and verify
+   it survives an indefinite live stream (no unbounded growth).
+2. Does the change call `cv2.VideoCapture.set(...)` or any backward seek?
+   If yes, gate it off in live mode.
+3. Does the change wait for N frames / N seconds before dispatch? If yes,
+   declare and respect the live SLO budget; disable in live if the budget
+   cannot be met.
+4. Does the change mutate persisted detection / identity rows after the
+   fact (LPM-style suppression, smoothing)? If yes, it MUST NOT enable on
+   live; corrections MUST be append-only with lineage.
+5. Does the change rely on the "whole file" being available? If yes
+   (sharding, end-to-end memo), it is `offline-only`.
+6. Update `tools/prod/prod_enable_parallel_flow.sh`: add the env knob to
+   the offline profile block AND explicitly disable it in the live
+   profile block.
+7. Set the `Streaming compatibility:` field on the cycle entity doc.
+
+### Live-profile invariants every change MUST preserve
+
+Per § 8.6.2:
+
+1. Frame-drop is signal, not defect (drop counters per camera per interval)
+2. Bounded per-camera queue (overflow drops oldest; never blocks decoder)
+3. No retroactive mutation of persisted live evidence (corrections are
+   append-only)
+4. Latency budget is per-frame, not per-window
+5. Process-local or per-camera-bounded state — never per-job
+6. Fail-stop on persistence failure (camera → `degraded` per § 8.4)
+7. No reliance on file-system seekability
+8. Reconnection MUST NOT fabricate continuity (report the temporal gap)
+
 ## ⭐ Highest-Priority Plan — Inference Pipeline Parallelization
 - **This remains the top-priority runtime/performance plan, but the repo-side
   implementation is now signed complete as of 2026-05-31.**
