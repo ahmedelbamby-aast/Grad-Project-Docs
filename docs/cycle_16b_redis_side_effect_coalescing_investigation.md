@@ -2,10 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase A investigation started. No code is implemented by this
-document. The next valid implementation must be guarded and must run a
-completed production Linux RTX 5090 benchmark on `combined.mp4` before any
-decision.
+**Status:** Phase B implementation staged behind
+`EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. No acceptance, rejection, skip, or
+closure decision exists until the completed production Linux RTX 5090
+`combined.mp4` benchmark records the decision table and rollback proof.
 
 ## Problem Statement
 
@@ -41,6 +41,7 @@ embedding row. In the Cycle 13.C benchmark that meant:
 | File | `backend/apps/tracking/embeddings.py` | `cache_embedding`, `cache_job_track_embedding`, and `redis_client` helper contracts. |
 | File | `tools/prod/prod_collect_benchmark_metrics.py` | Metrics collector must surface coalescing counters. |
 | File | `tools/prod/prod_watch_benchmark_metrics.sh` | Watcher must show coalescing counters during production benchmark. |
+| File | `tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh` | Reproducible production benchmark wrapper for this candidate. |
 | Doc | `.specify/memory/constitution.md` | Benchmark decision authority and PostgreSQL authority gates. |
 
 ## Root Cause
@@ -71,14 +72,43 @@ The first implementation should prefer 16.B.1 plus 16.B.2. 16.B.3 can be a
 separate candidate only if the investigation proves no runtime consumer depends
 on intermediate Redis history entries during the same embedding task.
 
+## Phase B Staged Implementation
+
+The staged implementation uses 16.B.1 plus 16.B.2 only. It does not implement
+final-state compaction.
+
+| Change | Code path |
+|---|---|
+| Guard flag | `backend/config/settings/base.py` defines `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING`, default `0`. |
+| Ordered Redis writer | `backend/apps/video_analysis/tasks.py` adds `_cache_embedding_side_effects_coalesced(...)`. |
+| Flush integration | `backend/apps/video_analysis/tasks.py` routes `generate_embeddings` pending Redis rows to the coalesced writer only when the guard flag is enabled. |
+| Metrics surfacing | `tools/prod/prod_collect_benchmark_metrics.py` and `tools/prod/prod_watch_benchmark_metrics.sh` expose coalescing counters. |
+| Reproducible benchmark | `tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh` runs the candidate and writes JSON/Markdown evidence. |
+
+The coalesced writer preserves the legacy per-row command order:
+
+1. `cache_embedding` latest key.
+2. `cache_job_track_embedding` latest/history/tracks keys.
+3. `_cache_student_embedding_for_analysis` latest/history/tracks keys.
+
+This ordering matters because the second and third helper paths both write
+`embeddings:job:{job_id}:track:{tracking_id}:latest` and
+`embeddings:job:{job_id}:track:{tracking_id}:history`.
+
+Expected pipeline-execute shape for the accepted `EMBEDDING_BULK_BATCH_SIZE=500`
+is roughly one Redis pipeline per embedding DB flush instead of one job-track
+pipeline per row. The production benchmark must measure the actual count.
+
 ## Required New Metrics
 
 | Metric | Purpose |
 |---|---|
-| `redis_coalescing_enabled` | Confirms candidate flag state. |
-| `redis_pipeline_execute_count_actual` | Proves pipeline executes fell from the current `72578` estimate. |
-| `redis_command_count_actual_or_estimated` | Confirms command volume did not unexpectedly grow. |
-| `redis_payload_bytes_actual_or_estimated` | Confirms payload volume did not grow. |
+| `redis_side_effect_coalescing_enabled` | Confirms candidate flag state. |
+| `redis_coalesced_pipeline_execute_count` | Proves pipeline executes fell from the current `72578` estimate. |
+| `redis_coalesced_command_count` | Confirms command volume did not unexpectedly grow. |
+| `redis_coalesced_payload_bytes` | Confirms payload volume did not grow. |
+| `redis_coalesced_error_count` | Fails acceptance if non-zero. |
+| `redis_coalesced_unavailable_count` | Fails acceptance if Redis is unavailable during side-effect flush. |
 | `redis_payload_serialize_ms` | Measures serialization reduction. |
 | `redis_flush_ms` | Primary post-stage wall target. |
 | `redis_server_commandstats_ms_total` | Confirms Redis server remains non-dominant. |
@@ -118,3 +148,14 @@ material client-side Redis side-effect wall and ruled out Redis server tuning as
 the first fix. Do not implement Redis Streams, Redis scripts, or streaming
 persistence overlap before this coalescing candidate unless a later production
 benchmark decision table reorders the roadmap.
+
+## Validation Before Production
+
+Local validation completed before production deployment:
+
+| Check | Result |
+|---|---|
+| Python compile | `python -m py_compile backend/apps/video_analysis/tasks.py backend/config/settings/base.py tools/prod/prod_collect_benchmark_metrics.py` passed. |
+| Shell parse | `bash -n tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh tools/prod/prod_enable_parallel_flow.sh tools/prod/prod_parallel_flow_probe.sh tools/prod/prod_watch_benchmark_metrics.sh` passed. |
+| Focused unit tests | `backend/.venv/Scripts/python.exe -m pytest -q backend/tests/unit/video_analysis/test_embedding_stage_failclosed.py` passed (`7 passed`). |
+| Wrapper dry-run | `bash tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh --dry-run --tag cycle16b-dryrun` passed. |

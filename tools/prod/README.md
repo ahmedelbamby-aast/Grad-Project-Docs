@@ -273,6 +273,20 @@ Redis helper counts, Redis `INFO commandstats` deltas, payload bytes, memory,
 DB flush wall, and correctness evidence, then restores profiling flags. It is
 measurement-only and cannot accept or reject a Redis optimization by itself.
 
+Cycle 16.B Redis side-effect coalescing candidate benchmark:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh \
+  --tag cycle16b-redis-coalescing-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+This wrapper keeps the accepted Cycle 13.B / Cycle 12.C profile, enables
+`EMBEDDING_STAGE_PROFILING=1`, `OFFLINE_REDIS_COMMAND_PROFILING=1`, and
+`EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`, then collects FPS, elapsed time,
+embedding wall, Redis flush/pipeline metrics, DB parity, model agreement, GPU,
+and RTT evidence. It restores the candidate/profiling flags after the run.
+
 Semi-real-time benchmark metrics watcher:
 
 ```bash
