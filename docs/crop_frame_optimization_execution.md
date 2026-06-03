@@ -1446,8 +1446,9 @@ readiness evidence to
 No sharded benchmark has been started, and no acceptance/rejection/skip/closure
 decision exists.
 
-Cycle 15.B1 runtime candidate implementation note (2026-06-03):
-The missing runtime blockers are now resolved locally. The implementation adds
+Cycle 15.B1 runtime candidate decision note (2026-06-03):
+The missing runtime blockers were resolved and the candidate was benchmarked on
+production. The implementation adds
 `backend/apps/video_analysis/services/offline_sharding.py`,
 `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py`,
 `tools/prod/prod_merge_cycle15b1_shards.py`,
@@ -1458,8 +1459,19 @@ shard provenance, and stop before render/embedding; parent merge owns
 authoritative rows and parent embeddings. Local validation passed Python
 compile, shell syntax, `manage.py check`, migration-drift check, focused tests
 (`4 passed`), and readiness (`ready_for_runtime_benchmark=True`, `0` blockers).
-Decision remains `NOT DECIDED - PRODUCTION BENCHMARK PENDING` until the real
-production `combined.mp4` wrapper run records metrics and parity.
+Production replay `cycle15b1-two-shard-runtime-repeat-20260603T211319Z` /
+parent job `e602a0ca-6efc-4cb0-8d30-9466fe76287b` completed `4541/4541`
+frames, improved DB FPS `5.620 → 7.867`, Step 2 frame wall
+`467.450 s → 233.038 s`, through-pose wall `641.154 s → 324.763 s`, GPU
+average `11.846 % → 17.495 %`, and GPU peak `57 % → 89 %`. The cycle is
+**NOT ACCEPTED** because correctness failed: StudentTracks changed `53 → 52`,
+behavior RTT mean regressed `83.530 ms → 89.718 ms`, and model-agreement
+F1@IoU0.5 was only `53.455 %` - `61.387 %` across the persisted model boxes.
+Evidence is in
+`/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/`.
+Sharding remains disabled in production (`OFFLINE_VIDEO_SHARDING_ENABLED=0`).
+Do not move to four-shard runtime until boundary identity/track stitching is
+fixed and benchmarked.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

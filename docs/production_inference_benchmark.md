@@ -2938,11 +2938,87 @@ bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
   --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
 ```
 
-Decision: `NOT DECIDED - PRODUCTION BENCHMARK PENDING`. The candidate must be
-judged only after the wrapper completes on production Linux RTX 5090 and writes
-the replay key, parent job id, shard job ids, metrics JSON/Markdown, GPU CSV,
-DB/model/embedding parity, rollback proof, and before/after comparison against
-the Cycle 15.B pre-shard baseline.
+Decision at this checkpoint: `NOT DECIDED - PRODUCTION BENCHMARK PENDING`.
+This checkpoint is superseded by §39.7, where the production wrapper completed
+and the candidate was judged from benchmark evidence.
+
+### 39.7 Cycle 15.B1 Two-Shard Runtime Benchmark
+
+Cycle 15.B1 was benchmarked end-to-end on production Linux RTX 5090 using the
+same `combined.mp4` comparator as the pre-shard baseline. The candidate proved
+that two independent shard jobs can expose parallel work, but it is **NOT
+ACCEPTED** because model agreement and tracking continuity failed.
+
+| Item | Value |
+|---|---|
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate replay | `cycle15b1-two-shard-runtime-repeat-20260603T211319Z` |
+| Candidate parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
+| Candidate shard jobs | `f74de22a-0a37-4546-8029-a88264d55bad`, `8d49bd97-072b-4ebf-bf17-510eb820b6a6` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z` |
+| Metrics JSON | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/metrics.json` |
+| Metrics Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/metrics.md` |
+| Model agreement JSON | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/model_agreement.json` |
+| Model agreement Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/model_agreement.md` |
+| Sharded summary | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/sharded_summary.json` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/gpu_monitor.csv` |
+| Rollback proof | Production env restored to `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. |
+
+The metrics collector now treats a Cycle 15.B1 parent as a sharded benchmark:
+it aggregates child telemetry and uses `max(child shard wall)` as the
+concurrent critical path. The work sum is diagnostic only.
+
+| Metric | Baseline | Candidate | Delta |
+|---|---:|---:|---:|
+| Status | `completed` | `completed` | unchanged |
+| Processed frames | `4541` | `4541` | `+0.00 %` |
+| DB completed FPS | `5.619787` | `7.866851` | `+39.98 %` |
+| DB completed elapsed | `808.038 s` | `577.232 s` | `-28.56 %` |
+| Step 2 frame wall | `467.449833 s` | `233.037627 s` | `-50.15 %` |
+| Step 2 through-pose wall | `641.154064 s` | `324.763211 s` | `-49.35 %` |
+| Parent merge wall | `n/a` | `112.526430 s` | `n/a` |
+| Behavior calls/s | `4.451525` | `6.283433` | `+41.15 %` |
+| Behavior RTT mean | `83.530 ms` | `89.718 ms` | `+7.41 %` |
+| Behavior RTT p95 | `129.514 ms` | `148.173 ms` | `+14.41 %` |
+| GPU avg util | `11.846 %` | `17.495 %` | `+47.69 %` |
+| GPU peak util | `57.000 %` | `89.000 %` | `+56.14 %` |
+| Peak VRAM | `15725 MiB` | `15731 MiB` | `+0.04 %` |
+| Detection rows | `72744` | `72816` | `+0.10 %` |
+| BBox rows | `72744` | `72816` | `+0.10 %` |
+| Embedding rows | `72578` | `72650` | `+0.10 %` |
+| Embedding created span | `98.578 s` | `100.457 s` | `+1.91 %` |
+| Student tracks | `53` | `52` | `-1.89 %` |
+
+Model agreement is an accuracy proxy against the accepted baseline, not
+human-labeled ground truth. It failed the Cycle 15.B1 correctness gate:
+
+| Model | Candidate agreement F1@IoU0.5 | Precision | Recall | Frame-count match | Box-count delta |
+|---|---:|---:|---:|---:|---:|
+| `attention_tracking` | `59.473 %` | `59.473 %` | `59.473 %` | `100.000 %` | `0.00 %` |
+| `hand_raising` | `60.700 %` | `60.700 %` | `60.700 %` | `100.000 %` | `0.00 %` |
+| `person_detection` | `61.387 %` | `61.272 %` | `61.502 %` | `99.912 %` | `+0.38 %` |
+| `sitting_standing` | `53.455 %` | `53.455 %` | `53.455 %` | `100.000 %` | `0.00 %` |
+
+Decision explanation:
+
+| Decision gate | Result | Evidence |
+|---|---|---|
+| Production benchmark | `PASS` | Full `combined.mp4` replay completed on production Linux RTX 5090. |
+| Performance | `PASS` | DB FPS, total wall, Step 2 critical path, through-pose wall, and GPU utilization improved. |
+| Lifecycle | `PASS` | Parent and both shard jobs completed; parent progress ended at `4541/4541`, `100 %`. |
+| Rollback safety | `PASS` | Sharding env was restored to disabled defaults after the wrapper. |
+| DB row parity | `WARN` | Detection/BBox/Embedding rows drifted by `+0.10 %`. |
+| Behavior RTT | `WARN` | Behavior RTT mean regressed `+7.41 %`; throughput improved through concurrency rather than per-call latency. |
+| Tracking continuity | `FAIL` | StudentTrack count changed `53 → 52`. |
+| Model agreement | `FAIL` | Baseline-agreement F1@IoU0.5 fell to `53.455 %` - `61.387 %`. |
+
+Final decision: **Cycle 15.B1 two-shard runtime is NOT ACCEPTED**. The
+benchmark proves that shard-level parallelism can improve throughput, but the
+current parent merge does not preserve identity/track continuity across the
+shard boundary. Keep `OFFLINE_VIDEO_SHARDING_ENABLED=0`. Do not run 15.B2
+four-shard or larger sharding until a new benchmarked sub-cycle fixes
+boundary-state/track stitching and restores model agreement.
 
 ---
 

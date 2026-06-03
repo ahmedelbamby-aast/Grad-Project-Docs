@@ -174,3 +174,19 @@ management command, `prod_merge_cycle15b1_shards.py`, the
 `ready_for_runtime_benchmark=True` with `0` blockers. This does not change the
 baseline decision: runtime sharding remains `NOT DECIDED` until the real
 production benchmark completes and writes metrics/parity evidence.
+
+Superseding runtime benchmark decision (2026-06-03): Cycle 15.B1 two-shard
+runtime is now **NOT ACCEPTED** by production benchmark. Replay
+`cycle15b1-two-shard-runtime-repeat-20260603T211319Z` / parent job
+`e602a0ca-6efc-4cb0-8d30-9466fe76287b` completed `4541/4541` frames and proved
+the expected parallelism: DB FPS `5.620 → 7.867`, Step 2 critical-path frame
+wall `467.450 s → 233.038 s`, through-pose wall `641.154 s → 324.763 s`, GPU
+average `11.846 % → 17.495 %`, and GPU peak `57 % → 89 %`. It failed the
+correctness gate: StudentTracks changed `53 → 52`, behavior RTT mean regressed
+`83.530 ms → 89.718 ms`, and baseline-agreement F1@IoU0.5 fell to
+`59.473 %` (`attention_tracking`), `60.700 %` (`hand_raising`),
+`61.387 %` (`person_detection`), and `53.455 %` (`sitting_standing`). Evidence
+is under
+`/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/`.
+The design proof remains useful, but runtime sharding must stay disabled until
+boundary identity/track stitching is fixed and benchmarked.

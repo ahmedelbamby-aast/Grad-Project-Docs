@@ -789,8 +789,8 @@ Per § 8.6.2:
   `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
   This is safety and reproducibility work only: no two-shard runtime benchmark
   has started, and no acceptance/rejection/skip/closure decision exists.
-- **2026-06-03 Cycle 15.B1 runtime candidate IMPLEMENTED LOCALLY / PRODUCTION
-  BENCHMARK PENDING**: `backend/apps/video_analysis/services/offline_sharding.py`
+- **2026-06-03 Cycle 15.B1 runtime candidate IMPLEMENTED / BENCHMARKED /
+  NOT ACCEPTED**: `backend/apps/video_analysis/services/offline_sharding.py`
   now defines the offline-only shard contract, pre-roll-only two-shard planner,
   authoritative-frame filter, boundary summary, and idempotent parent merge.
   `process_video_upload` now accepts only valid explicit child-shard metadata,
@@ -805,11 +805,27 @@ Per § 8.6.2:
   `manage.py check` passed, `makemigrations --check --dry-run` reported no
   changes, targeted tests passed (`4 passed`), and
   `backend/logs/cycle15b1_readiness_local.json` reports
-  `ready_for_runtime_benchmark=True` with `0` critical blockers. Decision state
-  remains **NOT DECIDED**: no acceptance/rejection/skip/closure is allowed until
-  the wrapper completes a real production Linux RTX 5090 `combined.mp4`
-  benchmark, collects metrics/model agreement/DB and embedding parity, restores
-  safe sharding defaults, and updates the benchmark history.
+  `ready_for_runtime_benchmark=True` with `0` critical blockers. Production
+  replay `cycle15b1-two-shard-runtime-repeat-20260603T211319Z` / parent job
+  `e602a0ca-6efc-4cb0-8d30-9466fe76287b` ran on `combined.mp4` with child jobs
+  `f74de22a-0a37-4546-8029-a88264d55bad` and
+  `8d49bd97-072b-4ebf-bf17-510eb820b6a6`. The performance hypothesis was
+  proven: DB FPS `5.620 → 7.867` (`+39.98 %`), DB elapsed
+  `808.038 s → 577.232 s` (`-28.56 %`), sharded Step 2 critical-path frame
+  wall `467.450 s → 233.038 s` (`-50.15 %`), through-pose wall
+  `641.154 s → 324.763 s` (`-49.35 %`), GPU average `11.846 % → 17.495 %`,
+  and GPU peak `57 % → 89 %`. The candidate is **NOT ACCEPTED** because
+  correctness failed: StudentTracks changed `53 → 52`, behavior RTT regressed
+  `83.530 ms → 89.718 ms`, and baseline-agreement F1@IoU0.5 collapsed to
+  `59.473 %` (`attention_tracking`), `60.700 %` (`hand_raising`),
+  `61.387 %` (`person_detection`), and `53.455 %` (`sitting_standing`).
+  Evidence:
+  `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/metrics.json`,
+  `.md`, `model_agreement.json`, and `model_agreement.md`. Production rollback
+  proof: `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, and
+  `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. Next work, if sharding remains in
+  the queue, must target shard-boundary identity/track continuity before any
+  four-shard or larger benchmark.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

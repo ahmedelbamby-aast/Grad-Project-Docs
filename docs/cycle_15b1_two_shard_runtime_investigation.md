@@ -2,10 +2,9 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** RUNTIME CANDIDATE IMPLEMENTED LOCALLY / PRODUCTION BENCHMARK
-PENDING. No two-shard runtime candidate has been accepted, rejected, skipped,
-or closed; only a full production Linux RTX 5090 `combined.mp4` benchmark can
-make that decision.
+**Status:** PRODUCTION BENCHMARK COMPLETED / NOT ACCEPTED. The two-shard
+runtime improved throughput and GPU utilization, but failed StudentTrack
+continuity and baseline model-agreement gates.
 
 **Streaming compatibility:** `offline-only`. The Cycle 15.B1 runtime candidate
 requires whole-file access, frame windows, overlap pre-roll, and parent/shard
@@ -275,8 +274,71 @@ bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
   --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
 ```
 
-Decision state: `NOT DECIDED`. The runtime candidate is only ready to deploy
-and benchmark. Acceptance remains impossible until the production wrapper
-completes, metrics are collected, DB/model/embedding parity is measured, safe
-defaults are restored, and this document plus the benchmark history are updated
-with the production replay key and parent/shard job ids.
+Decision state at this checkpoint: `NOT DECIDED`. This checkpoint is
+superseded by the production benchmark result below.
+
+## Production Benchmark Result
+
+Cycle 15.B1 has now run a real production Linux RTX 5090 `combined.mp4`
+benchmark. The result is **NOT ACCEPTED**. The performance hypothesis was
+correct, but the correctness gate failed.
+
+| Field | Value |
+|---|---|
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate replay | `cycle15b1-two-shard-runtime-repeat-20260603T211319Z` |
+| Parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
+| Shard 0 job | `f74de22a-0a37-4546-8029-a88264d55bad` |
+| Shard 1 job | `8d49bd97-072b-4ebf-bf17-510eb820b6a6` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z` |
+| Metrics | `metrics.json`, `metrics.md` |
+| Model agreement | `model_agreement.json`, `model_agreement.md` |
+| Sharded summary | `sharded_summary.json` |
+
+The benchmark collector was updated to aggregate child shard audit paths and
+child telemetry. For a sharded parent, the documented Step 2 wall is
+`max(child shard wall)`, because both child jobs run concurrently. The work sum
+is diagnostic only.
+
+| Metric | Baseline | Candidate | Delta |
+|---|---:|---:|---:|
+| DB completed FPS | `5.619787` | `7.866851` | `+39.98 %` |
+| DB completed elapsed | `808.038 s` | `577.232 s` | `-28.56 %` |
+| Step 2 frame wall | `467.449833 s` | `233.037627 s` | `-50.15 %` |
+| Step 2 through-pose wall | `641.154064 s` | `324.763211 s` | `-49.35 %` |
+| Parent merge wall | `n/a` | `112.526430 s` | `n/a` |
+| Behavior calls/s | `4.451525` | `6.283433` | `+41.15 %` |
+| Behavior RTT mean | `83.530 ms` | `89.718 ms` | `+7.41 %` |
+| GPU avg util | `11.846 %` | `17.495 %` | `+47.69 %` |
+| GPU peak util | `57.000 %` | `89.000 %` | `+56.14 %` |
+| Detection rows | `72744` | `72816` | `+0.10 %` |
+| BBox rows | `72744` | `72816` | `+0.10 %` |
+| Embedding rows | `72578` | `72650` | `+0.10 %` |
+| Student tracks | `53` | `52` | `-1.89 %` |
+
+Model agreement failed against the accepted pre-shard baseline:
+
+| Model | F1@IoU0.5 | Precision | Recall | Frame-count match |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `59.473 %` | `59.473 %` | `59.473 %` | `100.000 %` |
+| `hand_raising` | `60.700 %` | `60.700 %` | `60.700 %` | `100.000 %` |
+| `person_detection` | `61.387 %` | `61.272 %` | `61.502 %` | `99.912 %` |
+| `sitting_standing` | `53.455 %` | `53.455 %` | `53.455 %` | `100.000 %` |
+
+Decision:
+
+| Gate | Status | Reason |
+|---|---|---|
+| Production benchmark | `PASS` | Full production replay completed and wrote metrics/model-agreement evidence. |
+| Performance | `PASS` | Throughput, total wall, Step 2 critical path, through-pose wall, and GPU utilization improved. |
+| Lifecycle | `PASS` | Parent and both child shard jobs reached terminal `completed`; parent ended at `4541/4541`, `100 %`. |
+| Rollback | `PASS` | Production env restored to `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. |
+| DB parity | `WARN` | Detection/BBox/Embedding rows drifted `+0.10 %`. |
+| Behavior RTT | `WARN` | Behavior RTT mean worsened despite higher calls/s. |
+| StudentTrack continuity | `FAIL` | Track count changed `53 → 52`. |
+| Model agreement | `FAIL` | F1@IoU0.5 fell to `53.455 %` - `61.387 %`. |
+
+Final status: **NOT ACCEPTED**. Keep sharding disabled. Do not advance to
+15.B2 four-shard runtime until a new sub-cycle preserves boundary identity and
+model agreement across the parent merge.

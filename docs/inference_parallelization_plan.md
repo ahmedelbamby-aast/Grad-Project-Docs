@@ -1019,8 +1019,8 @@ The production audit is still `blocked_no_runtime_candidate` with `5` critical
 blockers. This is safety/config work only: it does not implement, accept,
 reject, skip, or close runtime sharding.
 
-Cycle 15.B1 runtime candidate is now implemented locally and ready for
-production benchmark deployment. The old runtime blockers are resolved in code:
+Cycle 15.B1 runtime candidate is now implemented, production-benchmarked, and
+**NOT ACCEPTED**. The old runtime blockers are resolved in code:
 `backend/apps/video_analysis/services/offline_sharding.py` defines the
 offline-only shard planner/filter/merge contract,
 `process_video_upload` accepts only valid child-shard metadata and runs the
@@ -1033,11 +1033,21 @@ child jobs stop before render/embedding, parent orchestration lives in
 Local validation passed Python compile, shell syntax, `manage.py check`,
 `makemigrations --check --dry-run`, targeted Cycle 15.B1 tests (`4 passed`),
 and the local readiness helper now reports `ready_for_runtime_benchmark=True`
-with `0` critical blockers. Decision remains **NOT DECIDED** until the real
-production Linux RTX 5090 `combined.mp4` benchmark runs and records DB FPS,
-Step 2 wall, through-pose wall, GPU utilization, RTT, DB/model/embedding
-parity, parent/shard job ids, replay key, rollback proof, and before/after
-comparison against `cycle15b-pre-shard-baseline-20260603T193531Z`.
+with `0` critical blockers. Production replay
+`cycle15b1-two-shard-runtime-repeat-20260603T211319Z` / parent job
+`e602a0ca-6efc-4cb0-8d30-9466fe76287b` proved the performance case against
+`cycle15b-pre-shard-baseline-20260603T193531Z`: DB FPS `5.620 → 7.867`,
+Step 2 critical-path frame wall `467.450 s → 233.038 s`, through-pose wall
+`641.154 s → 324.763 s`, GPU average `11.846 % → 17.495 %`, and GPU peak
+`57 % → 89 %`. It is still not accepted because correctness failed:
+StudentTracks changed `53 → 52`, behavior RTT mean regressed
+`83.530 ms → 89.718 ms`, and baseline-agreement F1@IoU0.5 was only
+`59.473 %` (`attention_tracking`), `60.700 %` (`hand_raising`),
+`61.387 %` (`person_detection`), and `53.455 %` (`sitting_standing`).
+Evidence is under
+`/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/`.
+Keep `OFFLINE_VIDEO_SHARDING_ENABLED=0`; future sharding work must first fix
+boundary-state identity/track stitching before any 15.B2 four-shard benchmark.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
