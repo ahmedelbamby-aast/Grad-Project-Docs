@@ -203,3 +203,22 @@ geometry but loses identity: shard-1 geometry F1 is `100.000 %` for the four
 persisted models, but track-sensitive F1 is `4.043 %`, `2.974 %`,
 `21.308 %`, and `4.124 %`. 15.B2 remains blocked until a concrete
 identity-stitching candidate passes a full production benchmark.
+
+Deep stitching follow-up (2026-06-04): helper commit `3baa4cdc` adds an oracle
+relabeling upper-bound analysis. Production evidence:
+`/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.json`
+and `.md`. Shard-1 oracle relabeling improves track F1 to `75.458 %`,
+`72.531 %`, `56.733 %`, and `84.021 %` for attention, hand, person, and
+sitting/standing respectively, but does not restore parity. The next executable
+subcycle remains inside 15.B1.C: run a full production context-window benchmark
+with `--context-frames 256`; only if that fails should the system build a
+guarded canonicalizer with ambiguity gates.
+
+Context-window benchmark follow-up (2026-06-04): 15.B1.C1 ran as
+`cycle15b1c1-context256-20260603T222123Z`, parent job
+`401498f1-d5e4-4b95-8a46-ad3fcbbc2c25`. It completed and improved throughput
+but is **NOT ACCEPTED** because model-agreement F1 remained `53.730 %` -
+`61.767 %`, `StudentTracks` remained `52` vs baseline `53`, and behavior RTT
+regressed. The next sharding work is 15.B1.C2 majority-vote canonicalization
+behind `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`; 15.B2 remains
+blocked.

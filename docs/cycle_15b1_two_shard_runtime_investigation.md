@@ -379,7 +379,7 @@ Local validation:
 | Check | Result |
 |---|---|
 | Python compile | `python -m py_compile tools/prod/prod_analyze_cycle15b1_stitching.py` passed. |
-| Unit tests | `backend\.venv\Scripts\python.exe -m pytest backend\tests\unit\pipeline\test_prod_analyze_cycle15b1_stitching.py -q` passed: `2 passed`. |
+| Unit tests | `backend\.venv\Scripts\python.exe -m pytest backend\tests\unit\pipeline\test_prod_analyze_cycle15b1_stitching.py -q` passed: `4 passed`. |
 | CI workflow | `.github/workflows/inference-parallelization.yml` now compiles the helper and runs the unit test. |
 
 ### Production Probe Evidence
@@ -440,3 +440,169 @@ insufficient for full-video identity continuity.
 Next implementation must choose one candidate, add a rollback flag, run the
 full production `combined.mp4` benchmark, and satisfy Section 12.5/12.6 before
 any acceptance or rejection decision is made.
+
+### Deep Probe: Oracle Relabeling and Candidate Ranking
+
+The helper was extended in commit `3baa4cdc` to compute an oracle relabeling
+upper bound. This is still `PROBE_ONLY`: it uses the accepted baseline labels
+only to estimate whether a parent-side canonical ID rewrite could repair the
+rejected two-shard result. It is not an implementation and cannot accept,
+reject, skip, or close an optimization.
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.md` |
+| Helper commit | `3baa4cdc` |
+| Production validation | `4 passed` in `backend/tests/unit/pipeline/test_prod_analyze_cycle15b1_stitching.py` |
+| Decision authority | `PROBE_ONLY` |
+
+Shard-1 oracle relabeling result:
+
+| Model | Current track F1 | Oracle relabel F1 | Mapped geometry | Source parent match |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `4.043 %` | `75.458 %` | `71.414 %` | `3.226 %` |
+| `hand_raising` | `2.974 %` | `72.531 %` | `69.557 %` | `3.333 %` |
+| `person_detection` | `21.308 %` | `56.733 %` | `53.148 %` | `28.125 %` |
+| `sitting_standing` | `4.124 %` | `84.021 %` | `80.077 %` | `3.030 %` |
+
+Interpretation:
+
+| Finding | Evidence | Impact |
+|---|---|---|
+| Current IoU boundary map is wrong for most shard-1 source tracks. | Source-parent majority match is only `3.030 %` - `28.125 %` on shard 1. | The current 32-frame IoU-only map cannot be accepted or tuned blindly. |
+| Simple whole-track relabeling is insufficient. | Even an oracle relabel only reaches `56.733 %` - `84.021 %` shard-1 track F1. | A C2 implementation must include ambiguity gates or sub-track segmentation, not only one parent ID per child track. |
+| Larger context is still a valid current-cycle benchmark. | The existing run only persisted a 32-frame boundary context; context `64/128/256/512` would add `1.409381 %`, `2.818762 %`, `5.637525 %`, and `11.275050 %` duplicate frames respectively. | C1 should be tested before writing a high-risk ReID canonicalizer if the operator wants the lowest-code current-cycle optimization. |
+| Tracker-state handoff remains high risk. | `_assign_tracking_ids_incremental(...)` keeps mutable tracker state inside the frame loop, while child shards are separate Celery jobs. | C3 needs a state-export design proof before any benchmark because it may serialize shard startup and erase the speedup. |
+
+Current-cycle decision boundary:
+
+| Option | Status | Reason |
+|---|---|---|
+| Move to 15.B2 four-shard runtime | `BLOCKED` | Two-shard identity is not fixed. Four shards add more boundaries. |
+| Move to the next non-sharding cycle | `NOT SELECTED` | A current-cycle identity-stitching path remains testable. |
+| Run 15.B1.C1 context-window benchmark | `NEXT EXECUTABLE SUBCYCLE` | It requires no new identity algorithm and can prove whether more pre-roll stabilizes shard-1 tracker state. |
+| Build 15.B1.C2 canonicalizer | `NEXT CODE SUBCYCLE IF C1 FAILS` | Needed only if larger context still fails model agreement. |
+
+Reproducible first C1 benchmark command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json" \
+  --context-frames 256 \
+  --replay-key "cycle15b1c1-context256-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+The `256` window is the first proposed benchmark because the tracker keeps a
+`150`-frame max-age state in `backend/apps/video_analysis/tasks.py`; `128` may
+remain below that state horizon, while `512` adds more duplicate work before
+the cheaper `256` proof exists.
+
+## Subcycle 15.B1.C1: Context-256 Benchmark Decision
+
+**Streaming compatibility:** `offline-only`. This benchmark still relies on
+whole-file sharding, pre-roll context, and parent merge. It must stay disabled
+for RTSP/RTSPS/WHEP/WebRTC/HLS live profiles.
+
+### Production Evidence
+
+| Field | Value |
+|---|---|
+| Replay key | `cycle15b1c1-context256-20260603T222123Z` |
+| Parent job | `401498f1-d5e4-4b95-8a46-ad3fcbbc2c25` |
+| Child jobs | `72a52989-c41a-4de5-8158-cd9232406c57`, `9b778437-8f84-464d-a620-c5be98677366` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c1-context256-20260603T222123Z` |
+| Metrics | `metrics.json`, `metrics.md` |
+| Model agreement | `model_agreement.json`, `model_agreement.md` |
+| Status | `completed`, `4541/4541` frames |
+
+### Benchmark Metrics
+
+| Metric | Baseline | Context-256 candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.620` | `7.905` | `+40.66 %` |
+| DB completed elapsed | `808.038 s` | `574.481 s` | `-28.90 %` |
+| Step 2 frame wall | `467.450 s` | `242.392 s` | `-48.15 %` |
+| Step 2 through pose upload | `641.154 s` | `338.209 s` | `-47.25 %` |
+| GPU avg util | `11.846 %` | `17.636 %` | `+48.88 %` |
+| GPU peak util | `57.000 %` | `86.000 %` | `+50.88 %` |
+| Behavior RTT mean | `83.530 ms` | `89.717 ms` | `+7.41 %` |
+| Behavior RTT p95 | `129.514 ms` | `148.275 ms` | `+14.49 %` |
+| StudentTracks | `53` | `52` | `-1.89 %` |
+
+Model agreement against the accepted pre-shard baseline:
+
+| Model | F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `58.997 %` | `58.997 %` | `58.997 %` | `0.00 %` |
+| `hand_raising` | `61.109 %` | `61.109 %` | `61.109 %` | `0.00 %` |
+| `person_detection` | `61.767 %` | `61.651 %` | `61.883 %` | `+0.38 %` |
+| `sitting_standing` | `53.730 %` | `53.730 %` | `53.730 %` | `0.00 %` |
+
+### Decision
+
+Cycle 15.B1.C1 context-256 is **NOT ACCEPTED**. The throughput hypothesis is
+true, but the correctness gate fails. Model-agreement F1 remains `53.730 %` -
+`61.767 %`, `StudentTracks` remains `52` instead of the baseline `53`, and
+behavior RTT regresses. Increasing pre-roll context alone is therefore not a
+valid path to accept two-shard runtime.
+
+## Subcycle 15.B1.C2: Majority-Vote Canonicalizer Candidate
+
+**Streaming compatibility:** `offline-only`. This candidate modifies only the
+offline parent merge for sharded jobs. It must not be enabled on live profiles
+because the full sharding runtime is offline-only by constitution §8.6.
+
+### Problem Statement
+
+The current parent merge chooses one parent ID per child track by a single best
+IoU match in the boundary window. The deep probe and context-256 benchmark show
+that more boundary frames do not fix the issue while the one-best-hit algorithm
+remains in place.
+
+### Implementation
+
+| Item | Value |
+|---|---|
+| Default mode | `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou` |
+| Candidate mode | `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote` |
+| Match gate | `OFFLINE_VIDEO_SHARD_TRACK_MAP_IOU_THRESHOLD=0.50` |
+| Vote gate | `OFFLINE_VIDEO_SHARD_TRACK_MAP_MIN_MATCHES=3` |
+| Purity gate | `OFFLINE_VIDEO_SHARD_TRACK_MAP_PURITY_THRESHOLD=0.85` |
+| Code | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Benchmark wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+
+The candidate records `track_map_diagnostics` in the parent job metadata so the
+benchmark can explain whether tracks mapped to existing parent IDs or fell back
+to shard-local offset IDs.
+
+### Local Validation
+
+| Check | Result |
+|---|---|
+| Compile | `python -m py_compile backend\apps\video_analysis\services\offline_sharding.py` passed. |
+| Focused tests | `backend\.venv\Scripts\python.exe -m pytest backend\tests\unit\video_analysis\test_cycle15b1_shard_merge.py backend\tests\unit\video_analysis\test_cycle15b1_sharding_guard.py -q` passed: `7 passed`. |
+| Shell syntax | `bash -n tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh && bash -n tools/prod/prod_enable_parallel_flow.sh` passed. |
+
+### Required Production Benchmark
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json" \
+  --context-frames 256 \
+  --track-map-mode majority_vote \
+  --track-map-iou-threshold 0.50 \
+  --track-map-min-matches 3 \
+  --track-map-purity-threshold 0.85 \
+  --replay-key "cycle15b1c2-majority-vote-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+Acceptance requires a completed production benchmark, improved throughput
+versus the accepted pre-shard baseline, `StudentTracks=53`, and per-model
+agreement near the accepted single-job baseline. If C2 still fails model
+agreement, 15.B1 remains blocked and 15.B2 must not start.

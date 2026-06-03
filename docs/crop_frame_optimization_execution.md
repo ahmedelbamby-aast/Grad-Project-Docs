@@ -1486,6 +1486,29 @@ geometry F1 for the four persisted models but only `4.043 %`, `2.974 %`,
 rejected by this probe; the next implementation must benchmark a concrete
 identity-stitching candidate before sharding can advance.
 
+Cycle 15.B1.C deep probe note (2026-06-04): helper commit `3baa4cdc` adds an
+oracle relabeling upper-bound analysis, run on production at
+`/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z`.
+Shard-1 oracle relabeling improves attention `4.043 % -> 75.458 %`, hand
+`2.974 % -> 72.531 %`, person `21.308 % -> 56.733 %`, and sitting/standing
+`4.124 % -> 84.021 %`, but does not reach parity. Source-parent majority match
+is only `3.030 %` - `28.125 %`, proving the current 32-frame IoU-only map is
+not enough. The current-cycle queue therefore stays on sharding: run 15.B1.C1
+with `--context-frames 256` as the next full production benchmark before
+writing a more complex 15.B1.C2 canonicalizer. Do not move to 15.B2 or Cycle 17+
+until this boundary-stitching path is benchmarked.
+
+Cycle 15.B1.C1 context-window decision (2026-06-04): production benchmark
+`cycle15b1c1-context256-20260603T222123Z`, parent job
+`401498f1-d5e4-4b95-8a46-ad3fcbbc2c25`, completed `4541/4541` frames with
+context `256`. Performance improved versus the accepted pre-shard baseline
+(DB FPS `5.620 -> 7.905`, Step 2 frame wall `467.450 s -> 242.392 s`, GPU avg
+`11.846 % -> 17.636 %`), but correctness failed (`StudentTracks=52` vs `53`,
+model-agreement F1@IoU0.5 `58.997 %`, `61.109 %`, `61.767 %`, `53.730 %` for
+attention, hand, person, and sitting/standing). Behavior RTT also regressed
+`83.530 ms -> 89.717 ms`. Decision: **NOT ACCEPTED**. The next current-cycle
+candidate is 15.B1.C2 majority-vote track canonicalization, not 15.B2.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up

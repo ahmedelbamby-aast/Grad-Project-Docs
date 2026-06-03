@@ -1063,6 +1063,34 @@ identity-stitching candidate (context sweep, ReID-assisted canonicalizer, or
 tracker-state handoff) and then run the full production `combined.mp4`
 benchmark before any decision.
 
+Cycle 15.B1.C deep investigation is recorded under
+`/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/`
+using helper commit `3baa4cdc`. The oracle relabeling upper bound improves
+shard-1 track F1 but does not restore parity by itself: attention
+`4.043 % -> 75.458 %`, hand `2.974 % -> 72.531 %`, person
+`21.308 % -> 56.733 %`, and sitting/standing `4.124 % -> 84.021 %`.
+Source-parent majority match is only `3.030 %` - `28.125 %` on shard 1, so
+the current IoU-only 32-frame boundary map is not an acceptance path. Do not
+move to 15.B2 or a non-sharding cycle yet: the next executable subcycle is
+15.B1.C1, a full production context-window benchmark at `256` frames via
+`tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh --context-frames 256`.
+If that benchmark fails model agreement, the next code subcycle is a guarded
+15.B1.C2 canonicalizer with ambiguity gates rather than a simple whole-track
+relabel.
+
+Cycle 15.B1.C1 context `256` was then production-benchmarked as
+`cycle15b1c1-context256-20260603T222123Z`, parent job
+`401498f1-d5e4-4b95-8a46-ad3fcbbc2c25`. It completed `4541/4541` frames and
+proved the throughput path: DB FPS `5.620 -> 7.905`, Step 2 frame wall
+`467.450 s -> 242.392 s`, and GPU avg `11.846 % -> 17.636 %`. It is **NOT
+ACCEPTED** because correctness still fails: `StudentTracks` stayed `52` vs the
+baseline `53`, model-agreement F1@IoU0.5 was attention `58.997 %`, hand
+`61.109 %`, person `61.767 %`, and sitting/standing `53.730 %`, and behavior
+RTT regressed `83.530 ms -> 89.717 ms`. The next current-cycle implementation
+is therefore 15.B1.C2, a guarded majority-vote track canonicalizer behind
+`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`. Do not start 15.B2 until
+15.B1.C2 has either passed or failed a full production benchmark.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

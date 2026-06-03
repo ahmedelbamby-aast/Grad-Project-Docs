@@ -3054,6 +3054,103 @@ not preserve canonical identity labels in shard 1. The next benchmarked
 subcycle must therefore target boundary-state identity stitching, not detector
 geometry or row-copy idempotency.
 
+### 39.9 Cycle 15.B1.C Deep Stitching Investigation
+
+This is still `PROBE_ONLY` evidence. It extends §39.8 with an oracle relabeling
+upper bound and does not change the 15.B1 `NOT ACCEPTED` decision.
+
+| Item | Value |
+|---|---|
+| Helper commit | `3baa4cdc` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.md` |
+| Production validation | `4 passed` focused stitching tests at deployed SHA `3baa4cd` |
+| Decision authority | `PROBE_ONLY` |
+
+Shard-1 oracle relabeling upper bound:
+
+| Model | Current track F1 | Oracle relabel F1 | Mapped geometry | Source parent match |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `4.043 %` | `75.458 %` | `71.414 %` | `3.226 %` |
+| `hand_raising` | `2.974 %` | `72.531 %` | `69.557 %` | `3.333 %` |
+| `person_detection` | `21.308 %` | `56.733 %` | `53.148 %` | `28.125 %` |
+| `sitting_standing` | `4.124 %` | `84.021 %` | `80.077 %` | `3.030 %` |
+
+Decision boundary for the next benchmark:
+
+| Option | Decision | Reason |
+|---|---|---|
+| Move to 15.B2 four-shard runtime | `BLOCKED` | Two-shard identity is not fixed. |
+| Move to the next non-sharding cycle | `NOT SELECTED` | Current-cycle benchmark candidates still exist. |
+| Run 15.B1.C1 context `256` | `NEXT EXECUTABLE SUBCYCLE` | No new identity algorithm; duplicate-frame overhead is `5.637525 %`. |
+| Build 15.B1.C2 canonicalizer | `DEFER UNTIL C1 RESULT` | Oracle relabeling improves F1 but does not restore parity by itself. |
+
+### 39.10 Cycle 15.B1.C1 Context-256 Production Benchmark
+
+Cycle 15.B1.C1 was executed end-to-end on the production Linux RTX 5090 server
+using the canonical `combined.mp4` benchmark video. It changed only the two-shard
+pre-roll context from `32` to `256` frames and kept the existing `best_iou`
+parent track-map algorithm.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle15b1c1-context256-20260603T222123Z` |
+| Parent job | `401498f1-d5e4-4b95-8a46-ad3fcbbc2c25` |
+| Child jobs | `72a52989-c41a-4de5-8158-cd9232406c57`, `9b778437-8f84-464d-a620-c5be98677366` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c1-context256-20260603T222123Z` |
+| Metrics JSON/MD | `metrics.json`, `metrics.md` |
+| Model agreement JSON/MD | `model_agreement.json`, `model_agreement.md` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | Wrapper restored `OFFLINE_VIDEO_SHARDING_ENABLED=0`, `OFFLINE_VIDEO_SHARD_COUNT=1`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | Context-256 candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.620` | `7.905` | `+40.66 %` |
+| DB completed elapsed | `808.038 s` | `574.481 s` | `-28.90 %` |
+| Step 2 frame wall | `467.450 s` | `242.392 s` | `-48.15 %` |
+| Step 2 through pose upload | `641.154 s` | `338.209 s` | `-47.25 %` |
+| GPU avg util | `11.846 %` | `17.636 %` | `+48.88 %` |
+| GPU peak util | `57.000 %` | `86.000 %` | `+50.88 %` |
+| Behavior RTT mean | `83.530 ms` | `89.717 ms` | `+7.41 %` |
+| Behavior RTT p95 | `129.514 ms` | `148.275 ms` | `+14.49 %` |
+| StudentTracks | `53` | `52` | `-1.89 %` |
+
+Model-agreement gate:
+
+| Model | Candidate F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `58.997 %` | `58.997 %` | `58.997 %` | `0.00 %` |
+| `hand_raising` | `61.109 %` | `61.109 %` | `61.109 %` | `0.00 %` |
+| `person_detection` | `61.767 %` | `61.651 %` | `61.883 %` | `+0.38 %` |
+| `sitting_standing` | `53.730 %` | `53.730 %` | `53.730 %` | `0.00 %` |
+
+Decision: **Cycle 15.B1.C1 context-256 is NOT ACCEPTED**. It materially
+improves throughput and GPU utilization, but it fails the correctness gate:
+all four model-agreement F1 values remain far below the accepted near-parity
+threshold and `StudentTracks` still drops from `53` to `52`. Behavior RTT also
+regresses. More context alone is therefore not a valid sharding acceptance path.
+
+### 39.11 Cycle 15.B1.C2 Majority-Vote Canonicalizer Staged
+
+The next current-cycle candidate is a guarded parent-side majority-vote track
+canonicalizer. It replaces the one-best-boundary-hit map only when explicitly
+enabled through `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`; default
+production remains `best_iou`.
+
+| Field | Value |
+|---|---|
+| Candidate env | `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote` |
+| Candidate gates | `OFFLINE_VIDEO_SHARD_TRACK_MAP_IOU_THRESHOLD=0.50`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_MIN_MATCHES=3`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_PURITY_THRESHOLD=0.85` |
+| Code path | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh --track-map-mode majority_vote` |
+| Streaming compatibility | `offline-only`; sharding remains forbidden on live profiles. |
+
+No acceptance or rejection exists for 15.B1.C2 until a full production
+`combined.mp4` benchmark completes and writes metrics/model-agreement evidence.
+
 ---
 
 *Updated from production run on 2026-06-04. Update this file after each major pipeline change or hardware migration.*

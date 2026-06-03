@@ -840,6 +840,34 @@ Per § 8.6.2:
   sitting/standing track F1). This proves the next candidate must target
   canonical identity stitching, not box geometry. This probe has no decision
   authority; sharding remains disabled and 15.B2 remains blocked.
+- **2026-06-04 Cycle 15.B1.C deep stitching probe PROBE_ONLY**: helper commit
+  `3baa4cdc` adds oracle relabeling and candidate ranking to the same
+  read-only helper. Production evidence:
+  `/home/bamby/grad_project/backend/logs/cycle15b1c-deep-stitching-20260603T221605Z/deep_stitching_probe.json`
+  and `.md`. Shard-1 oracle relabeling improves track F1 but does not restore
+  parity by itself: attention `4.043 % -> 75.458 %`, hand `2.974 % ->
+  72.531 %`, person `21.308 % -> 56.733 %`, and sitting/standing
+  `4.124 % -> 84.021 %`. Source-parent majority match is only `3.030 %` -
+  `28.125 %`, so the current 32-frame IoU-only map is not a valid acceptance
+  path. **Next executable subcycle:** run 15.B1.C1 as a full production
+  `combined.mp4` context-window benchmark with `--context-frames 256`. If that
+  fails model agreement, implement 15.B1.C2 as a guarded canonicalizer with
+  ambiguity gates; do not advance to 15.B2 or unrelated cycles first.
+- **2026-06-04 Cycle 15.B1.C1 context-256 NOT ACCEPTED / Cycle 15.B1.C2
+  STAGED**: production benchmark
+  `cycle15b1c1-context256-20260603T222123Z`, parent job
+  `401498f1-d5e4-4b95-8a46-ad3fcbbc2c25`, completed `4541/4541` frames on
+  `combined.mp4`. Context `256` improved DB FPS `5.620 -> 7.905`, Step 2 frame
+  wall `467.450 s -> 242.392 s`, and GPU avg `11.846 % -> 17.636 %`, but it
+  failed correctness: `StudentTracks` stayed `52` vs baseline `53`, model
+  agreement F1@IoU0.5 was only attention `58.997 %`, hand `61.109 %`, person
+  `61.767 %`, and sitting/standing `53.730 %`, and behavior RTT regressed
+  `83.530 ms -> 89.717 ms`. Decision: **NOT ACCEPTED**. The next current-cycle
+  candidate is 15.B1.C2, a guarded majority-vote parent track canonicalizer
+  behind `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=majority_vote`; default remains
+  `best_iou` and sharding remains disabled after wrapper cleanup. No C2
+  acceptance/rejection exists until a full production benchmark completes and
+  writes model-agreement evidence.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
