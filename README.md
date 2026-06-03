@@ -249,6 +249,7 @@ validates against the working tree.
 | 111 | [`docs/entity/modules/apps.health.md`](docs/entity/modules/apps.health.md) | 2026-06-03 | DSP Cycle 3 — read-only runtime health surface. 3 APIViews + `HealthService` + `ModelServingHealthService` + `HealthConsumer` WS; reads `runtime_policy` + `degradation_service` from `apps.pipeline`. |
 | 112 | [`docs/entity/modules/apps.behavior.md`](docs/entity/modules/apps.behavior.md) | 2026-06-03 | DSP Cycle 3 — BSIL (Behavioral Semantic Inference Layer). 10 ORM tables, 5 sub-packages (`episodes/`, `graph/`, `pose_decision/`, `services/`, `temporal/`), 5 anomaly primitives, 7 contract enums, 4 audit exports, acceptance gate. |
 | 113 | [`docs/entity/modules/apps.contracts.md`](docs/entity/modules/apps.contracts.md) | 2026-06-03 | DSP Cycle 3 — cross-app contracts registry. Tiny governance shim: 1 ORM model (`ContractRegistryEntry`) + 3 serializer helpers (`governed_fields`, `governed_read_only_fields`, `explicit_model_field_names`) every other app's serializers must use. |
+| 114 | [`docs/entity/modules/apps.accounts.md`](docs/entity/modules/apps.accounts.md) | 2026-06-03 | DSP Cycle 3 — auth + RBAC. `User` AbstractUser + `Role` models, 4 end-user APIViews + 2 admin ViewSets + 8 serializers + 3 permission classes (`IsAdmin`, `HasPageAccess`, `HasActionPermission`) every other app imports. |
 
 ### Conventions used in this reading order
 
