@@ -2827,6 +2827,66 @@ so it does not accept, reject, skip, or close runtime sharding.
 Detailed result doc:
 `docs/cycle_15b_shard_design_probe_results.md`.
 
+### 39.4 15.B1 Runtime Readiness Audit
+
+After the pre-shard baseline, Cycle 15.B1 runtime Phase A ran a read-only
+production readiness audit. This was not a runtime benchmark and cannot accept
+or reject sharding.
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z/readiness.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z/readiness.md` |
+| Overall status | `blocked_no_runtime_candidate` |
+| Ready for runtime benchmark | `False` |
+| Critical blockers | `8` |
+| Warnings | `0` |
+
+| Readiness item | Status |
+|---|---|
+| Env flag in settings | `blocked` |
+| Production profile flag management | `blocked` |
+| Authoritative/context frame-window support | `blocked` |
+| Parent/shard lineage in task metadata | `blocked` |
+| Runtime benchmark wrapper | `blocked` |
+| Parent merge helper | `blocked` |
+| Frame idempotency | `ok` |
+| Track idempotency | `ok` |
+| Detection/BBox merge idempotency | `blocked` |
+| Embedding merge idempotency | `blocked` |
+| Pre-shard baseline metrics available | `ok` |
+| Production env safe default | `ok` |
+
+Decision: `NO_RUNTIME_BENCHMARK_STARTED`. The next code slice must remove these
+blockers before a two-shard production benchmark can be valid.
+
+### 39.5 Cycle 15.B1 Safe-Default Slice
+
+Cycle 15.B1 then added disabled env knobs, a targeted safe-default helper, and
+a fail-closed runtime guard. This is not an optimization benchmark and does not
+accept, reject, skip, or close sharding.
+
+| Item | Value |
+|---|---|
+| Investigation doc | `docs/cycle_15b1_two_shard_runtime_investigation.md` |
+| Readiness helper | `tools/prod/prod_check_cycle15b1_runtime_readiness.py` |
+| Safe env helper | `tools/prod/prod_set_cycle15b1_sharding_defaults.sh` |
+| Guarded task path | `backend/apps/video_analysis/tasks.py` |
+| Guard error | `cycle15b1_sharding_runtime_not_implemented` |
+
+Local validation before production deployment:
+
+| Check | Result |
+|---|---|
+| Focused unit tests | `2 passed` in `tests/unit/video_analysis/test_cycle15b1_sharding_guard.py`. |
+| Readiness audit | `blocked_no_runtime_candidate`, `5` critical blockers, `0` warnings. |
+| Decision | `NO_RUNTIME_BENCHMARK_STARTED`; runtime candidate still absent. |
+
+The remaining blockers are the implemented runtime candidate, reproducible
+two-shard benchmark wrapper, parent merge helper, detection/bounding-box
+provenance, and embedding provenance.
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

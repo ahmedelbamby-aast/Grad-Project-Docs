@@ -765,6 +765,26 @@ Per § 8.6.2:
   peak `57.000 %`, detection rows `72744`, bbox rows `72744`, embeddings
   `72578`, tracks `53`. Future 15.B1 runtime must beat these metrics while
   preserving DB/model parity.
+- **2026-06-03 Cycle 15.B1 two-shard runtime PHASE A STARTED / BLOCKED**:
+  `docs/cycle_15b1_two_shard_runtime_investigation.md` defines the parent/shard
+  runtime contract and `tools/prod/prod_check_cycle15b1_runtime_readiness.py`
+  provides a read-only production blocker audit. Production evidence:
+  `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z`.
+  Result: `blocked_no_runtime_candidate`, `8` critical blockers, `0` warnings.
+  The env is safe because `OFFLINE_VIDEO_SHARDING_ENABLED` is absent/off. A
+  valid runtime benchmark is blocked until env/profile management,
+  authoritative frame-window support, parent/shard lineage, a runtime wrapper,
+  a parent merge helper, and detection/bbox/embedding merge idempotency exist.
+- **2026-06-03 Cycle 15.B1 safe-default slice STAGED**:
+  disabled sharding knobs are now declared in settings/profile management,
+  `tools/prod/prod_set_cycle15b1_sharding_defaults.sh` sets only those keys,
+  and `process_video_upload` fails closed with
+  `cycle15b1_sharding_runtime_not_implemented` if a sharding flag or shard
+  metadata appears before the runtime candidate exists. Focused unit tests
+  passed and the local readiness audit now reports
+  `blocked_no_runtime_candidate` with `5` critical blockers. This is safety
+  and reproducibility work only: no two-shard runtime benchmark has started,
+  and no acceptance/rejection/skip/closure decision exists.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

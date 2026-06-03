@@ -143,3 +143,22 @@ runtime sharding.
 | Why no acceptance | No sharded runtime candidate was implemented or run. |
 | What this benchmark enables | Future 15.B1 runtime must beat `5.620` DB FPS, `467.450 s` Step 2 frame wall, `641.154 s` through-pose wall, `83.530 ms` behavior RTT mean, and preserve DB/model parity. |
 | Observed bottleneck signal | The completed baseline still spends `173.704 s` after the frame loop in pose-tail/upload work and `98.578 s` creating embeddings, so sharding must account for post-frame coordination rather than only splitting the frame loop. |
+
+## 15.B1 Runtime Readiness
+
+Cycle 15.B1 runtime Phase A is now tracked in
+`docs/cycle_15b1_two_shard_runtime_investigation.md`. Production readiness
+evidence at
+`/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z`
+returned `blocked_no_runtime_candidate` with `8` critical blockers and `0`
+warnings. A two-shard runtime benchmark remains invalid until the missing env
+gate, authoritative frame-window support, parent/shard lineage, runtime wrapper,
+merge helper, and row-idempotency blockers are implemented.
+
+Follow-up safe-default slice: settings/profile management now declare the
+disabled sharding env keys, `tools/prod/prod_set_cycle15b1_sharding_defaults.sh`
+sets only those keys, and `process_video_upload` fails closed with
+`cycle15b1_sharding_runtime_not_implemented` if sharding is requested before a
+runtime exists. The readiness audit is still `blocked_no_runtime_candidate`
+with `5` critical blockers: runtime candidate, benchmark wrapper, parent merge
+helper, detection/bbox provenance, and embedding provenance.

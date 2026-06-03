@@ -994,6 +994,27 @@ beat `5.620` DB FPS, `467.450 s` Step 2 frame wall, `641.154 s`
 through-pose wall, and `83.530 ms` behavior RTT mean while preserving
 DB/model parity.
 
+Cycle 15.B1 runtime Phase A is now started in
+`docs/cycle_15b1_two_shard_runtime_investigation.md`. The read-only production
+readiness audit at
+`/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z`
+returned `blocked_no_runtime_candidate` with `8` critical blockers. The
+production env is safe because `OFFLINE_VIDEO_SHARDING_ENABLED` is absent/off,
+but a valid runtime benchmark is blocked until env/profile management,
+authoritative frame-window support, parent/shard lineage, a runtime wrapper, a
+parent merge helper, and detection/bbox/embedding merge idempotency exist.
+
+Cycle 15.B1 safe-default slice is staged after that audit:
+`OFFLINE_VIDEO_SHARDING_ENABLED`, `OFFLINE_VIDEO_SHARD_COUNT`, and
+`OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES` are now declared disabled by default;
+`tools/prod/prod_set_cycle15b1_sharding_defaults.sh` sets only those keys; and
+`process_video_upload` fails closed with
+`cycle15b1_sharding_runtime_not_implemented` if sharding is requested before the
+runtime exists. Local validation passed focused guard tests and the readiness
+audit now reports `blocked_no_runtime_candidate` with `5` critical blockers.
+This is safety/config work only: it does not implement, accept, reject, skip, or
+close runtime sharding.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

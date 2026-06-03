@@ -1421,6 +1421,27 @@ coverage. 15.B1 has `32` context-only frames (`0.704691 %` overhead); 15.B2 has
 blocked until stitching, duplicate suppression, DB idempotency, parent/shard
 terminal-state coordination, and rollback are implemented.
 
+Cycle 15.B1 runtime readiness note (2026-06-03):
+`docs/cycle_15b1_two_shard_runtime_investigation.md` starts the two-shard
+runtime implementation contract after the pre-shard baseline benchmark
+`cycle15b-pre-shard-baseline-20260603T193531Z`. The read-only production audit
+in `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-20260603T200611Z`
+returned `blocked_no_runtime_candidate` with `8` critical blockers. The next
+code slice must add disabled-by-default env/profile management, authoritative
+frame-window support, parent/shard task lineage, a runtime benchmark wrapper, a
+parent merge helper, and detection/bbox/embedding merge idempotency before any
+two-shard runtime benchmark can be considered valid.
+
+Cycle 15.B1 safe-default slice note (2026-06-03):
+disabled sharding knobs now exist in settings/profile management,
+`tools/prod/prod_set_cycle15b1_sharding_defaults.sh` sets only those keys, and
+`process_video_upload` fails closed with
+`cycle15b1_sharding_runtime_not_implemented` if sharding is requested before a
+real runtime exists. Focused unit tests passed and the local readiness audit is
+still `blocked_no_runtime_candidate` with `5` critical blockers. No sharded
+benchmark has been started, and no acceptance/rejection/skip/closure decision
+exists.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up
