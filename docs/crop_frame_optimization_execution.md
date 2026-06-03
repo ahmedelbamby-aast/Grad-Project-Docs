@@ -1,6 +1,6 @@
 # Crop-Frame Optimization Execution Log
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 **Active baseline:** job `77650001-3c4b-4b0a-94aa-b4eb899b90df` (replay key `roi320-running-crop-frame-20260601T012133`).
 Baseline metrics: 4541 / 4541 frames, **1.308 FPS overall**, step-2 wall 2 175 s, avg GPU util **3.95 %**, peak 34 %.
@@ -1472,6 +1472,19 @@ Evidence is in
 Sharding remains disabled in production (`OFFLINE_VIDEO_SHARDING_ENABLED=0`).
 Do not move to four-shard runtime until boundary identity/track stitching is
 fixed and benchmarked.
+
+Cycle 15.B1.C probe note (2026-06-04):
+`tools/prod/prod_analyze_cycle15b1_stitching.py` starts the boundary identity
+stitching subcycle as `PROBE_ONLY` evidence. Production probe
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z`
+compared the accepted baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de`
+with the rejected sharded parent `e602a0ca-6efc-4cb0-8d30-9466fe76287b`.
+The result proves the failure is identity stitching rather than box geometry:
+shard 0 track F1 is effectively baseline, while shard 1 has `100.000 %`
+geometry F1 for the four persisted models but only `4.043 %`, `2.974 %`,
+`21.308 %`, and `4.124 %` track-sensitive F1. No optimization is accepted or
+rejected by this probe; the next implementation must benchmark a concrete
+identity-stitching candidate before sharding can advance.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

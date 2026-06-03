@@ -1,6 +1,6 @@
 # Agents Execution Guide
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
@@ -826,6 +826,20 @@ Per § 8.6.2:
   `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32`. Next work, if sharding remains in
   the queue, must target shard-boundary identity/track continuity before any
   four-shard or larger benchmark.
+- **2026-06-04 Cycle 15.B1.C boundary identity stitching PROBE_ONLY / STARTED**:
+  `tools/prod/prod_analyze_cycle15b1_stitching.py` now separates geometry-only
+  agreement from track-sensitive agreement for the rejected two-shard parent.
+  Production probe evidence:
+  `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json`
+  and `.md`, comparing baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de`
+  to sharded parent `e602a0ca-6efc-4cb0-8d30-9466fe76287b`. Result: shard 0
+  stays aligned (`100 %` track F1 for attention/hand/posture boxes and
+  `99.613 %` for person_detection), but shard 1 has near-perfect geometry
+  (`100 %` geometry F1 for all four models) and broken track labels
+  (`4.043 %` attention, `2.974 %` hand, `21.308 %` person, `4.124 %`
+  sitting/standing track F1). This proves the next candidate must target
+  canonical identity stitching, not box geometry. This probe has no decision
+  authority; sharding remains disabled and 15.B2 remains blocked.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

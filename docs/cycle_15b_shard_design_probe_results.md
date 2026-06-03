@@ -1,10 +1,9 @@
 # Cycle 15.B Shard Design Probe Results
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
-**Status:** DESIGN PROOF PASSED / RUNTIME IMPLEMENTATION STILL BLOCKED. No
-sharded inference runtime has been implemented, production-benchmarked,
-accepted, rejected, skipped, or closed.
+**Status:** DESIGN PROOF PASSED / TWO-SHARD RUNTIME NOT ACCEPTED /
+BOUNDARY-STITCHING SUBCYCLE ACTIVE.
 
 **Streaming compatibility:** `offline-only`. The probe and every future
 sharded runtime candidate MUST remain disabled for RTSP, RTSPS, WHEP/WebRTC,
@@ -24,6 +23,8 @@ HLS fallback, and all live stream profiles.
 | Production markdown | `/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z/shard_plan.md` | Human-readable production evidence. |
 | Pre-shard baseline metrics | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json` | Full production baseline metrics for the accepted single-job runtime before any sharded runtime implementation. |
 | Pre-shard baseline markdown | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.md` | Human-readable baseline evidence bundle. |
+| Stitching probe helper | `tools/prod/prod_analyze_cycle15b1_stitching.py` | Read-only helper that separates geometry agreement from track-sensitive identity agreement. |
+| Stitching probe evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` | Production proof that 15.B1 failed due to shard-1 identity labels, not geometry. |
 
 ## Production Evidence
 
@@ -190,3 +191,15 @@ is under
 `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/`.
 The design proof remains useful, but runtime sharding must stay disabled until
 boundary identity/track stitching is fixed and benchmarked.
+
+Superseding boundary-stitching probe (2026-06-04): Cycle 15.B1.C has started
+as `PROBE_ONLY` evidence. The helper
+`tools/prod/prod_analyze_cycle15b1_stitching.py` compared the accepted
+pre-shard baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de` against the
+rejected sharded parent job `e602a0ca-6efc-4cb0-8d30-9466fe76287b`. Evidence:
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json`
+and `.md`. The probe shows shard 0 preserves track labels, while shard 1 keeps
+geometry but loses identity: shard-1 geometry F1 is `100.000 %` for the four
+persisted models, but track-sensitive F1 is `4.043 %`, `2.974 %`,
+`21.308 %`, and `4.124 %`. 15.B2 remains blocked until a concrete
+identity-stitching candidate passes a full production benchmark.

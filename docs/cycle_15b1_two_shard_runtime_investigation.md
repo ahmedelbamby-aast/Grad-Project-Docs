@@ -1,6 +1,6 @@
 # Cycle 15.B1 Two-Shard Runtime Investigation
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 **Status:** PRODUCTION BENCHMARK COMPLETED / NOT ACCEPTED. The two-shard
 runtime improved throughput and GPU utilization, but failed StudentTrack
@@ -50,6 +50,8 @@ tracking continuity, embeddings, terminal state, and rollback.
 | Shard planner | `tools/prod/prod_plan_video_shards.py` | Computes deterministic shard ownership and pre-roll frames. |
 | Runtime readiness helper | `tools/prod/prod_check_cycle15b1_runtime_readiness.py` | Reproducibly reports blockers before a runtime benchmark. |
 | Safe env-default helper | `tools/prod/prod_set_cycle15b1_sharding_defaults.sh` | Sets only disabled Cycle 15.B1 env defaults without rewriting accepted inference flags. |
+| Stitching probe | `tools/prod/prod_analyze_cycle15b1_stitching.py` | Separates geometry agreement from track-sensitive identity agreement. |
+| Stitching evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` | Production proof that geometry stayed aligned while shard-1 track labels diverged. |
 | Offline task code | `backend/apps/video_analysis/tasks.py` | Owns frame inference, tracking assignment, Step 3 persistence, render, and embedding handoff. |
 | Job and row models | `backend/apps/video_analysis/models.py` | Owns job, frame, detection, bounding-box, track, and embedding persistence constraints. |
 | Ingest command | `backend/apps/video_analysis/management/commands/runtime_ingest_video.py` | Current benchmark entrypoint creates one lifecycle job per replay. |
@@ -342,3 +344,99 @@ Decision:
 Final status: **NOT ACCEPTED**. Keep sharding disabled. Do not advance to
 15.B2 four-shard runtime until a new sub-cycle preserves boundary identity and
 model agreement across the parent merge.
+
+## Subcycle 15.B1.C: Boundary Identity Stitching Probe
+
+**Status:** `PROBE_ONLY / SUBCYCLE STARTED`. This subcycle has no optimization
+decision authority. It exists to prove the next implementation target before
+changing the sharded runtime again.
+
+**Streaming compatibility:** `offline-only`. This subcycle still relies on
+whole-file shard boundaries, parent/shard metadata, and historical benchmark
+jobs. It MUST remain disabled for live RTSP, RTSPS, WHEP/WebRTC, and HLS
+fallback profiles.
+
+### Problem
+
+The rejected 15.B1 runtime improved throughput but failed model agreement. The
+open question was whether that failure came from changed detections/boxes or
+from identity labels diverging after the shard boundary.
+
+### Implementation
+
+A read-only production helper now exists:
+`tools/prod/prod_analyze_cycle15b1_stitching.py`.
+
+The helper compares a baseline job and sharded parent job in two modes:
+
+| Mode | Matching key | Purpose |
+|---|---|---|
+| Geometry-only | frame + model + IoU | Detect whether boxes moved or disappeared. |
+| Track-sensitive | frame + model + track label + IoU | Detect whether identity labels still match. |
+
+Local validation:
+
+| Check | Result |
+|---|---|
+| Python compile | `python -m py_compile tools/prod/prod_analyze_cycle15b1_stitching.py` passed. |
+| Unit tests | `backend\.venv\Scripts\python.exe -m pytest backend\tests\unit\pipeline\test_prod_analyze_cycle15b1_stitching.py -q` passed: `2 passed`. |
+| CI workflow | `.github/workflows/inference-parallelization.yml` now compiles the helper and runs the unit test. |
+
+### Production Probe Evidence
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.md` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
+| Decision authority | `PROBE_ONLY` |
+
+Track-map summary:
+
+| Child job | Source tracks | Parent tracks | Passthrough | Offset | Many-to-one targets |
+|---|---:|---:|---:|---:|---:|
+| `f74de22a-0a37-4546-8029-a88264d55bad` | `38` | `38` | `38` | `0` | `0` |
+| `8d49bd97-072b-4ebf-bf17-510eb820b6a6` | `35` | `33` | `0` | `14` | `2` |
+
+Agreement split:
+
+| Segment | Model | Geometry F1 | Track F1 | Identity loss |
+|---|---|---:|---:|---:|
+| `all` | `attention_tracking` | `100.000 %` | `59.473 %` | `40.527 %` |
+| `all` | `hand_raising` | `100.000 %` | `60.700 %` | `39.300 %` |
+| `all` | `person_detection` | `99.802 %` | `61.387 %` | `38.492 %` |
+| `all` | `sitting_standing` | `100.000 %` | `53.455 %` | `46.545 %` |
+| `shard0_authoritative` | `attention_tracking` | `100.000 %` | `100.000 %` | `0.000 %` |
+| `shard0_authoritative` | `hand_raising` | `100.000 %` | `100.000 %` | `0.000 %` |
+| `shard0_authoritative` | `person_detection` | `99.613 %` | `99.613 %` | `0.000 %` |
+| `shard0_authoritative` | `sitting_standing` | `100.000 %` | `100.000 %` | `0.000 %` |
+| `shard1_authoritative` | `attention_tracking` | `100.000 %` | `4.043 %` | `95.957 %` |
+| `shard1_authoritative` | `hand_raising` | `100.000 %` | `2.974 %` | `97.026 %` |
+| `shard1_authoritative` | `person_detection` | `100.000 %` | `21.308 %` | `78.692 %` |
+| `shard1_authoritative` | `sitting_standing` | `100.000 %` | `4.124 %` | `95.876 %` |
+| `boundary_before_shard1` | `attention_tracking` | `100.000 %` | `51.000 %` | `49.000 %` |
+| `boundary_before_shard1` | `hand_raising` | `100.000 %` | `59.836 %` | `40.164 %` |
+| `boundary_before_shard1` | `person_detection` | `87.937 %` | `64.762 %` | `26.354 %` |
+| `boundary_before_shard1` | `sitting_standing` | `100.000 %` | `47.711 %` | `52.289 %` |
+
+### Interpretation
+
+The failed 15.B1 candidate did not primarily lose behavior boxes. It lost
+canonical identity continuity after the shard boundary. Shard 0 stays aligned
+with the baseline, but shard 1 has nearly perfect geometry and almost no
+track-label agreement. The current IoU-only boundary map is therefore
+insufficient for full-video identity continuity.
+
+### Candidate Split For Next Work
+
+| Candidate | Description | Risk | Benchmark gate |
+|---|---|---|---|
+| 15.B1.C1 overlap-context sweep | Re-run two-shard runtime with larger context windows such as `128`, `256`, and `512` frames. | Medium: more duplicate decode and no guarantee of ID recovery. | Must restore model agreement while preserving the 15.B1 throughput gain. |
+| 15.B1.C2 ReID-assisted canonicalizer | Compute boundary or track-level embeddings before parent merge and map shard-local IDs by visual identity plus IoU. | High: extra embedding cost and false-merge risk. | Must keep StudentTracks `53`, model agreement near baseline, and show net FPS improvement. |
+| 15.B1.C3 tracker-state handoff | Seed shard 1 tracker from shard 0 state before inference. | High: may serialize shards and erase speedup. | Must preserve parallelism advantage and identity continuity. |
+
+Next implementation must choose one candidate, add a rollback flag, run the
+full production `combined.mp4` benchmark, and satisfy Section 12.5/12.6 before
+any acceptance or rejection decision is made.

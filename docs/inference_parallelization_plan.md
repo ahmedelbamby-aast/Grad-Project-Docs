@@ -1,6 +1,6 @@
 # Inference Pipeline Parallelization Plan
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 **Status:** IMPLEMENTATION COMPLETE — **ROI-320 production benchmark partial; final GPU-utilization acceptance pending.**
 **Owner:** runtime/inference
@@ -1048,6 +1048,20 @@ Evidence is under
 `/home/bamby/grad_project/backend/logs/cycle15b1-two-shard-runtime-repeat-20260603T211319Z/`.
 Keep `OFFLINE_VIDEO_SHARDING_ENABLED=0`; future sharding work must first fix
 boundary-state identity/track stitching before any 15.B2 four-shard benchmark.
+
+Cycle 15.B1.C is now started as a `PROBE_ONLY` boundary identity-stitching
+subcycle. The read-only helper
+`tools/prod/prod_analyze_cycle15b1_stitching.py` was run on production against
+baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de` and sharded parent
+`e602a0ca-6efc-4cb0-8d30-9466fe76287b`; evidence lives under
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/`.
+The probe proves geometry is preserved while shard-1 identity labels are not:
+shard-1 geometry F1 is `100.000 %` for attention, hand, person, and
+sitting/standing, but track-sensitive F1 is `4.043 %`, `2.974 %`, `21.308 %`,
+and `4.124 %` respectively. The next implementation must choose a governed
+identity-stitching candidate (context sweep, ReID-assisted canonicalizer, or
+tracker-state handoff) and then run the full production `combined.mp4`
+benchmark before any decision.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C

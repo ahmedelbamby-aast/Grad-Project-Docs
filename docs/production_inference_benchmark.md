@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -3020,6 +3020,40 @@ shard boundary. Keep `OFFLINE_VIDEO_SHARDING_ENABLED=0`. Do not run 15.B2
 four-shard or larger sharding until a new benchmarked sub-cycle fixes
 boundary-state/track stitching and restores model agreement.
 
+### 39.8 Cycle 15.B1.C Track Stitching Probe
+
+This is `PROBE_ONLY` evidence for the next sharding subcycle. It is not a
+production optimization decision and does not change the 15.B1 `NOT ACCEPTED`
+status.
+
+| Item | Value |
+|---|---|
+| Probe helper | `tools/prod/prod_analyze_cycle15b1_stitching.py` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.md` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
+
+The probe separates geometry agreement from track-label agreement:
+
+| Segment | Model | Geometry F1 | Track F1 | Identity loss |
+|---|---|---:|---:|---:|
+| `all` | `attention_tracking` | `100.000 %` | `59.473 %` | `40.527 %` |
+| `all` | `hand_raising` | `100.000 %` | `60.700 %` | `39.300 %` |
+| `all` | `person_detection` | `99.802 %` | `61.387 %` | `38.492 %` |
+| `all` | `sitting_standing` | `100.000 %` | `53.455 %` | `46.545 %` |
+| `shard0_authoritative` | `attention_tracking` | `100.000 %` | `100.000 %` | `0.000 %` |
+| `shard1_authoritative` | `attention_tracking` | `100.000 %` | `4.043 %` | `95.957 %` |
+| `shard1_authoritative` | `hand_raising` | `100.000 %` | `2.974 %` | `97.026 %` |
+| `shard1_authoritative` | `person_detection` | `100.000 %` | `21.308 %` | `78.692 %` |
+| `shard1_authoritative` | `sitting_standing` | `100.000 %` | `4.124 %` | `95.876 %` |
+
+Interpretation: the rejected 15.B1 run mostly preserved box geometry but did
+not preserve canonical identity labels in shard 1. The next benchmarked
+subcycle must therefore target boundary-state identity stitching, not detector
+geometry or row-copy idempotency.
+
 ---
 
-*Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*
+*Updated from production run on 2026-06-04. Update this file after each major pipeline change or hardware migration.*
