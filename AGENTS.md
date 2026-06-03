@@ -737,6 +737,13 @@ Per § 8.6.2:
   `0.704691 %` duplicate overlap frames. Four-shard or larger variants remain
   blocked until two-shard stitching, duplicate suppression, DB idempotency, and
   parent/shard terminal-state coordination are proven.
+- **2026-06-03 Cycle 15.B1/B2 read-only design helper STAGED**:
+  `tools/prod/prod_plan_video_shards.py` and
+  `tools/prod/prod_run_cycle15b_shard_design_probe.sh` compute deterministic
+  shard intervals for 15.B1 two-shard and 15.B2 four-shard design proof. They
+  do not submit jobs, change env, restart services, or benchmark runtime speed.
+  Both scenarios are `offline-only`; per constitution §8.6 they must not be
+  enabled on RTSP, RTSPS, WHEP/WebRTC, HLS fallback, or any live stream profile.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

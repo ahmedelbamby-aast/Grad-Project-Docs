@@ -966,6 +966,15 @@ offline inference because Phase A estimated only `0.704691 %` duplicate
 overlap frames. Four-shard and larger variants remain blocked until two-shard
 stitching and DB idempotency are proven.
 
+Cycle 15.B now has read-only design-proof helpers:
+`tools/prod/prod_plan_video_shards.py` and
+`tools/prod/prod_run_cycle15b_shard_design_probe.sh`. The sub-scenarios are
+split in `docs/cycle_15b1_two_shard_design_proof_investigation.md` and
+`docs/cycle_15b2_four_shard_design_proof_investigation.md`. These helpers only
+prove shard interval math, pre-roll context, and authoritative frame ownership;
+they do not authorize sharded inference implementation or production
+acceptance.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

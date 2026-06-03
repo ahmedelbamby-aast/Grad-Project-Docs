@@ -1402,6 +1402,15 @@ Four-shard or larger scenarios remain blocked until two-shard stitching,
 duplicate suppression, DB idempotency, and parent/shard terminal-state
 coordination are proven.
 
+Cycle 15.B1/B2 design-proof implementation note (2026-06-03):
+`tools/prod/prod_plan_video_shards.py` and
+`tools/prod/prod_run_cycle15b_shard_design_probe.sh` are staged as read-only
+helpers. They do not submit shard jobs, change env, restart services, or
+benchmark runtime speed. The helper proves deterministic authoritative frame
+ownership and pre-roll context for 15.B1 two-shard and 15.B2 four-shard
+scenarios. Both scenarios are `offline-only` under constitution §8.6 and must
+remain disabled for RTSP/RTSPS/live profiles.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up

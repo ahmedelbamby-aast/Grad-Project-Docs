@@ -74,6 +74,8 @@
 - [Cycle 15 CUDA Shared Memory vs Video Sharding Investigation](cycle_15_cuda_shared_memory_vs_sharding_investigation.md)
 - [Cycle 15 CUDA Shared Memory vs Video Sharding Results](cycle_15_cuda_shared_memory_vs_sharding_results.md)
 - [Cycle 15.B Video Sharding Design-Proof Investigation](cycle_15b_video_sharding_design_proof_investigation.md)
+- [Cycle 15.B1 Two-Shard Design-Proof Investigation](cycle_15b1_two_shard_design_proof_investigation.md)
+- [Cycle 15.B2 Four-Shard Design-Proof Investigation](cycle_15b2_four_shard_design_proof_investigation.md)
 - [Cycle 20 Streaming Persistence and Embedding Overlap Investigation](cycle_20_streaming_persistence_embedding_overlap_investigation.md)
 - [Cycle 21 Celery Concurrency Scaling Investigation](cycle_21_celery_concurrency_scaling_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)

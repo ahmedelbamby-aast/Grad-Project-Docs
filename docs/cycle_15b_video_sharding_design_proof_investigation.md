@@ -5,6 +5,10 @@
 **Status:** PHASE A STARTED. No video-sharding implementation, production
 benchmark, acceptance, rejection, skip, or closure exists yet.
 
+**Streaming compatibility:** `offline-only`. Video sharding requires whole-file
+access and parent/shard lifecycle coordination, so it is forbidden on RTSP,
+RTSPS, WHEP/WebRTC, HLS fallback, and all live stream profiles.
+
 ## Problem Statement
 
 Cycle 15 Phase A selected video sharding for design proof, not implementation.
@@ -29,6 +33,9 @@ multi-process code is written.
 | Pose runtime | `backend/apps/pipeline/services/pose_runtime.py` | Current accepted cross-frame RTMPose batching. |
 | Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` | Required evidence schema for future candidate benchmarks. |
 | Live watcher | `tools/prod/prod_watch_benchmark_metrics.sh` | Live benchmark metrics display that future sharding runs must support. |
+| 15.B1 investigation | `docs/cycle_15b1_two_shard_design_proof_investigation.md` | Two-shard dry-run scenario. |
+| 15.B2 investigation | `docs/cycle_15b2_four_shard_design_proof_investigation.md` | Four-shard dry-run scenario. |
+| Shard planner | `tools/prod/prod_plan_video_shards.py` | Computes deterministic shard ownership and context-only frames. |
 
 ## Candidate Split
 
@@ -74,7 +81,8 @@ behavior.
 
 ## Next Step
 
-Create a design-proof script or dry-run helper that emits shard intervals,
-overlap windows, expected authoritative frame ownership, and duplicate-row
-suppression rules for `combined.mp4`. This helper must be benchmark-neutral and
-must not submit shard jobs yet.
+Run the design-proof helper
+`tools/prod/prod_run_cycle15b_shard_design_probe.sh` on production. It emits
+shard intervals, overlap windows, expected authoritative frame ownership, and
+duplicate-row suppression rules for `combined.mp4`. This helper is
+benchmark-neutral and must not submit shard jobs.
