@@ -1411,6 +1411,16 @@ ownership and pre-roll context for 15.B1 two-shard and 15.B2 four-shard
 scenarios. Both scenarios are `offline-only` under constitution §8.6 and must
 remain disabled for RTSP/RTSPS/live profiles.
 
+Cycle 15.B design-proof result note (2026-06-03):
+`docs/cycle_15b_shard_design_probe_results.md` records production dry-run
+evidence from
+`/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z`.
+Both 15.B1 two-shard and 15.B2 four-shard plans have exact authoritative
+coverage. 15.B1 has `32` context-only frames (`0.704691 %` overhead); 15.B2 has
+`96` context-only frames (`2.114072 %` overhead). Runtime sharding remains
+blocked until stitching, duplicate suppression, DB idempotency, parent/shard
+terminal-state coordination, and rollback are implemented.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up

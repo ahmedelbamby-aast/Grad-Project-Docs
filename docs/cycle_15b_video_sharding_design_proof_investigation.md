@@ -2,8 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No video-sharding implementation, production
-benchmark, acceptance, rejection, skip, or closure exists yet.
+**Status:** DESIGN PROOF PASSED / RUNTIME IMPLEMENTATION STILL BLOCKED. No
+video-sharding runtime implementation, production benchmark, acceptance,
+rejection, skip, or closure exists yet. Results are recorded in
+`docs/cycle_15b_shard_design_probe_results.md`.
 
 **Streaming compatibility:** `offline-only`. Video sharding requires whole-file
 access and parent/shard lifecycle coordination, so it is forbidden on RTSP,
@@ -36,6 +38,7 @@ multi-process code is written.
 | 15.B1 investigation | `docs/cycle_15b1_two_shard_design_proof_investigation.md` | Two-shard dry-run scenario. |
 | 15.B2 investigation | `docs/cycle_15b2_four_shard_design_proof_investigation.md` | Four-shard dry-run scenario. |
 | Shard planner | `tools/prod/prod_plan_video_shards.py` | Computes deterministic shard ownership and context-only frames. |
+| Design result | `docs/cycle_15b_shard_design_probe_results.md` | Records the production dry-run comparison. |
 
 ## Candidate Split
 
@@ -81,8 +84,8 @@ behavior.
 
 ## Next Step
 
-Run the design-proof helper
-`tools/prod/prod_run_cycle15b_shard_design_probe.sh` on production. It emits
-shard intervals, overlap windows, expected authoritative frame ownership, and
-duplicate-row suppression rules for `combined.mp4`. This helper is
-benchmark-neutral and must not submit shard jobs.
+Use `docs/cycle_15b_shard_design_probe_results.md` as the design-proof result.
+The next task is a narrow 15.B1 runtime implementation plan for two shards,
+but code remains blocked until track stitching, duplicate suppression, DB
+idempotency, parent/shard terminal-state coordination, and rollback are
+specified.

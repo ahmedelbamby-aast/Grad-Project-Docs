@@ -2,8 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No two-shard runtime implementation, production
-benchmark, acceptance, rejection, skip, or closure exists yet.
+**Status:** DESIGN PROOF PASSED / RUNTIME IMPLEMENTATION STILL BLOCKED. No
+two-shard runtime implementation, production benchmark, acceptance, rejection,
+skip, or closure exists yet. Results are recorded in
+`docs/cycle_15b_shard_design_probe_results.md`.
 
 **Streaming compatibility:** `offline-only`. Video sharding relies on whole-file
 boundaries and parent/shard coordination, so it MUST NOT run on RTSP, RTSPS, or

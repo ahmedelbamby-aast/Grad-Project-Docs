@@ -975,6 +975,15 @@ prove shard interval math, pre-roll context, and authoritative frame ownership;
 they do not authorize sharded inference implementation or production
 acceptance.
 
+Cycle 15.B design proof is recorded in
+`docs/cycle_15b_shard_design_probe_results.md`. Production dry-run evidence at
+`/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z`
+proves exact authoritative coverage for both 15.B1 and 15.B2. 15.B1 is the
+only candidate eligible for the next runtime implementation plan because it
+has the lower boundary count and `0.704691 %` context overhead. No FPS,
+latency, throughput, or GPU-utilization improvement can be claimed until a
+future sharded runtime benchmark runs.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

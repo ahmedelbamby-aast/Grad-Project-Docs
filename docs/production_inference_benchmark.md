@@ -2721,4 +2721,41 @@ Detailed result doc:
 
 ---
 
+## 38. Cycle 15.B Shard Design Probe
+
+Cycle 15.B ran a production dry-run for the two selected sharding design
+scenarios. It did not submit inference jobs, edit `.env`, restart services, or
+benchmark runtime speed. The result only proves deterministic frame ownership
+and context-only pre-roll math.
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z` |
+| Deployed SHA | `f55fb85` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Frames | `4541` |
+| FPS | `30.0` |
+| Streaming compatibility | `offline-only` |
+| Runtime mutation | none |
+
+### 38.1 Scenario Comparison
+
+| Scenario | Shards | Authoritative frames | Decoded frames | Context-only frames | Context overhead | Coverage |
+|---|---:|---:|---:|---:|---:|---|
+| 15.B1 | `2` | `4541` | `4573` | `32` | `0.704691 %` | `True` |
+| 15.B2 | `4` | `4541` | `4637` | `96` | `2.114072 %` | `True` |
+
+### 38.2 Decision Boundary
+
+| Candidate | Decision | Reason |
+|---|---|---|
+| 15.B1 two-shard | DESIGN PROOF PASSED | Exact coverage and lowest context overhead. |
+| 15.B2 four-shard | DESIGN PROOF PASSED, NOT FIRST IMPLEMENTATION | Exact coverage but more boundaries and 3x context-only frames. |
+| Runtime sharding | BLOCKED | Track stitching, DB idempotency, parent/shard terminal state, and rollback are not implemented. |
+
+Detailed result doc:
+`docs/cycle_15b_shard_design_probe_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

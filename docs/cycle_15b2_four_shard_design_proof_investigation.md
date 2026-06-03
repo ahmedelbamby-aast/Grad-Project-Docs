@@ -2,8 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No four-shard runtime implementation, production
-benchmark, acceptance, rejection, skip, or closure exists yet.
+**Status:** DESIGN PROOF PASSED / NOT FIRST IMPLEMENTATION. No four-shard
+runtime implementation, production benchmark, acceptance, rejection, skip, or
+closure exists yet. Results are recorded in
+`docs/cycle_15b_shard_design_probe_results.md`.
 
 **Streaming compatibility:** `offline-only`. Four-shard video partitioning
 depends on whole-file access and parent/shard lifecycle coordination, so it

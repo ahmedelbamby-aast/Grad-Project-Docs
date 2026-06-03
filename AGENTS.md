@@ -744,6 +744,15 @@ Per § 8.6.2:
   do not submit jobs, change env, restart services, or benchmark runtime speed.
   Both scenarios are `offline-only`; per constitution §8.6 they must not be
   enabled on RTSP, RTSPS, WHEP/WebRTC, HLS fallback, or any live stream profile.
+- **2026-06-03 Cycle 15.B design proof PASSED / runtime still blocked**:
+  `docs/cycle_15b_shard_design_probe_results.md` records production dry-run
+  evidence from
+  `/home/bamby/grad_project/backend/logs/cycle15b-shard-design-20260603T191500Z`
+  at deployed SHA `f55fb85`. 15.B1 two-shard and 15.B2 four-shard both have
+  exact authoritative frame coverage. 15.B1 has `32` context-only frames
+  (`0.704691 %` overhead); 15.B2 has `96` (`2.114072 %`). Runtime sharding is
+  still blocked until stitching, duplicate suppression, PostgreSQL idempotency,
+  parent/shard terminal-state coordination, and rollback are implemented.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
