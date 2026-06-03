@@ -236,6 +236,7 @@ validates against the working tree.
 | 102 | [`docs/entity/systems/frontend_spa.md`](docs/entity/systems/frontend_spa.md) | 2026-06-02 | DSP Cycle 2 — React 19 + Vite 8 SPA. REST (axios `/api/v1`) + WS (`useWebSocket`) + WHEP (`useWhepClient`). Closes Cycle 2 (6 of 6 systems). |
 | 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-03 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
 | 104 | [`docs/entity/modules/apps.pipeline.md`](docs/entity/modules/apps.pipeline.md) | 2026-06-03 | DSP Cycle 3 — shared inference infrastructure. `TritonClient` + `ModelRouteService` + `runtime_policy` + `ensemble_validator` + LPM solver + `model_lifecycle/` + `layers/` sub-packages. The single gRPC entry point to Triton. |
+| 105 | [`docs/entity/modules/apps.tracking.md`](docs/entity/modules/apps.tracking.md) | 2026-06-03 | DSP Cycle 3 — tracking + ReID + render layer. `ByteSortTracker` + `TrackingService` + ReID with conservative-decision policy + Redis-cached embeddings + annotated-video renderer + live RTSP capture. |
 
 ### Conventions used in this reading order
 
