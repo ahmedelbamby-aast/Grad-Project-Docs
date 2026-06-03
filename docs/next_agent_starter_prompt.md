@@ -179,7 +179,7 @@ ssh prod-grad "cd /home/bamby/grad_project && bash tools/prod/prod_verify_per_fr
 
 Run `prod_run_parallel_flow_benchmark.sh` with `run_in_background: true`
 and set up a `Monitor` task that watches DB job status. The bench takes
-~17 min on `combined.mp4` for the current accepted baseline.
+~15.6 min on `combined.mp4` for the current accepted baseline.
 
 ---
 

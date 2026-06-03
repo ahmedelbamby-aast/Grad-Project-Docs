@@ -52,7 +52,7 @@ context.
 
 | # | File | Last updated | Why read this here |
 |---|---|---|---|
-| 12 | [`docs/runtime_sla_video_plus_5min.md`](docs/runtime_sla_video_plus_5min.md) | 2026-06-02 | **The SLA contract**: `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (4 541 frames, 2 m 31 s) that means total ≤ 7 m 31 s = **≥ 10.07 FPS overall**. |
+| 12 | [`docs/runtime_sla_video_plus_5min.md`](docs/runtime_sla_video_plus_5min.md) | 2026-06-03 | **The SLA contract**: `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (4 541 frames, 2 m 31 s) that means total ≤ 7 m 31 s = **≥ 10.07 FPS overall**. |
 | 13 | [`docs/triton_models_and_tensor_anatomy.md`](docs/triton_models_and_tensor_anatomy.md) | 2026-06-01 | What every Triton-loaded model does + tensor shapes + byte math for the dense-output inefficiency the cycles attack. |
 | 14 | [`docs/inference_parallelization_plan.md`](docs/inference_parallelization_plan.md) | 2026-06-02 | The original parallelization plan (binary tensors, async fan-out, dynamic batching). |
 | 15 | [`docs/inference_bottlenecks_and_solution_matrix.md`](docs/inference_bottlenecks_and_solution_matrix.md) | 2026-05-22 | Catalog of bottlenecks ranked by leverage. |
@@ -235,6 +235,7 @@ validates against the working tree.
 | 101 | [`docs/entity/systems/camera_streaming_bridge.md`](docs/entity/systems/camera_streaming_bridge.md) | 2026-06-02 | DSP Cycle 2 — RTSP / ONVIF ingestion + go2rtc / gst-mediamtx registration + nginx WHEP proxy for browser preview. Owns the `CameraSource` model + WHEP plumbing. |
 | 102 | [`docs/entity/systems/frontend_spa.md`](docs/entity/systems/frontend_spa.md) | 2026-06-02 | DSP Cycle 2 — React 19 + Vite 8 SPA. REST (axios `/api/v1`) + WS (`useWebSocket`) + WHEP (`useWhepClient`). Closes Cycle 2 (6 of 6 systems). |
 | 103 | [`docs/entity/modules/apps.video_analysis.md`](docs/entity/modules/apps.video_analysis.md) | 2026-06-03 | DSP Cycle 3 — first module entity doc. Owns both Celery tasks (`process_video_upload`, `run_live_stream_inference`) + 14 models + 15 REST endpoints + 7 management commands. The orchestration hub. |
+| 104 | [`docs/entity/modules/apps.pipeline.md`](docs/entity/modules/apps.pipeline.md) | 2026-06-03 | DSP Cycle 3 — shared inference infrastructure. `TritonClient` + `ModelRouteService` + `runtime_policy` + `ensemble_validator` + LPM solver + `model_lifecycle/` + `layers/` sub-packages. The single gRPC entry point to Triton. |
 
 ### Conventions used in this reading order
 

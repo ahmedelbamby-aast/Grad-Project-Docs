@@ -430,7 +430,7 @@ Low. Parallel render is independent processes — failure of one doesn't take th
 | 1–5 + 6 + 7 + 8 (accepted) | bundle + pose chunk + redis + embed | **1 312 s** | **3.46** | +14.4 min |
 | **+ Cycle 9** | Triton ensemble for 4 behavior models | ~1 180 s | ~3.85 | +12.1 min |
 | **+ Cycle 10** | Pose parallelization (4× concurrent frames) | ~1 040 s | ~4.37 | +9.8 min |
-| **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remains Cycle 9b Top-K |
+| **+ Cycle 11.A** | Behavior input 320 → 256 | **NOT ACCEPTED** | Speed improved, correctness regressed | baseline remained Cycle 9b Top-K at that point; current baseline later moved to Cycle 12.C |
 | **+ Cycle 12.A** | Persistent async dispatcher measurement | Phase A measured | no decision | complete |
 | **+ Cycle 12.B** | Bounded behavior-wait overlap dispatcher | NOT ACCEPTED | RTT regressed | replaced by Cycle 12.C |
 | **+ Cycle 12.C** | Single-inflight behavior overlap | **935.5 s measured** | **4.854** | +4.85 min |

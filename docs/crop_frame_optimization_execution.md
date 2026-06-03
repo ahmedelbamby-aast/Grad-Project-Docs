@@ -1078,8 +1078,8 @@ Detailed result doc:
 
 ### Phase 1: Investigation
 
-Cycle 9b exact slice + Top-K is the accepted baseline. It keeps behavior input
-at `320x320`, routes `behavior_all` through
+Cycle 9b exact slice + Top-K was the accepted baseline for this B.4 comparison.
+It keeps behavior input at `320x320`, routes `behavior_all` through
 `behavior_ensemble_gaze_slice_topk`, and runs the offline batch queue with:
 
 ```text

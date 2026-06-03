@@ -1,10 +1,11 @@
 # Runtime SLA: `total_wall ≤ video_duration + 5 min`
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 **Status:** Plan adopted 2026-06-01. Latest accepted baseline updated
-2026-06-02 after Cycle 9b exact slice + Top-K. Acceptance only after each cycle
-is measured on prod with before/after numbers, per the constitution.
+2026-06-03 after Cycle 12.C single-inflight behavior overlap. Acceptance only
+after each cycle is measured on prod with before/after numbers, per the
+constitution.
 
 ---
 
@@ -22,15 +23,15 @@ For the canonical benchmark `combined.mp4`:
 - target total wall = 151.4 + 300 = **451 s (7 m 31 s)**
 - required throughput = 4 541 / 451 ≈ **10.07 FPS overall (DB-completed)**
 
-Current state (Cycle 9b exact slice + Top-K, job
-`be4ba9ee-4786-48e9-8334-28feb237a1fb`):
-- total wall = **1022.952 s (17.0 min)**
-- overall FPS (DB-completed) = **4.429**
-- gap = **2.27×** speed-up required
+Current state (Cycle 12.C single-inflight behavior overlap, job
+`069a217f-fa43-48cc-bf18-c946d53bb3ee`):
+- total wall = **935.516 s (15.6 min)**
+- overall FPS (DB-completed) = **4.854**
+- gap = **2.07×** speed-up required
 
 ---
 
-## 2. Where the ~1 023 s lives today (measured, not estimated)
+## 2. Previous detailed stage decomposition (refresh required for Cycle 13)
 
 | Stage | Cycle 9b exact slice + Top-K wall (s) | % of total | Per-frame avg (ms) |
 |---|---:|---:|---:|
@@ -40,8 +41,10 @@ Current state (Cycle 9b exact slice + Top-K, job
 | Embedding / DB completion tail | **189.1** | 18.5 % | 41.7 |
 | **TOTAL** | **1023.0** | 100 % | 225.3 |
 
-The bold blocks are still the dominant cost. Top-K reduced frame inference but
-did not move pose or the DB completion tail.
+The table above is the last complete stage decomposition recorded before Cycle
+12.C. Cycle 12.C reduced Step 2 wall to `459.461 s`; Cycle 13 Phase A must
+refresh the post-stage decomposition before any persistence/render code is
+implemented.
 
 ---
 
@@ -51,10 +54,10 @@ The 451 s target distributes roughly as:
 
 | Stage | Cycle 9b actual | **Target SLA** | Required Δ | Achievable by |
 |---|---:|---:|---:|---|
-| Step 2 frame inference | 540.4 s | **≤ 300 s** | **−44 %** | Cycle 13: compact postprocessing/BLS, sharding, or GPU-occupancy fix |
+| Step 2 frame inference | 540.4 s | **≤ 300 s** | **−44 %** | Cycle 14/15: compact postprocessing/BLS, sharding, or GPU-occupancy fix |
 | Pose post | 227.2 s | **≤ 60 s** | **−74 %** | Cycle 10b: parallelize across frames OR inline during Step 2 |
 | Post-pose audit stages | 66.2 s | **≤ 45 s** | −32 % | Cycle 12: bulk persistence/render writers |
-| Embedding / DB completion tail | 189.1 s | **≤ 50 s** | **−74 %** | Cycle 12/13: streaming or server-side embedding contract |
+| Embedding / DB completion tail | 189.1 s | **≤ 50 s** | **−74 %** | Cycle 13/14: streaming or server-side embedding contract |
 | **TOTAL** | **1023.0 s** | **≤ 451 s** | −56 % | cycles 10b/12/13 plus one more Step 2 architecture win |
 
 The largest single block to attack first is **embedding** (saves ~400 s of the 1 131 s gap = 35 % of the entire gap in one cycle), then **Step 2** (saves ~540 s = 48 %).

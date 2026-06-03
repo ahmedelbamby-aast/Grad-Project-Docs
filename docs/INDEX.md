@@ -31,7 +31,7 @@
 - [Cycle 9b Output Fusion Results](cycle_9b_output_fusion_results.md)
 - [Cycle 9b Exact Slice Investigation](cycle_9b_exact_slice_investigation.md)
 - [Cycle 9b Top-K Anchor Packing Investigation](cycle_9b_topk_anchor_packing_investigation.md)
-- [Cycle 9b Top-K Anchor Packing Results — current accepted baseline](cycle_9b_topk_anchor_packing_results.md)
+- [Cycle 9b Top-K Anchor Packing Results — superseded baseline](cycle_9b_topk_anchor_packing_results.md)
 - [Cycle 9b Child Critical-Path Results (Step 1, pre-Top-K)](cycle_9b_child_critical_path_results.md)
 - [Cycle 9b Child Critical-Path REMEASURE vs Top-K (Step 1 redo)](cycle_9b_child_critical_path_remeasure_topk_results.md)
 - [Cycle 9b B.1 Compact Postprocessing Investigation](cycle_9b_compact_postproc_investigation.md)
