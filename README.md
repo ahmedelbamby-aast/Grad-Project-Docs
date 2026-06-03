@@ -240,6 +240,7 @@ validates against the working tree.
 | 104 | [`docs/entity/modules/apps.pipeline.md`](docs/entity/modules/apps.pipeline.md) | 2026-06-03 | DSP Cycle 3 — shared inference infrastructure. `TritonClient` + `ModelRouteService` + `runtime_policy` + `ensemble_validator` + LPM solver + `model_lifecycle/` + `layers/` sub-packages. The single gRPC entry point to Triton. |
 | 105 | [`docs/entity/modules/apps.tracking.md`](docs/entity/modules/apps.tracking.md) | 2026-06-03 | DSP Cycle 3 — tracking + ReID + render layer. `ByteSortTracker` + `TrackingService` + ReID with conservative-decision policy + Redis-cached embeddings + annotated-video renderer + live RTSP capture. |
 | 106 | [`docs/entity/modules/apps.telemetry.md`](docs/entity/modules/apps.telemetry.md) | 2026-06-03 | DSP Cycle 3 — Django app implementing the dual-sink telemetry layer (the system view lives in `telemetry_pipeline.md`). 8 in-memory dataclasses + 6 ORM tables + ContextVar binding + Celery signal handlers + `flush_session` JSON-first writer. |
+| 107 | [`docs/entity/modules/apps.cameras.md`](docs/entity/modules/apps.cameras.md) | 2026-06-03 | DSP Cycle 3 — Django app implementing the camera-streaming-bridge: ONVIF resolution, `EncryptedTextField`-protected `CameraSource`, `StreamGateway` (gst-mediamtx default / go2rtc legacy), `CameraStatusConsumer` WS, `stream_health_check` Celery beat task. |
 
 ### Conventions used in this reading order
 
