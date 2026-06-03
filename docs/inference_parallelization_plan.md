@@ -902,6 +902,16 @@ full production benchmarks against accepted batch `16`, then be compared
 directly before any acceptance decision. The previous compact server-side
 behavior postprocessing idea moves to Cycle 14.D.
 
+Cycle 14.C completed in
+`docs/cycle_14c_pose_batch_size_matrix_results.md`. Batch `8` replay
+`cycle14c-pose-batch-matrix-20260603T154945Z-batch8` is not accepted because
+DB FPS regressed `-2.85 %`, Step 2 through-pose wall regressed `+3.42 %`, and
+provider chunks doubled. Batch `32` replay
+`cycle14c-pose-batch-matrix-20260603T154945Z-batch32` is not accepted because
+DB FPS regressed `-0.98 %`, Step 2 through-pose wall regressed `+1.46 %`, and
+RTMPose p95 regressed `+114.18 %` despite higher GPU utilization. Batch `16`
+remains the accepted production cap.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

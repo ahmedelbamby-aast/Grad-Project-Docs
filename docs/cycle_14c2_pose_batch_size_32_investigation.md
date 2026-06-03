@@ -2,9 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STAGED. No decision exists until replay
-`cycle14c-*-batch32` completes on production and is compared with the accepted
-Cycle 14.B2 batch-16 baseline and Cycle 14.C1.
+**Status:** NOT ACCEPTED. Replay
+`cycle14c-pose-batch-matrix-20260603T154945Z-batch32` completed on production
+and improved GPU utilization, but it regressed DB FPS, Step 2 through-pose
+wall, and RTMPose p95 against batch `16`.
 
 ## Problem Statement
 

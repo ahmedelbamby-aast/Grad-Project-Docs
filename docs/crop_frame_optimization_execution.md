@@ -1293,8 +1293,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 14.A | Pose-tail decomposition after Cycle 16.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle14a-pose-tail-profile-20260603T135129Z`, job `862a13db-a2ae-408f-a737-ee9aeca45f5c`; tail remains `224.308 s`, and the `200.778 s` post-frame-loop drain is dominated by RTMPose runtime/provider work | low-medium; profiling flag rollback proven |
 | 14.B1 | RTMPose single-inflight overlap | **NOT ACCEPTED**: replay `cycle14b-overlap-20260603T143000Z`; DB FPS and pose tail were flat | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
 | 14.B2 | RTMPose ordered cross-frame batching | **ACCEPTED after fixed rerun**: replay `cycle14b-cross-frame-batch16-r2-20260603T150000Z`; DB FPS `+6.22 %`, pose tail `-22.56 %`, RTMPose calls `-76.24 %`, exact DB/model parity | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
-| 14.C1 | RTMPose cross-frame batch cap 8 | **STAGED**: benchmark `POSE_CROSS_FRAME_BATCH_SIZE=8` against accepted batch 16 and 14.C2 | low-medium; env rollback to batch 16 |
-| 14.C2 | RTMPose cross-frame batch cap 32 | **STAGED**: benchmark `POSE_CROSS_FRAME_BATCH_SIZE=32` against accepted batch 16 and 14.C1; provider still chunks at engine cap 16 | low-medium; env rollback to batch 16 |
+| 14.C1 | RTMPose cross-frame batch cap 8 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch8`; DB FPS `-2.85 %`, Step 2 through-pose `+3.42 %`, provider chunks doubled | rollback is accepted batch 16 |
+| 14.C2 | RTMPose cross-frame batch cap 32 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch32`; GPU avg improved but DB FPS `-0.98 %`, Step 2 through-pose `+1.46 %`, RTMPose p95 `+114.18 %` | rollback is accepted batch 16 |
 | 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
@@ -1343,6 +1343,12 @@ is not known. Each must be benchmarked against replay
 `cycle14b-cross-frame-batch16-r2-20260603T150000Z`, then compared directly
 before any acceptance decision. Compact behavior postprocessing moves to
 Cycle 14.D.
+
+Cycle 14.C decision note (2026-06-03): both scenarios completed production
+benchmarks and are not accepted. Batch `8` doubled provider chunks and
+regressed DB FPS/through-pose wall. Batch `32` improved GPU utilization but
+regressed DB FPS, through-pose wall, and RTMPose p95. The accepted production
+profile remains `POSE_CROSS_FRAME_BATCH_SIZE=16`.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

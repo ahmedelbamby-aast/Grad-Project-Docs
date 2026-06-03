@@ -112,8 +112,9 @@ context.
 | 37x | [`docs/cycle_14c_pose_batch_size_matrix_investigation.md`](docs/cycle_14c_pose_batch_size_matrix_investigation.md) | 2026-06-03 | Cycle 14.C investigation: RTMPose cross-frame batch-size matrix after accepted 14.B2. |
 | 37y | [`docs/cycle_14c1_pose_batch_size_8_investigation.md`](docs/cycle_14c1_pose_batch_size_8_investigation.md) | 2026-06-03 | Cycle 14.C1 investigation: batch cap 8 scenario benchmarked against accepted batch 16. |
 | 37z | [`docs/cycle_14c2_pose_batch_size_32_investigation.md`](docs/cycle_14c2_pose_batch_size_32_investigation.md) | 2026-06-03 | Cycle 14.C2 investigation: batch cap 32 scenario benchmarked against accepted batch 16 and 14.C1. |
-| 37aa | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
-| 37ab | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
+| 37aa | [`docs/cycle_14c_pose_batch_size_matrix_results.md`](docs/cycle_14c_pose_batch_size_matrix_results.md) | 2026-06-03 | Cycle 14.C production result: batch 8 and batch 32 not accepted; batch 16 remains accepted. |
+| 37ab | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
+| 37ac | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
 
 ### Phase 4 — Triton-specific deep dives
 

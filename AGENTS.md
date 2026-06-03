@@ -560,6 +560,21 @@ the next case.
   scenarios directly. No acceptance/rejection/skip/closure decision exists
   until the completed production benchmark table, model agreement, DB parity,
   GPU/RTT/memory evidence, and rollback proof are written.
+- **2026-06-03 Cycle 14.C decision recorded**:
+  `docs/cycle_14c_pose_batch_size_matrix_results.md` and
+  `docs/production_inference_benchmark.md` §34 record the completed production
+  matrix. Cycle 14.C1 batch `8` replay
+  `cycle14c-pose-batch-matrix-20260603T154945Z-batch8` / job
+  `d3cc149f-9ad3-4dd6-8c14-beed80f7c0d2` is **NOT ACCEPTED**: DB FPS
+  `5.680314 -> 5.518671`, Step 2 through-pose `633.939 s -> 655.592 s`,
+  and provider chunks `1199 -> 2398`. Cycle 14.C2 batch `32` replay
+  `cycle14c-pose-batch-matrix-20260603T154945Z-batch32` / job
+  `7a0b5819-9af4-46b4-a5ee-c46cdd7c1d9c` is **NOT ACCEPTED**: GPU avg
+  improved `12.168 % -> 14.288 %`, but DB FPS regressed
+  `5.680314 -> 5.624745`, Step 2 through-pose regressed
+  `633.939 s -> 643.184 s`, and RTMPose p95 regressed
+  `46.952 ms -> 100.563 ms`. DB/model parity and pose records were preserved
+  in both scenarios. Production remains on accepted batch `16`.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

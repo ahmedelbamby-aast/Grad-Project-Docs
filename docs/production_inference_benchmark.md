@@ -2464,4 +2464,46 @@ Detailed result doc:
 
 ---
 
+## 34. Cycle 14.C RTMPose Batch-Size Matrix
+
+Cycle 14.C benchmarked two cross-frame RTMPose batch-size scenarios against the
+accepted Cycle 14.B2 batch-16 baseline, then compared the scenarios directly.
+
+| Scenario | Replay | Job | Decision |
+|---|---|---|---|
+| Batch 16 baseline | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` | `6b42a557-b954-4954-a2f8-de54634229eb` | remains accepted |
+| 14.C1 batch 8 | `cycle14c-pose-batch-matrix-20260603T154945Z-batch8` | `d3cc149f-9ad3-4dd6-8c14-beed80f7c0d2` | NOT ACCEPTED |
+| 14.C2 batch 32 | `cycle14c-pose-batch-matrix-20260603T154945Z-batch32` | `7a0b5819-9af4-46b4-a5ee-c46cdd7c1d9c` | NOT ACCEPTED |
+
+### 34.1 Comparison
+
+| Metric | Batch 16 baseline | Batch 8 | Delta 8 vs 16 | Batch 32 | Delta 32 vs 16 |
+|---|---:|---:|---:|---:|---:|
+| DB FPS | `5.680314` | `5.518671` | `-2.85 %` | `5.624745` | `-0.98 %` |
+| DB elapsed | `799.428 s` | `822.843 s` | `+2.93 %` | `807.326 s` | `+0.99 %` |
+| Step 2 frame wall | `462.188 s` | `468.768 s` | `+1.42 %` | `459.750 s` | `-0.53 %` |
+| Step 2 through pose | `633.939 s` | `655.592 s` | `+3.42 %` | `643.184 s` | `+1.46 %` |
+| GPU avg util | `12.168 %` | `11.792 %` | `-3.09 %` | `14.288 %` | `+17.42 %` |
+| GPU peak util | `51.000 %` | `53.000 %` | `+3.92 %` | `86.000 %` | `+68.63 %` |
+| RTMPose calls | `1199` | `2398` | `+100.00 %` | `1199` | `0.00 %` |
+| RTMPose RTT p95 | `46.952 ms` | `43.111 ms` | `-8.18 %` | `100.563 ms` | `+114.18 %` |
+| Provider async wall | `108.482 s` | `122.897 s` | `+13.29 %` | `120.029 s` | `+10.64 %` |
+| Pose subjects/results | `19180 / 19180` | `19180 / 19180` | preserved | `19180 / 19180` | preserved |
+| DB rows | `72744 / 72744 / 72578` | `72744 / 72744 / 72578` | preserved | `72744 / 72744 / 72578` | preserved |
+| Student tracks | `53` | `53` | preserved | `53` | preserved |
+| Model agreement F1 | baseline | `100.000 %` | preserved | `100.000 %` | preserved |
+
+### 34.2 Decision
+
+| Scenario | Result | Explanation |
+|---|---|---|
+| 14.C1 batch 8 | NOT ACCEPTED | Provider chunks doubled, DB FPS regressed, and Step 2 through-pose wall regressed. |
+| 14.C2 batch 32 | NOT ACCEPTED | GPU average improved, but DB FPS still regressed, Step 2 through-pose wall regressed, and RTMPose p95 regressed sharply. |
+| Batch 16 | REMAINS ACCEPTED | It remains the best measured batch cap by total throughput and pose-tail wall. |
+
+Detailed result doc:
+`docs/cycle_14c_pose_batch_size_matrix_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

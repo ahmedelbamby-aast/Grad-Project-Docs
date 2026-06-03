@@ -66,6 +66,7 @@
 - [Cycle 14.C RTMPose Batch-Size Matrix Investigation](cycle_14c_pose_batch_size_matrix_investigation.md)
 - [Cycle 14.C1 RTMPose Batch Size 8 Investigation](cycle_14c1_pose_batch_size_8_investigation.md)
 - [Cycle 14.C2 RTMPose Batch Size 32 Investigation](cycle_14c2_pose_batch_size_32_investigation.md)
+- [Cycle 14.C RTMPose Batch-Size Matrix Results](cycle_14c_pose_batch_size_matrix_results.md)
 - [Cycle 20 Streaming Persistence and Embedding Overlap Investigation](cycle_20_streaming_persistence_embedding_overlap_investigation.md)
 - [Cycle 21 Celery Concurrency Scaling Investigation](cycle_21_celery_concurrency_scaling_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)

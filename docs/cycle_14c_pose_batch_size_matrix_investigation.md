@@ -2,10 +2,9 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STAGED. No decision exists until each sub-scenario has a
-completed production Linux RTX 5090 `combined.mp4` benchmark against the
-accepted Cycle 14.B2 baseline, followed by a direct scenario-to-scenario
-comparison.
+**Status:** COMPLETED. Cycle 14.C1 batch `8` and Cycle 14.C2 batch `32` were
+benchmarked on production and neither was accepted. See
+`docs/cycle_14c_pose_batch_size_matrix_results.md`.
 
 ## Problem Statement
 
