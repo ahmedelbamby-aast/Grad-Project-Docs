@@ -251,6 +251,7 @@ validates against the working tree.
 | 113 | [`docs/entity/modules/apps.contracts.md`](docs/entity/modules/apps.contracts.md) | 2026-06-03 | DSP Cycle 3 — cross-app contracts registry. Tiny governance shim: 1 ORM model (`ContractRegistryEntry`) + 3 serializer helpers (`governed_fields`, `governed_read_only_fields`, `explicit_model_field_names`) every other app's serializers must use. |
 | 114 | [`docs/entity/modules/apps.accounts.md`](docs/entity/modules/apps.accounts.md) | 2026-06-03 | DSP Cycle 3 — auth + RBAC. `User` AbstractUser + `Role` models, 4 end-user APIViews + 2 admin ViewSets + 8 serializers + 3 permission classes (`IsAdmin`, `HasPageAccess`, `HasActionPermission`) every other app imports. |
 | 115 | [`docs/entity/modules/apps.audit.md`](docs/entity/modules/apps.audit.md) | 2026-06-03 | DSP Cycle 3 — HTTP-request audit logging. `AuditLogEntry` (single append-only table), `AuditMiddleware`, `AuditActionType` enum, `AuditService` recorder, read-only `AuditLogViewSet` (mounted on the sessions dashboard activity-feed). |
+| 116 | [`docs/entity/modules/apps.recordings.md`](docs/entity/modules/apps.recordings.md) | 2026-06-03 | DSP Cycle 3 — recording metadata CRUD. `Recording` model + `RecordingViewSet` + `RecordingService`; metadata-only (file blobs live under `data/recordings/`). Created on session stop. |
 
 ### Conventions used in this reading order
 
