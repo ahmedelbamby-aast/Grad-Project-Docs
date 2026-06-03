@@ -1476,7 +1476,7 @@ fixed and benchmarked.
 Cycle 15.B1.C probe note (2026-06-04):
 `tools/prod/prod_analyze_cycle15b1_stitching.py` starts the boundary identity
 stitching subcycle as `PROBE_ONLY` evidence. Production probe
-`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z`
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z`
 compared the accepted baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de`
 with the rejected sharded parent `e602a0ca-6efc-4cb0-8d30-9466fe76287b`.
 The result proves the failure is identity stitching rather than box geometry:

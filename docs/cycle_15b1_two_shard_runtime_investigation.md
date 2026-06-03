@@ -51,7 +51,7 @@ tracking continuity, embeddings, terminal state, and rollback.
 | Runtime readiness helper | `tools/prod/prod_check_cycle15b1_runtime_readiness.py` | Reproducibly reports blockers before a runtime benchmark. |
 | Safe env-default helper | `tools/prod/prod_set_cycle15b1_sharding_defaults.sh` | Sets only disabled Cycle 15.B1 env defaults without rewriting accepted inference flags. |
 | Stitching probe | `tools/prod/prod_analyze_cycle15b1_stitching.py` | Separates geometry agreement from track-sensitive identity agreement. |
-| Stitching evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` | Production proof that geometry stayed aligned while shard-1 track labels diverged. |
+| Stitching evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json` | Production proof that geometry stayed aligned while shard-1 track labels diverged. |
 | Offline task code | `backend/apps/video_analysis/tasks.py` | Owns frame inference, tracking assignment, Step 3 persistence, render, and embedding handoff. |
 | Job and row models | `backend/apps/video_analysis/models.py` | Owns job, frame, detection, bounding-box, track, and embedding persistence constraints. |
 | Ingest command | `backend/apps/video_analysis/management/commands/runtime_ingest_video.py` | Current benchmark entrypoint creates one lifecycle job per replay. |
@@ -386,9 +386,9 @@ Local validation:
 
 | Field | Value |
 |---|---|
-| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z` |
-| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` |
-| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.md` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.md` |
 | Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
 | Candidate parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
 | Decision authority | `PROBE_ONLY` |

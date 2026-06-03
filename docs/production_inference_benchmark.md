@@ -3029,9 +3029,9 @@ status.
 | Item | Value |
 |---|---|
 | Probe helper | `tools/prod/prod_analyze_cycle15b1_stitching.py` |
-| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z` |
-| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` |
-| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.md` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z` |
+| JSON | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json` |
+| Markdown | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.md` |
 | Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
 | Candidate parent job | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` |
 

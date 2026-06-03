@@ -1054,7 +1054,7 @@ subcycle. The read-only helper
 `tools/prod/prod_analyze_cycle15b1_stitching.py` was run on production against
 baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de` and sharded parent
 `e602a0ca-6efc-4cb0-8d30-9466fe76287b`; evidence lives under
-`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/`.
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/`.
 The probe proves geometry is preserved while shard-1 identity labels are not:
 shard-1 geometry F1 is `100.000 %` for attention, hand, person, and
 sitting/standing, but track-sensitive F1 is `4.043 %`, `2.974 %`, `21.308 %`,

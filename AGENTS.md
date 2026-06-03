@@ -830,7 +830,7 @@ Per § 8.6.2:
   `tools/prod/prod_analyze_cycle15b1_stitching.py` now separates geometry-only
   agreement from track-sensitive agreement for the rejected two-shard parent.
   Production probe evidence:
-  `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json`
+  `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json`
   and `.md`, comparing baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de`
   to sharded parent `e602a0ca-6efc-4cb0-8d30-9466fe76287b`. Result: shard 0
   stays aligned (`100 %` track F1 for attention/hand/posture boxes and

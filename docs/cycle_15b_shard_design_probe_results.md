@@ -24,7 +24,7 @@ HLS fallback, and all live stream profiles.
 | Pre-shard baseline metrics | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json` | Full production baseline metrics for the accepted single-job runtime before any sharded runtime implementation. |
 | Pre-shard baseline markdown | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.md` | Human-readable baseline evidence bundle. |
 | Stitching probe helper | `tools/prod/prod_analyze_cycle15b1_stitching.py` | Read-only helper that separates geometry agreement from track-sensitive identity agreement. |
-| Stitching probe evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json` | Production proof that 15.B1 failed due to shard-1 identity labels, not geometry. |
+| Stitching probe evidence | `/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json` | Production proof that 15.B1 failed due to shard-1 identity labels, not geometry. |
 
 ## Production Evidence
 
@@ -197,7 +197,7 @@ as `PROBE_ONLY` evidence. The helper
 `tools/prod/prod_analyze_cycle15b1_stitching.py` compared the accepted
 pre-shard baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de` against the
 rejected sharded parent job `e602a0ca-6efc-4cb0-8d30-9466fe76287b`. Evidence:
-`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T215700Z/stitching_probe.json`
+`/home/bamby/grad_project/backend/logs/cycle15b1c-stitching-probe-20260603T220206Z/stitching_probe.json`
 and `.md`. The probe shows shard 0 preserves track labels, while shard 1 keeps
 geometry but loses identity: shard-1 geometry F1 is `100.000 %` for the four
 persisted models, but track-sensitive F1 is `4.043 %`, `2.974 %`,
