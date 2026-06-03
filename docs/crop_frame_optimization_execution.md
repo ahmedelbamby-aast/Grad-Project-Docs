@@ -1297,7 +1297,7 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 14.C2 | RTMPose cross-frame batch cap 32 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch32`; GPU avg improved but DB FPS `-0.98 %`, Step 2 through-pose `+1.46 %`, RTMPose p95 `+114.18 %` | rollback is accepted batch 16 |
 | 14.C3 | RTMPose batch-32 parallel provider chunks | **NOT ACCEPTED**: replay `cycle14c3-batch32-parallel2-20260603T170117Z`; correctness exact, but DB FPS `-3.79 %` vs batch 16, RTMPose p95 `+87.16 %` vs prior batch 32, provider async wall `+15.91 %` vs prior batch 32 | rollback proven: accepted batch 16 plus `POSE_PROVIDER_CHUNK_PARALLELISM=1` |
 | 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | **PHASE A COMPLETE / NO IMPLEMENTATION SELECTED**: Python BLS is blocked by current runtime; decode/output cost is small after Top-K; see `docs/cycle_14d_server_side_compact_postproc_results.md` | high; backend/runtime contract change |
-| 15 | CUDA shared memory or video sharding architecture decision | **PHASE A STARTED** in `docs/cycle_15_cuda_shared_memory_vs_sharding_investigation.md`; split into 15.A CUDA shared memory and 15.B sharding before code | medium-high; lifecycle and tracking risk |
+| 15 | CUDA shared memory or video sharding architecture decision | **PHASE A MEASURED / 15.B DESIGN-PROOF NEXT**: shared memory not selected for immediate implementation; sharding needs deterministic stitching/idempotency proof before code; see `docs/cycle_15_cuda_shared_memory_vs_sharding_results.md` | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | conditional on Cycle 16.A proof | medium; rollback to non-script path |
@@ -1380,6 +1380,27 @@ because the current evidence does not prove whether copy/serialization removal
 or more independent GPU work in flight is the better lever. No shared-memory or
 sharding implementation should start until Phase A measurements select one
 scenario.
+
+Cycle 15 Phase A decision note (2026-06-03):
+`docs/cycle_15_cuda_shared_memory_vs_sharding_results.md` records read-only
+production evidence from
+`/home/bamby/grad_project/backend/logs/cycle15-phase-a-20260603T180125Z-r2`.
+CUDA shared memory is not selected for immediate implementation because the
+measured behavior copy/parse window is about `5.177 ms` per 17-crop probe batch
+(`2.766 ms` serialize + `2.296 ms` deserialize + `0.115 ms` as_numpy), while
+infer wait is `49.950 ms` and Step 2 through-pose is `633.939294 s`. Video
+sharding is promoted only to a design-proof sub-cycle; implementation remains
+blocked until deterministic shard overlap, track stitching, duplicate
+suppression, PostgreSQL idempotency, terminal-state coordination, and rollback
+are specified.
+
+Cycle 15.B start note (2026-06-03):
+`docs/cycle_15b_video_sharding_design_proof_investigation.md` starts the
+design-proof sub-cycle. The first credible scenario is 15.B1 two-shard offline
+inference because Phase A estimated only `0.704691 %` extra overlap frames.
+Four-shard or larger scenarios remain blocked until two-shard stitching,
+duplicate suppression, DB idempotency, and parent/shard terminal-state
+coordination are proven.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

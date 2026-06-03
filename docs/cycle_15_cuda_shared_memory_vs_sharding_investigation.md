@@ -2,8 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No implementation, production benchmark,
-acceptance, rejection, skip, or closure exists for Cycle 15 yet.
+**Status:** PHASE A MEASURED / 15.B DESIGN-PROOF NEXT. No implementation,
+production benchmark, acceptance, rejection, skip, or closure exists for Cycle
+15 yet. Results are recorded in
+`docs/cycle_15_cuda_shared_memory_vs_sharding_results.md`.
 
 ## Problem Statement
 
@@ -31,6 +33,7 @@ Cycle 15 must decide the next architecture lever with evidence:
 | Execution log | `docs/crop_frame_optimization_execution.md` | Owns the current sorted roadmap. |
 | Plan | `docs/inference_parallelization_plan.md` | Owns the production benchmark authority rule. |
 | Phase A wrapper | `tools/prod/prod_run_cycle15_phase_a_measurements.sh` | Reproducible read-only measurement wrapper for 15.A/15.B triage. |
+| Phase A result | `docs/cycle_15_cuda_shared_memory_vs_sharding_results.md` | Records the measured decision boundary and next sub-cycle. |
 | Live watcher | `tools/prod/prod_watch_benchmark_metrics.sh` | Shows live production metrics during any candidate benchmark. |
 | Collector | `tools/prod/prod_collect_benchmark_metrics.py` | Captures benchmark JSON/Markdown evidence bundles. |
 | Offline task code | `backend/apps/video_analysis/tasks.py` | Owns current single-video orchestration and post-stage lifecycle. |
@@ -83,8 +86,8 @@ contract exists.
 
 ## Next Step
 
-Run `tools/prod/prod_run_cycle15_phase_a_measurements.sh` on production. It
-captures copy/serialization, per-model bytes, current queue topology, shared
-memory registration status, and shardability evidence against the accepted
-batch `16` baseline. Do not implement CUDA shared memory or sharding until
-that wrapper identifies one highest-ROI scenario.
+Start a Cycle 15.B design-proof sub-cycle. The production Phase A wrapper
+selected sharding for design proof only; it did not authorize implementation.
+The next document must prove deterministic shard boundaries, overlap windows,
+track stitching, duplicate suppression, DB idempotency, terminal-state
+coordination, and benchmark rollback before any multi-process code is written.

@@ -621,6 +621,24 @@ the next case.
   independent GPU work in flight is the dominant lever. Any concurrency or
   worker/process increase remains governed by constitution §8.1.1 and requires
   full production `combined.mp4` benchmark evidence before acceptance.
+- **2026-06-03 Cycle 15 Phase A MEASURED / 15.B DESIGN-PROOF NEXT**:
+  `docs/cycle_15_cuda_shared_memory_vs_sharding_results.md` records read-only
+  production evidence from
+  `/home/bamby/grad_project/backend/logs/cycle15-phase-a-20260603T180125Z-r2`
+  at deployed SHA `a69b431`. CUDA shared memory is not selected for immediate
+  implementation: behavior serialize `2.766 ms`, deserialize `2.296 ms`, and
+  `as_numpy` `0.115 ms` are small against infer wait `49.950 ms` and Step 2
+  through-pose `633.939294 s`. Video sharding is the next design-proof
+  sub-cycle, not an implementation yet; it must prove deterministic shard
+  overlap, track stitching, duplicate suppression, PostgreSQL idempotency,
+  terminal-state coordination, and rollback before code.
+- **2026-06-03 Cycle 15.B video sharding design proof PHASE A STARTED**:
+  `docs/cycle_15b_video_sharding_design_proof_investigation.md` opens the
+  sharding sub-cycle without authorizing implementation. The first allowed
+  scenario is 15.B1 two-shard offline inference because Phase A estimated
+  `0.704691 %` duplicate overlap frames. Four-shard or larger variants remain
+  blocked until two-shard stitching, duplicate suppression, DB idempotency, and
+  parent/shard terminal-state coordination are proven.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

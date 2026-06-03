@@ -2657,4 +2657,68 @@ Detailed result doc:
 
 ---
 
+## 37. Cycle 15 CUDA Shared Memory vs Video Sharding Phase A
+
+Cycle 15 ran read-only production measurements to decide whether the next
+architecture lever should be CUDA shared memory or video sharding. It did not
+deploy an optimization candidate, submit a new lifecycle job, edit `.env`,
+restart services, or change model routes.
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle15-phase-a-20260603T180125Z-r2` |
+| Baseline replay | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` |
+| Baseline job | `6b42a557-b954-4954-a2f8-de54634229eb` |
+| Deployed SHA | `a69b431` |
+| Measurement wrapper | `tools/prod/prod_run_cycle15_phase_a_measurements.sh` |
+| Runtime mutation | none |
+
+### 37.1 Baseline Snapshot
+
+| Metric | Value |
+|---|---:|
+| DB FPS | `5.680314` |
+| Step 2 frame wall | `462.188348 s` |
+| Step 2 through-pose wall | `633.939294 s` |
+| GPU avg util | `12.168 %` |
+| GPU peak util | `51.0 %` |
+
+### 37.2 15.A CUDA Shared Memory Evidence
+
+| Metric | Value |
+|---|---:|
+| CUDA shared-memory registered regions | `0` |
+| System shared-memory registered regions | `0` |
+| Behavior input bytes/probe batch | `20,889,600` |
+| Behavior output bytes mean | `326,400` |
+| Behavior serialize mean | `2.766 ms` |
+| Behavior deserialize mean | `2.296 ms` |
+| Behavior `as_numpy` mean | `0.115 ms` |
+| Behavior infer wait mean | `49.950 ms` |
+| Ensemble RTT mean | `64.85 ms` |
+| Ensemble transport + server mean | `59.79 ms` |
+
+### 37.3 15.B Sharding Inventory
+
+| Shards | Shard lengths | Assumed overlap | Extra frames pct |
+|---:|---|---:|---:|
+| `2` | `[2271, 2270]` | `32` | `0.704691 %` |
+| `3` | `[1514, 1514, 1513]` | `32` | `1.409381 %` |
+| `4` | `[1136, 1135, 1135, 1135]` | `32` | `2.114072 %` |
+| `6` | `[757, 757, 757, 757, 757, 756]` | `32` | `3.523453 %` |
+| `8` | `[568, 568, 568, 568, 568, 567, 567, 567]` | `28` | `4.316230 %` |
+
+### 37.4 Phase A Decision
+
+| Candidate | Phase A decision | Reason |
+|---|---|---|
+| 15.A CUDA shared memory | NOT SELECTED FOR NEXT IMPLEMENTATION | The measured copy/parse window is small relative to wait/server and Step 2 through-pose wall. |
+| 15.B video sharding | PROMOTED TO DESIGN-PROOF SUB-CYCLE | It can expose independent work, but track stitching and DB idempotency must be proven before implementation. |
+| 15.C hybrid | NOT ELIGIBLE | Hybrid work is blocked until 15.A and 15.B independently prove value. |
+
+Detailed result doc:
+`docs/cycle_15_cuda_shared_memory_vs_sharding_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

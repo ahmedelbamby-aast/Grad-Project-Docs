@@ -949,6 +949,23 @@ sharding before code. No implementation should start until measurements prove
 whether copy/serialization or insufficient parallel work in flight is the
 dominant lever.
 
+Cycle 15 Phase A is measured in
+`docs/cycle_15_cuda_shared_memory_vs_sharding_results.md`. CUDA shared memory
+is not selected for immediate implementation because behavior serialize,
+deserialize, and `as_numpy` total about `5.177 ms` per 17-crop probe batch
+while infer wait remains `49.950 ms` and Step 2 through-pose is
+`633.939294 s`. Video sharding is promoted to a design-proof sub-cycle only:
+no sharding code should be written until deterministic stitching, duplicate
+suppression, DB idempotency, terminal-state coordination, and rollback are
+specified.
+
+Cycle 15.B is now started in
+`docs/cycle_15b_video_sharding_design_proof_investigation.md`. It is not an
+implementation authorization. The first sub-scenario is 15.B1 two-shard
+offline inference because Phase A estimated only `0.704691 %` duplicate
+overlap frames. Four-shard and larger variants remain blocked until two-shard
+stitching and DB idempotency are proven.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,
