@@ -872,10 +872,15 @@ the frame loop was `200.778 s`; it was dominated by RTMPose runtime/provider
 work (`190.176 s` runtime wall, `186.090 s` provider batch wall, `154.171 s`
 provider async batch wall, and `17.327 s` provider payload build). Therefore the
 next cycle is not compact behavior postprocessing, Redis Streams/scripts,
-streaming persistence, or worker-count scaling. The next cycle must target
-RTMPose provider overlap or cross-frame RTMPose batching behind a rollback flag,
-then prove FPS, Step 2 wall, RTT, GPU, memory, DB parity, and model agreement in
-a completed production `combined.mp4` benchmark.
+streaming persistence, or worker-count scaling. It is split into two benchmarked
+sub-cycles because the evidence does not prove which RTMPose scheduling
+strategy wins: Cycle 14.B1 uses `POSE_TAIL_OPTIMIZATION_MODE=overlap` for
+single-inflight RTMPose overlap, and Cycle 14.B2 uses
+`POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` plus
+`POSE_CROSS_FRAME_BATCH_SIZE=16` for ordered cross-frame RTMPose batching. Each
+scenario must prove FPS, Step 2 wall, RTT, GPU, memory, DB parity, and model
+agreement in a completed production `combined.mp4` benchmark, then the two
+scenario results must be compared directly before any acceptance decision.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C

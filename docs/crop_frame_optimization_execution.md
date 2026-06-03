@@ -1291,7 +1291,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
 | 16.B | Redis side-effect coalescing for embedding/tracking side effects | **ACCEPTED**: replay `cycle16b-redis-coalescing-20260603T025823Z`, job `b2dfa987-afc5-4b96-ab12-6799b149ac25`; Redis flush `59.874 s -> 35.970 s`, embedding wall `121.681 s -> 97.505 s`, DB FPS `5.205675 -> 5.347791`, exact DB/model parity | rollback is `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` |
 | 14.A | Pose-tail decomposition after Cycle 16.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle14a-pose-tail-profile-20260603T135129Z`, job `862a13db-a2ae-408f-a737-ee9aeca45f5c`; tail remains `224.308 s`, and the `200.778 s` post-frame-loop drain is dominated by RTMPose runtime/provider work | low-medium; profiling flag rollback proven |
-| 14.B | RTMPose provider overlap or cross-frame RTMPose batching | next implementation candidate; target measured `190.176 s` runtime wall, `186.090 s` provider batch wall, and `154.171 s` provider async batch wall while preserving pose/frame order | medium-high; rollback flag required |
+| 14.B1 | RTMPose single-inflight overlap | staged scenario; benchmark `POSE_TAIL_OPTIMIZATION_MODE=overlap` independently against Cycle 16.B / 14.A | medium; rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
+| 14.B2 | RTMPose ordered cross-frame batching | staged scenario; benchmark `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` independently, then compare directly to 14.B1 | medium-high; rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
 | 14.C | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
@@ -1316,10 +1317,14 @@ Cycle 14.A completion note (2026-06-03): production replay
 `cycle14a-pose-tail-profile-20260603T135129Z` decomposed the pose tail. The
 tail stayed material (`224.308 s`), and the measured `200.778 s` drain after
 the frame loop was dominated by RTMPose runtime/provider work (`190.176 s`
-runtime wall, `186.090 s` provider batch wall). The next cycle is therefore
-Cycle 14.B RTMPose provider overlap or cross-frame RTMPose batching. Compact
-server-side postprocessing moves to Cycle 14.C unless future measurements prove
-behavior output/server compaction is again dominant.
+runtime wall, `186.090 s` provider batch wall). The next cycle is split into
+Cycle 14.B1 RTMPose single-inflight overlap and Cycle 14.B2 ordered cross-frame
+batching because the current evidence does not prove which scheduling strategy
+is better. Each scenario must run its own production benchmark against the same
+baseline, then the two scenario results must be compared directly before any
+acceptance decision. Compact server-side postprocessing moves to Cycle 14.C
+unless future measurements prove behavior output/server compaction is again
+dominant.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

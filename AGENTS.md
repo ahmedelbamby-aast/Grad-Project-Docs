@@ -515,6 +515,20 @@ the next case.
   video sharding, or worker-count increases. Rollback proof from the profiling
   run: `POSE_TAIL_PROFILING=0`, `EMBEDDING_STAGE_PROFILING=0`, accepted Cycle
   16.B runtime flags remain enabled.
+- **2026-06-03 Cycle 14.B split into scenario sub-cycles STAGED**:
+  `docs/cycle_14b1_rtmpose_single_inflight_overlap_investigation.md` and
+  `docs/cycle_14b2_rtmpose_cross_frame_batching_investigation.md` exist before
+  acceptance code/benchmark decisions. Cycle 14.B1 uses
+  `POSE_TAIL_OPTIMIZATION_MODE=overlap` to benchmark one-inflight RTMPose
+  overlap. Cycle 14.B2 uses
+  `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
+  `POSE_CROSS_FRAME_BATCH_SIZE=16` to benchmark ordered cross-frame RTMPose
+  batching. Both must run separate production Linux RTX 5090 `combined.mp4`
+  benchmarks through `tools/prod/prod_run_cycle14b_pose_tail_scenario_benchmark.sh`,
+  then be compared directly against each other and against the Cycle 16.B /
+  Cycle 14.A evidence. No acceptance/rejection/skip/closure decision exists
+  until those benchmark tables, DB/model parity, RTT/GPU/memory evidence, and
+  rollback proof are written.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
