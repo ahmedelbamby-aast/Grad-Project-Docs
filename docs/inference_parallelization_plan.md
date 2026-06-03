@@ -851,8 +851,15 @@ command wall before changing Redis semantics. Production replay
 `docs/cycle_13c_redis_db_side_effect_measurement_results.md`. It proved Redis
 server command wall is tiny (`530.485 ms`) compared with the profiled Redis
 flush wall (`92.397 s`) and identified client-side helper/payload/pipeline
-overhead as the next Redis target. Cycle 16.B is therefore started in
-`docs/cycle_16b_redis_side_effect_coalescing_investigation.md`.
+overhead as the next Redis target. Cycle 16.B then completed in production:
+replay `cycle16b-redis-coalescing-20260603T025823Z`, job
+`b2dfa987-afc5-4b96-ab12-6799b149ac25`, deployed SHA `c458c443`, status
+`completed`. Redis flush wall improved `59.874 s -> 35.970 s`, embedding
+profile wall improved `121.681 s -> 97.505 s`, DB FPS improved
+`5.205675 -> 5.347791`, DB/model parity was exact, and Redis pipeline executes
+fell from the Cycle 13.C measured `72578` shape to `146`. Cycle 16.B is
+therefore accepted in
+`docs/cycle_16b_redis_side_effect_coalescing_results.md`.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
@@ -877,11 +884,11 @@ Cycle 21 is staged in
 thread, queue-concurrency, and GPU-cap tuning. The current metric-based
 recommendation is not to raise production worker counts yet: one
 `process_video_upload` task owns the single-video frame loop, one
-`generate_embeddings` task owns the embedding loop, and Cycle 13.C showed the
-next concrete bottleneck is client-side Redis side-effect work inside that
-single embedding task. Extra workers become credible only after sharding,
-streaming persistence/embedding, multiple independent jobs, or a production
-matrix proves hidden queue parallelism exists.
+`generate_embeddings` task owns the embedding loop, and Cycle 16.B showed that
+the remaining post-stage wall is now embedding DB flush, Redis payload
+serialization, and the Step 2 through-pose tail. Extra workers become credible
+only after sharding, streaming persistence/embedding, multiple independent
+jobs, or a production matrix proves hidden queue parallelism exists.
 
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K

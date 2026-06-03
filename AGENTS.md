@@ -478,10 +478,23 @@ the next case.
   `530.485 ms` Redis server command wall. Conclusion:
   `docs/cycle_13c_redis_db_side_effect_measurement_results.md` is
   **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**; Redis server tuning is not the
-  first fix. The next staged implementation cycle is
-  `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`, targeting
-  client-side helper/payload/pipeline coalescing with PostgreSQL remaining
-  authoritative.
+  first fix. Cycle 16.B then implemented guarded Redis side-effect coalescing:
+  production replay `cycle16b-redis-coalescing-20260603T025823Z`, job
+  `b2dfa987-afc5-4b96-ab12-6799b149ac25`, deployed SHA `c458c443`, status
+  `completed`, `4541/4541` frames. Results versus Cycle 13.B: DB elapsed
+  `872.317 s -> 849.136 s` (`-2.66 %`), DB FPS `5.205675 -> 5.347791`
+  (`+2.73 %`), embedding profile wall `121.681 s -> 97.505 s` (`-19.87 %`),
+  Redis flush `59.874 s -> 35.970 s` (`-39.92 %`), behavior RTT mean
+  `86.545 ms -> 86.532 ms`, exact DB rows and `100.000 %` model agreement for
+  all persisted models. Redis pipeline executes fell from the Cycle 13.C
+  measured `72578` shape to `146`; coalesced Redis errors and unavailable count
+  were `0`. `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1` is now part of the
+  accepted optimized production profile; rollback is setting it to `0` and
+  restarting Celery. Evidence:
+  `docs/cycle_16b_redis_side_effect_coalescing_results.md` and
+  `docs/production_inference_benchmark.md` §31. Next measured bottlenecks:
+  embedding DB flush `37.737 s`, Redis payload serialization `31.242 s`, and
+  Step 2 through-pose tail over frame wall `221.777 s`.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
@@ -501,12 +514,12 @@ the next case.
   operator permission to increase Celery workers/threads only as a governed
   candidate. Current metrics do **not** justify a blind production increase:
   one `process_video_upload` task owns the single-video frame loop, one
-  `generate_embeddings` task owns the embedding loop, and Cycle 13.C proved the
-  next concrete bottleneck is client-side Redis side-effect overhead inside
-  that task (`72578` estimated pipeline executes, Redis server wall only
-  `530.485 ms`). Extra workers become useful only when there are multiple
-  independent jobs, video shards, split persistence/render/embedding tasks, or
-  a completed production matrix proves hidden queue parallelism. Constitution
+  `generate_embeddings` task owns the embedding loop, and Cycle 16.B proved the
+  remaining post-stage bottlenecks are embedding DB flush, Redis payload
+  serialization, and through-pose tail rather than worker-count starvation.
+  Extra workers become useful only when there are multiple independent jobs,
+  video shards, split persistence/render/embedding tasks, or a completed
+  production matrix proves hidden queue parallelism. Constitution
   §8.1.1 is binding: any worker/thread/queue/GPU-cap increase must document
   baseline/candidate topology, duplicate-worker checks, CPU/RSS/VRAM/DB/Redis
   budgets, full `combined.mp4` benchmark evidence, correctness/model agreement,

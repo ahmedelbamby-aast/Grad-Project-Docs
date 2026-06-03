@@ -1289,7 +1289,7 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 13.A | Embedding sub-stage profiling after Cycle 12.C | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13-embedding-profile-20260603T003853Z`, job `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd`; embedding wall `188.620 s`, track lookup `66.223 s`, Redis flush `59.304 s`, DB flush `38.467 s`, exact DB/model parity | rollback proven: `EMBEDDING_STAGE_PROFILING=0` |
 | 13.B | Prefetch-aware embedding track lookup | **ACCEPTED**: replay `cycle13-track-lookup-20260603T011324Z`, job `c9f75d55-6043-4f27-bf9e-b2826d299459`; DB elapsed `935.516 s -> 872.317 s`, DB FPS `4.854005 -> 5.205675`, track lookup `66.223 s -> 0.447 s`, exact DB/model parity | rollback is `EMBEDDING_PREFETCH_TRACK_LOOKUP=0` |
 | 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
-| 16.B | Redis side-effect coalescing for embedding/tracking side effects | **PHASE A STARTED** in `docs/cycle_16b_redis_side_effect_coalescing_investigation.md`; target helper/payload/pipeline overhead, not Redis server tuning | low-medium; Redis remains non-authoritative |
+| 16.B | Redis side-effect coalescing for embedding/tracking side effects | **ACCEPTED**: replay `cycle16b-redis-coalescing-20260603T025823Z`, job `b2dfa987-afc5-4b96-ab12-6799b149ac25`; Redis flush `59.874 s -> 35.970 s`, embedding wall `121.681 s -> 97.505 s`, DB FPS `5.205675 -> 5.347791`, exact DB/model parity | rollback is `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` |
 | 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
@@ -1302,16 +1302,19 @@ Redis roadmap note (2026-06-03): broader Redis strategies are documented in
 `docs/redis_broader_optimization_opportunities.md`. Cycle 7 proved Redis
 hypotheses can be overestimated, so the first Redis cycle must be command-cost
 instrumentation, not implementation. Cycle 13.C completed that measurement and
-promoted Cycle 16.B because the measured bottleneck is client-side Redis helper,
-payload, and pipeline overhead.
+promoted Cycle 16.B because the measured bottleneck was client-side Redis
+helper, payload, and pipeline overhead. Cycle 16.B is now accepted; the next
+measured post-stage bottlenecks are embedding DB flush (`37.737 s`), Redis
+payload serialization (`31.242 s`), and the Step 2 through-pose tail over frame
+wall (`221.777 s`).
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up
 handoff. The idea is acceptable only as a future governed cycle because it
-changes job lifecycle semantics; keep it last unless production evidence proves
-post-stage tail should outrank the current Cycle 16.B and Cycle 14-19 sequence;
-if it creates independent tasks, run the Cycle 21 concurrency matrix afterward.
+changes job lifecycle semantics; keep it late unless production evidence proves
+post-stage tail should outrank the current Cycle 14-19 sequence; if it creates
+independent tasks, run the Cycle 21 concurrency matrix afterward.
 
 Cycle 21 note (2026-06-03):
 `docs/cycle_21_celery_concurrency_scaling_investigation.md` stages the worker

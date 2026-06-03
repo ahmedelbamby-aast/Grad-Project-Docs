@@ -2239,4 +2239,82 @@ task unless later cycles create independent work for those workers.
 
 ---
 
+## 31. Cycle 16.B Redis Side-Effect Coalescing
+
+This run implemented a guarded Redis side-effect coalescing candidate. It
+preserves PostgreSQL as the authoritative store and preserves the Redis key
+contract by keeping the legacy per-row command order inside one ordered Redis
+pipeline per embedding DB flush.
+
+| Field | Value |
+|---|---|
+| Baseline replay | `cycle13-track-lookup-20260603T011324Z` |
+| Baseline job | `c9f75d55-6043-4f27-bf9e-b2826d299459` |
+| Candidate replay | `cycle16b-redis-coalescing-20260603T025823Z` |
+| Candidate job | `b2dfa987-afc5-4b96-ab12-6799b149ac25` |
+| Candidate deployed SHA | `c458c44393f965b40ea98401399bf2efde2ea4b5` |
+| Video | `combined.mp4` |
+| Candidate status | `completed`, `4541/4541` frames |
+| Metrics evidence | `backend/logs/cycle16b-redis-coalescing-20260603T025823Z/redis_coalescing_metrics.json` |
+| Agreement evidence | `backend/logs/cycle16b-redis-coalescing-20260603T025823Z/model_agreement_cycle13b_vs_redis_coalescing.json` |
+
+### 31.1 Comparison
+
+| Metric | Cycle 13.B baseline | Cycle 16.B candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.205675` | `5.347791` | `+2.73 %` |
+| DB-completed elapsed | `872.317 s` | `849.136 s` | `-2.66 %` |
+| Step 2 frame wall | `458.696 s` | `460.698 s` | `+0.44 %` |
+| Step 2 through pose upload | `680.422 s` | `682.475 s` | `+0.30 %` |
+| GPU avg util | `11.003 %` | `11.030 %` | `+0.25 %` |
+| GPU peak util | `50.000 %` | `52.000 %` | `+4.00 %` |
+| Behavior RTT mean | `86.545 ms` | `86.532 ms` | `-0.02 %` |
+| Behavior RTT p95 | `132.448 ms` | `132.870 ms` | `+0.32 %` |
+| Embedding profile wall | `121.681 s` | `97.505 s` | `-19.87 %` |
+| Embedding created span | `121.384 s` | `97.226 s` | `-19.90 %` |
+| Redis flush wall | `59.874 s` | `35.970 s` | `-39.92 %` |
+| DB flush wall | `38.773 s` | `37.737 s` | `-2.67 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+### 31.2 Redis Decomposition
+
+| Metric | Cycle 13.C measured shape | Cycle 16.B candidate | Delta / meaning |
+|---|---:|---:|---|
+| Estimated helper commands | `870936` | `870936` | Command contract preserved. |
+| Estimated pipeline executes | `72578` | `146` | `-99.80 %`; per-row pipeline execution removed. |
+| Redis server command calls | `1017733` | `872002` | Server remains non-dominant. |
+| Redis server command wall | `530.485 ms` | `194.039 ms` | Server wall is not the limiter. |
+| Payload bytes estimate | `4446643934` | `4559575302` | Same order of magnitude; not the target of this cycle. |
+| Payload serialization wall | `32410.536 ms` | `31242.000 ms` | Still material after coalescing. |
+| Coalesced pipeline wall | n/a | `4084.293 ms` | Batched Redis execution is small. |
+| Redis helper/coalesced errors | `0` | `0` | Safety gate passed. |
+
+### 31.3 Correctness
+
+| Model | Candidate agreement F1@IoU0.5 | Boxes |
+|---|---:|---:|
+| `attention_tracking` | `100.000 %` | `11770 -> 11770` |
+| `hand_raising` | `100.000 %` | `8799 -> 8799` |
+| `person_detection` | `100.000 %` | `19162 -> 19162` |
+| `sitting_standing` | `100.000 %` | `33013 -> 33013` |
+
+### 31.4 Decision Explanation
+
+| Required field | Result |
+|---|---|
+| Decision status | **ACCEPTED** |
+| Why accepted | Targeted Redis flush wall improved `-39.92 %`, embedding wall improved `-19.87 %`, total DB FPS improved `+2.73 %`, and DB/model parity was exact. |
+| Inference protection | Step 2 frame wall regressed only `+0.44 %`; behavior RTT mean improved `-0.02 %`, p95 regressed `+0.32 %`. |
+| Production profile change | `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1` joins the accepted optimized profile. |
+| Rollback | Set `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` and restart Celery workers. |
+| Remaining bottleneck | Embedding DB flush `37.737 s`, Redis payload serialization `31.242 s`, and Step 2 through-pose tail over frame wall `221.777 s`. |
+
+Detailed result doc:
+`docs/cycle_16b_redis_side_effect_coalescing_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

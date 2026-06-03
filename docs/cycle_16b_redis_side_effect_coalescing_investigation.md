@@ -2,10 +2,11 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase B implementation staged behind
-`EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. No acceptance, rejection, skip, or
-closure decision exists until the completed production Linux RTX 5090
-`combined.mp4` benchmark records the decision table and rollback proof.
+**Status:** ACCEPTED by production benchmark. Replay
+`cycle16b-redis-coalescing-20260603T025823Z`, job
+`b2dfa987-afc5-4b96-ab12-6799b149ac25`, completed on the Linux RTX 5090 with
+exact DB/model parity. Final decision and tables are in
+`docs/cycle_16b_redis_side_effect_coalescing_results.md`.
 
 ## Problem Statement
 
@@ -42,6 +43,7 @@ embedding row. In the Cycle 13.C benchmark that meant:
 | File | `tools/prod/prod_collect_benchmark_metrics.py` | Metrics collector must surface coalescing counters. |
 | File | `tools/prod/prod_watch_benchmark_metrics.sh` | Watcher must show coalescing counters during production benchmark. |
 | File | `tools/prod/prod_run_cycle16b_redis_coalescing_benchmark.sh` | Reproducible production benchmark wrapper for this candidate. |
+| Doc | `docs/cycle_16b_redis_side_effect_coalescing_results.md` | Accepted production benchmark and decision. |
 | Doc | `.specify/memory/constitution.md` | Benchmark decision authority and PostgreSQL authority gates. |
 
 ## Root Cause
@@ -148,6 +150,14 @@ material client-side Redis side-effect wall and ruled out Redis server tuning as
 the first fix. Do not implement Redis Streams, Redis scripts, or streaming
 persistence overlap before this coalescing candidate unless a later production
 benchmark decision table reorders the roadmap.
+
+## Phase E Decision
+
+Cycle 16.B is accepted. The production benchmark improved Redis flush wall
+`59.874 s -> 35.970 s`, embedding profile wall `121.681 s -> 97.505 s`, and
+DB-completed FPS `5.205675 -> 5.347791` with exact DB/model parity and zero
+Redis coalescing errors. `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1` is now part
+of the accepted optimized production profile.
 
 ## Validation Before Production
 

@@ -39,7 +39,7 @@ can move a benchmark metric that the optimization plan already records:
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and Cycle 7 measured result. |
 | Doc | `docs/cycle_12_single_inflight_overlap_results.md` | Latest accepted baseline before the Redis roadmap was staged. |
 | Doc | `docs/cycle_13c_redis_db_side_effect_measurement_results.md` | Completed Cycle 16.A command-cost measurement and next-candidate decision. |
-| Doc | `docs/cycle_16b_redis_side_effect_coalescing_investigation.md` | Active Cycle 16.B Phase A investigation. |
+| Doc | `docs/cycle_16b_redis_side_effect_coalescing_results.md` | Accepted Cycle 16.B production benchmark and decision. |
 
 ## Current Repo Evidence
 
@@ -111,6 +111,14 @@ already uses a pipeline internally, but `cache_embedding` and
 **Metric gate:** must improve total wall or embedding wall in production and
 preserve embedding-row parity, track count, DB row counts, and model agreement.
 
+**Production result:** replay `cycle16b-redis-coalescing-20260603T025823Z`
+/ job `b2dfa987-afc5-4b96-ab12-6799b149ac25` completed. Redis flush wall
+improved `59.874 s -> 35.970 s`, embedding profile wall improved
+`121.681 s -> 97.505 s`, DB FPS improved `5.205675 -> 5.347791`, and
+DB/model parity was exact. Pipeline executes fell from the Cycle 13.C measured
+`72578` shape to `146`. Cycle 16.B is **ACCEPTED**; Redis server tuning remains
+de-ranked because candidate Redis server command wall was only `194.039 ms`.
+
 ### Cycle 17 — Redis Streams For Non-Authoritative Progress And Benchmark Sampling
 
 **Purpose:** improve benchmark observability and possibly reduce DB polling /
@@ -180,7 +188,7 @@ These cycles are now sorted by the completed Cycle 16.A measurement:
 | Cycle | Title | Status | Primary metric target |
 |---|---|---|---|
 | 16.A | Redis command-cost instrumentation | MEASUREMENT COMPLETE / HYPOTHESIS_ONLY | Evidence quality; upper bound for Redis optimization |
-| 16.B | Redis pipeline coalescing for embedding/tracking side effects | PHASE A STARTED | Embedding wall; total wall |
+| 16.B | Redis pipeline coalescing for embedding/tracking side effects | ACCEPTED | Embedding wall; total wall |
 | 17 | Redis Streams for progress/benchmark sampling | PLANNED AFTER 16.B | DB polling/write overhead; evidence quality |
 | 18 | Redis boundary-state cache for future sharding | PLANNED AFTER Cycle 15 decision | Sharding stitch stability; total wall if sharding is selected |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | CONDITIONAL AFTER 16.B | Only a Redis hotspot that coalescing cannot remove |
@@ -200,7 +208,9 @@ These cycles are now sorted by the completed Cycle 16.A measurement:
 
 ## Immediate Recommendation
 
-Start Cycle 16.B Redis side-effect coalescing. Cycle 16.A produced the required
-production command-level evidence and showed the first Redis fix should reduce
-client-side helper calls, payload serialization, and pipeline executes. Do not
-start Redis Streams or scripts before the coalescing candidate is benchmarked.
+Do not tune Redis server execution next. Cycle 16.B reduced client-side pipeline
+overhead and left seconds-scale costs in embedding DB flush (`37.737 s`) and
+Redis payload serialization (`31.242 s`), while Redis server command wall was
+only `194.039 ms`. The next Redis-specific idea should target serialization or
+only proceed if a later production benchmark proves Redis Streams reduce DB
+polling/write overhead without changing PostgreSQL authority.
