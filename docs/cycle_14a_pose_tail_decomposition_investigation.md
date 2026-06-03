@@ -2,11 +2,12 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase A investigation started. No runtime code, production env,
-worker topology, Triton config, or benchmark decision is changed by this
-document. The only valid state is
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` until a completed production Linux
-RTX 5090 `combined.mp4` benchmark records the required evidence.
+**Status:** MEASUREMENT COMPLETE / HYPOTHESIS_ONLY. Production benchmark
+`cycle14a-pose-tail-profile-20260603T135129Z` / job
+`862a13db-a2ae-408f-a737-ee9aeca45f5c` completed on the production Linux RTX
+5090 with `combined.mp4`. No optimization is accepted, rejected, skipped, or
+closed by this measurement-only cycle. Results are recorded in
+`docs/cycle_14a_pose_tail_decomposition_results.md`.
 
 ## Problem Statement
 

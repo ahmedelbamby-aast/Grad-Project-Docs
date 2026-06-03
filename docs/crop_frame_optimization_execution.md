@@ -1290,8 +1290,9 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 13.B | Prefetch-aware embedding track lookup | **ACCEPTED**: replay `cycle13-track-lookup-20260603T011324Z`, job `c9f75d55-6043-4f27-bf9e-b2826d299459`; DB elapsed `935.516 s -> 872.317 s`, DB FPS `4.854005 -> 5.205675`, track lookup `66.223 s -> 0.447 s`, exact DB/model parity | rollback is `EMBEDDING_PREFETCH_TRACK_LOOKUP=0` |
 | 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
 | 16.B | Redis side-effect coalescing for embedding/tracking side effects | **ACCEPTED**: replay `cycle16b-redis-coalescing-20260603T025823Z`, job `b2dfa987-afc5-4b96-ab12-6799b149ac25`; Redis flush `59.874 s -> 35.970 s`, embedding wall `121.681 s -> 97.505 s`, DB FPS `5.205675 -> 5.347791`, exact DB/model parity | rollback is `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` |
-| 14.A | Pose-tail decomposition after Cycle 16.B | **PHASE A ACTIVE**: investigate why Step 2 through-pose upload is `682.475 s` while Step 2 frame wall is `460.698 s`; the `221.777 s` tail is the largest remaining measured bucket | low-medium; profiling flag only, no runtime behavior change |
-| 14.B | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | blocked until Cycle 14.A proves compacting server/client work addresses the measured tail | high; backend/runtime contract change |
+| 14.A | Pose-tail decomposition after Cycle 16.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle14a-pose-tail-profile-20260603T135129Z`, job `862a13db-a2ae-408f-a737-ee9aeca45f5c`; tail remains `224.308 s`, and the `200.778 s` post-frame-loop drain is dominated by RTMPose runtime/provider work | low-medium; profiling flag rollback proven |
+| 14.B | RTMPose provider overlap or cross-frame RTMPose batching | next implementation candidate; target measured `190.176 s` runtime wall, `186.090 s` provider batch wall, and `154.171 s` provider async batch wall while preserving pose/frame order | medium-high; rollback flag required |
+| 14.C | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
@@ -1310,6 +1311,15 @@ measured bottlenecks are the Step 2 through-pose tail over frame wall
 serialization (`31.242 s`). Cycle 14.A is now promoted ahead of the older
 compact-output and Redis/server-side ideas because the pose tail is the largest
 unresolved measured bucket and is not yet decomposed.
+
+Cycle 14.A completion note (2026-06-03): production replay
+`cycle14a-pose-tail-profile-20260603T135129Z` decomposed the pose tail. The
+tail stayed material (`224.308 s`), and the measured `200.778 s` drain after
+the frame loop was dominated by RTMPose runtime/provider work (`190.176 s`
+runtime wall, `186.090 s` provider batch wall). The next cycle is therefore
+Cycle 14.B RTMPose provider overlap or cross-frame RTMPose batching. Compact
+server-side postprocessing moves to Cycle 14.C unless future measurements prove
+behavior output/server compaction is again dominant.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

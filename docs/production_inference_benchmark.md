@@ -2317,4 +2317,82 @@ Detailed result doc:
 
 ---
 
+## 32. Cycle 14.A Pose-Tail Decomposition
+
+This run implemented guarded profiling only. It is a production benchmark
+authority for the pose-tail decomposition hypothesis, not an optimization
+acceptance run.
+
+| Field | Value |
+|---|---|
+| Baseline replay | `cycle16b-redis-coalescing-20260603T025823Z` |
+| Baseline job | `b2dfa987-afc5-4b96-ab12-6799b149ac25` |
+| Candidate replay | `cycle14a-pose-tail-profile-20260603T135129Z` |
+| Candidate job | `862a13db-a2ae-408f-a737-ee9aeca45f5c` |
+| Video | `combined.mp4` |
+| Candidate status | `completed`, `4541/4541` frames |
+| Metrics evidence | `backend/logs/cycle14a-pose-tail-profile-20260603T135129Z/pose_tail_profile_metrics.json` |
+| Agreement evidence | `backend/logs/cycle14a-pose-tail-profile-20260603T135129Z/model_agreement_cycle16b_vs_pose_tail_profile.json` |
+
+### 32.1 Comparison
+
+| Metric | Cycle 16.B baseline | Cycle 14.A measurement | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.347791` | `5.313454` | `-0.64 %` |
+| DB-completed elapsed | `849.136 s` | `854.623 s` | `+0.65 %` |
+| Step 2 frame wall | `460.698 s` | `465.856 s` | `+1.12 %` |
+| Step 2 through pose upload | `682.475 s` | `690.164 s` | `+1.13 %` |
+| Through-pose tail over frame wall | `221.777 s` | `224.308 s` | `+1.14 %` |
+| Behavior RTT mean | `86.532 ms` | `82.914 ms` | `-4.18 %` |
+| Behavior RTT p95 | `132.870 ms` | `128.071 ms` | `-3.61 %` |
+| GPU avg util | `11.030 %` | `11.440 %` | `+3.72 %` |
+| GPU peak util | `52.000 %` | `51.000 %` | `-1.92 %` |
+| Peak VRAM | `15725 MiB` | `15725 MiB` | `0.00 %` |
+| Embedding wall | `97.505 s` | `98.765 s` | `+1.29 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| Student tracks | `53` | `53` | `0.00 %` |
+
+### 32.2 Pose-Tail Decomposition
+
+| Metric | Value | Share of drain wall |
+|---|---:|---:|
+| Drain after frame loop | `200.778 s` | `100.00 %` |
+| Runtime wall | `190.176 s` | `94.72 %` |
+| Runtime provider batch wall | `186.090 s` | `92.68 %` |
+| Provider async batch wall | `154.171 s` | `76.79 %` |
+| Provider payload build | `17.327 s` | `8.63 %` |
+| Frame read | `7.493 s` | `3.73 %` |
+| Runtime crop resize | `3.770 s` | `1.88 %` |
+| Artifact writes | `1.571 s` | `0.78 %` |
+| Provider response decode | `1.525 s` | `0.76 %` |
+| Quality enrichment | `0.772 s` | `0.38 %` |
+| Record build | `0.477 s` | `0.24 %` |
+| Metadata save | `0.011 s` | `0.01 %` |
+
+### 32.3 Correctness
+
+| Model | Candidate agreement F1@IoU0.5 | Boxes |
+|---|---:|---:|
+| `attention_tracking` | `100.000 %` | `11770 -> 11770` |
+| `hand_raising` | `100.000 %` | `8799 -> 8799` |
+| `person_detection` | `100.000 %` | `19162 -> 19162` |
+| `sitting_standing` | `100.000 %` | `33013 -> 33013` |
+
+### 32.4 Decision Explanation
+
+| Required field | Result |
+|---|---|
+| Decision status | `MEASUREMENT COMPLETE / HYPOTHESIS_ONLY` |
+| Why not accepted | The run enabled profiling only and intentionally made no runtime optimization. |
+| Causal interpretation | The through-pose tail is real and is dominated by RTMPose runtime/provider work: `190.176 s` runtime wall and `186.090 s` provider batch wall inside a `200.778 s` drain. |
+| Protected metrics | Behavior RTT mean improved `-4.18 %`; DB/model parity was exact; Step 2 frame wall regressed only `+1.12 %` under profiling. |
+| Next task | Start an RTMPose provider overlap / cross-frame batching candidate before compact postprocessing, Redis Streams/scripts, streaming persistence, or worker scaling. |
+
+Detailed result doc:
+`docs/cycle_14a_pose_tail_decomposition_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

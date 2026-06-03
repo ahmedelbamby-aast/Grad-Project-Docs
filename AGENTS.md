@@ -496,17 +496,25 @@ the next case.
   ordered by measured wall: Step 2 through-pose tail over frame wall
   `221.777 s`, embedding DB flush `37.737 s`, and Redis payload serialization
   `31.242 s`.
-- **2026-06-03 Cycle 14.A pose-tail decomposition PHASE A ACTIVE**:
-  `docs/cycle_14a_pose_tail_decomposition_investigation.md` is now the next
-  active cycle. Agents must decompose the `221.777 s` pose tail before
-  implementing compact BLS/TRT postprocessing, Redis Streams/scripts, streaming
-  persistence, video sharding, or worker-count increases. Valid first work is
-  guarded profiling around pose dispatch, queue wait, Triton RTT/server timing,
-  response parse, postprocess, upload/enrichment, future drain after the frame
-  loop, and step-boundary timestamps. No optimization decision exists until a
-  completed production Linux RTX 5090 `combined.mp4` benchmark records the
-  before/after table, DB/model parity, GPU/RTT/memory evidence, and rollback
-  proof. Rollback must be an env flag reset plus Celery restart.
+- **2026-06-03 Cycle 14.A pose-tail decomposition MEASUREMENT COMPLETE /
+  HYPOTHESIS_ONLY**: production replay
+  `cycle14a-pose-tail-profile-20260603T135129Z`, job
+  `862a13db-a2ae-408f-a737-ee9aeca45f5c`, completed `4541/4541` frames on
+  `combined.mp4`. This was profiling only, so no optimization is accepted,
+  rejected, skipped, or closed. Evidence:
+  `docs/cycle_14a_pose_tail_decomposition_results.md` and
+  `docs/production_inference_benchmark.md` §32. The tail remained material:
+  Step 2 through-pose upload `690.164 s`, Step 2 frame wall `465.856 s`,
+  tail `224.308 s`, and post-frame-loop drain `200.778 s`. The drain is
+  dominated by RTMPose runtime/provider work: runtime wall `190.176 s`,
+  provider batch wall `186.090 s`, provider async batch wall `154.171 s`, and
+  provider payload build `17.327 s`. DB/model parity was exact and all
+  model-agreement F1 rows were `100.000 %`. Next cycle must target RTMPose
+  provider overlap or cross-frame RTMPose batching behind a rollback flag before
+  compact BLS/TRT postprocessing, Redis Streams/scripts, streaming persistence,
+  video sharding, or worker-count increases. Rollback proof from the profiling
+  run: `POSE_TAIL_PROFILING=0`, `EMBEDDING_STAGE_PROFILING=0`, accepted Cycle
+  16.B runtime flags remain enabled.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

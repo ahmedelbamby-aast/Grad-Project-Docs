@@ -861,15 +861,21 @@ fell from the Cycle 13.C measured `72578` shape to `146`. Cycle 16.B is
 therefore accepted in
 `docs/cycle_16b_redis_side_effect_coalescing_results.md`.
 
-Cycle 14.A is now the next active cycle in
-`docs/cycle_14a_pose_tail_decomposition_investigation.md`. The ordering is
-metric-driven: after Cycle 16.B, Step 2 through-pose upload is `682.475 s`
-while Step 2 frame wall is `460.698 s`, leaving a `221.777 s` tail. That tail
-is larger than the remaining measured embedding DB flush (`37.737 s`) and
-Redis payload serialization (`31.242 s`) buckets. Cycle 14.A is
-measurement-only first; no compact postprocessing, sharding, Redis Streams,
-streaming persistence, or worker-count change may be accepted or rejected until
-the pose tail is decomposed by a completed production `combined.mp4` benchmark.
+Cycle 14.A completed as MEASUREMENT COMPLETE / HYPOTHESIS_ONLY in
+`docs/cycle_14a_pose_tail_decomposition_results.md`. Production replay
+`cycle14a-pose-tail-profile-20260603T135129Z`, job
+`862a13db-a2ae-408f-a737-ee9aeca45f5c`, completed `4541/4541` frames on
+`combined.mp4`. The run preserved DB/model parity and proved the tail remains
+real: Step 2 through-pose upload was `690.164 s`, Step 2 frame wall was
+`465.856 s`, and the candidate tail was `224.308 s`. The measured drain after
+the frame loop was `200.778 s`; it was dominated by RTMPose runtime/provider
+work (`190.176 s` runtime wall, `186.090 s` provider batch wall, `154.171 s`
+provider async batch wall, and `17.327 s` provider payload build). Therefore the
+next cycle is not compact behavior postprocessing, Redis Streams/scripts,
+streaming persistence, or worker-count scaling. The next cycle must target
+RTMPose provider overlap or cross-frame RTMPose batching behind a rollback flag,
+then prove FPS, Step 2 wall, RTT, GPU, memory, DB parity, and model agreement in
+a completed production `combined.mp4` benchmark.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
