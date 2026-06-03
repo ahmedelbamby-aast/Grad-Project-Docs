@@ -893,6 +893,15 @@ pose records `19157 -> 19180`. The optimized production profile now includes
 `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
 `POSE_CROSS_FRAME_BATCH_SIZE=16`.
 
+Cycle 14.C is staged in
+`docs/cycle_14c_pose_batch_size_matrix_investigation.md` as the next sorted
+cycle because the accepted cross-frame RTMPose batch cap is still a measured
+tuning lever. It is split into Cycle 14.C1 (`POSE_CROSS_FRAME_BATCH_SIZE=8`)
+and Cycle 14.C2 (`POSE_CROSS_FRAME_BATCH_SIZE=32`). Both scenarios must run
+full production benchmarks against accepted batch `16`, then be compared
+directly before any acceptance decision. The previous compact server-side
+behavior postprocessing idea moves to Cycle 14.D.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

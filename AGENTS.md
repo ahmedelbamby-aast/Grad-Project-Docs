@@ -548,6 +548,18 @@ the next case.
   `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
   `POSE_CROSS_FRAME_BATCH_SIZE=16`; rollback is
   `POSE_TAIL_OPTIMIZATION_MODE=off` plus Celery worker restart.
+- **2026-06-03 Cycle 14.C RTMPose batch-size matrix STAGED**:
+  `docs/cycle_14c_pose_batch_size_matrix_investigation.md`,
+  `docs/cycle_14c1_pose_batch_size_8_investigation.md`, and
+  `docs/cycle_14c2_pose_batch_size_32_investigation.md` exist before any
+  decision. The accepted Cycle 14.B2 batch `16` replay
+  `cycle14b-cross-frame-batch16-r2-20260603T150000Z` is the baseline. Cycle
+  14.C1 benchmarks batch `8`; Cycle 14.C2 benchmarks batch `32`. The helper
+  `tools/prod/prod_run_cycle14c_pose_batch_size_matrix.sh` must run each
+  scenario independently against the baseline and then compare the two
+  scenarios directly. No acceptance/rejection/skip/closure decision exists
+  until the completed production benchmark table, model agreement, DB parity,
+  GPU/RTT/memory evidence, and rollback proof are written.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

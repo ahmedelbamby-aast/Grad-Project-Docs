@@ -109,8 +109,11 @@ context.
 | 37u | [`docs/cycle_14b1_rtmpose_single_inflight_overlap_investigation.md`](docs/cycle_14b1_rtmpose_single_inflight_overlap_investigation.md) | 2026-06-03 | Cycle 14.B1 investigation: one-inflight RTMPose overlap scenario to benchmark separately. |
 | 37v | [`docs/cycle_14b2_rtmpose_cross_frame_batching_investigation.md`](docs/cycle_14b2_rtmpose_cross_frame_batching_investigation.md) | 2026-06-03 | Cycle 14.B2 investigation: ordered cross-frame RTMPose batching scenario to benchmark separately and compare with 14.B1. |
 | 37w | [`docs/cycle_14b_rtmpose_scenario_results.md`](docs/cycle_14b_rtmpose_scenario_results.md) | 2026-06-03 | Cycle 14.B production result: B1 not accepted, first B2 rejected, fixed B2 accepted with exact DB/model parity. |
-| 37x | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
-| 37y | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
+| 37x | [`docs/cycle_14c_pose_batch_size_matrix_investigation.md`](docs/cycle_14c_pose_batch_size_matrix_investigation.md) | 2026-06-03 | Cycle 14.C investigation: RTMPose cross-frame batch-size matrix after accepted 14.B2. |
+| 37y | [`docs/cycle_14c1_pose_batch_size_8_investigation.md`](docs/cycle_14c1_pose_batch_size_8_investigation.md) | 2026-06-03 | Cycle 14.C1 investigation: batch cap 8 scenario benchmarked against accepted batch 16. |
+| 37z | [`docs/cycle_14c2_pose_batch_size_32_investigation.md`](docs/cycle_14c2_pose_batch_size_32_investigation.md) | 2026-06-03 | Cycle 14.C2 investigation: batch cap 32 scenario benchmarked against accepted batch 16 and 14.C1. |
+| 37aa | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
+| 37ab | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
 
 ### Phase 4 — Triton-specific deep dives
 
