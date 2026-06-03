@@ -2,9 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED / RUNTIME BENCHMARK BLOCKED. No two-shard runtime
-candidate has been implemented, production-benchmarked, accepted, rejected,
-skipped, or closed.
+**Status:** RUNTIME CANDIDATE IMPLEMENTED LOCALLY / PRODUCTION BENCHMARK
+PENDING. No two-shard runtime candidate has been accepted, rejected, skipped,
+or closed; only a full production Linux RTX 5090 `combined.mp4` benchmark can
+make that decision.
 
 **Streaming compatibility:** `offline-only`. The Cycle 15.B1 runtime candidate
 requires whole-file access, frame windows, overlap pre-roll, and parent/shard
@@ -59,14 +60,14 @@ tracking continuity, embeddings, terminal state, and rollback.
 
 | Area | Evidence | Runtime implication |
 |---|---|---|
-| Single lifecycle job | `runtime_ingest_video.py` creates one `VideoAnalysisJob` for a replay. | A parent/shard orchestration layer does not exist yet. |
-| Full-file frame loop | `tasks.py` opens the job video and returns one `frame_detections` map for the job. | No authoritative frame-window parameter exists yet. |
-| Direct Step 3 persistence | `tasks.py` persists every `frame_detections` item into the same job. | Context-only frames would be persisted unless filtered before Step 3. |
+| Single lifecycle job | `runtime_ingest_video.py` creates one `VideoAnalysisJob` for a replay. | The new Cycle 15.B1 command creates a parent job plus two child shard jobs; normal ingest remains single-job. |
+| Frame-window runtime | `_run_triton_frame_level_inference(..., decode_frame_window=...)` can decode a 0-based half-open window. | Only valid offline child shard metadata uses the window; normal full-video path remains unchanged. |
+| Direct Step 3 persistence | `tasks.py` filters `frame_detections` through `filter_authoritative_frame_detections(...)` before Step 3 for child shards. | Context-only frames feed tracking/boundary evidence but are not authoritative persisted rows. |
 | Frame idempotency exists | `Frame` has `uq_frame_job_frame_number`. | Frame upsert can protect parent rows. |
 | Track idempotency exists | `StudentTrack` has `uq_student_track_job_tracking_id`. | Tracks are unique inside one job, but shard-local IDs still need canonicalization. |
-| Detection/BBox merge key missing | `Detection` and `BoundingBox` have no shard provenance or natural merge key. | Parent merge cannot yet be idempotently retried without delete-and-replace or new provenance. |
-| Embedding merge key missing | `FrameEmbedding` has indexes but no uniqueness/provenance. | Parent embedding merge cannot yet prove retry safety. |
-| Fail-closed guard | `process_video_upload` rejects `OFFLINE_VIDEO_SHARDING_ENABLED=1` or shard metadata with `cycle15b1_sharding_runtime_not_implemented`. | Accidental enablement cannot corrupt persistence while the runtime candidate is still absent. |
+| Detection/BBox provenance | `Detection.shard_provenance` and `BoundingBox.shard_provenance` exist in migration `0014_cycle15b1_shard_provenance.py`. | Parent merge can replace authoritative parent rows idempotently and preserve source lineage. |
+| Embedding provenance | `FrameEmbedding.embedding_provenance` exists in migration `0014_cycle15b1_shard_provenance.py`. | Child embeddings can be copied with provenance; current runtime generates parent embeddings after merge. |
+| Fail-closed guard | `process_video_upload` rejects malformed or disabled shard metadata with `cycle15b1_sharding_runtime_invalid_request`. | Accidental or partial enablement still fails closed before inference. |
 
 ## Runtime Contract Before Code
 
@@ -224,3 +225,58 @@ Remaining blockers:
 | `parent_merge_helper` | No authoritative parent merge/finalization helper exists. |
 | `bbox_detection_merge_idempotency` | Detection and bounding-box rows still lack shard provenance or a natural retry key. |
 | `embedding_merge_idempotency` | FrameEmbedding rows still lack shard provenance or a natural retry key. |
+
+## Implementation Slice 2: Runtime Candidate and Merge Path
+
+This slice implements the minimum benchmarkable Cycle 15.B1 runtime candidate.
+It does not accept, reject, skip, or close the cycle because production
+benchmark evidence is still pending.
+
+| Change | File | Evidence |
+|---|---|---|
+| Offline shard service | `backend/apps/video_analysis/services/offline_sharding.py` | Defines `OfflineVideoShardRequest`, `ShardRange`, pre-roll-only `build_even_shards`, authoritative filtering, boundary summaries, and idempotent parent merge. |
+| Decode window | `backend/apps/video_analysis/tasks.py` | `_run_triton_frame_level_inference(..., decode_frame_window=...)` decodes only a 0-based half-open window for valid child shard jobs. |
+| Triton-only guard | `backend/apps/video_analysis/tasks.py` + `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` | Valid child shards fail unless the offline runtime is the Triton-only path; the wrapper refuses non-`triton_only` settings before submit. |
+| Valid shard request path | `backend/apps/video_analysis/tasks.py` | Valid metadata enters `cycle15b1_sharding_runtime_active`; malformed/disabled metadata fails with `cycle15b1_sharding_runtime_invalid_request`. |
+| Child authoritative persistence | `backend/apps/video_analysis/tasks.py` | Child jobs filter context frames before Step 3, persist only authoritative rows, write an inference audit, and stop before render/embedding. |
+| Parent orchestrator | `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py` | Creates a parent job, creates two child jobs, queues child Celery tasks, waits for terminal children, merges rows, then runs parent embeddings inline. |
+| Parent merge helper | `tools/prod/prod_merge_cycle15b1_shards.py` | Re-runs the same idempotent merge independently and can optionally run parent embeddings. |
+| Benchmark wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` | Enables sharding only for the benchmark window, restarts workers, captures GPU CSV, runs the orchestrator, collects metrics, and restores safe defaults on exit. |
+| DB provenance | `backend/apps/video_analysis/models.py` + `backend/apps/video_analysis/migrations/0014_cycle15b1_shard_provenance.py` | Adds `Detection.shard_provenance`, `BoundingBox.shard_provenance`, and `FrameEmbedding.embedding_provenance`. |
+| CI coverage | `.github/workflows/inference-parallelization.yml` | Adds shell/compile checks for new helpers and runs the Cycle 15.B1 guard/merge tests. |
+
+Local validation:
+
+| Check | Result |
+|---|---|
+| Python compile | `python -m py_compile backend/apps/video_analysis/services/offline_sharding.py backend/apps/video_analysis/tasks.py backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py tools/prod/prod_merge_cycle15b1_shards.py tools/prod/prod_check_cycle15b1_runtime_readiness.py` passed. |
+| Shell syntax | `bash -n tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` passed. |
+| Django check | `.venv\Scripts\python.exe manage.py check` passed. |
+| Migration drift | `.venv\Scripts\python.exe manage.py makemigrations --check --dry-run` passed with `No changes detected`. |
+| Focused unit tests | `.venv\Scripts\python.exe -m pytest tests/unit/video_analysis/test_cycle15b1_sharding_guard.py tests/unit/video_analysis/test_cycle15b1_shard_merge.py -q` passed: `4 passed`. |
+| Local readiness audit | `backend/logs/cycle15b1_readiness_local.json` reported `ready_for_runtime_benchmark=True`, `critical_blocker_count=0`, `warning_count=0`. |
+
+Readiness blocker resolution:
+
+| Prior blocker | Current status | Resolution evidence |
+|---|---|---|
+| `runtime_candidate_active` | `ok` | Runtime markers `cycle15b1_sharding_runtime_active`, `decode_frame_window`, and `filter_authoritative_frame_detections` exist. |
+| `runtime_benchmark_wrapper` | `ok` | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` exists and passes shell syntax. |
+| `parent_merge_helper` | `ok` | `tools/prod/prod_merge_cycle15b1_shards.py` exists and compiles. |
+| `bbox_detection_merge_idempotency` | `ok` | `shard_provenance` fields exist and `test_cycle15b1_parent_merge_is_idempotent` passes. |
+| `embedding_merge_idempotency` | `ok` | `embedding_provenance` exists; parent embeddings are generated after merge for the runtime candidate. |
+
+Production benchmark command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+```
+
+Decision state: `NOT DECIDED`. The runtime candidate is only ready to deploy
+and benchmark. Acceptance remains impossible until the production wrapper
+completes, metrics are collected, DB/model/embedding parity is measured, safe
+defaults are restored, and this document plus the benchmark history are updated
+with the production replay key and parent/shard job ids.

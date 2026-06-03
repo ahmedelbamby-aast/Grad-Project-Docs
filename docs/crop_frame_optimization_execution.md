@@ -1446,6 +1446,21 @@ readiness evidence to
 No sharded benchmark has been started, and no acceptance/rejection/skip/closure
 decision exists.
 
+Cycle 15.B1 runtime candidate implementation note (2026-06-03):
+The missing runtime blockers are now resolved locally. The implementation adds
+`backend/apps/video_analysis/services/offline_sharding.py`,
+`backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py`,
+`tools/prod/prod_merge_cycle15b1_shards.py`,
+`tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`, and migration
+`0014_cycle15b1_shard_provenance.py`. Child shard jobs use explicit
+`decode_frame_window` metadata, filter context-only frames before Step 3, write
+shard provenance, and stop before render/embedding; parent merge owns
+authoritative rows and parent embeddings. Local validation passed Python
+compile, shell syntax, `manage.py check`, migration-drift check, focused tests
+(`4 passed`), and readiness (`ready_for_runtime_benchmark=True`, `0` blockers).
+Decision remains `NOT DECIDED - PRODUCTION BENCHMARK PENDING` until the real
+production `combined.mp4` wrapper run records metrics and parity.
+
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the
 frame inference aggregation, and embedding starts after finalization/follow-up

@@ -2904,6 +2904,46 @@ The remaining blockers are the implemented runtime candidate, reproducible
 two-shard benchmark wrapper, parent merge helper, detection/bounding-box
 provenance, and embedding provenance.
 
+### 39.6 Cycle 15.B1 Runtime Candidate Ready for Production Benchmark
+
+Cycle 15.B1 now has a benchmarkable runtime candidate in the repository. This
+section records readiness only; it is not a production optimization decision.
+
+| Item | Value |
+|---|---|
+| Runtime service | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Parent orchestrator | `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py` |
+| Merge helper | `tools/prod/prod_merge_cycle15b1_shards.py` |
+| Benchmark wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+| Provenance migration | `backend/apps/video_analysis/migrations/0014_cycle15b1_shard_provenance.py` |
+| Streaming compatibility | `offline-only`; live profile must keep sharding disabled. |
+
+Local validation:
+
+| Check | Result |
+|---|---|
+| Python compile | Passed for task, service, management command, readiness helper, and merge helper. |
+| Shell syntax | Passed for `prod_run_cycle15b1_two_shard_runtime_benchmark.sh`. |
+| Django check | `System check identified no issues`. |
+| Migration drift | `makemigrations --check --dry-run` returned `No changes detected`. |
+| Focused unit tests | `4 passed`: sharding guard plus parent merge idempotency. |
+| Local readiness | `backend/logs/cycle15b1_readiness_local.json`: `ready_for_runtime_benchmark=True`, `critical_blocker_count=0`, `warning_count=0`. |
+
+Required production benchmark command:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --baseline-metrics "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+```
+
+Decision: `NOT DECIDED - PRODUCTION BENCHMARK PENDING`. The candidate must be
+judged only after the wrapper completes on production Linux RTX 5090 and writes
+the replay key, parent job id, shard job ids, metrics JSON/Markdown, GPU CSV,
+DB/model/embedding parity, rollback proof, and before/after comparison against
+the Cycle 15.B pre-shard baseline.
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

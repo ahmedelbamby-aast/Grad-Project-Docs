@@ -1019,6 +1019,26 @@ The production audit is still `blocked_no_runtime_candidate` with `5` critical
 blockers. This is safety/config work only: it does not implement, accept,
 reject, skip, or close runtime sharding.
 
+Cycle 15.B1 runtime candidate is now implemented locally and ready for
+production benchmark deployment. The old runtime blockers are resolved in code:
+`backend/apps/video_analysis/services/offline_sharding.py` defines the
+offline-only shard planner/filter/merge contract,
+`process_video_upload` accepts only valid child-shard metadata and runs the
+`decode_frame_window` path, context-only frames are filtered before Step 3,
+child jobs stop before render/embedding, parent orchestration lives in
+`cycle15b1_sharded_ingest`, the merge helper is
+`tools/prod/prod_merge_cycle15b1_shards.py`, and the production wrapper is
+`tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`. Migration
+`0014_cycle15b1_shard_provenance.py` adds detection/bbox/embedding provenance.
+Local validation passed Python compile, shell syntax, `manage.py check`,
+`makemigrations --check --dry-run`, targeted Cycle 15.B1 tests (`4 passed`),
+and the local readiness helper now reports `ready_for_runtime_benchmark=True`
+with `0` critical blockers. Decision remains **NOT DECIDED** until the real
+production Linux RTX 5090 `combined.mp4` benchmark runs and records DB FPS,
+Step 2 wall, through-pose wall, GPU utilization, RTT, DB/model/embedding
+parity, parent/shard job ids, replay key, rollback proof, and before/after
+comparison against `cycle15b-pre-shard-baseline-20260603T193531Z`.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

@@ -789,6 +789,27 @@ Per § 8.6.2:
   `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
   This is safety and reproducibility work only: no two-shard runtime benchmark
   has started, and no acceptance/rejection/skip/closure decision exists.
+- **2026-06-03 Cycle 15.B1 runtime candidate IMPLEMENTED LOCALLY / PRODUCTION
+  BENCHMARK PENDING**: `backend/apps/video_analysis/services/offline_sharding.py`
+  now defines the offline-only shard contract, pre-roll-only two-shard planner,
+  authoritative-frame filter, boundary summary, and idempotent parent merge.
+  `process_video_upload` now accepts only valid explicit child-shard metadata,
+  decodes that 0-based half-open window via `decode_frame_window`, filters
+  context-only frames before Step 3, writes child shard provenance, and stops
+  child jobs before render/embedding. Parent orchestration lives in
+  `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py`;
+  reproducible helpers are `tools/prod/prod_merge_cycle15b1_shards.py` and
+  `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`. Schema
+  migration `0014_cycle15b1_shard_provenance.py` adds detection/bbox/embedding
+  provenance. Local evidence: Python compile passed, `bash -n` passed, Django
+  `manage.py check` passed, `makemigrations --check --dry-run` reported no
+  changes, targeted tests passed (`4 passed`), and
+  `backend/logs/cycle15b1_readiness_local.json` reports
+  `ready_for_runtime_benchmark=True` with `0` critical blockers. Decision state
+  remains **NOT DECIDED**: no acceptance/rejection/skip/closure is allowed until
+  the wrapper completes a real production Linux RTX 5090 `combined.mp4`
+  benchmark, collects metrics/model agreement/DB and embedding parity, restores
+  safe sharding defaults, and updates the benchmark history.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

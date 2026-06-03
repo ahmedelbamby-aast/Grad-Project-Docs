@@ -164,3 +164,13 @@ with `5` critical blockers: runtime candidate, benchmark wrapper, parent merge
 helper, detection/bbox provenance, and embedding provenance. Production
 deployed SHA `74631e6` and wrote the safe-default readiness audit to
 `/home/bamby/grad_project/backend/logs/cycle15b1-runtime-readiness-safe-default-20260603T202308Z`.
+
+Superseding implementation note (2026-06-03): the five safe-default blockers
+are now resolved locally by the Cycle 15.B1 runtime candidate. The implemented
+candidate adds `offline_sharding.py`, the `cycle15b1_sharded_ingest`
+management command, `prod_merge_cycle15b1_shards.py`, the
+`prod_run_cycle15b1_two_shard_runtime_benchmark.sh` wrapper, and migration
+`0014_cycle15b1_shard_provenance.py`. Local readiness now reports
+`ready_for_runtime_benchmark=True` with `0` blockers. This does not change the
+baseline decision: runtime sharding remains `NOT DECIDED` until the real
+production benchmark completes and writes metrics/parity evidence.
