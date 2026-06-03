@@ -431,22 +431,31 @@ the next case.
   bytes, memory, and errors on production before any Redis implementation is
   accepted, rejected, skipped, or closed. PostgreSQL remains the authoritative
   store for job status, rows, and benchmark evidence.
-- **2026-06-03 Cycle 13 persistence/render investigation MEASURED; Cycle
-  13.A profiling STAGED**: `docs/cycle_13_persistence_render_investigation.md`
-  now records the accepted Cycle 12.C post-stage decomposition from production
-  evidence. Source replay `cycle12-single-inflight-overlap-20260602T225821Z`,
-  job `069a217f-fa43-48cc-bf18-c946d53bb3ee`: Step 3 persistence
-  `39.820 s`, render `25.692 s`, post-run-complete tail `189.323 s`, and
-  PostgreSQL `FrameEmbedding.created_at` span `187.139 s` across `72,578`
-  rows. Therefore Cycle 13 must start with measurement-only embedding
-  sub-stage profiling, not render-only work. Code is staged behind
-  `EMBEDDING_STAGE_PROFILING=1`; the reproducible wrapper is
-  `tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh`, and
-  `tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10 --clear`
-  now shows a bounded `Cycle 13 Embedding Stage` table. No Cycle 13
-  optimization is accepted, rejected, skipped, or closed until a completed
-  `combined.mp4` production Linux RTX 5090 benchmark writes the before/after
-  table, DB parity, model agreement, GPU/RSS, and rollback proof.
+- **2026-06-03 Cycle 13.A embedding-stage profiling MEASUREMENT COMPLETE;
+  Cycle 13.B track lookup STAGED**:
+  `docs/cycle_13_persistence_render_investigation.md` first recorded the
+  accepted Cycle 12.C post-stage decomposition from production evidence:
+  Step 3 persistence `39.820 s`, render `25.692 s`, post-run-complete tail
+  `189.323 s`, and PostgreSQL `FrameEmbedding.created_at` span `187.139 s`
+  across `72,578` rows. Measurement-only profiling then ran on production:
+  replay `cycle13-embedding-profile-20260603T003853Z`, job
+  `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd`, status `completed`,
+  `4541/4541` frames. Evidence:
+  `backend/logs/cycle13-embedding-profile-20260603T003853Z/embedding_profile_metrics.json`
+  and `docs/cycle_13_embedding_profile_results.md`. The run preserved DB rows
+  and model-agreement exactly (`100.000 %` F1@IoU0.5 for all persisted
+  models) but was measurement-only: DB FPS `4.854005 -> 4.802395` and elapsed
+  `935.516 s -> 945.570 s`. The embedding profile measured total wall
+  `188.620 s`, with track lookup `66.223 s`, Redis flush `59.304 s`, DB flush
+  `38.467 s`, and existing-embedding checks `14.527 s`. Therefore the next
+  candidate is Cycle 13.B prefetch-aware embedding track lookup in
+  `docs/cycle_13_embedding_track_lookup_investigation.md`; Redis coalescing is
+  a follow-up only after Cycle 13.B is production-benchmarked. Production env
+  rollback proof after the wrapper: `EMBEDDING_STAGE_PROFILING=0`,
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`, `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,
+  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`,
+  `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `LPM_ENABLED=0`. No Cycle 13
+  optimization is accepted, rejected, skipped, or closed yet.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

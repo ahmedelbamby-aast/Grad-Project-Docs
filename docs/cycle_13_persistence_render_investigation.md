@@ -2,10 +2,11 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase A baseline extraction complete; Cycle 13.A measurement
-instrumentation is staged. No optimization decision exists until a production
-Linux RTX 5090 benchmark on `combined.mp4` completes and is compared against
-the latest accepted baseline.
+**Status:** Phase A baseline extraction and Cycle 13.A embedding profiling are
+complete. Cycle 13.B prefetch-aware embedding track lookup is the next staged
+candidate. No optimization decision exists until a production Linux RTX 5090
+benchmark on `combined.mp4` completes and is compared against the latest
+accepted baseline.
 
 ## Problem Statement
 
@@ -129,6 +130,50 @@ The first implementation is therefore measurement-only:
 No render, PostgreSQL `COPY`, Redis coalescing, or finalization optimization is
 accepted, rejected, skipped, or closed by this Phase A extraction.
 
+## Cycle 13.A Production Embedding Profile
+
+The measurement-only production run completed:
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle13-embedding-profile-20260603T003853Z` |
+| Job ID | `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd` |
+| Metrics | `backend/logs/cycle13-embedding-profile-20260603T003853Z/embedding_profile_metrics.json` |
+| Agreement | `backend/logs/cycle13-embedding-profile-20260603T003853Z/model_agreement_cycle12c_vs_embedding_profile.json` |
+| Result doc | `docs/cycle_13_embedding_profile_results.md` |
+| Status | `HYPOTHESIS_ONLY` |
+
+Comparison against Cycle 12.C:
+
+| Metric | Cycle 12.C baseline | Cycle 13.A profile run | Delta |
+|---|---:|---:|---:|
+| DB-completed elapsed | `935.516 s` | `945.570 s` | `+1.075 %` |
+| DB-completed FPS | `4.854005` | `4.802395` | `-1.063 %` |
+| Step 2 frame wall | `459.461 s` | `463.905 s` | `+0.967 %` |
+| Behavior RTT mean | `83.936 ms` | `85.094 ms` | `+1.380 %` |
+| GPU avg util | `10.332 %` | `9.709 %` | `-6.030 %` |
+| Detection rows | `72,744` | `72,744` | `0.000 %` |
+| BBox rows | `72,744` | `72,744` | `0.000 %` |
+| Embedding rows | `72,578` | `72,578` | `0.000 %` |
+| Student tracks | `53` | `53` | `0.000 %` |
+| Model agreement | accepted baseline | `100.000 %` F1@IoU0.5 for all persisted models | no regression |
+
+Measured embedding sub-stages:
+
+| Sub-stage | Wall | Decision |
+|---|---:|---|
+| Track lookup | `66.223 s` | First Cycle 13.B candidate. |
+| Redis flush | `59.304 s` | Follow-up only after track lookup is benchmarked. |
+| DB flush | `38.467 s` | Keep as later persistence candidate. |
+| Existing-embedding checks | `14.527 s` | Lower priority. |
+| Frame detection query | `8.884 s` | Lower priority. |
+| cv2 seek/read | `0.724 s` | Not material after Cycle 8. |
+| Vector compute | `0.007 s` | Not a target. |
+
+Cycle 13.A selected Cycle 13.B because `track_lookup_ms` is the largest
+measured sub-stage and code inspection ties it to repeated per-detection
+related-manager lookups in `generate_embeddings`.
+
 ## Expected Gain
 
 The existing roadmap estimates Cycle 13 as roughly a `~20 s` total-wall cleanup.
@@ -176,12 +221,13 @@ Cycle 13 may be accepted only if all conditions are true:
 
 ## Immediate Next Action
 
-Deploy the measurement-only Cycle 13 instrumentation, run:
+Implement only the guarded Cycle 13.B track-lookup candidate described in
+`docs/cycle_13_embedding_track_lookup_investigation.md`, then run:
 
 ```bash
 cd /home/bamby/grad_project
-bash tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh \
-  --tag cycle13-embedding-profile-$(date -u +%Y%m%dT%H%M%SZ)
+bash tools/prod/prod_run_cycle13_track_lookup_benchmark.sh \
+  --tag cycle13-track-lookup-$(date -u +%Y%m%dT%H%M%SZ)
 ```
 
 Then watch it with:
@@ -191,5 +237,5 @@ cd /home/bamby/grad_project
 bash tools/prod/prod_watch_benchmark_metrics.sh --latest --interval 10 --clear
 ```
 
-Only after that production benchmark records the embedding sub-stage table may
-Cycle 13 choose an optimization candidate.
+Only after that production benchmark records the comparison table may Cycle
+13.B be accepted, rejected, or marked as needing further iteration.

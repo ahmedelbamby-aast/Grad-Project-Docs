@@ -823,19 +823,23 @@ mean (`84.865 ms → 83.936 ms`) and model-agreement F1 `>=99.716 %`.
 `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` is now part of the accepted optimized
 production profile.
 
-Cycle 13 Phase A is now measured in
-`docs/cycle_13_persistence_render_investigation.md`. It targets
-post-inference persistence/render cleanup after the accepted Cycle 12.C
-baseline, but no optimization decision exists. The Cycle 12.C evidence shows
+Cycle 13 Phase A and Cycle 13.A profiling are now measured in
+`docs/cycle_13_persistence_render_investigation.md` and
+`docs/cycle_13_embedding_profile_results.md`. The Cycle 12.C evidence showed
 Step 3 persistence at `39.820 s`, render at `25.692 s`, and the
 post-run-complete embedding/finalization tail at `189.323 s`; PostgreSQL
-`FrameEmbedding.created_at` bounds the embedding write span at `187.139 s`.
-Therefore Cycle 13 starts with measurement-only embedding sub-stage profiling,
-not a render-only change. The staged wrapper is
-`tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh`, guarded by
-`EMBEDDING_STAGE_PROFILING=1`, and the live watcher now surfaces the Cycle 13
-embedding table. This profiling run is hypothesis evidence only until a real
-production `combined.mp4` benchmark completes and writes the comparison table.
+`FrameEmbedding.created_at` bounded the embedding write span at `187.139 s`.
+The measurement-only profiling replay
+`cycle13-embedding-profile-20260603T003853Z` / job
+`aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd` then completed on production and
+measured embedding total wall `188.620 s`: track lookup `66.223 s`, Redis
+flush `59.304 s`, DB flush `38.467 s`, and existing-embedding checks
+`14.527 s`. Because track lookup is the largest measured bucket and code
+inspection ties it to repeated per-detection related-manager queries despite
+prefetched bounding boxes, the next candidate is Cycle 13.B prefetch-aware
+embedding track lookup in
+`docs/cycle_13_embedding_track_lookup_investigation.md`. This remains staged
+until a real production `combined.mp4` benchmark writes the comparison table.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15
 sequence, not inserted ahead of it. The Redis roadmap lives in

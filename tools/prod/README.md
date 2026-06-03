@@ -237,6 +237,19 @@ This wrapper keeps the accepted Cycle 12.C profile and adds only
 `EMBEDDING_STAGE_PROFILING=1`. It emits measurement evidence for the embedding
 tail; it does not accept or reject a Cycle 13 optimization by itself.
 
+Cycle 13 track-lookup candidate benchmark:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle13_track_lookup_benchmark.sh \
+  --tag cycle13-track-lookup-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+This wrapper keeps the accepted Cycle 12.C profile, enables
+`EMBEDDING_STAGE_PROFILING=1` and `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`, then
+restores both flags after the run. It is the production benchmark path for
+Cycle 13.B; the wrapper does not accept or reject the candidate by itself.
+
 Semi-real-time benchmark metrics watcher:
 
 ```bash

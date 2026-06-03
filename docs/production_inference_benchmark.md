@@ -1978,6 +1978,86 @@ Decision explanation:
 The next production run must enable only `EMBEDDING_STAGE_PROFILING=1` on the
 accepted Cycle 12.C profile and benchmark `combined.mp4` end to end.
 
+## 28. 2026-06-03 Cycle 13.A — Embedding Stage Profiling
+
+**Status:** **HYPOTHESIS_ONLY / MEASUREMENT COMPLETE.** This real production
+Linux RTX 5090 benchmark on `combined.mp4` enabled only
+`EMBEDDING_STAGE_PROFILING=1` on the accepted Cycle 12.C profile. It selected
+the next Cycle 13.B candidate but does not accept, reject, skip, or close any
+optimization.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_cycle13_embedding_profile_benchmark.sh` |
+| Replay key | `cycle13-embedding-profile-20260603T003853Z` |
+| Job ID | `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd` |
+| Baseline replay | `cycle12-single-inflight-overlap-20260602T225821Z` |
+| Baseline job | `069a217f-fa43-48cc-bf18-c946d53bb3ee` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Metrics | `backend/logs/cycle13-embedding-profile-20260603T003853Z/embedding_profile_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle13-embedding-profile-20260603T003853Z/model_agreement_cycle12c_vs_embedding_profile.json` / `.md` |
+| Manifest | `backend/logs/cycle13-embedding-profile-20260603T003853Z/run_manifest.tsv` |
+| Result doc | `docs/cycle_13_embedding_profile_results.md` |
+
+| Metric | Cycle 12.C baseline | Cycle 13.A profile run | Delta |
+|---|---:|---:|---:|
+| DB-completed elapsed | `935.516 s` | `945.570 s` | `+1.075 %` |
+| DB-completed FPS | `4.854005` | `4.802395` | `-1.063 %` |
+| Step 2 frame wall | `459.461 s` | `463.905 s` | `+0.967 %` |
+| Run-complete wall | `746.193 s` | `755.494 s` | `+1.246 %` |
+| Behavior RTT mean | `83.936 ms` | `85.094 ms` | `+1.380 %` |
+| Behavior RTT p95 | `130.200 ms` | `131.637 ms` | `+1.104 %` |
+| GPU avg util | `10.332 %` | `9.709 %` | `-6.030 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `-3.774 %` |
+| Detection rows | `72,744` | `72,744` | `0.000 %` |
+| BBox rows | `72,744` | `72,744` | `0.000 %` |
+| Embedding rows | `72,578` | `72,578` | `0.000 %` |
+| Student tracks | `53` | `53` | `0.000 %` |
+| Embedding created span | `187.139 s` | `187.884 s` | `+0.398 %` |
+
+Embedding sub-stage profile:
+
+| Sub-stage | Wall | Share of embedding wall |
+|---|---:|---:|
+| Track lookup | `66.223 s` | `35.11 %` |
+| Redis flush | `59.304 s` | `31.44 %` |
+| DB flush | `38.467 s` | `20.39 %` |
+| Existing-embedding checks | `14.527 s` | `7.70 %` |
+| Frame detection query | `8.884 s` | `4.71 %` |
+| cv2 seek/read | `0.724 s` | `0.38 %` |
+| Redis read | `0.011 s` | `0.01 %` |
+| Vector compute | `0.007 s` | `0.00 %` |
+
+Model agreement against Cycle 12.C was exact:
+
+| Model | F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `100.000 %` | `0.000 %` |
+| `hand_raising` | `100.000 %` | `0.000 %` |
+| `person_detection` | `100.000 %` | `0.000 %` |
+| `sitting_standing` | `100.000 %` | `0.000 %` |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Did production benchmark authority exist? | Replay `cycle13-embedding-profile-20260603T003853Z` completed on the Linux RTX 5090. | Evidence is valid. |
+| Was an optimization deployed? | No: only measurement flag `EMBEDDING_STAGE_PROFILING=1` was enabled. | No acceptance/rejection is allowed. |
+| Did correctness regress? | DB rows and model-agreement outputs matched Cycle 12.C exactly. | Correctness gate remains clean. |
+| What bucket should Cycle 13 attack first? | Track lookup measured `66.223 s`, the largest single sub-stage bucket. | Stage Cycle 13.B prefetch-aware embedding track lookup. |
+| What remains after that? | Redis flush measured `59.304 s` over `72,578` side-effect rows. | Keep Redis coalescing as the next candidate if Cycle 13.B passes. |
+
+Production rollback proof after the wrapper:
+
+```text
+EMBEDDING_STAGE_PROFILING=0
+TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+LPM_ENABLED=0
+```
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*
