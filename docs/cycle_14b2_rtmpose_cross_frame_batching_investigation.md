@@ -2,9 +2,12 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No optimization decision exists until a completed
-production Linux RTX 5090 `combined.mp4` benchmark compares this candidate with
-the accepted Cycle 16.B baseline, Cycle 14.A measurement, and Cycle 14.B1.
+**Status:** ACCEPTED after fixed production rerun. First replay
+`cycle14b-cross-frame-batch16-20260603T144500Z` was rejected because pose
+records dropped. Fixed replay
+`cycle14b-cross-frame-batch16-r2-20260603T150000Z` / job
+`6b42a557-b954-4954-a2f8-de54634229eb` preserved DB/model parity and improved
+DB FPS, pose tail, RTMPose call count, and GPU average utilization.
 
 ## Problem Statement
 
@@ -27,6 +30,7 @@ frames.
 | Code | `backend/apps/pipeline/services/pose_runtime.py` | Owns crop preparation, true-batch dispatch, and response decoding. |
 | Code | `backend/apps/video_analysis/tasks.py` | Owns frame-order pose record construction and artifact writes. |
 | Tool | `tools/prod/prod_collect_benchmark_metrics.py` | Captures pose-tail and model-call telemetry for benchmark evidence. |
+| Result doc | `docs/cycle_14b_rtmpose_scenario_results.md` | Records the rejected first B2 run and accepted fixed rerun. |
 | Constitution | `.specify/memory/constitution.md` | Requires production benchmark authority before decision. |
 
 ## Evidence From Previous Cycle
@@ -90,3 +94,13 @@ The implementation must:
 | Comparison | Compare Cycle 14.B2 directly against Cycle 14.B1 in the final table. |
 | Rollback | Set `POSE_TAIL_OPTIMIZATION_MODE=off` and restart Celery workers. |
 
+## Production Decision
+
+The first B2 benchmark improved speed but was rejected because pose records
+dropped `19157 -> 15075`. The fixed rerun met the production gates: DB FPS
+improved `5.347791 -> 5.680314`, pose tail improved
+`221.777 s -> 171.751 s`, RTMPose calls dropped `5047 -> 1199`, GPU average
+utilization improved `11.030 % -> 12.168 %`, DB/model agreement stayed exact,
+and pose records increased `19157 -> 19180`. The accepted production profile is
+`POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` with
+`POSE_CROSS_FRAME_BATCH_SIZE=16`.

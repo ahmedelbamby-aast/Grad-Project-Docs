@@ -2,9 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No optimization decision exists until a completed
-production Linux RTX 5090 `combined.mp4` benchmark compares this candidate with
-the accepted Cycle 16.B baseline and the Cycle 14.A pose-tail measurement.
+**Status:** NOT ACCEPTED by production benchmark. Replay
+`cycle14b-overlap-20260603T143000Z` / job
+`b366807a-5e14-4a37-aade-a555ae85cdf0` preserved DB/model parity, but DB FPS
+and pose-tail wall were flat versus the accepted Cycle 16.B baseline.
 
 ## Problem Statement
 
@@ -28,6 +29,7 @@ work for frame `N` is running.
 | Code | `backend/apps/pipeline/services/pose_runtime.py` | Owns RTMPose crop/resize, payload build, provider batch dispatch, and SimCC decode. |
 | Tool | `tools/prod/prod_collect_benchmark_metrics.py` | Captures Step 2, RTT, GPU, DB parity, and pose-tail fields. |
 | Tool | `tools/prod/prod_watch_benchmark_metrics.sh` | Live bounded watcher for production benchmark progress. |
+| Result doc | `docs/cycle_14b_rtmpose_scenario_results.md` | Records the B1 non-acceptance decision and comparison with B2. |
 | Constitution | `.specify/memory/constitution.md` | Requires production benchmark authority before decision. |
 
 ## Evidence From Previous Cycle
@@ -88,3 +90,10 @@ The implementation must:
 | Correctness | Detection/BBox/embedding rows, tracks, and model-agreement F1 preserved. |
 | Rollback | Set `POSE_TAIL_OPTIMIZATION_MODE=off` and restart Celery workers. |
 
+## Production Decision
+
+The completed benchmark did not meet the performance gate. DB FPS was
+`5.347791 -> 5.345623`, Step 2 through-pose wall was
+`682.475 s -> 682.405 s`, and pose tail was `221.777 s -> 222.567 s`.
+Cycle 14.B1 is therefore not accepted. The side-by-side decision is recorded in
+`docs/cycle_14b_rtmpose_scenario_results.md`.

@@ -882,6 +882,17 @@ scenario must prove FPS, Step 2 wall, RTT, GPU, memory, DB parity, and model
 agreement in a completed production `combined.mp4` benchmark, then the two
 scenario results must be compared directly before any acceptance decision.
 
+Cycle 14.B completed in `docs/cycle_14b_rtmpose_scenario_results.md`. B1
+overlap is not accepted. B2 first run is rejected because it dropped pose
+records. B2 fixed rerun is accepted: replay
+`cycle14b-cross-frame-batch16-r2-20260603T150000Z`, job
+`6b42a557-b954-4954-a2f8-de54634229eb`, improved DB FPS
+`5.347791 -> 5.680314`, reduced pose tail `221.777 s -> 171.751 s`, reduced
+RTMPose calls `5047 -> 1199`, preserved exact DB/model parity, and increased
+pose records `19157 -> 19180`. The optimized production profile now includes
+`POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
+`POSE_CROSS_FRAME_BATCH_SIZE=16`.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

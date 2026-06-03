@@ -2395,4 +2395,73 @@ Detailed result doc:
 
 ---
 
+## 33. Cycle 14.B RTMPose Tail Scenarios
+
+Cycle 14.B was split into two sub-cycles because Cycle 14.A proved RTMPose
+provider/runtime tail dominance but did not prove which scheduling strategy
+would win.
+
+| Scenario | Replay | Job | Decision |
+|---|---|---|---|
+| Baseline | `cycle16b-redis-coalescing-20260603T025823Z` | `b2dfa987-afc5-4b96-ab12-6799b149ac25` | accepted baseline |
+| B1 overlap | `cycle14b-overlap-20260603T143000Z` | `b366807a-5e14-4a37-aade-a555ae85cdf0` | NOT ACCEPTED |
+| B2 first run | `cycle14b-cross-frame-batch16-20260603T144500Z` | `2dfc1470-e01e-4d81-96cf-5f493fdf898f` | REJECTED |
+| B2 fixed rerun | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` | `6b42a557-b954-4954-a2f8-de54634229eb` | ACCEPTED |
+
+### 33.1 Comparison
+
+| Metric | Baseline | B1 overlap | B2 first run | B2 fixed rerun |
+|---|---:|---:|---:|---:|
+| DB FPS | `5.347791` | `5.345623` | `5.970799` | `5.680314` |
+| DB elapsed | `849.136 s` | `849.480 s` | `760.535 s` | `799.428 s` |
+| Step 2 frame wall | `460.698 s` | `459.838 s` | `450.515 s` | `462.188 s` |
+| Step 2 through pose | `682.475 s` | `682.405 s` | `592.181 s` | `633.939 s` |
+| Pose tail | `221.777 s` | `222.567 s` | `141.666 s` | `171.751 s` |
+| GPU avg util | `11.030 %` | `11.582 %` | `12.939 %` | `12.168 %` |
+| GPU peak util | `52.000 %` | `51.000 %` | `51.000 %` | `51.000 %` |
+| Peak VRAM | `15725 MiB` | `15731 MiB` | `15731 MiB` | `15731 MiB` |
+| RTMPose calls | `5047` | `5046` | `943` | `1199` |
+| Pose records | `19157` | `19152` | `15075` | `19180` |
+| Detection rows | `72744` | `72744` | `72744` | `72744` |
+| BBox rows | `72744` | `72744` | `72744` | `72744` |
+| Embedding rows | `72578` | `72578` | `72578` | `72578` |
+| Student tracks | `53` | `53` | `53` | `53` |
+| Model agreement F1 | baseline | `100.000 %` | `100.000 %` | `100.000 %` |
+
+### 33.2 Accepted Candidate Delta
+
+| Metric | Baseline | B2 fixed rerun | Delta |
+|---|---:|---:|---:|
+| DB FPS | `5.347791` | `5.680314` | `+6.22 %` |
+| DB elapsed | `849.136 s` | `799.428 s` | `-5.85 %` |
+| Step 2 through pose | `682.475 s` | `633.939 s` | `-7.11 %` |
+| Pose tail | `221.777 s` | `171.751 s` | `-22.56 %` |
+| RTMPose calls | `5047` | `1199` | `-76.24 %` |
+| Provider async batch wall | `154.171 s` | `108.482 s` | `-29.63 %` |
+| Provider batch wall | `186.090 s` | `136.834 s` | `-26.47 %` |
+| GPU avg util | `11.030 %` | `12.168 %` | `+10.32 %` |
+| Pose records | `19157` | `19180` | `+0.12 %` |
+
+### 33.3 Decision Explanation
+
+| Scenario | Result | Explanation |
+|---|---|---|
+| B1 overlap | NOT ACCEPTED | It preserved DB/model parity, but DB FPS and pose tail were effectively flat. |
+| B2 first run | REJECTED | It was faster but dropped pose records `19157 -> 15075`, violating the every-signal requirement. |
+| B2 fixed rerun | **ACCEPTED** | It reduced RTMPose calls and pose tail, improved DB FPS and GPU avg, preserved exact DB/model parity, and increased pose coverage. |
+
+Production accepted flags:
+
+```text
+POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch
+POSE_CROSS_FRAME_BATCH_SIZE=16
+POSE_TAIL_PROFILING=0
+EMBEDDING_STAGE_PROFILING=0
+```
+
+Detailed result doc:
+`docs/cycle_14b_rtmpose_scenario_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

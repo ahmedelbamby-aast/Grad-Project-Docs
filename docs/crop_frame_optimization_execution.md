@@ -1291,8 +1291,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
 | 16.B | Redis side-effect coalescing for embedding/tracking side effects | **ACCEPTED**: replay `cycle16b-redis-coalescing-20260603T025823Z`, job `b2dfa987-afc5-4b96-ab12-6799b149ac25`; Redis flush `59.874 s -> 35.970 s`, embedding wall `121.681 s -> 97.505 s`, DB FPS `5.205675 -> 5.347791`, exact DB/model parity | rollback is `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` |
 | 14.A | Pose-tail decomposition after Cycle 16.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle14a-pose-tail-profile-20260603T135129Z`, job `862a13db-a2ae-408f-a737-ee9aeca45f5c`; tail remains `224.308 s`, and the `200.778 s` post-frame-loop drain is dominated by RTMPose runtime/provider work | low-medium; profiling flag rollback proven |
-| 14.B1 | RTMPose single-inflight overlap | staged scenario; benchmark `POSE_TAIL_OPTIMIZATION_MODE=overlap` independently against Cycle 16.B / 14.A | medium; rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
-| 14.B2 | RTMPose ordered cross-frame batching | staged scenario; benchmark `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` independently, then compare directly to 14.B1 | medium-high; rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
+| 14.B1 | RTMPose single-inflight overlap | **NOT ACCEPTED**: replay `cycle14b-overlap-20260603T143000Z`; DB FPS and pose tail were flat | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
+| 14.B2 | RTMPose ordered cross-frame batching | **ACCEPTED after fixed rerun**: replay `cycle14b-cross-frame-batch16-r2-20260603T150000Z`; DB FPS `+6.22 %`, pose tail `-22.56 %`, RTMPose calls `-76.24 %`, exact DB/model parity | rollback is `POSE_TAIL_OPTIMIZATION_MODE=off` |
 | 14.C | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | later candidate; Cycle 14.A did not prove behavior compacting is the dominant unresolved tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
@@ -1325,6 +1325,14 @@ baseline, then the two scenario results must be compared directly before any
 acceptance decision. Compact server-side postprocessing moves to Cycle 14.C
 unless future measurements prove behavior output/server compaction is again
 dominant.
+
+Cycle 14.B decision note (2026-06-03): B1 overlap did not improve throughput
+and is not accepted. B2 first run proved the performance shape but dropped pose
+records and is rejected. B2 fixed rerun is accepted with
+`POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
+`POSE_CROSS_FRAME_BATCH_SIZE=16`: DB FPS improved `5.347791 -> 5.680314`,
+pose tail improved `221.777 s -> 171.751 s`, RTMPose calls dropped
+`5047 -> 1199`, and DB/model agreement stayed exact.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

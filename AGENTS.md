@@ -529,6 +529,25 @@ the next case.
   Cycle 14.A evidence. No acceptance/rejection/skip/closure decision exists
   until those benchmark tables, DB/model parity, RTT/GPU/memory evidence, and
   rollback proof are written.
+- **2026-06-03 Cycle 14.B decision recorded**:
+  `docs/cycle_14b_rtmpose_scenario_results.md` and
+  `docs/production_inference_benchmark.md` §33 record the completed production
+  scenario matrix. B1 overlap replay
+  `cycle14b-overlap-20260603T143000Z` / job
+  `b366807a-5e14-4a37-aade-a555ae85cdf0` is **NOT ACCEPTED** because FPS and
+  pose tail were flat. B2 first run
+  `cycle14b-cross-frame-batch16-20260603T144500Z` / job
+  `2dfc1470-e01e-4d81-96cf-5f493fdf898f` is **REJECTED** because pose records
+  dropped `19157 -> 15075`. B2 fixed rerun
+  `cycle14b-cross-frame-batch16-r2-20260603T150000Z` / job
+  `6b42a557-b954-4954-a2f8-de54634229eb` is **ACCEPTED**: DB FPS
+  `5.347791 -> 5.680314`, DB elapsed `849.136 s -> 799.428 s`, pose tail
+  `221.777 s -> 171.751 s`, RTMPose calls `5047 -> 1199`, GPU avg
+  `11.030 % -> 12.168 %`, exact DB/model parity, and pose records
+  `19157 -> 19180`. Production accepted profile now includes
+  `POSE_TAIL_OPTIMIZATION_MODE=cross_frame_batch` and
+  `POSE_CROSS_FRAME_BATCH_SIZE=16`; rollback is
+  `POSE_TAIL_OPTIMIZATION_MODE=off` plus Celery worker restart.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
