@@ -861,6 +861,16 @@ fell from the Cycle 13.C measured `72578` shape to `146`. Cycle 16.B is
 therefore accepted in
 `docs/cycle_16b_redis_side_effect_coalescing_results.md`.
 
+Cycle 14.A is now the next active cycle in
+`docs/cycle_14a_pose_tail_decomposition_investigation.md`. The ordering is
+metric-driven: after Cycle 16.B, Step 2 through-pose upload is `682.475 s`
+while Step 2 frame wall is `460.698 s`, leaving a `221.777 s` tail. That tail
+is larger than the remaining measured embedding DB flush (`37.737 s`) and
+Redis payload serialization (`31.242 s`) buckets. Cycle 14.A is
+measurement-only first; no compact postprocessing, sharding, Redis Streams,
+streaming persistence, or worker-count change may be accepted or rejected until
+the pose tail is decomposed by a completed production `combined.mp4` benchmark.
+
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
 did promote Cycle 16.B side-effect coalescing because Redis command count,

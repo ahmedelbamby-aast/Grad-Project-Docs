@@ -1290,7 +1290,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 13.B | Prefetch-aware embedding track lookup | **ACCEPTED**: replay `cycle13-track-lookup-20260603T011324Z`, job `c9f75d55-6043-4f27-bf9e-b2826d299459`; DB elapsed `935.516 s -> 872.317 s`, DB FPS `4.854005 -> 5.205675`, track lookup `66.223 s -> 0.447 s`, exact DB/model parity | rollback is `EMBEDDING_PREFETCH_TRACK_LOOKUP=0` |
 | 13.C / 16.A | Redis/DB side-effect measurement after Cycle 13.B | **MEASUREMENT COMPLETE / HYPOTHESIS_ONLY**: replay `cycle13c-redis-command-profile-20260603T020723Z`, job `aa246a4e-e0f9-471a-9ce3-74f343bbd1fb`; Redis server wall was only `530.485 ms` while profiled Redis flush wall was `92.397 s` | low; measurement only |
 | 16.B | Redis side-effect coalescing for embedding/tracking side effects | **ACCEPTED**: replay `cycle16b-redis-coalescing-20260603T025823Z`, job `b2dfa987-afc5-4b96-ab12-6799b149ac25`; Redis flush `59.874 s -> 35.970 s`, embedding wall `121.681 s -> 97.505 s`, DB FPS `5.205675 -> 5.347791`, exact DB/model parity | rollback is `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=0` |
-| 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |
+| 14.A | Pose-tail decomposition after Cycle 16.B | **PHASE A ACTIVE**: investigate why Step 2 through-pose upload is `682.475 s` while Step 2 frame wall is `460.698 s`; the `221.777 s` tail is the largest remaining measured bucket | low-medium; profiling flag only, no runtime behavior change |
+| 14.B | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | blocked until Cycle 14.A proves compacting server/client work addresses the measured tail | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
@@ -1304,9 +1305,11 @@ hypotheses can be overestimated, so the first Redis cycle must be command-cost
 instrumentation, not implementation. Cycle 13.C completed that measurement and
 promoted Cycle 16.B because the measured bottleneck was client-side Redis
 helper, payload, and pipeline overhead. Cycle 16.B is now accepted; the next
-measured post-stage bottlenecks are embedding DB flush (`37.737 s`), Redis
-payload serialization (`31.242 s`), and the Step 2 through-pose tail over frame
-wall (`221.777 s`).
+measured bottlenecks are the Step 2 through-pose tail over frame wall
+(`221.777 s`), embedding DB flush (`37.737 s`), and Redis payload
+serialization (`31.242 s`). Cycle 14.A is now promoted ahead of the older
+compact-output and Redis/server-side ideas because the pose tail is the largest
+unresolved measured bucket and is not yet decomposed.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

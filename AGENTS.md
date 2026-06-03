@@ -492,9 +492,21 @@ the next case.
   accepted optimized production profile; rollback is setting it to `0` and
   restarting Celery. Evidence:
   `docs/cycle_16b_redis_side_effect_coalescing_results.md` and
-  `docs/production_inference_benchmark.md` §31. Next measured bottlenecks:
-  embedding DB flush `37.737 s`, Redis payload serialization `31.242 s`, and
-  Step 2 through-pose tail over frame wall `221.777 s`.
+  `docs/production_inference_benchmark.md` §31. Next measured bottlenecks are
+  ordered by measured wall: Step 2 through-pose tail over frame wall
+  `221.777 s`, embedding DB flush `37.737 s`, and Redis payload serialization
+  `31.242 s`.
+- **2026-06-03 Cycle 14.A pose-tail decomposition PHASE A ACTIVE**:
+  `docs/cycle_14a_pose_tail_decomposition_investigation.md` is now the next
+  active cycle. Agents must decompose the `221.777 s` pose tail before
+  implementing compact BLS/TRT postprocessing, Redis Streams/scripts, streaming
+  persistence, video sharding, or worker-count increases. Valid first work is
+  guarded profiling around pose dispatch, queue wait, Triton RTT/server timing,
+  response parse, postprocess, upload/enrichment, future drain after the frame
+  loop, and step-boundary timestamps. No optimization decision exists until a
+  completed production Linux RTX 5090 `combined.mp4` benchmark records the
+  before/after table, DB/model parity, GPU/RTT/memory evidence, and rollback
+  proof. Rollback must be an env flag reset plus Celery restart.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

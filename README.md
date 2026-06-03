@@ -104,8 +104,9 @@ context.
 | 37p | [`docs/cycle_13c_redis_db_side_effect_measurement_results.md`](docs/cycle_13c_redis_db_side_effect_measurement_results.md) | 2026-06-03 | Cycle 13.C / 16.A production measurement result: Redis server time is tiny; client-side helper/pipeline overhead is the next Redis target. |
 | 37q | [`docs/cycle_16b_redis_side_effect_coalescing_investigation.md`](docs/cycle_16b_redis_side_effect_coalescing_investigation.md) | 2026-06-03 | Cycle 16.B investigation: Redis side-effect coalescing candidate staged from Cycle 13.C metrics before code. |
 | 37r | [`docs/cycle_16b_redis_side_effect_coalescing_results.md`](docs/cycle_16b_redis_side_effect_coalescing_results.md) | 2026-06-03 | Cycle 16.B accepted result: Redis side-effect coalescing reduced embedding Redis wall with exact DB/model parity. |
-| 37s | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
-| 37t | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
+| 37s | [`docs/cycle_14a_pose_tail_decomposition_investigation.md`](docs/cycle_14a_pose_tail_decomposition_investigation.md) | 2026-06-03 | Cycle 14.A investigation: next active measurement cycle for the `221.777 s` Step 2 through-pose tail after Cycle 16.B. |
+| 37t | [`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`](docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md) | 2026-06-03 | Cycle 20 investigation: future streaming DB persistence and embedding overlap with inference, staged last until production metrics justify reordering. |
+| 37u | [`docs/cycle_21_celery_concurrency_scaling_investigation.md`](docs/cycle_21_celery_concurrency_scaling_investigation.md) | 2026-06-03 | Cycle 21 investigation: worker/thread/concurrency scaling matrix, staged until production benchmarks prove extra workers help. |
 
 ### Phase 4 — Triton-specific deep dives
 
