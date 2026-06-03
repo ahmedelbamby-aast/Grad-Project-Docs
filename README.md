@@ -253,6 +253,7 @@ validates against the working tree.
 | 115 | [`docs/entity/modules/apps.audit.md`](docs/entity/modules/apps.audit.md) | 2026-06-03 | DSP Cycle 3 — HTTP-request audit logging. `AuditLogEntry` (single append-only table), `AuditMiddleware`, `AuditActionType` enum, `AuditService` recorder, read-only `AuditLogViewSet` (mounted on the sessions dashboard activity-feed). |
 | 116 | [`docs/entity/modules/apps.recordings.md`](docs/entity/modules/apps.recordings.md) | 2026-06-03 | DSP Cycle 3 — recording metadata CRUD. `Recording` model + `RecordingViewSet` + `RecordingService`; metadata-only (file blobs live under `data/recordings/`). Created on session stop. |
 | 117 | [`docs/entity/modules/apps.exams.md`](docs/entity/modules/apps.exams.md) | 2026-06-03 | DSP Cycle 3 — exam-room reference data. 3 ORM models (`Room`, `Exam`, `ExamStudent`), 3 DRF ModelViewSets; static metadata referenced by `MonitoringSession.room`. |
+| 118 | [`docs/entity/modules/apps.exports.md`](docs/entity/modules/apps.exports.md) | 2026-06-03 | DSP Cycle 3 — async per-session exports. `SessionExport` row + `SessionExportViewSet` 3-action surface (initiate / status / download) + `generate_session_export` Celery task + `cleanup_expired_exports` beat task. Nested under sessions URL tree. |
 
 ### Conventions used in this reading order
 
