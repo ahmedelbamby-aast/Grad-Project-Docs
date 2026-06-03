@@ -847,7 +847,12 @@ are Redis flush `59.874 s` and DB flush `38.773 s`; because Cycle 7
 overestimated Redis savings, the next Redis-related step must first measure
 command count and command wall before changing Redis semantics. Phase A for
 that measurement is now started in
-`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`.
+`docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`. Phase B
+instrumentation is staged behind `OFFLINE_REDIS_COMMAND_PROFILING=1` with the
+production wrapper
+`tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`; this remains
+measurement-only until a completed production benchmark writes the comparison
+table.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15
 sequence, not inserted ahead of it. The Redis roadmap lives in

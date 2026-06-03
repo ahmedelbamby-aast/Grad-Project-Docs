@@ -250,6 +250,20 @@ This wrapper keeps the accepted Cycle 12.C profile, enables
 restores both flags after the run. It is the production benchmark path for
 Cycle 13.B; the wrapper does not accept or reject the candidate by itself.
 
+Cycle 13.C / 16.A Redis command-cost measurement benchmark:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh \
+  --tag cycle13c-redis-command-profile-$(date -u +%Y%m%dT%H%M%SZ)
+```
+
+This wrapper keeps the accepted Cycle 13.B profile, enables
+`EMBEDDING_STAGE_PROFILING=1` and `OFFLINE_REDIS_COMMAND_PROFILING=1`, collects
+Redis helper counts, Redis `INFO commandstats` deltas, payload bytes, memory,
+DB flush wall, and correctness evidence, then restores profiling flags. It is
+measurement-only and cannot accept or reject a Redis optimization by itself.
+
 Semi-real-time benchmark metrics watcher:
 
 ```bash

@@ -469,6 +469,12 @@ the next case.
   `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md`; it is
   measurement-only and cannot accept, reject, skip, close, or deprioritize any
   Redis implementation without a completed production `combined.mp4` benchmark.
+  Phase B instrumentation is staged behind `OFFLINE_REDIS_COMMAND_PROFILING=1`:
+  `backend/apps/video_analysis/tasks.py` records Redis helper counts,
+  estimated command counts, payload bytes, Redis server `INFO commandstats`
+  deltas, memory deltas, and profiling overhead; the reproducible wrapper is
+  `tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`. This is
+  still not an optimization decision.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is

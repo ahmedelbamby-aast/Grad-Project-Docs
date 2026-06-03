@@ -2,11 +2,11 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** Phase A started. This cycle is measurement-only until a completed
-production Linux RTX 5090 benchmark on `combined.mp4` proves Redis command
-count, Redis wall, Redis memory, DB flush wall, and correctness impact. No
-Redis semantic optimization is accepted, rejected, skipped, or closed by this
-document.
+**Status:** Phase B instrumentation staged. This cycle is measurement-only
+until a completed production Linux RTX 5090 benchmark on `combined.mp4` proves
+Redis command count, Redis wall, Redis memory, DB flush wall, and correctness
+impact. No Redis semantic optimization is accepted, rejected, skipped, or
+closed by this document.
 
 ## Problem Statement
 
@@ -34,6 +34,7 @@ Streams, scripting, or wider Redis coordination changes.
 | Doc | `docs/crop_frame_optimization_execution.md` | Sorted execution map after Cycle 13.B. |
 | File | `backend/apps/video_analysis/tasks.py` | Embedding loop, `pending_redis` flush path, DB flush, and profiling metadata. |
 | File | `backend/apps/tracking/embeddings.py` | Redis embedding cache helpers and job-track pipeline helper. |
+| File | `tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh` | Reproducible production measurement wrapper for this cycle. |
 | File | `tools/prod/prod_collect_benchmark_metrics.py` | Benchmark collector that must surface any new Redis/DB counters. |
 | File | `tools/prod/prod_watch_benchmark_metrics.sh` | Watcher that must display the new counters during production runs. |
 | File | `backend/config/settings/base.py` | Source for any guarded profiling-only flag added by this cycle. |
@@ -110,3 +111,20 @@ Start with guarded Redis/DB command-cost instrumentation. Do not implement
 pipeline coalescing, Streams, server-side scripts, or PostgreSQL bulk changes
 until this cycle's production benchmark proves which side-effect bucket is
 actually controllable.
+
+## Phase B Instrumentation Staged
+
+The staged implementation adds only measurement surfaces:
+
+| Change | Evidence path | Decision authority |
+|---|---|---|
+| `OFFLINE_REDIS_COMMAND_PROFILING` setting | `backend/config/settings/base.py` | Disabled by default; profiling-only flag. |
+| Redis side-effect counters in `embedding_summary.profile` | `backend/apps/video_analysis/tasks.py` | Measures helper call count, estimated helper commands, estimated pipeline executes, payload bytes, helper wall, Redis server commandstats deltas, Redis memory delta, and profiling overhead. |
+| Production wrapper | `tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh` | Runs a full production benchmark and resets profiling flags. |
+| Collector/watcher fields | `tools/prod/prod_collect_benchmark_metrics.py`, `tools/prod/prod_watch_benchmark_metrics.sh` | Surfaces metrics in JSON/Markdown and live tables. |
+
+The helper command count is explicitly an estimate based on the current helper
+contracts. The Redis `INFO commandstats` delta is the server-side command
+counter evidence. The production benchmark must interpret both together and
+must subtract or at least disclose profiling overhead before ranking a Redis
+implementation candidate.

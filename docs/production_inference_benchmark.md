@@ -2145,7 +2145,10 @@ LPM_ENABLED=0
 Next measurement cycle: Cycle 13.C / 16.A is started in
 `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md` to profile
 Redis command cost and DB side-effect wall before any Redis pipeline, Streams,
-script, or PostgreSQL bulk-write implementation is considered.
+script, or PostgreSQL bulk-write implementation is considered. The staged
+production wrapper is
+`tools/prod/prod_run_cycle13c_redis_command_profile_benchmark.sh`; it records
+measurement evidence only and cannot create an optimization decision by itself.
 
 ---
 
