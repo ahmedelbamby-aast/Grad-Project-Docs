@@ -2058,6 +2058,90 @@ TRITON_BEHAVIOR_TOP_K_ENABLED=1
 LPM_ENABLED=0
 ```
 
+## 29. 2026-06-03 Cycle 13.B — Prefetch-Aware Embedding Track Lookup
+
+**Status:** **ACCEPTED.** This real production Linux RTX 5090 benchmark on
+`combined.mp4` enabled `EMBEDDING_PREFETCH_TRACK_LOOKUP=1` with
+`EMBEDDING_STAGE_PROFILING=1`, completed `4541/4541` frames, reduced the
+measured embedding track-lookup wall by `99.325 %`, improved DB-completed FPS,
+and preserved DB/model parity exactly.
+
+| Item | Value |
+|---|---|
+| Wrapper | `tools/prod/prod_run_cycle13_track_lookup_benchmark.sh` |
+| Replay key | `cycle13-track-lookup-20260603T011324Z` |
+| Job ID | `c9f75d55-6043-4f27-bf9e-b2826d299459` |
+| Deployed SHA | `9b872a3` |
+| Baseline replay | `cycle12-single-inflight-overlap-20260602T225821Z` |
+| Profiling replay | `cycle13-embedding-profile-20260603T003853Z` |
+| Video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` |
+| Metrics | `backend/logs/cycle13-track-lookup-20260603T011324Z/track_lookup_metrics.json` / `.md` |
+| Model agreement | `backend/logs/cycle13-track-lookup-20260603T011324Z/model_agreement_cycle12c_vs_track_lookup.json` / `.md` |
+| Benchmark summary | `backend/logs/bench_summary_20260603T041346.json` |
+| GPU CSV | `backend/logs/gpu_monitor_bench_20260603T041346.csv` |
+| Results doc | `docs/cycle_13_embedding_track_lookup_results.md` |
+
+| Metric | Cycle 12.C baseline | Cycle 13.A profile | Cycle 13.B candidate | Delta vs Cycle 12.C | Delta vs Cycle 13.A |
+|---|---:|---:|---:|---:|---:|
+| DB-completed elapsed | `935.516 s` | `945.570 s` | `872.317 s` | `-6.756 %` | `-7.747 %` |
+| DB-completed FPS | `4.854005` | `4.802395` | `5.205675` | `+7.245 %` | `+8.397 %` |
+| Step 2 frame wall | `459.461 s` | `463.905 s` | `458.696 s` | `-0.167 %` | `-1.123 %` |
+| Run-complete wall | `746.193 s` | `755.494 s` | `749.186 s` | `+0.401 %` | `-0.835 %` |
+| Behavior RTT mean | `83.936 ms` | `85.094 ms` | `86.545 ms` | `+3.108 %` | `+1.705 %` |
+| Behavior RTT p95 | `130.200 ms` | `131.637 ms` | `132.448 ms` | `+1.727 %` | `+0.616 %` |
+| GPU avg util | `10.332 %` | `9.709 %` | `11.003 %` | `+6.494 %` | `+13.328 %` |
+| GPU peak util | `53.000 %` | `51.000 %` | `50.000 %` | `-5.660 %` | `-1.961 %` |
+| Embedding created span | `187.139 s` | `187.884 s` | `121.384 s` | `-35.137 %` | `-35.394 %` |
+| Embedding profile wall | n/a | `188.620 s` | `121.681 s` | n/a | `-35.489 %` |
+| Track lookup wall | n/a | `66.223 s` | `0.447 s` | n/a | `-99.325 %` |
+| Redis flush wall | n/a | `59.304 s` | `59.874 s` | n/a | `+0.961 %` |
+| DB flush wall | n/a | `38.467 s` | `38.773 s` | n/a | `+0.794 %` |
+| Detection rows | `72,744` | `72,744` | `72,744` | `0.000 %` | `0.000 %` |
+| BBox rows | `72,744` | `72,744` | `72,744` | `0.000 %` | `0.000 %` |
+| Embedding rows | `72,578` | `72,578` | `72,578` | `0.000 %` | `0.000 %` |
+| Student tracks | `53` | `53` | `53` | `0.000 %` | `0.000 %` |
+
+Profile proof:
+
+| Metric | Value |
+|---|---:|
+| `prefetch_track_lookup_enabled` | `true` |
+| `track_lookup_prefetch_hits` | `144,785` |
+| `track_lookup_prefetch_misses` | `0` |
+| `track_lookup_orm_fallbacks` | `0` |
+
+Model agreement against Cycle 12.C was exact:
+
+| Model | F1@IoU0.5 | Count delta |
+|---|---:|---:|
+| `attention_tracking` | `100.000 %` | `0.000 %` |
+| `hand_raising` | `100.000 %` | `0.000 %` |
+| `person_detection` | `100.000 %` | `0.000 %` |
+| `sitting_standing` | `100.000 %` | `0.000 %` |
+
+Decision explanation:
+
+| Question | Evidence | Result |
+|---|---|---|
+| Did production benchmark authority exist? | Replay `cycle13-track-lookup-20260603T011324Z` completed on the Linux RTX 5090. | Decision evidence is valid. |
+| Did the targeted bottleneck improve? | Track lookup `66.223 s -> 0.447 s`. | Target gate passed. |
+| Did throughput improve? | DB FPS `4.854005 -> 5.205675`; elapsed `935.516 s -> 872.317 s`. | Throughput gate passed. |
+| Did correctness regress? | DB rows unchanged and all model F1 rows are `100.000 %`. | Correctness gate passed. |
+| Did RTT regress materially? | Behavior RTT mean `+3.108 %`, p95 `+1.727 %`. | Acceptable for a post-stage optimization; not a Cycle 12.B-style regression. |
+| Decision | Required gates passed. | **ACCEPTED.** |
+
+Production accepted profile after the decision:
+
+```text
+EMBEDDING_STAGE_PROFILING=0
+EMBEDDING_PREFETCH_TRACK_LOOKUP=1
+TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1
+TRITON_CROP_BEHAVIOR_INPUT_SIZE=320
+MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk
+TRITON_BEHAVIOR_TOP_K_ENABLED=1
+LPM_ENABLED=0
+```
+
 ---
 
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

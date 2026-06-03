@@ -834,12 +834,18 @@ The measurement-only profiling replay
 `aa2fe7a9-b3fb-49d7-92a3-eca41c894dcd` then completed on production and
 measured embedding total wall `188.620 s`: track lookup `66.223 s`, Redis
 flush `59.304 s`, DB flush `38.467 s`, and existing-embedding checks
-`14.527 s`. Because track lookup is the largest measured bucket and code
-inspection ties it to repeated per-detection related-manager queries despite
-prefetched bounding boxes, the next candidate is Cycle 13.B prefetch-aware
-embedding track lookup in
-`docs/cycle_13_embedding_track_lookup_investigation.md`. This remains staged
-until a real production `combined.mp4` benchmark writes the comparison table.
+`14.527 s`. Because track lookup was the largest measured bucket and code
+inspection tied it to repeated per-detection related-manager queries despite
+prefetched bounding boxes, Cycle 13.B implemented prefetch-aware embedding
+track lookup. Production replay `cycle13-track-lookup-20260603T011324Z` / job
+`c9f75d55-6043-4f27-bf9e-b2826d299459` is **ACCEPTED**: DB elapsed
+`935.516 s -> 872.317 s`, DB FPS `4.854005 -> 5.205675`, embedding profile
+wall `188.620 s -> 121.681 s`, and track lookup `66.223 s -> 0.447 s`, with
+exact DB/model parity. The accepted optimized profile now includes
+`EMBEDDING_PREFETCH_TRACK_LOOKUP=1`. The next measured post-stage bottlenecks
+are Redis flush `59.874 s` and DB flush `38.773 s`; because Cycle 7
+overestimated Redis savings, the next Redis-related step must first measure
+command count and command wall before changing Redis semantics.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15
 sequence, not inserted ahead of it. The Redis roadmap lives in

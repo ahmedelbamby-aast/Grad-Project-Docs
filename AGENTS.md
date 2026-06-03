@@ -431,8 +431,7 @@ the next case.
   bytes, memory, and errors on production before any Redis implementation is
   accepted, rejected, skipped, or closed. PostgreSQL remains the authoritative
   store for job status, rows, and benchmark evidence.
-- **2026-06-03 Cycle 13.A embedding-stage profiling MEASUREMENT COMPLETE;
-  Cycle 13.B track lookup STAGED**:
+- **2026-06-03 Cycle 13.B prefetch-aware embedding track lookup ACCEPTED**:
   `docs/cycle_13_persistence_render_investigation.md` first recorded the
   accepted Cycle 12.C post-stage decomposition from production evidence:
   Step 3 persistence `39.820 s`, render `25.692 s`, post-run-complete tail
@@ -447,15 +446,26 @@ the next case.
   models) but was measurement-only: DB FPS `4.854005 -> 4.802395` and elapsed
   `935.516 s -> 945.570 s`. The embedding profile measured total wall
   `188.620 s`, with track lookup `66.223 s`, Redis flush `59.304 s`, DB flush
-  `38.467 s`, and existing-embedding checks `14.527 s`. Therefore the next
-  candidate is Cycle 13.B prefetch-aware embedding track lookup in
-  `docs/cycle_13_embedding_track_lookup_investigation.md`; Redis coalescing is
-  a follow-up only after Cycle 13.B is production-benchmarked. Production env
-  rollback proof after the wrapper: `EMBEDDING_STAGE_PROFILING=0`,
-  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`, `TRITON_CROP_BEHAVIOR_INPUT_SIZE=320`,
-  `MODEL_ROUTE_BEHAVIOR_ALL_MODEL_NAME=behavior_ensemble_gaze_slice_topk`,
-  `TRITON_BEHAVIOR_TOP_K_ENABLED=1`, `LPM_ENABLED=0`. No Cycle 13
-  optimization is accepted, rejected, skipped, or closed yet.
+  `38.467 s`, and existing-embedding checks `14.527 s`. The Cycle 13.B
+  production benchmark then ran: replay `cycle13-track-lookup-20260603T011324Z`,
+  job `c9f75d55-6043-4f27-bf9e-b2826d299459`, deployed SHA `9b872a3`,
+  status `completed`, `4541/4541` frames. Evidence:
+  `backend/logs/cycle13-track-lookup-20260603T011324Z/track_lookup_metrics.json`,
+  `backend/logs/cycle13-track-lookup-20260603T011324Z/model_agreement_cycle12c_vs_track_lookup.json`,
+  and `docs/cycle_13_embedding_track_lookup_results.md`. Results versus Cycle
+  12.C: DB elapsed `935.516 s -> 872.317 s` (`-6.756 %`), DB FPS
+  `4.854005 -> 5.205675` (`+7.245 %`), embedding profile wall
+  `188.620 s -> 121.681 s` (`-35.489 %` vs Cycle 13.A), track lookup
+  `66.223 s -> 0.447 s` (`-99.325 %`), GPU avg `10.332 % -> 11.003 %`,
+  DB rows unchanged, StudentTracks `53 -> 53`, and model-agreement F1
+  `100.000 %` for all persisted models. Profile proof recorded
+  `track_lookup_prefetch_hits=144785`, `track_lookup_prefetch_misses=0`, and
+  `track_lookup_orm_fallbacks=0`. `EMBEDDING_PREFETCH_TRACK_LOOKUP=1` is now
+  part of the optimized production profile; rollback is setting it to `0` and
+  restarting Celery. Next bottleneck: Redis flush `59.874 s` and DB flush
+  `38.773 s`; because Cycle 7 overestimated Redis savings, the next
+  Redis-related step must first measure command count/wall before changing
+  Redis semantics.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
