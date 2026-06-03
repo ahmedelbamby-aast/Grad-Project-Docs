@@ -1,9 +1,9 @@
-# Cycles 9-13 Implementation Playbook
+# Cycles 9-19 Implementation Playbook
 
 **Status:** Historical playbook plus execution roadmap — no acceptance until each cycle has its own measured before/after on prod RTX 5090 against the canonical `combined.mp4` benchmark.
 **Last updated:** 2026-06-03
-**Filename note:** `cycles_9_to_12_implementation_playbook.md` is historical; the restaged sequence now includes Cycle 12 persistent async-dispatch measurement and shifts render/persistence cleanup to Cycle 13.
-**Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`, **4.429 FPS overall (DB completed), 17.0 min total**. Earlier cycle projections in this file are retained as historical planning context; use `docs/cycle_9_and_10_improvements_todo.md` § Z and `docs/runtime_sla_video_plus_5min.md` for current sequencing.
+**Filename note:** `cycles_9_to_12_implementation_playbook.md` is historical; the restaged sequence now includes Cycle 12 persistent async-dispatch measurement, shifts render/persistence cleanup to Cycle 13, and appends Redis follow-up cycles 16-19.
+**Latest accepted baseline:** Cycle 12.C single-inflight behavior overlap, job `069a217f-fa43-48cc-bf18-c946d53bb3ee`, **4.854 FPS overall (DB completed), 15.6 min total**. Earlier cycle projections in this file are retained as historical planning context; use `docs/cycle_9_and_10_improvements_todo.md` § Z and `docs/runtime_sla_video_plus_5min.md` for current sequencing.
 **SLA target** (per `docs/runtime_sla_video_plus_5min.md`): `total_wall ≤ duration(video) + 5 min`. For `combined.mp4` (2 m 31 s): **≤ 7 m 31 s = ≥ 10.07 FPS overall**.
 **Current gap to close:** ~9.5 min over budget.
 
@@ -444,6 +444,26 @@ work *serially after decode*. To go further we need either:
 
 - **Cycle 14a (architectural)**: move all per-frame fan-out (crop preprocess → behavior ensemble → pose → embedding-vector compute) onto the Triton server via a single **BLS (Business Logic Scripting) Python backend**. One gRPC per frame returns compact detection tuples. Removes the per-frame Python orchestration round-trip. Projected: 5 FPS → **8–10 FPS** (lands on the SLA boundary).
 - **Cycle 14b (parallelism)**: shard the offline pipeline across multiple Celery worker processes (currently `CELERY_OFFLINE_WORKER_CONCURRENCY=4` but each video runs on ONE process). Split a video into 4 segments processed in parallel, then stitch tracking + embeddings at the end. Projected: 5 FPS → **15–18 FPS**. Tracking stitching is the hard part.
+- **Cycle 15 (architecture decision)**: decide with production evidence whether CUDA shared memory, server-side graph execution, or video sharding is the next highest-ROI architecture.
+- **Cycles 16-19 (Redis follow-ups)**: broader Redis work is appended after the current cycle sequence and must start with command-cost instrumentation. See `docs/redis_broader_optimization_opportunities.md`.
+
+## 7. Redis Follow-Up Cycles — Measurement First
+
+Redis can improve some benchmark metrics, but only after command-level
+production evidence proves a Redis cost exists. Cycle 7 already showed that
+Redis optimization hypotheses can be badly overestimated.
+
+| Cycle | Scope | Status | Benchmark metric target |
+|---|---|---|---|
+| 16.A | Redis command-cost instrumentation | PLANNED | Evidence quality and upper-bound calculations |
+| 16.B | Redis pipeline coalescing for embedding/tracking side effects | PLANNED AFTER 16.A | Embedding wall and total wall |
+| 17 | Redis Streams for non-authoritative progress and benchmark sampling | PLANNED AFTER 16.A | DB polling/write overhead or evidence quality |
+| 18 | Redis boundary-state cache for future video sharding | PLANNED AFTER CYCLE 15 | Sharding stitch stability |
+| 19 | Redis server-side scripts for proven read/compute/write hotspots | CONDITIONAL | Only the hotspot proven by 16.A |
+
+PostgreSQL remains authoritative for job status, frame rows, detections,
+tracks, embeddings, and benchmark evidence. Redis may coordinate, mirror, or
+accelerate side effects, but it must not replace final persisted evidence.
 
 Cycles 13+ are documented separately because they each cost a week-class engineering effort and need an accuracy/lifecycle review beyond the per-cycle constitution checklist.
 

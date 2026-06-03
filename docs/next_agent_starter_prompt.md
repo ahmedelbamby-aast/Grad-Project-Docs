@@ -4,7 +4,7 @@
 self-contained — read it once, then act. Every link in here points to a
 file that already exists in this repository (verify with `git ls-files`).
 
-**Last updated:** 2026-06-03 (after Cycle 12.B metric decision and overlap staging).
+**Last updated:** 2026-06-03 (after Cycle 12.C acceptance, Redis roadmap staging, and Cycle 13 Phase A start).
 
 ---
 
@@ -22,17 +22,19 @@ For the canonical benchmark video `combined.mp4` (4 541 frames, 2 m 31 s
 @ 30 fps), that means **total wall ≤ 7 m 31 s = 451 s = ≥ 10.07 FPS
 overall**.
 
-**Current accepted baseline** (Cycle 9b exact slice + Top-K, job `be4ba9ee`):
-- Total wall: **17.0 min** (`1022.952 s`)
-- Overall FPS (DB completed basis): **4.429**
-- **Gap to SLA: ~9.5 min**
+**Current accepted baseline** (Cycle 12.C single-inflight behavior overlap,
+job `069a217f-fa43-48cc-bf18-c946d53bb3ee`):
+- Total wall: **15.6 min** (`935.516 s`)
+- Overall FPS (DB completed basis): **4.854**
+- **Gap to SLA: ~8.1 min**
 
 You are not at the SLA. The plan is in mid-flight. Cycles 1–8 are ACCEPTED;
 Cycle 9 ran on prod but FAILED its Step 2 gate; Cycle 9b B.2.b exact slice is
 ACCEPTED; Cycle 9b B.2.c exact slice + Top-K is ACCEPTED WITH CAVEAT; Cycle 10
 LPM ran on prod but is NOT ACCEPTED and remains rolled back with
-`LPM_ENABLED=0`. Future cycles (9b remaining, 10b, 11, 12, 13a, 13b) are
-planned.
+`LPM_ENABLED=0`; Cycle 12.C is ACCEPTED and is the current baseline. Cycle 13
+Phase A is started. Future cycles include 9b remaining, 10b, 11.B, 13, 14,
+15, and Redis follow-ups 16-19.
 
 You will not silently expand scope. You will not declare anything
 ACCEPTED without prod evidence on the Linux RTX 5090 server.
@@ -238,6 +240,8 @@ Read [`docs/cycle_9_and_10_improvements_todo.md`](cycle_9_and_10_improvements_to
 | 3 | **B.1 compact postprocessing** — only if the candidate reduces wait/server execution; Python BLS is blocked until the pinned Triton runtime has a Python backend or a rebuild/switch is benchmarked | TODO § B.1 |
 | 4 | **Cycle 10 LPM redesign** — capture pre-decode gaze probabilities or move LPM into compact postprocessing/BLS | TODO § C.2.4 |
 | 5 | **Cycle 10b pose parallelization** | `docs/cycles_9_to_12_implementation_playbook.md` |
+| 6 | **Cycle 15 architecture decision** — CUDA shared memory vs server-side graph execution vs video sharding | `docs/crop_frame_optimization_execution.md` |
+| 7 | **Cycles 16-19 Redis follow-ups** — start with command-cost instrumentation before any Redis implementation | `docs/redis_broader_optimization_opportunities.md` |
 
 B.2.b exact server-side slice and B.2.c exact slice + Top-K are already
 accepted; Top-K is now the production baseline. Do not repeat the rejected
@@ -296,7 +300,7 @@ If you are not picking one of the above, you are scope-creeping. Don't.
 ## 7. What NOT to do
 
 - **Do not** add new models (YOLOE, Depth Anything v2, anything else)
-  until the SLA is hit or Cycle 13a's BLS architecture lands. The
+  until the SLA is hit or Cycle 14a's BLS architecture lands. The
   reasoning is in `docs/new_models_yoloe_depth_anything_v2_timing_decision.md`.
 - **Do not** modify Triton model configs for `rtmpose_model`,
   `person_detector`, or `posture_model` as part of LPM work. They are
@@ -372,10 +376,10 @@ Before you write "Cycle <N> ACCEPTED" anywhere:
 ## 10. The current state of the world (snapshot — verify with `git log`)
 
 - **Branch:** `feature/phase7a-crop-frame-mode`
-- **Latest accepted baseline:** Cycle 9b B.2.c exact slice + Top-K, job
-  `be4ba9ee-4786-48e9-8334-28feb237a1fb`, replay key
-  `cycle9b-topk-crop-frame-20260602T041900`, `1022.952 s` total,
-  4.429 FPS overall (DB completed)
+- **Latest accepted baseline:** Cycle 12.C single-inflight behavior overlap,
+  job `069a217f-fa43-48cc-bf18-c946d53bb3ee`, replay key
+  `cycle12-single-inflight-overlap-20260602T225821Z`, `935.516 s` total,
+  4.854 FPS overall (DB completed)
 - **Cycle 9 (Triton behavior ensemble):** NOT ACCEPTED — Step 2 wall +0.6 %
   failed the ≥ 10 % reduction gate. Job `c1651663-e08a-4e29-9ee3-fd0f09884b98`.
   Flag `TRITON_BEHAVIOR_ENSEMBLE` exists and is part of the accepted slice route,

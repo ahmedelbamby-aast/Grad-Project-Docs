@@ -76,7 +76,7 @@ context.
 | 28 | [`docs/cycle_9b_output_fusion_results.md`](docs/cycle_9b_output_fusion_results.md) | 2026-06-02 | Cycle 9b output-fusion comparison matrix (B.2.b rejected, slice + Top-K accepted). |
 | 29 | [`docs/cycle_9b_exact_slice_investigation.md`](docs/cycle_9b_exact_slice_investigation.md) | 2026-06-02 | Exact server-side slicing investigation (B.2.b ACCEPTED path). |
 | 30 | [`docs/cycle_9b_topk_anchor_packing_investigation.md`](docs/cycle_9b_topk_anchor_packing_investigation.md) | 2026-06-02 | Top-K anchor packing investigation (B.2.c). |
-| 31 | [`docs/cycle_9b_topk_anchor_packing_results.md`](docs/cycle_9b_topk_anchor_packing_results.md) | 2026-06-02 | Top-K accepted-with-caveat results (current accepted baseline: job `be4ba9ee`). |
+| 31 | [`docs/cycle_9b_topk_anchor_packing_results.md`](docs/cycle_9b_topk_anchor_packing_results.md) | 2026-06-02 | Top-K accepted-with-caveat results (superseded as current baseline by Cycle 12.C). |
 | 32 | [`docs/cycle_9b_child_critical_path_results.md`](docs/cycle_9b_child_critical_path_results.md) | 2026-06-02 | B.3 Step 1 measurement vs pre-Top-K baseline. |
 | 33 | [`docs/cycle_9b_child_critical_path_remeasure_topk_results.md`](docs/cycle_9b_child_critical_path_remeasure_topk_results.md) | 2026-06-02 | B.3 Step 1 **remeasurement** against the accepted Top-K baseline (most recent — read this for the next-Step-2 lever ranking). |
 | 33a | [`docs/cycle_9b_compact_postproc_investigation.md`](docs/cycle_9b_compact_postproc_investigation.md) | 2026-06-02 | B.1 compact-postprocessing investigation against the current accepted Top-K baseline. |
@@ -95,6 +95,8 @@ context.
 | 37g | [`docs/cycle_12_overlap_dispatcher_results.md`](docs/cycle_12_overlap_dispatcher_results.md) | 2026-06-03 | Cycle 12.B production result: wall-time improved, RTT regressed, needs further iteration. |
 | 37h | [`docs/cycle_12_single_inflight_overlap_investigation.md`](docs/cycle_12_single_inflight_overlap_investigation.md) | 2026-06-03 | Cycle 12.C investigation: preserve overlap while preventing two behavior jobs in flight. |
 | 37i | [`docs/cycle_12_single_inflight_overlap_results.md`](docs/cycle_12_single_inflight_overlap_results.md) | 2026-06-03 | Cycle 12.C accepted result: Step 2/FPS/GPU improved with RTT restored near baseline. |
+| 37j | [`docs/redis_broader_optimization_opportunities.md`](docs/redis_broader_optimization_opportunities.md) | 2026-06-03 | Redis roadmap investigation: broader Redis strategies are appended after the active cycles and start with command-cost instrumentation. |
+| 37k | [`docs/cycle_13_persistence_render_investigation.md`](docs/cycle_13_persistence_render_investigation.md) | 2026-06-03 | Cycle 13 Phase A: persistence/render cleanup investigation after the accepted Cycle 12.C baseline. |
 
 ### Phase 4 — Triton-specific deep dives
 
@@ -226,7 +228,7 @@ validates against the working tree.
 
 | # | File | Last updated | Why read this here |
 |---|---|---|---|
-| 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-03 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 9b Top-K (job `be4ba9ee`, 4.43 FPS, 9.5-min SLA gap). |
+| 97 | [`docs/entity/systems/offline_inference_pipeline.md`](docs/entity/systems/offline_inference_pipeline.md) | 2026-06-03 | DSP Cycle 2 — first system entity doc. Celery-driven offline video pipeline; current accepted baseline is Cycle 12.C (job `069a217f`, 4.854 FPS, ~8.1-min SLA gap). |
 | 98 | [`docs/entity/systems/live_streaming_pipeline.md`](docs/entity/systems/live_streaming_pipeline.md) | 2026-06-02 | DSP Cycle 2 — sibling live pipeline. One Celery task per session/camera; live Triton endpoint `:39001`; live detection + anomaly events via Channels. |
 | 99 | [`docs/entity/systems/triton_inference_plane.md`](docs/entity/systems/triton_inference_plane.md) | 2026-06-03 | DSP Cycle 2 — the production inference authority. TritonClient + ModelRouteService + ensemble validator + per-host engine repo. Active route: `behavior_ensemble_gaze_slice_topk`. |
 | 100 | [`docs/entity/systems/telemetry_pipeline.md`](docs/entity/systems/telemetry_pipeline.md) | 2026-06-02 | DSP Cycle 2 — dual-sink (PostgreSQL + JSON) per-Celery-task telemetry layer. ContextVar-bound from `task_prerun` / `task_postrun` signals; JSON-first so DB outages never silently lose data. |

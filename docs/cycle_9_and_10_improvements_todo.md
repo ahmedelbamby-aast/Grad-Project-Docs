@@ -6,8 +6,9 @@
 flagged "done" until each improvement has its own production benchmark on
 the Linux RTX 5090 server that demonstrates (a) the targeted metric
 improvement and (b) zero correctness regression vs. the prior accepted
-baseline for that cycle. The latest accepted baseline is now Cycle 9b exact
-slice + Top-K, job `be4ba9ee-4786-48e9-8334-28feb237a1fb`. See
+baseline for that cycle. The latest accepted baseline is now Cycle 12.C
+single-inflight behavior overlap, job
+`069a217f-fa43-48cc-bf18-c946d53bb3ee`. See
 `AGENTS.md` re-affirmation and the
 Cycle 9 precedent for what "not accepted" means in practice.
 
@@ -126,10 +127,11 @@ ship the flag.
 | Cycle 9b B.2.b exact slice | `7933c1e5` | ~1 054 s (17.6 min) | 4.307 | **ACCEPTED** — Step 2 wall 858.1 → 573.927 s and correctness parity held |
 | Cycle 9b B.2.c exact slice + Top-K | `be4ba9ee` | 1 023 s (17.0 min) | 4.429 | **ACCEPTED WITH CAVEAT** — Step 2 frame wall 573.927 → 540.399 s, behavior RTT 91.470 → 84.865 ms, output bytes ~95 % lower, average GPU util did not improve |
 | Cycle 9b B.4 batch window 2 → 4 | `416efe8c` | 1 016 s (16.9 min) | 4.471 | **NOT ACCEPTED** — Step 2 improved 5.17 %, but behavior RTT mean regressed 16.95 %, StudentTrack count dropped 53 → 47, and model-agreement F1 failed for three behavior outputs |
+| Cycle 12.C single-inflight behavior overlap | `069a217f` | 936 s (15.6 min) | 4.854 | **ACCEPTED** — Step 2 wall 540.399 → 459.461 s, behavior RTT mean 84.865 → 83.936 ms, tracks unchanged, model-agreement F1 `>=99.716 %` |
 
 **SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
-= 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 9b exact
-slice + Top-K) is **17.0 min** — gap is **~9.5 min**.
+= 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 12.C
+single-inflight behavior overlap) is **15.6 min** — gap is **~8.1 min**.
 
 ---
 
@@ -809,6 +811,7 @@ quality of the diff.
 | Cycle 9b B.2.c | Exact slice + Top-K anchor packing | **ACCEPTED WITH CAVEAT 2026-06-02** | `be4ba9ee-4786-48e9-8334-28feb237a1fb` | FP32 Top-K adapters returned `[C,100]` behavior outputs, decoded parity passed exactly, Step 2 frame wall `573.927 → 540.399 s` (`−5.84 %` vs exact slice), DB FPS `4.307 → 4.429`, behavior RTT mean `91.470 → 84.865 ms`, behavior output traffic `~6.85 → ~0.33 MB/frame`; caveat: average GPU util `9.595 % → 9.3 %` | `docs/production_inference_benchmark.md` §19, `docs/cycle_9b_topk_anchor_packing_results.md`, `docs/cycle_9b_output_fusion_results.md`, `docs/crop_frame_optimization_execution.md` |
 | Cycle 9b B.4 | Batch window 2 → 4 | **NOT ACCEPTED 2026-06-02** | `416efe8c-772c-442f-8e55-cf44c54fe261` | Step 2 frame wall `540.399 → 512.445 s` (`−5.17 %`) and DB FPS `4.439 → 4.471`, but behavior RTT mean regressed `84.865 → 99.251 ms`, StudentTrack count dropped `53 → 47`, and model-agreement F1@IoU0.5 failed for three behavior outputs. Prod restored to `TRITON_OFFLINE_BATCH_QUEUE_MAX_FRAMES=2`. | `docs/production_inference_benchmark.md` §21, `docs/cycle_9b_batch_window_results.md`, `docs/cycle_9b_batch_window_investigation.md` |
 | Cycle 10 | Logical Path Matrix (LPM) Phase 1 | **NOT ACCEPTED 2026-06-01** | `17075418-4386-4b5f-85d4-ea23bec71f66`; safety proof `21666815-f4bd-4f5f-b90e-b9101b4d899d` | Telemetry table worked (`4541` rows), but contradictions were not detected (`C1=0`, `eliminated=0`) and `attention_tracking` boxes regressed 11 776 → 2 680. Safety proof at SHA `31edac44` restored most boxes (`2680 → 11122`) but still failed Cycle 9 parity (`11776`) and still recorded `C1=0`, `eliminated=0`. Prod rolled back to `LPM_ENABLED=0`. | `docs/production_inference_benchmark.md` §16, `docs/cycle_10_lpm_phase1_results.md` |
+| Cycle 12.C | Single-inflight behavior overlap | **ACCEPTED 2026-06-03** | `069a217f-fa43-48cc-bf18-c946d53bb3ee` | Step 2 wall `540.399 s → 459.461 s`, DB FPS `4.439 → 4.854`, GPU avg `9.344 % → 10.332 %`, behavior RTT mean `84.865 ms → 83.936 ms`, tracks unchanged, model-agreement F1 `>=99.716 %`. Production profile uses `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`. | `docs/cycle_12_single_inflight_overlap_investigation.md`, `docs/cycle_12_single_inflight_overlap_results.md`, `docs/production_inference_benchmark.md` §26 |
 
 ### Z.2 Cycles staged or in progress (code exists, awaiting prod evidence)
 
@@ -819,23 +822,28 @@ quality of the diff.
 | **Cycle 10 follow-up** | LPM contradiction-signal redesign | **STAGED AFTER REJECTION** | Fresh safety-fix prod benchmark ran (`cycle10-lpm-violationonly-crop-frame-20260601T221110`, job `21666815-f4bd-4f5f-b90e-b9101b4d899d`). It improved the attention-box loss but still failed parity and kept `C1=0`, `eliminated=0`. Missing: redesign that captures pre-decode probabilities instead of post-decode boxes only, or migration into compact postprocessing/BLS where dense gaze outputs are still available. | `docs/cycle_10_lpm_phase1_results.md`, `docs/logical_path_matrix_spec.md`, `docs/cycle_10_investigation.md` |
 | **Cycle 12.A** | Persistent async dispatcher measurement | **PHASE A MEASUREMENT COMPLETE; NO OPTIMIZATION DECISION** | Clean production replay `cycle12-async-dispatch-profile-clean-20260602T213441Z` / job `dfa1f138-7086-418a-ba17-9999cd12b9ac` completed. Async-dispatch blocking wall was `349.643 s`; `behavior_all` owned `338.779 s`. No optimization candidate was deployed, so no acceptance/rejection/skip/closure decision exists. Metric decision: do not implement bridge-only dispatcher because the estimated `35.3 s` bridge gap is below the `>=10 %` Step 2 gate. | `docs/cycle_12_persistent_dispatcher_investigation.md`, `docs/cycle_12_persistent_dispatcher_results.md`, `docs/inference_parallelization_plan.md`, `docs/crop_frame_optimization_execution.md` |
 | **Cycle 12.B** | Bounded behavior-wait overlap dispatcher | **NEEDS FURTHER ITERATION; NOT ACCEPTED 2026-06-03** | Production benchmark `cycle12-behavior-overlap-20260602T223350Z` / job `46ba8b2a-3c61-4d89-b7b6-63ec72159428` completed. It improved Step 2 wall `540.399 s → 395.495 s` and DB FPS `4.439 → 5.195`, with tracks unchanged and F1 `>=99.716 %`, but behavior RTT mean regressed `84.865 ms → 115.420 ms` and p95 regressed `128.056 ms → 224.661 ms`. The likely contention source is two behavior jobs briefly in flight. | `docs/cycle_12_overlap_dispatcher_investigation.md`, `docs/cycle_12_overlap_dispatcher_results.md`, `docs/production_inference_benchmark.md` §25 |
-| **Cycle 12.C** | Single-inflight behavior overlap | **ACCEPTED 2026-06-03** | Production benchmark `cycle12-single-inflight-overlap-20260602T225821Z` / job `069a217f-fa43-48cc-bf18-c946d53bb3ee` completed. Step 2 wall `540.399 s → 459.461 s`, DB FPS `4.439 → 4.854`, GPU avg `9.344 % → 10.332 %`, behavior RTT mean `84.865 ms → 83.936 ms`, tracks unchanged, F1 `>=99.716 %`. Production profile now uses `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`. | `docs/cycle_12_single_inflight_overlap_investigation.md`, `docs/cycle_12_single_inflight_overlap_results.md`, `docs/production_inference_benchmark.md` §26 |
 
-### Z.3 Cycles planned but not yet started (restaged after Cycle 12.B)
+### Z.3 Cycles planned or newly started (restaged after Cycle 12.C)
 
 | # | Title | Status | Projected gain | Primary docs |
 |---|---|---|---:|---|
 | **Cycle 10b** | Pose parallelization across frames (originally Cycle 10 in the playbook — slot taken by LPM; pose work moved here) | **PLANNED** | Pose wall 220 → ~80 s | `docs/cycles_9_to_12_implementation_playbook.md` §3 |
 | **Cycle 11.B / B.3 Step 2** | Kernel-tactic or batch-profile tuning on the dominant child at 320 | **PLANNED AFTER CYCLE 12.A MEASUREMENT** | bounded at ~4 % Step 2 wall | `docs/cycle_9b_child_critical_path_remeasure_topk_results.md`, `docs/cycle_11_input_size_results.md` |
-| **Cycle 13** | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | **PLANNED AFTER INFERENCE-WALL WORK** | ~20 s saved | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
+| **Cycle 13** | Persistence/render cleanup after Cycle 12.C | **PHASE A STARTED 2026-06-03** | ~20 s saved if post-stage wall is still material | `docs/cycle_13_persistence_render_investigation.md`, `docs/cycles_9_to_12_implementation_playbook.md` §6 |
 | **Cycle 14a** | BLS server-side fan-out / compact postprocessing if it reduces wait or server execution | **PLANNED, BLOCKED ON CANDIDATE BENCHMARK** | unknown until benchmark; target 5 FPS → 8–10 FPS | `docs/cycles_9_to_12_implementation_playbook.md` §6, `docs/cycle_9b_compact_postproc_results.md` |
 | **Cycle 14b** | Multi-process video sharding (4 Celery workers, each takes a quarter of the video, then a stitch step) | **PLANNED, RISKY** | 5 FPS → 15–18 FPS (tracking stitch is the hard part) | `docs/cycles_9_to_12_implementation_playbook.md` §6 |
+| **Cycle 15** | CUDA shared memory or sharding architecture decision | **PLANNED AFTER CYCLE 14 EVIDENCE** | high only if bottleneck shifts | `docs/crop_frame_optimization_execution.md`, `docs/cycles_9_to_12_implementation_playbook.md` §6 |
+| **Cycle 16.A** | Redis command-cost instrumentation | **PLANNED AFTER CURRENT CYCLES** | evidence / upper-bound only | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 16.B** | Redis pipeline coalescing for embedding/tracking side effects | **PLANNED AFTER 16.A PROVES REDIS WALL** | embedding wall / total wall only if command wall is material | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 17** | Redis Streams for non-authoritative progress and benchmark sampling | **PLANNED AFTER 16.A** | DB polling/write overhead or evidence quality | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 18** | Redis boundary-state cache for future sharding | **PLANNED AFTER CYCLE 15 SHARDING DECISION** | stitch stability for multi-process sharding | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 19** | Redis server-side scripts for measured read/compute/write hotspots | **CONDITIONAL** | only if Cycle 16.A proves a Redis hotspot pipelining cannot remove | `docs/redis_broader_optimization_opportunities.md` |
 
 ### Z.4 Deferred decisions / out-of-scope here
 
 | Topic | Status | Rationale | Doc |
 |---|---|---|---|
-| **YOLOE integration** | **DEFERRED until SLA reached or Cycle 13a lands** | Adding it now widens the SLA gap and would be redone after the BLS architecture change | `docs/new_models_yoloe_depth_anything_v2_timing_decision.md` |
+| **YOLOE integration** | **DEFERRED until SLA reached or Cycle 14a lands** | Adding it now widens the SLA gap and would be redone after the BLS architecture change | `docs/new_models_yoloe_depth_anything_v2_timing_decision.md` |
 | **Depth Anything v2 integration** | **DEFERRED** | Same reasoning as YOLOE; the smallest variant alone adds ~2.5 min of new GPU wall per `combined.mp4` | `docs/new_models_yoloe_depth_anything_v2_timing_decision.md` |
 
 ### Z.5 SLA contract recap
@@ -846,7 +854,7 @@ quality of the diff.
 | SLA contract | `total_wall ≤ duration(video) + 5 min` |
 | For `combined.mp4` | total wall ≤ **7 m 31 s** = 451 s |
 | Required overall FPS | **≥ 10.07** |
-| Current accepted baseline (Cycle 9b exact slice + Top-K) | 17.0 min = **4.429 FPS** (gap: ~9.5 min) |
+| Current accepted baseline (Cycle 12.C single-inflight behavior overlap) | 15.6 min = **4.854 FPS** (gap: ~8.1 min) |
 | Cycle 9 NOT ACCEPTED but produced | 18.51 min = 4.09 FPS (gap: 11.0 min) |
 | Cycle 10 NOT ACCEPTED but produced | 17.93 min = 4.219 FPS (invalid for baseline because correctness regressed) |
 

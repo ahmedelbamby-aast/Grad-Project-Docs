@@ -1286,9 +1286,19 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 12.B | Bounded behavior-wait overlap dispatcher — start `behavior_all` for batch N while preparing batch N+1, preserving ordered finalization | **needs further iteration**: wall/FPS improved, RTT gate failed | medium; rollback is `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0` |
 | 12.C | Single-inflight behavior overlap — prepare current batch, finalize pending behavior, then submit current behavior | **ACCEPTED**: Step 2 `-14.98 %`, FPS `+9.35 %`, RTT mean `-1.09 %` | medium; rollback is `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=0` |
 | 11.B / B.3 Step 2 | Kernel-tactic or batch-profile tuning on the dominant 320 behavior child after Top-K | bounded at ~4 % Step 2 | low-medium; engine rebuild only if parity holds |
-| 13 | Parallel render writers + PostgreSQL `COPY FROM` for embeddings | ~20 s total-wall only | low; does not address Step 2 |
+| 13 | Persistence/render cleanup after Cycle 12.C | **Phase A started** in `docs/cycle_13_persistence_render_investigation.md`; ~20 s total-wall only if post-stage wall is material | low; does not address Step 2 |
 | 14 | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | unknown; must benchmark candidate | high; backend/runtime contract change |
 | 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
+| 16.A | Redis command-cost instrumentation | evidence / upper-bound only | low; profiling must not become decision authority |
+| 16.B | Redis pipeline coalescing for embedding/tracking side effects | embedding wall / total wall only if 16.A proves Redis command wall is material | low-medium; Redis remains non-authoritative |
+| 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
+| 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
+| 19 | Redis server-side scripts for measured read/compute/write hotspots | conditional on Cycle 16.A proof | medium; rollback to non-script path |
+
+Redis roadmap note (2026-06-03): broader Redis strategies are documented in
+`docs/redis_broader_optimization_opportunities.md`. Cycle 7 proved Redis
+hypotheses can be overestimated, so the first Redis cycle must be command-cost
+instrumentation, not implementation.
 
 ---
 

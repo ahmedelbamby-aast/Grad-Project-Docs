@@ -823,6 +823,22 @@ mean (`84.865 ms → 83.936 ms`) and model-agreement F1 `>=99.716 %`.
 `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1` is now part of the accepted optimized
 production profile.
 
+Cycle 13 Phase A is now started in
+`docs/cycle_13_persistence_render_investigation.md`. It targets
+post-inference persistence/render cleanup after the accepted Cycle 12.C
+baseline, but no code has been changed and no optimization decision exists.
+The required first step is to extract current Cycle 12.C Step 3 persistence,
+render, and embedding wall from production evidence before implementation.
+
+Broader Redis strategies are appended after the current Cycle 13/14/15
+sequence, not inserted ahead of it. The Redis roadmap lives in
+`docs/redis_broader_optimization_opportunities.md` and starts with Cycle 16.A
+command-cost instrumentation. This ordering is deliberate: Cycle 7 already
+proved Redis optimization hypotheses can be overestimated, so no Redis
+pipeline, stream, script, or sharding-state change may be implemented as an
+optimization until production command count, Redis wall, bytes, memory, and
+errors bound its expected gain.
+
 Cycle 11.A behavior input `320 → 256` is **NOT ACCEPTED by real production
 benchmark**. Production built the 256 behavior engines plus matching slice/Top-K
 adapters and captured candidate outputs. The synthetic pre-benchmark parity
@@ -913,9 +929,10 @@ Evidence: `docs/production_inference_benchmark.md` §14, replay key
 `d2de80a0-31b7-4a47-b9f1-d2e2156ea3a8`.
 
 At the time of Cycle 8, the 7.5-min SLA gap was 14.4 min and Step 2 was the
-dominant remaining block. Later Cycle 9b work has moved the current accepted
-baseline to exact slice + Top-K (`4.429 FPS`, `1022.952 s` total); use
-`docs/runtime_sla_video_plus_5min.md` for the current SLA gap and stage budget.
+dominant remaining block. Later Cycle 12.C work has moved the current accepted
+baseline to single-inflight behavior overlap (`4.854 FPS`, `935.516 s` total);
+use `docs/runtime_sla_video_plus_5min.md` for the current SLA gap and stage
+budget.
 
 ### 2026-06-01 Cycle 7 — Redis client caching (ACCEPTED with caveat)
 

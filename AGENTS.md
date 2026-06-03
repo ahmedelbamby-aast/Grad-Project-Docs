@@ -419,6 +419,28 @@ the next case.
   production profile; rollback is setting it to `0` and restarting Celery
   workers. Evidence: `docs/production_inference_benchmark.md` §26 and
   `docs/cycle_12_single_inflight_overlap_results.md`.
+- **2026-06-03 Redis broader optimization investigation STAGED**:
+  `docs/redis_broader_optimization_opportunities.md` records broader Redis
+  strategies that could improve benchmark metrics after the current cycle
+  sequence: command-cost instrumentation, embedding/tracking pipeline
+  coalescing, Redis Streams for non-authoritative progress/benchmark sampling,
+  boundary-state cache for future video sharding, and conditional Redis
+  scripts for measured read/compute/write hotspots. This is roadmap evidence
+  only. Cycle 7 remains the cautionary precedent: Redis client caching helped
+  only modestly, so Cycle 16.A must measure Redis command count, Redis wall,
+  bytes, memory, and errors on production before any Redis implementation is
+  accepted, rejected, skipped, or closed. PostgreSQL remains the authoritative
+  store for job status, rows, and benchmark evidence.
+- **2026-06-03 Cycle 13 persistence/render investigation STARTED**:
+  `docs/cycle_13_persistence_render_investigation.md` starts Phase A after
+  the accepted Cycle 12.C baseline. No code has been changed for Cycle 13 yet.
+  Before implementation, collect the current Cycle 12.C post-stage
+  decomposition from production evidence: Step 3 persistence wall, render wall,
+  embedding wall, DB row parity, CPU/RSS, GPU CSV, and benchmark artefact
+  paths. Cycle 13 may target parallel render writers or a stronger PostgreSQL
+  embedding persistence path only if those measurements prove post-stage wall
+  is material. Acceptance still requires a completed `combined.mp4` production
+  Linux RTX 5090 benchmark against Cycle 12.C.
 - **2026-06-01 Cycle 10 STAGED — Logical Path Matrix (LPM)** —
   deterministic mathematical constraint layer applied AFTER the three gaze
   models (horizontal / vertical / depth) and BEFORE persistence. Scope is
