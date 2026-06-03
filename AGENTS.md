@@ -707,6 +707,19 @@ the next case.
   documentation must explain why the metrics moved and what unresolved
   bottleneck would have to be removed for better results. Component probes must
   report upper-bound wall-time calculations only as benchmark hypotheses.
+- **Precision benchmark measurement contract (2026-06-03)**: optimization
+  decisions must include enough measurement detail to locate the bottleneck,
+  not only a final FPS number. Every production benchmark watcher, collector,
+  result doc, and decision table must expose FPS, latency, throughput,
+  per-model RTT/call-rate/status/input shape, per-step wall time, per-phase
+  stage timing, queue/dispatch timing, pose-tail timing, persistence/render
+  timing, embedding/DB/Redis timing, GPU/VRAM/power, worker memory, DB/model
+  correctness, model agreement, missing/unavailable metric state, and raw
+  evidence paths when the runtime provides them. Missing metrics must be shown
+  as unavailable with a reason, never silently treated as zero. A candidate
+  cannot be accepted because one metric improved if the precise breakdown shows
+  the dominant wall moved elsewhere, latency regressed beyond gate, resource
+  contention increased, or correctness/model agreement regressed.
 - **2026-06-01 Cycle 8 ACCEPTED** (largest single-cycle win since Cycles 1–5):
   bundled `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1` + lazy `cv2.VideoCapture` reads
   (skip `.set/.read` when every detection in a frame already has a cached

@@ -104,7 +104,11 @@
 > table covering baseline replay/job, candidate replay/job, exact video,
 > deployed SHA, env/config delta, target gates, FPS, Step 2/frame wall, RTT,
 > GPU, memory, correctness/model agreement, causal explanation, remaining
-> bottleneck, and durable evidence paths.
+> bottleneck, and durable evidence paths. The table MUST include the
+> precision breakdown from constitution §7.1.1: live/cumulative/DB FPS,
+> latency percentiles, per-model call rate/status/input shape, per-step and
+> per-phase timings, resource metrics, DB/model correctness, and unavailable
+> metric reasons.
 
 > **Live/Offline Validation Gate**: Video or inference features MUST
 > specify both live and offline validation when their behavior spans

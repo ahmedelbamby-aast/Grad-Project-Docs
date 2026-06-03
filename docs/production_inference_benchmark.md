@@ -9,6 +9,32 @@
 
 ---
 
+## 0. Precision Measurement Contract
+
+Every optimization benchmark recorded after 2026-06-03 must include precise
+measurements, not only a final FPS number. The live watcher
+`tools/prod/prod_watch_benchmark_metrics.sh` and final collector
+`tools/prod/prod_collect_benchmark_metrics.py` are the current measurement
+surfaces.
+
+Required decision evidence includes:
+
+| Family | Required values |
+|---|---|
+| FPS / throughput | live window FPS, cumulative processing FPS, DB-completed FPS, per-stage FPS equivalent, row throughput for frames/detections/boxes/embeddings |
+| Latency | mean/p50/p95/p99/max model RTT, Step 2 frame wall, Step 2 through-pose wall, pose tail, persistence/render, embedding/finalization |
+| Per model | model name, call count, calls/sec, input shape, status counts, RTT percentiles |
+| Per phase | decode, crop, preprocess, queue/dispatch, inference, postprocess, persistence, render, embedding, DB flush, Redis flush, artifact write |
+| Resources | live GPU, benchmark GPU avg/peak, VRAM, power, worker RSS, available CPU/process contention metrics |
+| Correctness | DB parity, detection/box/embedding/track counts, model agreement, missing-frame counts, stage error ratios |
+| Evidence | replay key, job ID, deployed SHA, exact video, env/config delta, JSON/CSV/log paths and unavailable metric reasons |
+
+Missing metrics must be written as unavailable with a reason; they must not be
+treated as measured zero. A cycle decision is incomplete when the precision
+breakdown needed to explain the result is absent.
+
+---
+
 ## 1. Hardware & Stack
 
 | Item | Value |

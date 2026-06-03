@@ -119,8 +119,11 @@
   decision table: baseline replay/job, candidate replay/job, exact video,
   deployed SHA, env/config delta, target gates, FPS, Step 2/frame wall, RTT,
   GPU, memory, correctness/model agreement, causal interpretation, remaining
-  bottleneck, and durable evidence paths. Component probes are hypothesis-only
-  and cannot accept/reject/skip/close/deprioritize.]
+  bottleneck, and durable evidence paths. Include the precision breakdown from
+  constitution §7.1.1: live/cumulative/DB FPS, latency percentiles, per-model
+  call rate/status/input shape, per-step and per-phase timings, resource
+  metrics, DB/model correctness, and unavailable metric reasons. Component
+  probes are hypothesis-only and cannot accept/reject/skip/close/deprioritize.]
 - **Runtime Reconciliation**: [Describe task, queue, database, artifact,
   telemetry and frontend state convergence, including mismatch handling]
 - **Evidence Lineage**: [Describe immutable evidence snapshots, artifact

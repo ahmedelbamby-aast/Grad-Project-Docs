@@ -119,7 +119,10 @@ Examples of foundational tasks (adjust based on your project):
       replay keys and job IDs, exact video, deployed SHA, env/config delta,
       target gates, FPS, Step 2/frame wall, RTT, GPU, memory, correctness/model
       agreement, causal explanation, remaining bottleneck, durable evidence
-      paths, and a statement that component probes are hypothesis-only
+      paths, constitution §7.1.1 precision breakdown (live/cumulative/DB FPS,
+      latency percentiles, per-model call rate/status/input shape, per-step and
+      per-phase timings, resource metrics, DB/model correctness, unavailable
+      metric reasons), and a statement that component probes are hypothesis-only
 - [ ] T020 [P] If concurrency changes are proposed, define the worker topology
       matrix, pool/thread/concurrency values, GPU cap, DB/Redis/CPU/RSS/VRAM
       budgets, duplicate-worker check, rollback command, and production

@@ -1,6 +1,18 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.6.0 -> 2.7.0
+Bump rationale: MINOR - Adds Section 7.1.1 (Precision Benchmark Measurement
+Contract) and expands Section 12.6 so optimization decisions cannot be made
+from coarse FPS-only or single-metric summaries. Benchmark evidence must expose
+FPS, latency, throughput, per-model RTT/call-rate, per-step and per-phase wall
+time, queue/orchestration timing, persistence/DB/Redis timing, GPU/CPU/memory,
+correctness/model agreement, missing/unavailable metric states, and evidence
+paths. The production watcher and collector are the operational surfaces that
+must show these values during and after a benchmark.
+
+Prior MINOR (2.5.1 -> 2.6.0) text below.
+
 Version change: 2.5.1 -> 2.6.0
 Bump rationale: MINOR - Adds Section 8.1.1 (Concurrency Scaling Authority)
 after production optimization discussions raised increasing Celery workers,
@@ -909,6 +921,31 @@ Synthetic telemetry acceptance, hardcoded availability, fake readiness states,
 default-success branches, silently masked KPI failures, and dashboard
 replacement of unavailable values with zeros are constitutional violations.
 
+#### 7.1.1 Precision Benchmark Measurement Contract
+
+Production benchmark evidence MUST be precise enough to localize bottlenecks,
+not merely rank candidates by coarse total FPS. Every benchmark watcher,
+collector and decision document used for optimization authority MUST expose the
+following measurement families when the runtime can provide them, or explicitly
+mark the family as `unavailable` with the reason:
+
+| Measurement family | Required dimensions |
+| --- | --- |
+| FPS and throughput | live window FPS, cumulative processing FPS, DB-completed FPS, per-stage FPS equivalent, rows/sec for frames, detections, boxes and embeddings |
+| Latency percentiles | mean, p50, p95, p99 and max for model RTT, frame/stage latency, queue wait and provider calls |
+| Per-model metrics | model name/version, call count, call rate, input shape, status counts, RTT percentiles, server/provider wall when available |
+| Per-step metrics | Step 2 frame wall, Step 2 through-pose wall, pose tail, Step 3 persistence/render, embedding/finalization and run-complete wall |
+| Per-phase metrics | decode, crop, preprocess, queue/dispatch, inference, postprocess, persistence, render, embedding, DB flush, Redis flush and artifact write wall time |
+| Resource metrics | GPU live and benchmark average/peak utilization, VRAM, power, worker RSS, CPU/process contention when available |
+| Correctness metrics | DB parity, model agreement, detection/box/embedding/track counts, missing-frame counts and stage error ratios |
+| Evidence integrity | replay key, job ID, deployed SHA, exact video, env/config delta, raw JSON/CSV/log paths and metric freshness |
+
+Missing measurements MUST NOT be silently converted to zero. A decision may
+still proceed only if the missing family is irrelevant to the declared target
+gate and the decision table explains why. If a candidate improves one metric but
+the precision breakdown shows the dominant wall moved elsewhere or correctness
+regressed, the candidate MUST NOT be accepted on the improved metric alone.
+
 #### 7.2 Benchmark Integrity Laws
 
 A benchmark run MUST be immutable and manifest-driven. At minimum it stores:
@@ -1358,7 +1395,7 @@ include an explicit decision explanation table. The table MUST state:
 | Baseline authority | accepted replay key/job ID, deployed SHA, video, env/config, and evidence paths |
 | Candidate authority | candidate replay key/job ID, deployed SHA, video, env/config delta, and evidence paths |
 | Target gate | numeric throughput, latency, GPU, correctness, memory, and stability thresholds |
-| Before/after delta | metric values, units, denominator, direction, and comparability notes |
+| Before/after delta | metric values, units, denominator, direction, comparability notes, and precision breakdown required by Section 7.1.1 |
 | Correctness impact | detection, tracking, embedding, model-agreement, or scientific-quality effect |
 | Decision status | `ACCEPTED`, `NOT ACCEPTED`, or `NEEDS FURTHER ITERATION` |
 | Decision reason | why the status follows from the gate, not from intuition |
@@ -1375,6 +1412,9 @@ MUST provide upper-bound wall-time calculations only as hypotheses for what a
 future production benchmark must test. No cycle may be described as accepted,
 not accepted, rejected, skipped, neglected, deprioritized, complete, or closed
 without the Section 12.5 production benchmark and this comparison table.
+Decision tables that omit the Section 7.1.1 precision breakdown are incomplete
+and have no optimization decision authority unless the omission is explicitly
+justified as unavailable and irrelevant to the target gate.
 
 ### 13. Cross-Wave Dependency Constitution
 
@@ -2472,4 +2512,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.6.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03
+**Version**: 2.7.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03
