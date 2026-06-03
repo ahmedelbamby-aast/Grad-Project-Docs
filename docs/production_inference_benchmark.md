@@ -2589,4 +2589,72 @@ Detailed result doc:
 
 ---
 
+## 36. Cycle 14.D Server-Side Compact Postprocessing Phase A
+
+Cycle 14.D ran measurement-only production probes against the accepted Cycle
+14.B2 batch-16 route. It did not submit a new lifecycle job, edit `.env`,
+restart services, or change model routes. Therefore this section records a
+Phase A selection gate, not an optimization acceptance/rejection benchmark.
+
+| Field | Value |
+|---|---|
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle14d-phase-a-20260603T175051Z` |
+| Accepted baseline replay referenced | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` |
+| Measurement wrapper | `tools/prod/prod_run_cycle14d_phase_a_measurements.sh` |
+| Deployed SHA | `f4b9037` |
+| Runtime mutation | none |
+| Job id | none; probes only |
+
+### 36.1 Sub-Cycle Feasibility
+
+| Sub-cycle | Evidence | Phase A status |
+|---|---|---|
+| 14.D1 Python BLS | Python backend observed in Triton log: `False` | BLOCKED FOR CODE until controlled runtime switch/rebuild benchmark. |
+| 14.D2 TensorRT/plugin compacting | Decode/output cost is `3.357 ms/batch`; infer wait is `61.445 ms` | NO IMPLEMENTATION SELECTED because output compaction alone is not the dominant measured lever. |
+| 14.D3 fused output contract | Current Top-K route already emits `[N, C, 100]` tensors and output bytes/crop is `19200.0` | NO IMPLEMENTATION SELECTED until a design proves RTT/wait reduction, not only smaller bytes. |
+
+### 36.2 Behavior RTT / Server Work
+
+| Metric | Value |
+|---|---:|
+| Ensemble RTT mean | `63.664 ms` |
+| Ensemble RTT p95 | `69.210 ms` |
+| Ensemble transport + server mean | `59.338 ms` |
+| Ensemble deserialize mean | `2.331 ms` |
+| Ensemble output bytes mean | `326400.0` |
+| `behavior_ensemble_gaze_slice_topk` server avg | `29.976 ms/exec` |
+| `gaze_horizontal_model` server avg | `18.957 ms/exec` |
+| `gaze_vertical_model` server avg | `16.389 ms/exec` |
+| `gaze_depth_model` server avg | `16.253 ms/exec` |
+| `posture_model` server avg | `16.352 ms/exec` |
+
+### 36.3 Decode / Output Cost
+
+| Metric | Value |
+|---|---:|
+| Probe crops | `1360` |
+| RTT with parse mean | `64.033 ms` |
+| Infer wait mean | `61.445 ms` |
+| `as_numpy` mean | `0.118 ms` |
+| Decode total mean | `3.357 ms/batch` |
+| Decode total p95 | `4.868 ms/batch` |
+| Decode cost per crop | `0.197497 ms/crop` |
+| Output bytes per crop | `19200.0` |
+| Estimated compact bytes per crop | `14.2` |
+| Estimated output-byte reduction | `99.926 %` |
+
+### 36.4 Decision
+
+| Required field | Result |
+|---|---|
+| Decision status | `PHASE_A_COMPLETE_NO_IMPLEMENTATION_SELECTED` |
+| Why no implementation started | D1 is runtime-blocked; D2/D3 did not prove a server-wait or execution reduction large enough to justify code. |
+| Why this is not rejection | No 14.D implementation was deployed and no full `combined.mp4` candidate benchmark ran. |
+| Next task | Start Cycle 15 CUDA shared memory vs video sharding investigation. |
+
+Detailed result doc:
+`docs/cycle_14d_server_side_compact_postproc_results.md`.
+
+---
+
 *Updated from production run on 2026-06-03. Update this file after each major pipeline change or hardware migration.*

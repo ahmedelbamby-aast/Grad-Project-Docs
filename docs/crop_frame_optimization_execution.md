@@ -1296,8 +1296,8 @@ RTT mean improved `-1.09 %`, and model agreement stayed `>=99.716 %`.
 | 14.C1 | RTMPose cross-frame batch cap 8 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch8`; DB FPS `-2.85 %`, Step 2 through-pose `+3.42 %`, provider chunks doubled | rollback is accepted batch 16 |
 | 14.C2 | RTMPose cross-frame batch cap 32 | **NOT ACCEPTED**: replay `cycle14c-pose-batch-matrix-20260603T154945Z-batch32`; GPU avg improved but DB FPS `-0.98 %`, Step 2 through-pose `+1.46 %`, RTMPose p95 `+114.18 %` | rollback is accepted batch 16 |
 | 14.C3 | RTMPose batch-32 parallel provider chunks | **NOT ACCEPTED**: replay `cycle14c3-batch32-parallel2-20260603T170117Z`; correctness exact, but DB FPS `-3.79 %` vs batch 16, RTMPose p95 `+87.16 %` vs prior batch 32, provider async wall `+15.91 %` vs prior batch 32 | rollback proven: accepted batch 16 plus `POSE_PROVIDER_CHUNK_PARALLELISM=1` |
-| 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | **PHASE A STARTED** in `docs/cycle_14d_server_side_compact_postproc_investigation.md`; split into D1 Python BLS, D2 TensorRT/plugin, D3 fused output contract before code | high; backend/runtime contract change |
-| 15 | CUDA shared memory or video sharding architecture decision | high only if bottleneck shifts | medium-high; lifecycle and tracking risk |
+| 14.D | Compact server-side postprocessing / BLS / TRT plugin that reduces wait or server execution, not only output bytes | **PHASE A COMPLETE / NO IMPLEMENTATION SELECTED**: Python BLS is blocked by current runtime; decode/output cost is small after Top-K; see `docs/cycle_14d_server_side_compact_postproc_results.md` | high; backend/runtime contract change |
+| 15 | CUDA shared memory or video sharding architecture decision | **PHASE A STARTED** in `docs/cycle_15_cuda_shared_memory_vs_sharding_investigation.md`; split into 15.A CUDA shared memory and 15.B sharding before code | medium-high; lifecycle and tracking risk |
 | 17 | Redis Streams for progress and benchmark sampling | DB polling/write overhead or evidence quality | medium; PostgreSQL remains terminal authority |
 | 18 | Redis boundary-state cache for future video sharding | stitch stability if sharding is selected | medium-high; only after Cycle 15 |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | conditional on Cycle 16.A proof | medium; rollback to non-script path |
@@ -1362,13 +1362,24 @@ parallel chunks create RTMPose contention rather than useful overlap. Production
 was restored to batch `16` and chunk parallelism `1`. The next sorted cycle is
 Cycle 14.D.
 
-Cycle 14.D start note (2026-06-03):
-`docs/cycle_14d_server_side_compact_postproc_investigation.md` starts Phase A.
-Because the candidate space includes Python BLS, TensorRT-only compacting or
-plugins, and fused output contracts, it is split before code. The first 14.D
-task is measurement and feasibility selection against the accepted batch-16
-profile; do not implement a BLS/plugin/fused route until one sub-cycle has
-evidence.
+Cycle 14.D Phase A decision note (2026-06-03):
+`docs/cycle_14d_server_side_compact_postproc_results.md` records production
+measurement evidence from
+`/home/bamby/grad_project/backend/logs/cycle14d-phase-a-20260603T175051Z`.
+Python BLS is blocked by the current Triton runtime because the backend log did
+not expose Python backend support. TensorRT/plugin compacting and fused output
+contracts were not selected because output bytes can shrink, but measured
+client parse/decode is only `3.357 ms/batch` after Top-K while infer wait and
+server work remain dominant. This is not a rejection of an implemented
+candidate; it is a no-code selection gate. The next sorted cycle is Cycle 15.
+
+Cycle 15 start note (2026-06-03):
+`docs/cycle_15_cuda_shared_memory_vs_sharding_investigation.md` starts Phase A
+for CUDA shared memory versus video sharding. The cycle is split before code
+because the current evidence does not prove whether copy/serialization removal
+or more independent GPU work in flight is the better lever. No shared-memory or
+sharding implementation should start until Phase A measurements select one
+scenario.
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

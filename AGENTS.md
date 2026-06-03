@@ -602,13 +602,25 @@ the next case.
   `POSE_TAIL_PROFILING=0`, and `EMBEDDING_STAGE_PROFILING=0`. Evidence:
   `docs/cycle_14c3_batch32_parallel_chunks_results.md`.
 - **2026-06-03 Cycle 14.D server-side compact postprocessing PHASE A
-  STARTED**: `docs/cycle_14d_server_side_compact_postproc_investigation.md`
-  starts the next sorted cycle after the batch-32 repair failed. The cycle is
-  split before code into 14.D1 Python BLS feasibility, 14.D2 TensorRT-only
-  compact postprocessing/plugin, and 14.D3 fused behavior output contract. No
-  BLS/plugin/fused route may be implemented until Phase A measurements prove a
-  single highest-ROI candidate against the accepted batch-16 profile. No 14.D
-  acceptance/rejection/skip/closure decision exists yet.
+  COMPLETE / NO IMPLEMENTATION SELECTED**:
+  `docs/cycle_14d_server_side_compact_postproc_results.md` records production
+  measurement evidence from
+  `/home/bamby/grad_project/backend/logs/cycle14d-phase-a-20260603T175051Z`.
+  The wrapper made no runtime mutation. D1 Python BLS is blocked for code
+  because the pinned production Triton runtime log did not expose Python backend
+  support. D2 TensorRT/plugin compacting and D3 fused output were not selected
+  because output compaction can reduce bytes but current parse/decode cost is
+  only `3.357 ms/batch` (`0.197497 ms/crop`) after Top-K; infer wait and server
+  work remain dominant. This is not a rejection, skip, closure, or acceptance of
+  an implemented candidate. The next sorted cycle is Cycle 15.
+- **2026-06-03 Cycle 15 CUDA shared memory vs video sharding PHASE A STARTED**:
+  `docs/cycle_15_cuda_shared_memory_vs_sharding_investigation.md` splits the
+  next architecture decision before code into 15.A CUDA shared memory and 15.B
+  video sharding. No shared-memory or sharding implementation may start until
+  Phase A measurements prove whether copy/serialization or insufficient
+  independent GPU work in flight is the dominant lever. Any concurrency or
+  worker/process increase remains governed by constitution §8.1.1 and requires
+  full production `combined.mp4` benchmark evidence before acceptance.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

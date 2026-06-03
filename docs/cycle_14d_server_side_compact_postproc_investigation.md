@@ -2,8 +2,10 @@
 
 **Last updated:** 2026-06-03
 
-**Status:** PHASE A STARTED. No implementation, benchmark decision, acceptance,
-rejection, skip, or closure exists for Cycle 14.D yet.
+**Status:** PHASE A COMPLETE / NO IMPLEMENTATION SELECTED. No implementation,
+benchmark decision, acceptance, rejection, skip, or closure exists for Cycle
+14.D yet. Results are recorded in
+`docs/cycle_14d_server_side_compact_postproc_results.md`.
 
 ## Problem Statement
 
@@ -77,8 +79,20 @@ No 14.D sub-cycle can be accepted until it has:
 | Root-cause match | Evidence that the implemented sub-cycle addressed the measured bottleneck. |
 | Rollback | Production restored or intentionally kept with documented env/model route. |
 
+## Phase A Result
+
+Production Phase A wrapper
+`tools/prod/prod_run_cycle14d_phase_a_measurements.sh` wrote evidence under
+`/home/bamby/grad_project/backend/logs/cycle14d-phase-a-20260603T175051Z`.
+The pinned Triton runtime did not expose Python backend support, so 14.D1
+Python BLS is blocked until a controlled runtime switch/rebuild is benchmarked.
+The behavior Top-K route still showed meaningful RTT (`63.664 ms` mean), but
+client-side parse/decode was small (`3.357 ms/batch`, `0.197497 ms/crop`) after
+the accepted Top-K route. Therefore Phase A did not select a D2/D3
+implementation candidate.
+
 ## Next Step
 
-Run Phase A measurements for 14.D1/14.D2/14.D3. Do not implement BLS, plugins,
-or fused output contracts until the measurement table identifies a single
-highest-ROI candidate.
+Move to Cycle 15 investigation. Do not implement BLS, plugins, or fused output
+contracts until a future 14.D re-open proves a single highest-ROI candidate
+against the accepted production baseline.

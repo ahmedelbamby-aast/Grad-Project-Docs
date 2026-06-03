@@ -932,12 +932,22 @@ provider async wall regressed `+15.91 %` versus prior batch `32`, and GPU
 average fell below both comparators. Batch `16` remains accepted, and the next
 sorted cycle is Cycle 14.D.
 
-Cycle 14.D is now started as Phase A in
-`docs/cycle_14d_server_side_compact_postproc_investigation.md`. The cycle is
-split into 14.D1 Python BLS feasibility, 14.D2 TensorRT-only compact
-postprocessing/plugin, and 14.D3 fused behavior output contract. No
-implementation should start until Phase A measurements prove which sub-cycle
-can reduce wait/server execution against the accepted batch-16 profile.
+Cycle 14.D Phase A is complete in
+`docs/cycle_14d_server_side_compact_postproc_results.md`. The measurement
+wrapper ran on production without changing runtime state. It found no Python
+backend in the pinned Triton runtime, so Python BLS is blocked until a
+controlled runtime switch/rebuild benchmark exists. It also measured
+behavior decode/output cost at only `3.357 ms/batch` (`0.197497 ms/crop`) after
+Top-K, so TensorRT/plugin compacting and fused output were not selected for
+code. This is not an implementation rejection; it is a Phase A no-code
+selection gate. The next sorted cycle is Cycle 15.
+
+Cycle 15 is now started as Phase A in
+`docs/cycle_15_cuda_shared_memory_vs_sharding_investigation.md`. It splits the
+next architecture decision into 15.A CUDA shared memory and 15.B video
+sharding before code. No implementation should start until measurements prove
+whether copy/serialization or insufficient parallel work in flight is the
+dominant lever.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
