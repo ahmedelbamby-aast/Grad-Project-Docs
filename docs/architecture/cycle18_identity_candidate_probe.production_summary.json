@@ -1,0 +1,65 @@
+{
+  "schema_version": "cycle18.identity_candidate_probe.production_summary.v0",
+  "decision_authority": "PROBE_ONLY",
+  "run_tag": "cycle18-identity-candidate-probe-20260604T152503Z",
+  "remote_evidence": {
+    "json": "/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/identity_candidate_probe.json",
+    "markdown": "/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/identity_candidate_probe.md",
+    "log": "/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/probe.log",
+    "json_sha256": "db685c696989b0ec63e752a3707dc6008f4c41b68c5a14ef4041d5fa377825fa"
+  },
+  "source_jobs": {
+    "accepted_baseline_job_id": "74561b05-105f-4ca8-aeaf-f510f4f802de",
+    "majority_vote_parent_job_id": "78388c2c-d7f5-42b7-afa4-321216d23b11",
+    "shard0_job_id": "3dfe14db-9816-4a65-b6e2-fe74ab5a2f4e",
+    "shard1_job_id": "fdbfd73d-e42b-4942-91ed-d114a47c21fa"
+  },
+  "child_identity_evidence": {
+    "shard0": {
+      "track_count": 38,
+      "embedding_count": 0,
+      "track_alias_count": 0,
+      "lifecycle_event_count": 0,
+      "canonical_track_id_count": 0,
+      "reid_score_count": 0,
+      "reid_decision_count": 0
+    },
+    "shard1": {
+      "track_count": 36,
+      "embedding_count": 0,
+      "track_alias_count": 0,
+      "lifecycle_event_count": 0,
+      "canonical_track_id_count": 0,
+      "reid_score_count": 0,
+      "reid_decision_count": 0
+    }
+  },
+  "policy_minimum_f1_pct": {
+    "existing_majority_vote": {
+      "all_models": 53.73,
+      "shard1_models": 2.917
+    },
+    "boundary_majority_any_plus_sequential": {
+      "all_models": 54.409,
+      "shard1_models": 3.943
+    },
+    "boundary_greedy_unique_plus_sequential": {
+      "all_models": 62.021,
+      "shard1_models": 19.978
+    },
+    "baseline_label_oracle_upper_bound": {
+      "all_models": 73.086,
+      "shard1_models": 49.445
+    }
+  },
+  "selection": {
+    "state": "NO_RUNTIME_CANDIDATE_SELECTED",
+    "runtime_candidate_selected": false,
+    "best_implementable_policy": "boundary_greedy_unique_plus_sequential",
+    "best_implementable_min_all_model_f1_pct": 62.021,
+    "best_implementable_min_shard1_model_f1_pct": 19.978,
+    "oracle_min_all_model_f1_pct": 73.086,
+    "oracle_min_shard1_model_f1_pct": 49.445,
+    "next_requirement": "A separately reviewed identity-feature/state producer must exist before any Cycle 18 runtime implementation or production benchmark."
+  }
+}

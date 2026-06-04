@@ -1,0 +1,29 @@
+{
+  "schema_version": "cycle18.historical_projection_source.v0",
+  "packet_id": "1815b1c2-0000-4000-8000-000000000001",
+  "parent_job_id": "78388c2c-d7f5-42b7-afa4-321216d23b11",
+  "source_job_id": "fdbfd73d-e42b-4942-91ed-d114a47c21fa",
+  "shard_index": 1,
+  "generated_at_utc": "2026-06-03T22:39:32Z",
+  "total_frames": 4541,
+  "context_frames": 256,
+  "authoritative_range": [2271, 4541],
+  "source_track_count": 36,
+  "mapped_to_existing_parent": 10,
+  "offset_fallback_count": 26,
+  "tracker_unavailable_marker": "unavailable_from_retained_cycle15b1c2_evidence",
+  "raw_evidence_missing": [
+    "production_stitching_json",
+    "historical_job_rows",
+    "per_track_boundary_observations",
+    "identity_lifecycle",
+    "appearance_references",
+    "candidate_decisions",
+    "collision_counters",
+    "tracker_config_fingerprint"
+  ],
+  "source_references": [
+    "docs/cycle_15b1_two_shard_runtime_investigation.md",
+    "docs/cycle_15b_shard_design_probe_results.md"
+  ]
+}

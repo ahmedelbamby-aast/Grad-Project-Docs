@@ -1,12 +1,17 @@
 # Cycle 21 Celery Concurrency Scaling Investigation
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
-**Status:** Phase A investigation staged. No production worker count, thread
-count, pool type, queue concurrency, or GPU cap is changed by this document.
-The only valid decision state is `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`
-until a completed production Linux RTX 5090 benchmark on `combined.mp4` proves
-the candidate.
+**Status:** Phase A governance claimed by Agent 20. No production worker count,
+thread count, pool type, queue concurrency, or GPU cap is changed by this
+document. The only valid decision state is
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` until a completed production Linux
+RTX 5090 benchmark on `combined.mp4` proves the candidate.
+
+**Streaming compatibility:** `stream-safe-with-config`. Any future concurrency
+change must be profile-specific: offline and live worker knobs are benchmarked
+separately, live queues keep bounded per-camera behavior, and no live profile
+inherits an offline worker or GPU-cap change by default.
 
 ## Question Answered
 
@@ -30,6 +35,7 @@ a controlled matrix proves the current assumptions wrong.
 | Kind | Reference | Why it matters |
 |---|---|---|
 | File | `tools/prod/prod_start_celery_workers.sh` | Production worker launcher and active concurrency env knobs. |
+| File | `tools/prod/prod_stop_celery_workers.sh` | Required rollback and duplicate-worker cleanup helper. |
 | File | `tools/prod/prod_enable_parallel_flow.sh` | Current optimized production defaults for worker concurrency and GPU cap. |
 | File | `backend/apps/video_analysis/tasks.py` | Single-job task boundaries for inference, persistence, and embedding. |
 | File | `backend/config/celery.py` | Celery pool/concurrency config source. |
@@ -37,6 +43,7 @@ a controlled matrix proves the current assumptions wrong.
 | Doc | `docs/cycle_16b_redis_side_effect_coalescing_investigation.md` | Next cycle that may reduce single-task Redis wall before worker scaling. |
 | Doc | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` | Future architecture that could create parallel persistence/embedding work. |
 | Doc | `.specify/memory/constitution.md` § 8.1.1 | Concurrency Scaling Authority gate. |
+| Turn ledger | `docs/agent_20_remaining_lanes_turn.md` | Agent 20 governance ownership and non-overlap boundaries. |
 
 ## Existing Production Knobs
 
@@ -108,6 +115,87 @@ other accepted flags fixed:
 Each candidate must stop workers, start exactly one governed worker set, verify
 no duplicate consumers, run `combined.mp4`, collect evidence, then roll back to
 the accepted profile.
+
+## Agent 20 Governance Tasks
+
+Agent 20 owns governance documentation only. These tasks do not authorize
+production topology changes:
+
+| Task | State | Required output |
+|---|---|---|
+| `A20-C21-01` | `COMPLETED` | Worker topology matrix fields for parent workers, queues, pool type, prefetch, and GPU cap. |
+| `A20-C21-02` | `COMPLETED` | Duplicate-worker proof checklist before every candidate run. |
+| `A20-C21-03` | `COMPLETED` | Resource-budget checklist for CPU, RSS, VRAM, PostgreSQL, Redis, and queue backlog. |
+| `A20-C21-04` | `COMPLETED` | Rollback proof format for env reset plus clean worker stop/start. |
+
+The matrix remains future-only until a separate benchmark-lock owner records the
+lock and runs a full production comparison.
+
+## Governance Packet V0
+
+This packet defines the evidence a future Cycle 21 benchmark owner must collect
+before changing worker topology.
+
+### Required topology capture
+
+| Field | Source | Required value shape |
+|---|---|---|
+| Runtime profile | `TRITON_EXECUTION_MODE` and profile script output | `offline` or `live`; never mixed. |
+| Worker names | `prod_start_celery_workers.sh` startup log | One row per launched worker name. |
+| Queue bindings | Celery `-Q` arguments and `backend/config/celery.py` routes | Queue name per worker. |
+| Parent PIDs | PID files plus `ps` output | Exactly one parent per intended worker name. |
+| Child process count | `ps` grouped by worker nodename | Matches pool/concurrency expectation. |
+| Pool type | `CELERY_WORKER_POOL` / Celery config | `prefork` on Linux unless explicitly benchmarked otherwise. |
+| Concurrency | launcher-resolved concurrency | Candidate and baseline numeric values. |
+| Prefetch | `--prefetch-multiplier` and Celery config | Must be captured; current launcher uses `1`. |
+| Task limits | soft/hard time limits and `max_tasks_per_child` | Same between baseline and candidate unless matrix declares a delta. |
+| GPU cap | `CELERY_GPU_CONCURRENCY_CAP` | Captured even when `0`. |
+| In-process dispatch | `TRITON_OFFLINE_BATCH_QUEUE_MAX_CONCURRENCY` | Captured with worker topology. |
+
+### Duplicate-worker proof checklist
+
+Before and after every candidate run:
+
+| Check | Pass condition |
+|---|---|
+| Stop workers first | `prod_stop_celery_workers.sh` ran before a new topology starts. |
+| Parent count | Exactly one parent per intended worker name. |
+| Queue duplication | No queue has unintended duplicate consumers. |
+| Stale PID files | PID files match live processes. |
+| Beat state | Beat is either intentionally running once or explicitly disabled. |
+| Active task drain | No stale active task from a prior benchmark remains. |
+
+A candidate with duplicate workers is invalid even if FPS improves.
+
+### Resource-budget packet
+
+| Budget item | Required evidence | Failure meaning |
+|---|---|---|
+| CPU | per-worker CPU summary during run | Oversubscription or idle extra workers. |
+| RSS | per-worker RSS and peak memory | Memory contention or leak risk. |
+| VRAM | GPU memory used/free samples | GPU-cap regression risk. |
+| GPU util | avg/peak utilization from GPU CSV | Detects idle or saturated GPU. |
+| PostgreSQL | connection count and query/write counters if available | DB contention invalidates a scaling claim. |
+| Redis | command wall, errors, and queue side-effect counters | Redis contention invalidates a scaling claim. |
+| Celery backlog | queue depth and wait samples | Proves whether extra workers consumed real work. |
+| Behavior RTT | mean/p95/p99 per-model RTT | Triton contention blocks acceptance. |
+| Correctness | DB row counts, tracks, embeddings, model agreement | Correctness regression blocks acceptance. |
+
+Unavailable metrics must be marked `unavailable` with a reason in the decision
+table. They must not be represented as measured zero.
+
+### Benchmark and rollback format
+
+Every candidate row must record:
+
+| Field | Requirement |
+|---|---|
+| Baseline replay | Latest accepted non-sharded production replay key and job ID. |
+| Candidate replay | Candidate replay key, job ID, deployed SHA, and env delta. |
+| Topology delta | Only the worker/concurrency fields being tested. |
+| Cleanup | Worker stop/start proof before and after the run. |
+| Decision table | Constitution §12.6 table in `docs/production_inference_benchmark.md`. |
+| Rollback proof | Env reset plus clean worker restart to accepted topology. |
 
 ## Acceptance Criteria
 

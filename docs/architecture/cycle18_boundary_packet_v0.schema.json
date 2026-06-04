@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cycle18/boundary_packet_v0.schema.json",
+  "title": "Cycle 18 Boundary Packet V0",
+  "description": "Contract-only, offline-only boundary identity packet. It does not authorize Redis writes or parent-row mutation.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "packet_id",
+    "payload_sha256",
+    "parent_job_id",
+    "source_job_id",
+    "shard_index",
+    "generated_at_utc",
+    "authority",
+    "coverage",
+    "runtime_fingerprint",
+    "bounds",
+    "tracks",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {"const": "cycle18.boundary_packet.v0"},
+    "packet_id": {"type": "string", "format": "uuid"},
+    "payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "parent_job_id": {"type": "string", "format": "uuid"},
+    "source_job_id": {"type": "string", "format": "uuid"},
+    "shard_index": {"type": "integer", "minimum": 0},
+    "generated_at_utc": {"type": "string", "format": "date-time"},
+    "authority": {
+      "type": "object",
+      "required": [
+        "persistence_authority",
+        "redis_role",
+        "decision_authority",
+        "streaming_compatibility"
+      ],
+      "properties": {
+        "persistence_authority": {"const": "postgresql"},
+        "redis_role": {"const": "disposable_coordination_only"},
+        "decision_authority": {"const": "none_contract_only"},
+        "streaming_compatibility": {"const": "offline-only"}
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "boundary_side",
+        "range_basis",
+        "decode_range",
+        "authoritative_range",
+        "first_frame_index",
+        "last_frame_index",
+        "observation_count",
+        "completion_state"
+      ],
+      "properties": {
+        "boundary_side": {"enum": ["left", "right", "both"]},
+        "range_basis": {"const": "zero_based_half_open"},
+        "decode_range": {"$ref": "#/$defs/frameRange"},
+        "authoritative_range": {"$ref": "#/$defs/frameRange"},
+        "first_frame_index": {"type": "integer", "minimum": 0},
+        "last_frame_index": {"type": "integer", "minimum": 0},
+        "observation_count": {"type": "integer", "minimum": 0},
+        "completion_state": {"enum": ["complete", "partial", "failed"]}
+      },
+      "additionalProperties": false
+    },
+    "runtime_fingerprint": {
+      "type": "object",
+      "required": [
+        "tracker_algorithm",
+        "tracker_config_sha256",
+        "identity_feature_contract"
+      ],
+      "properties": {
+        "tracker_algorithm": {"type": "string", "minLength": 1},
+        "tracker_config_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "identity_feature_contract": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "bounds": {
+      "type": "object",
+      "required": [
+        "ttl_seconds",
+        "max_bytes",
+        "max_tracks",
+        "max_observations_per_track",
+        "truncated",
+        "truncation_reason"
+      ],
+      "properties": {
+        "ttl_seconds": {"type": "integer", "minimum": 60, "maximum": 2592000},
+        "max_bytes": {"type": "integer", "minimum": 1024, "maximum": 1048576},
+        "max_tracks": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "max_observations_per_track": {"type": "integer", "minimum": 1, "maximum": 512},
+        "truncated": {"type": "boolean"},
+        "truncation_reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "tracks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/trackRecord"}
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": [
+        "missing_fields",
+        "one_to_many_candidates",
+        "many_to_one_candidates",
+        "duplicate_target_count",
+        "ambiguous_segment_count",
+        "unresolved_track_count",
+        "offset_fallback_count",
+        "warnings"
+      ],
+      "properties": {
+        "missing_fields": {"type": "array", "items": {"type": "string"}},
+        "one_to_many_candidates": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "many_to_one_candidates": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "duplicate_target_count": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "ambiguous_segment_count": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "unresolved_track_count": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "offset_fallback_count": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "frameRange": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 1}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "observation": {
+      "type": "object",
+      "required": ["frame_index", "xyxy", "center", "confidence", "iou_to_previous"],
+      "properties": {
+        "frame_index": {"type": "integer", "minimum": 0},
+        "xyxy": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "center": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "iou_to_previous": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "identityState": {
+      "type": "object",
+      "required": [
+        "canonical_track_id",
+        "lifecycle_state",
+        "identity_confidence",
+        "reid_score",
+        "reid_threshold",
+        "reid_decision",
+        "continuity_state"
+      ],
+      "properties": {
+        "canonical_track_id": {
+          "anyOf": [
+            {"type": "integer", "minimum": 1},
+            {"type": "null"}
+          ]
+        },
+        "lifecycle_state": {"enum": ["active", "occluded", "reidentified", "lost", "ended"]},
+        "identity_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "reid_score": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        },
+        "reid_threshold": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        },
+        "reid_decision": {"enum": ["none", "accepted", "rejected", "unresolved"]},
+        "continuity_state": {"enum": ["valid", "invalid", "unavailable", "unknown"]}
+      },
+      "additionalProperties": false
+    },
+    "trackerHint": {
+      "type": "object",
+      "required": ["last_box", "last_center", "last_frame_index", "last_iou", "next_track_id_watermark"],
+      "properties": {
+        "last_box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+        "last_center": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "last_frame_index": {"type": "integer", "minimum": 0},
+        "last_iou": {"type": "number", "minimum": 0, "maximum": 1},
+        "next_track_id_watermark": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "appearanceReference": {
+      "type": "object",
+      "required": [
+        "state",
+        "reference",
+        "model_name",
+        "model_version",
+        "dimension",
+        "vector_sha256",
+        "age_seconds",
+        "quality_state"
+      ],
+      "properties": {
+        "state": {"enum": ["available", "unavailable"]},
+        "reference": {"type": "string"},
+        "model_name": {"type": "string"},
+        "model_version": {"type": "string"},
+        "dimension": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "vector_sha256": {"type": "string"},
+        "age_seconds": {"type": "integer", "minimum": 0},
+        "quality_state": {"enum": ["valid", "invalid", "unavailable", "unknown"]}
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": [
+        "candidate_parent_track_id",
+        "geometry_score",
+        "geometry_votes",
+        "appearance_score",
+        "lifecycle_gate",
+        "decision",
+        "reason"
+      ],
+      "properties": {
+        "candidate_parent_track_id": {"type": "integer", "minimum": 1},
+        "geometry_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "geometry_votes": {"type": "integer", "minimum": 0},
+        "appearance_score": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        },
+        "lifecycle_gate": {"enum": ["pass", "fail", "unavailable"]},
+        "decision": {"enum": ["accepted", "rejected", "unresolved"]},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "trackRecord": {
+      "type": "object",
+      "required": [
+        "local_track_id",
+        "identity",
+        "tracker_hint",
+        "appearance_reference",
+        "observations",
+        "candidates"
+      ],
+      "properties": {
+        "local_track_id": {"type": "integer", "minimum": 1},
+        "identity": {"$ref": "#/$defs/identityState"},
+        "tracker_hint": {"$ref": "#/$defs/trackerHint"},
+        "appearance_reference": {"$ref": "#/$defs/appearanceReference"},
+        "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+        "candidates": {"type": "array", "items": {"$ref": "#/$defs/candidate"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

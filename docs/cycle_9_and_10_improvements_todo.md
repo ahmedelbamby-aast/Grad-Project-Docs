@@ -839,11 +839,21 @@ quality of the diff.
 | **Cycle 15.B** | Video sharding design proof | **PHASE A STARTED** | First scenario is two-shard dry-run/design proof; no implementation until overlap ownership, track stitching, DB idempotency, and terminal-state coordination are specified. | `docs/cycle_15b_video_sharding_design_proof_investigation.md` |
 | **Cycle 15.B1/B2** | Two-shard and four-shard sharded runtime | **B1 NOT ACCEPTED / B2 BLOCKED** | B1 context `32`, B1.C1 context `256`, and B1.C2 majority vote all completed real production benchmarks and failed identity/model-agreement gates. B2 remains blocked because two-shard identity is not correct. | `docs/cycle_15b1_two_shard_runtime_investigation.md`, `docs/cycle_15b_shard_design_probe_results.md`, `docs/production_inference_benchmark.md` |
 | **Cycle 15.B design proof** | Production dry-run comparison | **DESIGN PROOF PASSED / RUNTIME REJECTED** | The design proof remains useful, but the implemented runtime candidates failed correctness. Further sharding requires a new identity-state design proof before another runtime benchmark. | `docs/cycle_15b_shard_design_probe_results.md`, `docs/cycle_15b1_two_shard_runtime_investigation.md` |
-| **Cycle 17** | Redis Streams for non-authoritative progress and benchmark sampling | **PHASE A ACTIVE AFTER CYCLE 15 DECISION** | DB polling/write overhead or evidence quality; no inference-wall claim without production proof | `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, `docs/redis_broader_optimization_opportunities.md` |
-| **Cycle 18** | Redis boundary-state cache for future sharding | **PLANNED AFTER CYCLE 15 SHARDING DECISION** | stitch stability for multi-process sharding | `docs/redis_broader_optimization_opportunities.md` |
+| **Cycle 17** | Redis Streams for non-authoritative progress and benchmark sampling | **ACCEPTED OBSERVABILITY-ONLY / NOT THROUGHPUT** | Production replay `cycle17-redis-streams-20260604T025328Z` completed with exact DB/model parity, bounded stream evidence (`4729` writes, `XLen=1002`, zero Redis errors), and rollback verified; DB FPS was neutral (`5.620 -> 5.611`), so no throughput gain is claimed. | `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, `docs/production_inference_benchmark.md` |
+| **Cycle 18** | Redis boundary-state cache for future sharding | **PHASE A CONTRACT ONLY / RUNTIME BLOCKED** | two-shard runtime failed identity/model-agreement gates; Redis may document boundary-state requirements only until a new identity-state design proof exists | `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/redis_broader_optimization_opportunities.md` |
 | **Cycle 19** | Redis server-side scripts for measured read/compute/write hotspots | **CONDITIONAL** | only if Cycle 16.B leaves a measured Redis read/compute/write hotspot that pipelining cannot remove | `docs/redis_broader_optimization_opportunities.md` |
 | **Cycle 20** | Streaming DB persistence and embedding overlap with inference | **PLANNED LATE / PHASE A STAGED** | total wall reduction only if post-stage tail remains the dominant limiter after active cycles | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` |
 | **Cycle 21** | Celery worker/thread/concurrency scaling matrix | **PLANNED AFTER PARALLEL WORK EXISTS / PHASE A STAGED** | only if extra workers have independent work to consume; otherwise likely idle capacity or contention | `docs/cycle_21_celery_concurrency_scaling_investigation.md` |
+
+Coordination note: the four active agent sessions are divided in
+`docs/four_agent_cycle_coordination_board.md`. Agent 18 has released Cycle 17,
+Agent 19 owns Cycle 18 design, and Agent 20 owns the remaining Cycle 20
+readiness plus Cycle 21 governance lanes. Shared roadmap/benchmark files are
+orchestrator-owned, and no agent may run a production benchmark without the
+benchmark lock. Current turn ledgers are recorded in
+`docs/agent_18_cycle_17_turn.md`, `docs/agent_19_cycle_18_turn.md`, and
+`docs/agent_20_remaining_lanes_turn.md`; `AGENTS.md` must be updated when any
+turn is taken or released.
 
 ### Z.4 Deferred decisions / out-of-scope here
 

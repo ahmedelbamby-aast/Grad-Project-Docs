@@ -1518,14 +1518,42 @@ identity/model correctness: shard 1 mapped only `10/36` tracks, `26/36` fell
 back to offset IDs, `StudentTracks` increased `53 -> 64`, agreement F1 stayed
 `53.730 %` - `61.109 %`, and behavior RTT regressed `83.530 ms -> 90.372 ms`.
 Decision: **NOT ACCEPTED**. Keep sharding disabled and majority-vote default
-off. Cycle 15.B2 remains blocked; next sorted cycle is Cycle 17.
+off. Cycle 15.B2 remains blocked. Cycle 17 later completed and was accepted as
+observability-only.
 
 Cycle 17 note (2026-06-04): `docs/cycle_17_redis_streams_progress_sampling_investigation.md`
-starts the next sorted cycle after Cycle 15's measured sharding candidates
-failed correctness. Scope is bounded Redis Streams for non-authoritative
-progress/evidence sampling; it is not an inference-wall optimization unless a
-full production benchmark proves total-wall or FPS gain. PostgreSQL remains the
-terminal-state authority.
+records the bounded Redis Streams cycle that followed Cycle 15's measured
+sharding candidates. Scope is non-authoritative progress/evidence sampling; it
+is accepted as observability-only, not as an inference-wall optimization.
+PostgreSQL remains the terminal-state authority.
+
+Four-agent coordination note (2026-06-04): current-cycle ownership and
+benchmark-lock rules are recorded in
+`docs/four_agent_cycle_coordination_board.md`. Agent 18 has released Cycle 17,
+Agent 19 owns Cycle 18 contract-only boundary-state design, and Agent 20 owns
+the remaining Cycle 20 readiness plus Cycle 21 concurrency governance lanes.
+Cycle decisions remain governed by production benchmark evidence in
+`docs/production_inference_benchmark.md`.
+
+Agent 18 turn note (2026-06-04):
+`docs/agent_18_cycle_17_turn.md` records the completed Cycle 17 benchmark,
+benchmark release, and turn release. `AGENTS.md` is the explicit turn ledger;
+future agents must update it when a turn becomes `TAKEN`, `FREE`, `BLOCKED`, or
+`BENCHMARK_LOCK_HELD`.
+
+Agent 20 turn note (2026-06-04):
+`docs/agent_20_remaining_lanes_turn.md` records that Agent 20 has taken the
+remaining Cycle 20 readiness and Cycle 21 governance lanes. This note does not
+authorize runtime code, production env changes, worker-topology changes, or a
+benchmark decision.
+
+Cycle 17 Phase B decision note (2026-06-04): production replay
+`cycle17-redis-streams-20260604T025328Z`, job
+`a7cf6fc2-23fb-4e17-beac-42343ba8d634`, completed `4541/4541` frames and is
+accepted as observability-only. It captured bounded Redis Stream evidence
+(`4729` writes, `XLen=1002`, TTL and memory recorded, zero Redis errors) with
+exact DB/model parity and rollback verified. It is not a throughput
+optimization: DB FPS moved `5.620 -> 5.611` (`-0.15 %`).
 
 Cycle 20 note (2026-06-03): `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
 answers the current architecture question. Today Step 3 persists rows after the

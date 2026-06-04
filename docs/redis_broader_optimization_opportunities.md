@@ -121,7 +121,7 @@ de-ranked because candidate Redis server command wall was only `194.039 ms`.
 
 ### Cycle 17 — Redis Streams For Non-Authoritative Progress And Benchmark Sampling
 
-**Status:** Phase A active in
+**Status:** Accepted as observability-only / not throughput in
 `docs/cycle_17_redis_streams_progress_sampling_investigation.md`.
 
 **Purpose:** improve benchmark observability and possibly reduce DB polling /
@@ -138,12 +138,20 @@ are not replayed. Streams are append-only logs with consumer-group support, so
 they are a better fit for benchmark sampling while still remaining
 non-authoritative.
 
-**Metric gate:** this cycle should be accepted only if it reduces DB polling
-or progress-write overhead during production benchmark runs, or if it produces
-better benchmark evidence without changing throughput. It must not be used to
-claim inference performance improvement unless total-wall metrics improve.
+**Metric result:** production replay
+`cycle17-redis-streams-20260604T025328Z` produced bounded Redis Stream evidence
+with exact DB/model parity and rollback verified. DB FPS was neutral, so the
+cycle is observability-only and must not be used to claim inference performance
+improvement.
 
 ### Cycle 18 — Redis Boundary-State Cache For Future Video Sharding
+
+**Current status:** Phase A contract only / runtime blocked. The current source
+doc is
+[`docs/cycle_18_redis_boundary_state_cache_investigation.md`](cycle_18_redis_boundary_state_cache_investigation.md).
+Cycle 15.B1, Cycle 15.B1.C1, and Cycle 15.B1.C2 all failed production
+identity/model-agreement gates, and Cycle 15.B2 is blocked. Redis must not be
+used as a workaround for failed sharding correctness.
 
 **Purpose:** support the future multi-process video sharding architecture by
 storing short-lived segment boundary state for stitching.
@@ -192,7 +200,7 @@ These cycles are now sorted by the completed Cycle 16.A measurement:
 |---|---|---|---|
 | 16.A | Redis command-cost instrumentation | MEASUREMENT COMPLETE / HYPOTHESIS_ONLY | Evidence quality; upper bound for Redis optimization |
 | 16.B | Redis pipeline coalescing for embedding/tracking side effects | ACCEPTED | Embedding wall; total wall |
-| 17 | Redis Streams for progress/benchmark sampling | PLANNED AFTER 16.B | DB polling/write overhead; evidence quality |
+| 17 | Redis Streams for progress/benchmark sampling | ACCEPTED OBSERVABILITY-ONLY / NOT THROUGHPUT | Evidence quality; no throughput claim |
 | 18 | Redis boundary-state cache for future sharding | PLANNED AFTER Cycle 15 decision | Sharding stitch stability; total wall if sharding is selected |
 | 19 | Redis server-side scripts for measured read/compute/write hotspots | CONDITIONAL AFTER 16.B | Only a Redis hotspot that coalescing cannot remove |
 

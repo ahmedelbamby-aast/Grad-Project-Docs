@@ -14,7 +14,7 @@
 - [DSP master plan](documentation_systematization_plan.md) — multi-cycle program for entity docs
 - [Per-entity doc template](per_entity_doc_template.md) — required template (constitution § 19.2)
 - [Mermaid theme contract](mermaid_theme_contract.md) — palette + label-fitting rules (constitution § 19.3, § 19.4)
-- [Constitution § 19](../.specify/memory/constitution.md) — anti-hallucination + diagram-preservation governance (added in v2.5.0; current constitution v2.6.0)
+- [Constitution § 19](../.specify/memory/constitution.md) — anti-hallucination + diagram-preservation governance (added in v2.5.0; current constitution v2.8.0)
 
 ## Inference Pipeline Optimization (active work)
 
@@ -79,6 +79,12 @@
 - [Cycle 15.B Shard Design Probe Results](cycle_15b_shard_design_probe_results.md)
 - [Cycle 15.B1 Two-Shard Runtime Investigation](cycle_15b1_two_shard_runtime_investigation.md)
 - [Cycle 17 Redis Streams Progress Sampling Investigation](cycle_17_redis_streams_progress_sampling_investigation.md)
+- [Agent 17 Cycle 17 Turn Record](agent_17_cycle_17_turn.md)
+- [Agent 18 Cycle 17 Turn Record](agent_18_cycle_17_turn.md)
+- [Agent 19 Cycle 18 Turn Record](agent_19_cycle_18_turn.md)
+- [Agent 20 Remaining Lanes Turn Record](agent_20_remaining_lanes_turn.md)
+- [Cycle 18 Redis Boundary-State Cache Investigation](cycle_18_redis_boundary_state_cache_investigation.md)
+- [Four-Agent Cycle Coordination Board](four_agent_cycle_coordination_board.md)
 - [Cycle 20 Streaming Persistence and Embedding Overlap Investigation](cycle_20_streaming_persistence_embedding_overlap_investigation.md)
 - [Cycle 21 Celery Concurrency Scaling Investigation](cycle_21_celery_concurrency_scaling_investigation.md)
 - [Next Agent Starter Prompt](next_agent_starter_prompt.md)

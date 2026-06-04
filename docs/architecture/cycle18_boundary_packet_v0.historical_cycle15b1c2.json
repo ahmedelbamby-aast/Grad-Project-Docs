@@ -1,0 +1,73 @@
+{
+  "schema_version": "cycle18.boundary_packet.v0",
+  "packet_id": "1815b1c2-0000-4000-8000-000000000001",
+  "payload_sha256": "ef30e8d75a67618de3477d851bfbece62980300fef5d601a179eae50a5e4cffc",
+  "parent_job_id": "78388c2c-d7f5-42b7-afa4-321216d23b11",
+  "source_job_id": "fdbfd73d-e42b-4942-91ed-d114a47c21fa",
+  "shard_index": 1,
+  "generated_at_utc": "2026-06-03T22:39:32Z",
+  "authority": {
+    "persistence_authority": "postgresql",
+    "redis_role": "disposable_coordination_only",
+    "decision_authority": "none_contract_only",
+    "streaming_compatibility": "offline-only"
+  },
+  "coverage": {
+    "boundary_side": "left",
+    "range_basis": "zero_based_half_open",
+    "decode_range": [2015, 4541],
+    "authoritative_range": [2271, 4541],
+    "first_frame_index": 2015,
+    "last_frame_index": 2270,
+    "observation_count": 0,
+    "completion_state": "complete"
+  },
+  "runtime_fingerprint": {
+    "tracker_algorithm": "historical_cycle15b1c2_tracker_unavailable",
+    "tracker_config_sha256": "516816ad0d74955cb244b4635368cab71afda8e16e4c77332300af219ef7bed4",
+    "identity_feature_contract": "unavailable_from_retained_cycle15b1c2_evidence"
+  },
+  "bounds": {
+    "ttl_seconds": 86400,
+    "max_bytes": 65536,
+    "max_tracks": 64,
+    "max_observations_per_track": 8,
+    "truncated": false,
+    "truncation_reason": ""
+  },
+  "tracks": [],
+  "diagnostics": {
+    "missing_fields": [
+      "runtime_fingerprint.tracker_config_sha256",
+      "tracks[].local_track_id",
+      "tracks[].identity",
+      "tracks[].tracker_hint",
+      "tracks[].appearance_reference",
+      "tracks[].observations",
+      "tracks[].candidates",
+      "diagnostics.one_to_many_candidates",
+      "diagnostics.many_to_one_candidates",
+      "diagnostics.duplicate_target_count",
+      "diagnostics.ambiguous_segment_count",
+      "diagnostics.unresolved_track_count"
+    ],
+    "one_to_many_candidates": null,
+    "many_to_one_candidates": null,
+    "duplicate_target_count": null,
+    "ambiguous_segment_count": null,
+    "unresolved_track_count": null,
+    "offset_fallback_count": 26,
+    "warnings": [
+      "historical_projection_not_runtime_packet",
+      "source:docs/cycle_15b1_two_shard_runtime_investigation.md",
+      "source:docs/cycle_15b_shard_design_probe_results.md",
+      "retained_aggregate:shard1_track_count=36",
+      "retained_aggregate:mapped_to_existing_parent=10",
+      "retained_aggregate:offset_fallback_count=26",
+      "retained_aggregate:context_frames=256",
+      "generated_at_utc_derived_from_replay_key_not_runtime_packet_timestamp",
+      "tracker_config_sha256_is_unavailable_marker_digest_not_runtime_fingerprint",
+      "raw_production_stitching_json_and_job_rows_not_present_in_local_workspace"
+    ]
+  }
+}

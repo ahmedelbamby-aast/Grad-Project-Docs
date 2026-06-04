@@ -1,0 +1,486 @@
+# Cycle 18 Redis Boundary-State Cache Investigation
+
+**Last updated:** 2026-06-04
+
+**Status:** `NO_RUNTIME_CANDIDATE_SELECTED` /
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` /
+`CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK`. No runtime cache, sharding
+benchmark, or production env change is allowed from this document. The final
+Phase A review found no identity candidate eligible for implementation.
+
+**Streaming compatibility:** `offline-only` for any future sharding runtime.
+Boundary state depends on finite shard boundaries and whole-file coordination.
+It must not be enabled for RTSP, RTSPS, WHEP/WebRTC, or HLS live profiles.
+
+## Problem Statement
+
+Cycle 18 was originally staged as a Redis boundary-state cache for future video
+sharding. Production evidence now changes its status: Cycle 15.B1, Cycle
+15.B1.C1, and Cycle 15.B1.C2 all failed identity/model-agreement gates, and
+Cycle 15.B2 is blocked. Redis must not be used as a shortcut around that
+failure.
+
+The safe Cycle 18 task is therefore contract design only: define what boundary
+state would be required for a future sharding identity proof, without writing a
+runtime Redis cache or changing the parent merge.
+
+## Source-of-Truth References
+
+| Kind | Reference | Why it matters |
+|---|---|---|
+| Doc | `docs/cycle_15b1_two_shard_runtime_investigation.md` | Records context `32`, context `256`, and majority-vote production failures. |
+| Doc | `docs/cycle_15b_shard_design_probe_results.md` | Records why 15.B2 remains blocked after two-shard identity failures. |
+| Doc | `docs/production_inference_benchmark.md` | Benchmark authority and Cycle 15.B1.C1/C2 evidence. |
+| Doc | `docs/redis_broader_optimization_opportunities.md` | Original Redis boundary-state cache roadmap entry. |
+| Doc | `docs/cycle_17_redis_streams_progress_sampling_investigation.md` | Redis discipline to reuse: bounded keys, fallback, counters, rollback. |
+| File | `backend/apps/video_analysis/services/offline_sharding.py` | Current parent merge and track-map implementation. |
+| File | `backend/apps/video_analysis/tasks.py` | Current incremental tracker state and boundary-summary write point. |
+| File | `backend/apps/video_analysis/models.py` | Existing identity, alias, ReID-decision, and embedding fields available to a future proof. |
+| File | `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py` | Offline-only sharded runtime command. |
+| File | `tools/prod/prod_analyze_cycle15b1_stitching.py` | Read-only identity-loss and oracle-relabel analysis. |
+| Test | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Current merge and majority-vote contract coverage. |
+| Contract | `docs/architecture/cycle18_boundary_packet_v0.schema.json` | Machine-readable Phase A packet V0 design contract. |
+| Example | `docs/architecture/cycle18_boundary_packet_v0.example.json` | Synthetic read-only packet proving unresolved identity is explicit. |
+| Historical projection | `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.json` | Fail-closed projection using only retained Cycle 15.B1.C2 aggregate evidence. |
+| Projection source | `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.source.json` | Structured retained-evidence manifest for reproducible local projection. |
+| Projection helper | `tools/prod/prod_project_cycle18_boundary_packet.py` | Local-file-only generator that validates aggregate consistency before writing a packet. |
+| Projection test | `backend/tests/unit/pipeline/test_prod_project_cycle18_boundary_packet.py` | Proves reproducibility and rejects inconsistent or unknown source fields. |
+| Recovery auditor | `tools/prod/prod_audit_cycle18_recovered_evidence.py` | Audits a recovered local stitching export against retained scope and aggregates before projection. |
+| Recovery test | `backend/tests/unit/pipeline/test_prod_audit_cycle18_recovered_evidence.py` | Proves scope mismatch and aggregate drift fail closed. |
+| Contract gate | `tools/prod/prod_check_cycle18_boundary_contract.py` | Runs contract-artifact/reference, projection-drift, packet-validator, recovered-evidence fail-closed, structural drift, and optional external-schema checks in one local command. |
+| Contract gate test | `backend/tests/unit/pipeline/test_prod_check_cycle18_boundary_contract.py` | Proves the local contract gate passes with the tracked artifacts. |
+| Structural drift checker | `tools/prod/prod_check_cycle18_schema_validator_drift.py` | Compares all V0 object shapes and manual missing/unknown-field rejection without runtime access. |
+| Structural drift test | `backend/tests/unit/pipeline/test_prod_check_cycle18_schema_validator_drift.py` | Proves the local structural drift corpus passes. |
+| Doc reference checker | `tools/prod/prod_check_cycle18_doc_references.py` | Verifies repo-relative file and optional line references in Agent 19-owned docs plus only the bounded Agent 19 `AGENTS.md` paragraph. |
+| Doc reference test | `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Proves all three bounded reference sources resolve without scanning Agent 20. |
+| Measured-value checker | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` | Verifies the Cycle 18 measurement table exactly matches authoritative completed production values. |
+| Measured-value test | `backend/tests/unit/pipeline/test_prod_check_cycle18_measured_benchmark_values.py` | Proves measured-value parity, drift rejection, and local-only isolation. |
+| Identity-candidate probe | `tools/prod/prod_probe_cycle18_identity_candidates.py` | Reproducible read-only production probe comparing implementable boundary mappings and the baseline-label oracle upper bound. |
+| Identity-candidate probe test | `backend/tests/unit/pipeline/test_prod_probe_cycle18_identity_candidates.py` | Proves deterministic policy maps and fail-closed candidate selection. |
+| Production probe summary | `docs/architecture/cycle18_identity_candidate_probe.production_summary.json` | Tracked summary of the production probe evidence, source jobs, evidence hash, and no-selection result. |
+| Validator | `tools/prod/prod_validate_cycle18_boundary_packet.py` | Standalone read-only packet, digest, bounds, and duplicate validator. |
+| Test | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Focused fail-closed validator contract coverage. |
+| File | `.gitignore` | Explicitly exposes the four CI-read contract/projection JSON files despite the blanket `*.json` ignore rule. |
+| Turn ledger | `docs/agent_19_cycle_18_turn.md` | Agent 19 contract-only ownership and non-overlap boundaries. |
+| Constitution | `.specify/memory/constitution.md` §8.6 | Streaming-source compatibility and live-profile restrictions. |
+| Constitution | `.specify/memory/constitution.md` §12.5 / §12.6 | Production benchmark authority and decision table. |
+
+## Why Runtime Implementation Is Blocked
+
+| Blocker | Evidence | Consequence |
+|---|---|---|
+| Two-shard runtime is not correct. | Cycle 15.B1, 15.B1.C1, and 15.B1.C2 are `NOT ACCEPTED`. | Do not run 15.B2 or more sharded runtime variants. |
+| Geometry was not the main failure. | Boundary probe showed geometry preserved while track-sensitive F1 collapsed. | Redis must target identity state, not only frame ownership. |
+| Majority vote failed. | 15.B1.C2 mapped only `10/36` shard-1 tracks and increased `StudentTracks` to `64`. | Simple boundary voting is not enough. |
+| Sharding is offline-only. | Constitution §8.6 forbids whole-file sharding on live streams. | Any future Cycle 18 runtime flag must stay disabled in live profiles. |
+
+## Real Production Measurements Carried Into Cycle 18
+
+No Cycle 18 runtime candidate was deployed or benchmarked. These are real
+completed upstream Cycle 15 production measurements that define Cycle 18's
+identity-state entry gate. They do not create a Cycle 18 optimization decision;
+the current decision statement remains
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. Exact values are
+machine-checked against `docs/production_inference_benchmark.md:2945`,
+`docs/production_inference_benchmark.md:3089`, and
+`docs/production_inference_benchmark.md:3151` by
+`tools/prod/prod_check_cycle18_measured_benchmark_values.py`.
+
+### Production benchmark authority carried forward
+
+| Candidate | Replay key | Parent or baseline job | Production decision |
+|---|---|---|---|
+| Accepted pre-shard baseline | `cycle15b-pre-shard-baseline-20260603T193531Z` | `74561b05-105f-4ca8-aeaf-f510f4f802de` | comparator only |
+| 15.B1 context-32 | `cycle15b1-two-shard-runtime-repeat-20260603T211319Z` | `e602a0ca-6efc-4cb0-8d30-9466fe76287b` | `NOT ACCEPTED` |
+| 15.B1.C1 context-256 | `cycle15b1c1-context256-20260603T222123Z` | `401498f1-d5e4-4b95-8a46-ad3fcbbc2c25` | `NOT ACCEPTED` |
+| 15.B1.C2 majority vote | `cycle15b1c2-majority-vote-20260603T223932Z` | `78388c2c-d7f5-42b7-afa4-321216d23b11` | `NOT ACCEPTED` |
+
+### Measured performance and identity results
+
+| Metric | Accepted pre-shard baseline | 15.B1 context-32 | 15.B1.C1 context-256 | 15.B1.C2 majority vote |
+|---|---:|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.866851` | `7.905` | `7.833` |
+| DB completed elapsed | `808.038 s` | `577.232 s` | `574.481 s` | `579.761 s` |
+| Step 2 frame wall | `467.449833 s` | `233.037627 s` | `242.392 s` | `243.909 s` |
+| Step 2 through-pose wall | `641.154064 s` | `324.763211 s` | `338.209 s` | `340.942 s` |
+| GPU average utilization | `11.846 %` | `17.495 %` | `17.636 %` | `17.891 %` |
+| GPU peak utilization | `57.000 %` | `89.000 %` | `86.000 %` | `87.000 %` |
+| Behavior RTT mean | `83.530 ms` | `89.718 ms` | `89.717 ms` | `90.372 ms` |
+| StudentTracks | `53` | `52` | `52` | `64` |
+
+The sharded candidates measured substantial throughput and GPU-utilization
+improvements, but every candidate failed identity correctness. The exact
+baseline-agreement F1@IoU0.5 measurements were:
+
+| Candidate | attention_tracking | hand_raising | person_detection | sitting_standing |
+|---|---:|---:|---:|---:|
+| 15.B1 context-32 | `59.473 %` | `60.700 %` | `61.387 %` | `53.455 %` |
+| 15.B1.C1 context-256 | `58.997 %` | `61.109 %` | `61.767 %` | `53.730 %` |
+| 15.B1.C2 majority vote | `58.997 %` | `61.109 %` | `60.933 %` | `53.730 %` |
+
+The retained majority-vote diagnostics provide the only locally reproducible
+aggregate boundary evidence for the historical V0 projection:
+
+| Measured boundary diagnostic | Value | Cycle 18 consequence |
+|---|---:|---|
+| C2 shard-1 source tracks | `36` | A full recovered packet must contain `36` source-track records. |
+| C2 mapped to existing parent | `10` | Mapping coverage is insufficient for an identity proof. |
+| C2 offset fallbacks | `26` | Offset fallback must fail identity-merge readiness. |
+
+Measured entry-gate result: Cycle 18 must explain and recover the identity
+evidence behind the `10/36` mapped tracks and `26` offset fallbacks before any
+runtime Redis cache or new sharding benchmark is valid. Throughput values alone
+cannot unblock runtime implementation.
+
+### Derived comparisons versus accepted baseline
+
+The following deltas are calculated from the carried values above as
+`(candidate - baseline) / baseline * 100`, rounded to two decimal places.
+Negative wall-time and RTT deltas are improvements; positive FPS and GPU
+utilization deltas are improvements. StudentTrack count is a correctness
+diagnostic, so neither direction is treated as an optimization success.
+
+| Metric | 15.B1 context-32 delta | 15.B1.C1 context-256 delta | 15.B1.C2 majority-vote delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `+39.98 %` | `+40.66 %` | `+39.38 %` |
+| DB completed elapsed | `-28.56 %` | `-28.90 %` | `-28.25 %` |
+| Step 2 frame wall | `-50.15 %` | `-48.15 %` | `-47.82 %` |
+| Step 2 through-pose wall | `-49.35 %` | `-47.25 %` | `-46.82 %` |
+| GPU average utilization | `+47.69 %` | `+48.88 %` | `+51.03 %` |
+| GPU peak utilization | `+56.14 %` | `+50.88 %` | `+52.63 %` |
+| Behavior RTT mean | `+7.41 %` | `+7.41 %` | `+8.19 %` |
+| StudentTracks | `-1.89 %` | `-1.89 %` | `+20.75 %` |
+
+### Candidate correctness comparison
+
+| Candidate | DB FPS | FPS delta | Minimum F1@IoU0.5 | Maximum F1@IoU0.5 | StudentTracks | Track delta | Identity result |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 15.B1 context-32 | `7.866851` | `+39.98 %` | `53.455 %` | `61.387 %` | `52` | `-1.89 %` | `FAILED_IDENTITY_CORRECTNESS` |
+| 15.B1.C1 context-256 | `7.905` | `+40.66 %` | `53.730 %` | `61.767 %` | `52` | `-1.89 %` | `FAILED_IDENTITY_CORRECTNESS` |
+| 15.B1.C2 majority vote | `7.833` | `+39.38 %` | `53.730 %` | `61.109 %` | `64` | `+20.75 %` | `FAILED_IDENTITY_CORRECTNESS_AND_MAPPING_COVERAGE` |
+
+| C2 boundary ratio | Fraction | Measured rate |
+|---|---:|---:|
+| C2 mapping coverage | `10/36` | `27.78 %` |
+| C2 offset fallback rate | `26/36` | `72.22 %` |
+
+The best measured carried throughput was 15.B1.C1 at `7.905` DB-completed
+FPS, `+40.66 %` over the accepted pre-shard baseline. It still failed the
+identity gate: its four baseline-agreement F1 values ranged only from
+`53.730 %` to `61.767 %`. Cycle 18 therefore has a measured performance
+opportunity and a measured correctness blocker, not a runtime optimization
+decision.
+
+### Cycle 18 closure assessment
+
+| Closure gate | Evidence-backed state | Evidence or consequence |
+|---|---|---|
+| Real production values and comparisons | `PASS` | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` verifies exact carried values and derived comparisons. |
+| Cycle 18 runtime candidate | `MISSING` | No Cycle 18 runtime candidate was deployed or benchmarked. |
+| Recovered full boundary packet | `MISSING` | `packet_contract_valid` and `packet_track_count_match` remain unmet in `tools/prod/prod_audit_cycle18_recovered_evidence.py`. |
+| Review result | `NO_RUNTIME_CANDIDATE_SELECTED` | The recovered production identity-candidate probe below found no implementation-eligible identity policy. |
+| Production benchmark lock | `NOT_HELD` | Agent 19 has no production environment or benchmark authority. |
+| Cycle 18 production benchmark | `MISSING` | The carried Cycle 15 measurements cannot create a Cycle 18 runtime decision. |
+| Constitution §12.6 decision table | `MISSING` | A Cycle 18 candidate, target gate, before/after evidence, and decision do not exist. |
+| Cycle 18 closure state | `CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK` | Constitution §12.5/§12.6 forbids `CLOSED` or `COMPLETE` without the missing production evidence. |
+
+### Recovered production identity-candidate probe
+
+The read-only production probe
+`cycle18-identity-candidate-probe-20260604T152503Z` used accepted baseline job
+`74561b05-105f-4ca8-aeaf-f510f4f802de` and completed majority-vote parent job
+`78388c2c-d7f5-42b7-afa4-321216d23b11`. The reproducible helper is
+`tools/prod/prod_probe_cycle18_identity_candidates.py`; the tracked evidence
+summary and production JSON SHA-256 are in
+`docs/architecture/cycle18_identity_candidate_probe.production_summary.json`.
+The production evidence paths are:
+
+- `/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/identity_candidate_probe.json`
+- `/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/identity_candidate_probe.md`
+- `/home/bamby/grad_project/backend/logs/cycle18-identity-candidate-probe-20260604T152503Z/probe.log`
+
+This evidence is `PROBE_ONLY`; it performs no Redis writes, DB mutation,
+runtime flag change, worker restart, or production benchmark.
+
+| Read-only identity policy | Minimum all-model F1 | Minimum shard-1 F1 | Selection consequence |
+|---|---:|---:|---|
+| Existing majority vote | `53.730 %` | `2.917 %` | Already failed production correctness. |
+| Boundary majority plus sequential new IDs | `54.409 %` | `3.943 %` | Does not repair identity. |
+| Boundary greedy one-to-one plus sequential new IDs | `62.021 %` | `19.978 %` | Best implementable policy, still far from near-parity. |
+| Baseline-label whole-track oracle upper bound | `73.086 %` | `49.445 %` | Not implementable because it uses accepted baseline labels; still fails identity agreement. |
+
+The child shards also contain no durable identity evidence from which a Redis
+boundary cache could make a governed decision:
+
+| Child job | Tracks | Embeddings | Aliases | Lifecycle events | Canonical IDs | ReID scores | ReID decisions |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `3dfe14db-9816-4a65-b6e2-fe74ab5a2f4e` | `38` | `0` | `0` | `0` | `0` | `0` | `0` |
+| `fdbfd73d-e42b-4942-91ed-d114a47c21fa` | `36` | `0` | `0` | `0` | `0` | `0` | `0` |
+
+Final Phase A selection result: `NO_RUNTIME_CANDIDATE_SELECTED`. Redis cannot
+recover identity evidence that the child shards never produced. Starting a
+runtime implementation or benchmark now would repeat a measured correctness
+failure without an evidence-backed mechanism capable of fixing it.
+
+## Agent 19 Phase A Evidence Audit
+
+The current boundary packet and merge path are adequate for geometry
+diagnostics, but not for a new identity-state proof.
+
+### Current packet and merge behavior
+
+| Current behavior | Resolvable evidence | Contract consequence |
+|---|---|---|
+| Boundary rows contain only local `tracking_id`, `xyxy`, and detection confidence. | `backend/apps/video_analysis/services/offline_sharding.py:244` | A future packet must add identity and lifecycle evidence; more IoU rows alone repeat the failed candidates. |
+| The packet carries decode/authoritative ranges and context size, but no schema version, packet digest, source job ID, shard index, or completion state inside the summary. | `backend/apps/video_analysis/services/offline_sharding.py:283` | A future consumer must reject stale, partial, cross-job, or tampered packets before matching. |
+| Incremental tracker state includes `bbox`, `center`, `last_frame`, `last_iou`, optional tracker embedding, and `next_track_id`; none of it is serialized into the boundary summary. | `backend/apps/video_analysis/tasks.py:1425` | A tracker-state design proof must explicitly decide which bounded hints are portable and which remain algorithm-local. |
+| The parent merge chooses one parent ID for each whole child track using best-IoU or majority vote. | `backend/apps/video_analysis/services/offline_sharding.py:328`, `backend/apps/video_analysis/services/offline_sharding.py:366`, `backend/apps/video_analysis/services/offline_sharding.py:436` | The next proof must support ambiguity and sub-track/segment evidence; whole-track relabeling is insufficient. |
+| An unresolved child track receives an offset ID and is still copied into parent rows. | `backend/apps/video_analysis/services/offline_sharding.py:512` | Offset fallback may remain diagnostic, but it cannot count as a correct identity merge or pass an acceptance gate. |
+| First-shard local IDs pass through as parent IDs without an identity proof. | `backend/apps/video_analysis/services/offline_sharding.py:440` | The first shard must be treated as a source namespace, not silently assumed canonical. |
+| Existing `StudentTrack`, `TrackAlias`, and `ReIdDecision` models expose lifecycle, confidence, alias, score, threshold, and provenance fields. | `backend/apps/video_analysis/models.py:213`, `backend/apps/video_analysis/models.py:263`, `backend/apps/video_analysis/models.py:283` | The proof should reuse these identity concepts instead of inventing an unrelated Redis-only authority. |
+| The current merge creates parent tracks with minimal merge metadata and does not copy the child identity fields above. | `backend/apps/video_analysis/services/offline_sharding.py:525` | Identity decisions and provenance must be explicit before any future parent-row rewrite. |
+| The oracle relabel probe records ambiguous geometry and duplicate majority targets, and still cannot restore full agreement. | `tools/prod/prod_analyze_cycle15b1_stitching.py:231` | Ambiguity and collision evidence are required outputs, not optional debug data. |
+
+### Missing identity-state fields
+
+| Missing field group | Required content | Why it is required |
+|---|---|---|
+| Packet provenance | `schema_version`, `packet_id`, `payload_sha256`, `parent_job_id`, `source_job_id`, `shard_index`, `generated_at_utc` | Prevent cross-job, stale-schema, and mismatched duplicate consumption. |
+| Boundary completion | `completion_state`, authoritative/decode ranges, first/last included frame, observation count | Prove the packet is complete for its declared boundary. |
+| Tracker-state hints | Algorithm/config digest, last box, center, last frame, last IoU, next-ID watermark, bounded sampled observations | Allow a future tracker-state proof without treating algorithm-local hints as identity truth. |
+| Appearance evidence | Immutable embedding reference or bounded feature digest, model/version, dimension, age, and quality state | Geometry alone failed; any appearance use must be traceable and versioned. |
+| Identity lifecycle | Local/canonical IDs if known, lifecycle state, identity confidence, ReID score/threshold/decision, continuity state | Preserve existing identity semantics and expose unresolved state. |
+| Candidate decisions | Candidate parent IDs, geometry score/votes, appearance score, lifecycle gate, decision, and rejection reason | Make every proposed merge explainable and fail-closed. |
+| Collision diagnostics | One-to-many and many-to-one candidates, duplicate target count, ambiguous segments, offset fallback count | The failed majority-vote run demonstrated that aggregate mapped counts are insufficient. |
+| Bounds | `ttl_seconds`, `max_bytes`, track cap, observations-per-track cap, and truncation reason | Redis coordination state must remain disposable and bounded. |
+
+## Proposed Boundary Packet V0
+
+This is a design target only. It is not an implemented Redis schema and does
+not authorize a runtime cache.
+
+| Level | Proposed fields | Rule |
+|---|---|---|
+| Packet identity | `schema_version`, `packet_id`, `payload_sha256`, `parent_job_id`, `source_job_id`, `shard_index` | All fields required; consumer rejects any mismatch. |
+| Coverage | `boundary_side`, `decode_range`, `authoritative_range`, `first_frame`, `last_frame`, `generated_at_utc`, `completion_state` | `completion_state` must be complete before matching. |
+| Runtime fingerprint | `tracker_algorithm`, `tracker_config_digest`, `identity_feature_contract` | Different tracker/feature contracts cannot be compared silently. |
+| Track record | `local_track_id`, optional `canonical_track_id`, lifecycle/confidence fields, first/last observation, observation count | Local ID is namespaced by source job and shard. |
+| Tracker hints | Last box/center/frame/IoU plus bounded observation samples | Non-authoritative; used only by an explicit tracker-state proof. |
+| Appearance reference | Artifact or PostgreSQL embedding reference plus model/version/dimension/digest/age | Raw vector inclusion requires a separately justified byte bound. |
+| Candidate diagnostics | Candidate IDs and per-gate scores/decisions/reasons | Ambiguous or conflicting candidates remain unresolved. |
+| Packet diagnostics | Truncation, missing fields, collisions, unresolved count, fallback count | No missing diagnostic is converted to zero or success. |
+| Redis bounds | `ttl_seconds`, `max_bytes`, track cap, observation cap | Oversized packets fail the candidate proof; they are not silently truncated without a reason. |
+
+### Phase A read-only contract artifacts
+
+The V0 design now has machine-readable artifacts. They remain isolated from
+Django, Redis, PostgreSQL, parent merge, and sharded orchestration.
+
+| Artifact | Contract role |
+|---|---|
+| `docs/architecture/cycle18_boundary_packet_v0.schema.json` | Declares required packet, authority, coverage, fingerprint, bounds, track, candidate, and diagnostic fields. |
+| `docs/architecture/cycle18_boundary_packet_v0.example.json` | Synthetic packet that is structurally valid while keeping one identity explicitly unresolved. It is not runtime or benchmark evidence. |
+| `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.json` | Projects the documented C2 parent/shard IDs, ranges, and `26` offset fallbacks while explicitly marking unavailable per-track evidence. |
+| `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.source.json` | Records only retained resolvable aggregates and missing raw-evidence categories; it contains no invented per-track data. |
+| `tools/prod/prod_project_cycle18_boundary_packet.py` | Reproduces the historical projection from the strict source manifest, rejects inconsistent track aggregates, imports neither Django nor Redis, and can check tracked projection drift without writing output. |
+| `tools/prod/prod_audit_cycle18_recovered_evidence.py` | Confirms recovered stitching JSON matches parent/shard scope and retained track aggregates; an optional local V0 packet must also match scope, ranges, and retained source-track count and pass the V0 validator before `full_projection_ready=true`. It emits exact recovery requirements and unmet checks, while `--require-full-projection` gives automation a fail-closed exit status. Identity-merge readiness remains separate. |
+| `tools/prod/prod_check_cycle18_boundary_contract.py` | Runs the local contract-artifact inventory, tracked-projection drift, source-reference, expected-failure, recovered-evidence fail-closed, structural drift, and optional external JSON Schema checks in one command. |
+| `tools/prod/prod_check_cycle18_schema_validator_drift.py` | Verifies `12` object shapes plus `92` missing/unknown-field mutations while listing intentional manual semantic gates separately. |
+| `tools/prod/prod_check_cycle18_doc_references.py` | Verifies Agent 19-owned doc file references and optional line suffixes plus only the bounded Agent 19 `AGENTS.md` paragraph. |
+| `tools/prod/prod_check_cycle18_measured_benchmark_values.py` | Verifies exact upstream production replay/job IDs, performance metrics, F1 values, and retained C2 diagnostics carried into this document. |
+| `tools/prod/prod_probe_cycle18_identity_candidates.py` | Compares deterministic boundary identity policies and the baseline-label oracle upper bound without writes. |
+| `docs/architecture/cycle18_identity_candidate_probe.production_summary.json` | Preserves the production probe evidence hash, exact minimum F1 values, zero child identity-evidence counts, and no-selection result. |
+| `tools/prod/prod_validate_cycle18_boundary_packet.py` | Reads local JSON only; validates canonical digest, packet size, completion, bounds, observations, identity gates, diagnostic consistency, and duplicate conflicts. |
+| `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Defines focused coverage for unresolved-valid separation, digest/truncation rejection, offset rejection, governed merge-ready state, and conflicting duplicates. |
+| `backend/tests/unit/pipeline/test_prod_project_cycle18_boundary_packet.py` | Covers deterministic projection, aggregate consistency, drift detection, and local-only import isolation. |
+| `backend/tests/unit/pipeline/test_prod_audit_cycle18_recovered_evidence.py` | Covers recovered-export scope, aggregate matching, fail-closed readiness, source references, and local-only import isolation. |
+| `backend/tests/unit/pipeline/test_prod_check_cycle18_boundary_contract.py` | Covers the one-command local contract gate. |
+| `backend/tests/unit/pipeline/test_prod_check_cycle18_schema_validator_drift.py` | Covers the structural schema/manual-validator drift checker. |
+| `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Covers three bounded Agent 19 reference sources and non-overlap with Agent 20. |
+| `backend/tests/unit/pipeline/test_prod_check_cycle18_measured_benchmark_values.py` | Covers source parity, documented-value drift rejection, and local-only isolation. |
+| `backend/tests/unit/pipeline/test_prod_probe_cycle18_identity_candidates.py` | Covers deterministic policy maps and no-selection behavior when identity evidence is absent. |
+| `.gitignore` exceptions | Keep all five JSON artifacts visible to the focused CI test under constitution §18. |
+
+Validator output deliberately separates two states:
+
+| State | Meaning |
+|---|---|
+| `valid=true` | The packet satisfies the bounded V0 contract. |
+| `identity_merge_ready=true` | In addition to being valid, every track has one accepted candidate, valid continuity, accepted ReID identity, and valid appearance evidence. |
+
+The synthetic example resolves to `valid=true` and
+`identity_merge_ready=false`. This proves that a well-formed packet cannot be
+mistaken for authorization to rewrite parent identity.
+
+The historical Cycle 15.B1.C2 projection resolves to `valid=false` and
+`identity_merge_ready=false`. Resolvable retained evidence provides the parent
+job, shard-1 job, context-256 two-shard ranges, shard-1 track count,
+mapped-track count, and `26` offset fallbacks, but the local workspace contains
+neither the cited production stitching JSON nor the historical job rows. The
+projection therefore uses `null` for unavailable diagnostic counters, carries
+no invented track records, and fails closed on non-empty `missing_fields` plus
+offset fallback.
+
+The recovered-evidence intake audit also fails closed independently of the
+packet validator. A future packet is `full_projection_ready` only when the
+recovered stitching export matches retained scope and aggregates, the packet
+matches parent/source/shard scope and the retained decode/authoritative ranges,
+its track count equals the retained source-track count, and the V0 validator
+reports `valid=true`. `identity_merge_ready` remains a separate result, so a
+complete unresolved packet cannot authorize a parent identity rewrite.
+The CLI option `--require-full-projection` exits nonzero for the retained
+aggregate-only historical path while leaving ordinary scope/aggregate audit
+mode available for evidence intake.
+For the tracked historical packet, the machine-readable unmet projection set is
+exactly `packet_contract_valid` and `packet_track_count_match`; matching scope,
+ranges, and retained aggregates are already proven locally.
+
+### Identity decision rules
+
+| Rule | Required behavior |
+|---|---|
+| Source namespace | Identity is keyed by `(source_job_id, shard_index, local_track_id)` until a governed alias decision exists. |
+| First shard | Shard-0 IDs are not automatically canonical outside their source namespace. |
+| Ambiguous match | Persist an unresolved decision with candidates and rejection reasons; do not force a merge. |
+| Duplicate target | A many-to-one target requires an explicit collision verdict before row rewrite. |
+| Whole-track disagreement | Split into bounded sub-track evidence or remain unresolved; do not relabel an internally inconsistent whole track. |
+| Appearance conflict | Geometry cannot override a failed appearance/lifecycle gate silently. |
+| Redis loss | Redis unavailability cannot alter PostgreSQL terminal status or accepted baseline evidence. |
+
+## Safe Phase A Contract Work
+
+Cycle 18 may produce only a design proof with these fields:
+
+| Boundary-state field | Purpose |
+|---|---|
+| `schema_version` | Reject stale Redis payloads. |
+| `source_job_id` / `shard_index` | Trace every snapshot to one child shard. |
+| `first_frame` / `last_frame` | Define finite boundary coverage. |
+| `track_observations` | Store first/last per-track boxes and confidence summaries. |
+| `identity_features` | Store compact, non-authoritative identity features or embedding references. |
+| `completion_marker` | Prove each shard wrote its boundary packet. |
+| `diagnostics` | Preserve ambiguous mappings and fallback reasons. |
+| `ttl_seconds` / `max_bytes` | Enforce bounded Redis memory. |
+
+Required failure behavior:
+
+| Failure | Required behavior |
+|---|---|
+| Redis unavailable | Fall back to current non-accepted diagnostic path; do not accept runtime. |
+| Missing or expired key | Mark boundary-state unavailable; no silent merge. |
+| Partial shard packet | Fail the candidate benchmark or fall back with explicit evidence. |
+| Stale schema or runtime fingerprint | Reject the packet before candidate matching. |
+| Payload digest mismatch | Reject the packet and record integrity failure. |
+| Oversized or truncated packet | Reject unless the declared truncation policy proves the required identity evidence is intact. |
+| Ambiguous identity | Do not merge; record ambiguity and keep source provenance. |
+| Duplicate completion | Treat as idempotent only if payload hashes match. |
+| Duplicate completion with different hash | Fail closed and preserve both packet references for investigation. |
+| One-to-many or many-to-one collision | Do not rewrite parent identity until an explicit collision decision exists. |
+| Missing appearance or lifecycle evidence | Mark the corresponding gate unavailable; do not infer a pass from geometry. |
+
+## Runtime Implementation Entry Gate
+
+Cycle 18 remains blocked until a review accepts a new identity-state design
+proof containing all of the following:
+
+| Entry-gate item | Required proof |
+|---|---|
+| Read-only packet artifact | A bounded JSON example generated from historical jobs, with no Redis or parent-row mutation. |
+| Validator contract | Schema, digest, bounds, completion, fingerprint, and duplicate rules are testable. |
+| Identity experiment | Historical boundary evidence shows how ambiguity, collisions, and sub-track disagreement are represented. |
+| Authority model | PostgreSQL identity/alias/ReID records remain durable; Redis is disposable coordination only. |
+| Failure proof | Redis missing, expired, stale, oversized, conflicting, and duplicate packets all fail closed. |
+| Live profile proof | The proposed flag is explicitly disabled in every live profile. |
+| Review result | The design proof is explicitly selected for implementation; code existence alone cannot unblock runtime. |
+
+Current entry-gate state:
+
+| Entry-gate item | State | Evidence |
+|---|---|---|
+| Read-only packet artifact | `AVAILABLE_FAIL_CLOSED` | Synthetic example plus retained-evidence C2 projection exist; the historical projection intentionally fails validation because raw per-track evidence is unavailable locally. |
+| Validator contract | `AVAILABLE_FOR_REVIEW` | Standalone validator and focused tests exist; no runtime integration exists. |
+| Identity experiment | `BLOCKED_BY_RETAINED_EVIDENCE_GAP` | C2 aggregate evidence projects into V0, but per-track observations, lifecycle, appearance, candidates, and collision counters are unavailable; no identity proof can be evaluated. |
+| Authority model | `DECLARED` | Packet requires PostgreSQL authority and disposable coordination-only Redis role. |
+| Failure proof | `PARTIAL` | Focused tests cover digest, truncation, offset fallback, diagnostics, and duplicate conflict; runtime Redis failures are intentionally unimplemented. |
+| Live profile proof | `DECLARED_ONLY` | Contract is offline-only; no future flag implementation exists to validate. |
+| Review result | `NO_RUNTIME_CANDIDATE_SELECTED` | The production read-only candidate probe found no implementable policy capable of restoring identity agreement; runtime implementation remains blocked. |
+
+## Dependency Contract
+
+Cycle 18 depends on:
+
+| Dependency | Contract |
+|---|---|
+| Cycle 15 | A new identity-state design proof must exist before runtime work. |
+| Cycle 17 | Reuse Redis key discipline, counters, fallback, and rollback conventions only. |
+| Cycle 20 | Do not couple to streaming persistence or embedding overlap. |
+| Cycle 21 | Do not assume more workers; any concurrency change requires its own benchmark. |
+
+## Future Owned Files
+
+If a later design proof unblocks implementation, likely files are:
+
+| File | Possible ownership |
+|---|---|
+| `backend/apps/video_analysis/services/offline_sharding.py` | Parent merge integration or rollback path. |
+| Dedicated boundary-cache helper; path not selected | A separate implementation turn must choose and create a resolvable module path. |
+| `backend/apps/video_analysis/tasks.py` | Guarded, non-authoritative snapshot writes only. |
+| `backend/apps/video_analysis/management/commands/cycle15b1_sharded_ingest.py` | Offline-only orchestration. |
+| `backend/config/settings/base.py` | Disabled-by-default flags. |
+| `tools/prod/prod_enable_parallel_flow.sh` | Offline/live profile discipline. |
+| `tools/prod/prod_collect_benchmark_metrics.py` | Boundary-state metrics. |
+| `tools/prod/prod_watch_benchmark_metrics.sh` | Read-only diagnostics. |
+
+## Benchmark Evidence Required
+
+No Cycle 18 implementation may be accepted without:
+
+| Gate | Required evidence |
+|---|---|
+| Production authority | Completed Linux RTX 5090 `combined.mp4` benchmark. |
+| Identity correctness | `StudentTracks`, model F1@IoU0.5, and shard diagnostics pass. |
+| DB parity | Frames, detections, boxes, embeddings, and terminal state preserved. |
+| Redis bounds | Command count, wall, bytes, memory, errors, TTL, and fallback count recorded. |
+| Sharding safety | Parent merge wall, child critical path, and rollback proof recorded. |
+| Live safety | Offline-only flag disabled in live profile and documented. |
+
+## Rollback Strategy
+
+Future rollback must be one env/profile change plus worker restart:
+
+```text
+OFFLINE_VIDEO_SHARDING_ENABLED=0
+OFFLINE_VIDEO_SHARD_BOUNDARY_REDIS_ENABLED=0
+```
+
+Redis keys must be TTL-bound and disposable. Candidate jobs must reach terminal
+state without mutating accepted baseline evidence.
+
+## Final Governed Decision
+
+| Decision field | Final state |
+|---|---|
+| Valid pre-benchmark decision statement | `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` |
+| Phase A candidate selection | `NO_RUNTIME_CANDIDATE_SELECTED` |
+| Runtime implementation | `BLOCKED` |
+| Production benchmark lock | `NOT_HELD` |
+| Cycle 18 production benchmark | `MISSING` |
+| Constitution §12.6 decision table | `MISSING` |
+| Closure eligibility | `false` |
+| Closure state | `CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK` |
+
+The final Phase A review does not select a Redis boundary-state runtime
+candidate. The production read-only probe proves that the best implementable
+boundary policy reaches only `62.021 %` minimum all-model F1 and `19.978 %`
+minimum shard-1 F1. Even the non-implementable baseline-label oracle reaches
+only `73.086 %` and `49.445 %`, respectively. Both child shards have zero
+embeddings, aliases, lifecycle events, canonical IDs, ReID scores, and ReID
+decisions.
+
+Therefore Cycle 18 cannot be honestly marked `CLOSED`, `COMPLETE`, `ACCEPTED`,
+`NOT ACCEPTED`, `REJECTED`, or `SKIPPED`. Constitution §12.5/§12.6 requires a
+completed Cycle 18 runtime production benchmark and decision table for those
+states, while the final design review selected no candidate eligible for such
+a benchmark. The next valid action is a separate identity-feature/state
+producer design; Redis remains disposable coordination only and sharding
+remains disabled.

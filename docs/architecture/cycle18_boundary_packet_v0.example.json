@@ -1,0 +1,113 @@
+{
+  "schema_version": "cycle18.boundary_packet.v0",
+  "packet_id": "33333333-3333-4333-8333-333333333333",
+  "payload_sha256": "24719ce7e1dfe295e5455adb29fe4bc1b6863804cc9721695fdb172a20a0d684",
+  "parent_job_id": "11111111-1111-4111-8111-111111111111",
+  "source_job_id": "22222222-2222-4222-8222-222222222222",
+  "shard_index": 1,
+  "generated_at_utc": "2026-06-04T00:00:00Z",
+  "authority": {
+    "persistence_authority": "postgresql",
+    "redis_role": "disposable_coordination_only",
+    "decision_authority": "none_contract_only",
+    "streaming_compatibility": "offline-only"
+  },
+  "coverage": {
+    "boundary_side": "left",
+    "range_basis": "zero_based_half_open",
+    "decode_range": [2239, 4541],
+    "authoritative_range": [2271, 4541],
+    "first_frame_index": 2239,
+    "last_frame_index": 2272,
+    "observation_count": 3,
+    "completion_state": "complete"
+  },
+  "runtime_fingerprint": {
+    "tracker_algorithm": "botsort_reid",
+    "tracker_config_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "identity_feature_contract": "cycle18.identity_feature_ref.v0"
+  },
+  "bounds": {
+    "ttl_seconds": 86400,
+    "max_bytes": 65536,
+    "max_tracks": 64,
+    "max_observations_per_track": 8,
+    "truncated": false,
+    "truncation_reason": ""
+  },
+  "tracks": [
+    {
+      "local_track_id": 12,
+      "identity": {
+        "canonical_track_id": null,
+        "lifecycle_state": "active",
+        "identity_confidence": 0.72,
+        "reid_score": 0.81,
+        "reid_threshold": 0.85,
+        "reid_decision": "unresolved",
+        "continuity_state": "unknown"
+      },
+      "tracker_hint": {
+        "last_box": [220.0, 120.0, 340.0, 410.0],
+        "last_center": [280.0, 265.0],
+        "last_frame_index": 2272,
+        "last_iou": 0.91,
+        "next_track_id_watermark": 37
+      },
+      "appearance_reference": {
+        "state": "available",
+        "reference": "artifact:synthetic-contract-example:track-12",
+        "model_name": "botsort_crop_embed",
+        "model_version": "contract-example-v0",
+        "dimension": 768,
+        "vector_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "age_seconds": 0,
+        "quality_state": "valid"
+      },
+      "observations": [
+        {
+          "frame_index": 2239,
+          "xyxy": [218.0, 121.0, 338.0, 411.0],
+          "center": [278.0, 266.0],
+          "confidence": 0.94,
+          "iou_to_previous": null
+        },
+        {
+          "frame_index": 2271,
+          "xyxy": [219.0, 120.0, 339.0, 410.0],
+          "center": [279.0, 265.0],
+          "confidence": 0.95,
+          "iou_to_previous": 0.9
+        },
+        {
+          "frame_index": 2272,
+          "xyxy": [220.0, 120.0, 340.0, 410.0],
+          "center": [280.0, 265.0],
+          "confidence": 0.96,
+          "iou_to_previous": 0.91
+        }
+      ],
+      "candidates": [
+        {
+          "candidate_parent_track_id": 7,
+          "geometry_score": 0.92,
+          "geometry_votes": 3,
+          "appearance_score": 0.81,
+          "lifecycle_gate": "pass",
+          "decision": "unresolved",
+          "reason": "appearance_below_threshold"
+        }
+      ]
+    }
+  ],
+  "diagnostics": {
+    "missing_fields": [],
+    "one_to_many_candidates": 0,
+    "many_to_one_candidates": 0,
+    "duplicate_target_count": 0,
+    "ambiguous_segment_count": 1,
+    "unresolved_track_count": 1,
+    "offset_fallback_count": 0,
+    "warnings": ["synthetic_contract_example_not_runtime_evidence"]
+  }
+}

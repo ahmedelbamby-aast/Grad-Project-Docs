@@ -1,12 +1,18 @@
 # Cycle 20 Streaming Persistence and Embedding Overlap Investigation
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-04
 
-**Status:** Phase A investigation staged. No code is implemented by this
-document. The only valid decision state is
+**Status:** Phase A readiness claimed by Agent 20. No code is implemented by
+this document. The only valid decision state is
 `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` until a completed production Linux
 RTX 5090 benchmark on `combined.mp4` compares this candidate against the latest
 accepted baseline.
+
+**Streaming compatibility:** `offline-only` for the first implementation
+profile. The candidate relies on offline job lifecycle coordination and must not
+run on RTSP, RTSPS, WHEP/WebRTC, or HLS live profiles unless a separate live
+design proves bounded per-camera queues, append-only corrections, and
+per-frame latency budgets.
 
 ## Question Answered
 
@@ -25,6 +31,9 @@ proof that Step 3 or embedding has started.
 | Kind | Reference | Why it matters |
 |---|---|---|
 | File | `backend/apps/video_analysis/tasks.py` | Owns `process_video_upload`, Step 3 persistence, render/finalization, `run_detection_and_tracking`, and `generate_embeddings`. |
+| File | `backend/apps/video_analysis/models.py` | Defines `Frame`, `Detection`, `BoundingBox`, `StudentTrack`, and `FrameEmbedding` constraints. |
+| File | `backend/apps/tracking/embeddings.py` | Defines `persist_embedding` and `persist_embeddings_bulk` write-boundary behavior. |
+| File | `tools/prod/prod_enable_parallel_flow.sh` | Current offline profile switchboard and rollback-flag authority. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -33,6 +42,7 @@ proof that Step 3 or embedding has started.
 | Doc | `docs/cycle_13c_redis_db_side_effect_measurement_investigation.md` | Active Redis/DB side-effect measurement that must complete before this cycle is prioritized. |
 | Doc | `docs/redis_broader_optimization_opportunities.md` | Redis roadmap that this cycle depends on for optional boundary-state and progress-stream support. |
 | Doc | `.specify/memory/constitution.md` | Production benchmark decision authority and lifecycle terminal-state gates. |
+| Turn ledger | `docs/agent_20_remaining_lanes_turn.md` | Agent 20 readiness ownership and non-overlap boundaries. |
 
 ## Current Flow Evidence
 
@@ -91,6 +101,90 @@ Cycle 20 should investigate and then benchmark a streaming job contract:
 | Backpressure | Stop streaming or fall back to current Step 3 if the persistence queue exceeds a bounded threshold. |
 | Terminal coordinator | Mark the job complete only after inference, streaming persistence, render, embedding, and ReID reach terminal states. |
 | Evidence collector | Record overlap ratio, queue waits, row watermarks, DB parity, embedding parity, and rollback state. |
+
+## Agent 20 Readiness Tasks
+
+Agent 20 owns readiness documentation only. These tasks do not authorize runtime
+implementation:
+
+| Task | State | Required output |
+|---|---|---|
+| `A20-C20-01` | `COMPLETED` | Measurement-only timestamp contract for inference/persistence/embedding overlap. |
+| `A20-C20-02` | `COMPLETED` | Idempotency checklist for `Frame`, `Detection`, `BoundingBox`, `StudentTrack`, and `FrameEmbedding` writes. |
+| `A20-C20-03` | `COMPLETED` | Terminal coordinator entry gate that prevents completed status before required side stages finish. |
+| `A20-C20-04` | `COMPLETED` | Rollback and live-profile exclusion notes for any future `OFFLINE_STREAM_POST_STAGES` flag. |
+
+Runtime implementation remains blocked until these contracts are reviewed and a
+separate implementation turn is explicitly opened.
+
+## Readiness Contract V0
+
+This contract is documentation-only. It defines what a later implementation
+must prove before streaming persistence or embedding overlap can be benchmarked.
+
+### Measurement-only timestamp contract
+
+Every future implementation must emit these fields into the benchmark evidence
+bundle before it changes production behavior:
+
+| Field | Producer boundary | Required proof |
+|---|---|---|
+| `inference_started_at` | `process_video_upload` task start | Establish the total overlap denominator. |
+| `frame_inference_done_at` | after frame inference builds `frame_detections` | Distinguish inference drain from progress counters. |
+| `first_persist_packet_ready_at` | first completed postprocessed frame batch | Prove packets exist before Step 3 drains. |
+| `first_frame_persisted_at` | first committed `Frame` row | Prove persistence starts before inference ends. |
+| `all_frames_persisted_at` | final committed persistence packet | Bound DB persistence wall and lag. |
+| `first_embedding_eligible_at` | first safe persisted-row watermark | Prove embedding work has valid inputs. |
+| `first_embedding_started_at` | first embedding worker loop entry | Prove embedding overlap or prove it stayed serial. |
+| `embedding_done_at` | final embedding flush | Bound post-stage tail. |
+| `terminal_coordinator_done_at` | final job terminal write | Prove completion waited for all required stages. |
+
+Missing fields must be recorded as `unavailable` with a reason, not converted
+to zero. The production decision table remains invalid until the timestamp set
+shows whether overlap actually occurred.
+
+### Persistence idempotency checklist
+
+| Durable record | Current evidence | Future Cycle 20 requirement |
+|---|---|---|
+| `Frame` | `Frame` has unique `(job, frame_number)` and Step 3 uses `update_or_create`. | Streaming writer keeps `(job, frame_number)` as the semantic key. |
+| `StudentTrack` | `StudentTrack` has unique `(job, tracking_id)` and Step 3 uses `get_or_create`. | Track updates are merge-safe and never create duplicate tracks on retry. |
+| `Detection` | Current Step 3 can `bulk_create` detections for each frame. | Streaming packets need a semantic detection key or packet replace policy before retry is allowed. |
+| `BoundingBox` | Current Step 3 creates boxes alongside detections. | Box writes must be tied to the detection key and converge on retry. |
+| `FrameEmbedding` | `generate_embeddings` skips detections that already have embeddings. | Embedding windows must preserve detection-level skip behavior and never orphan rows. |
+| Job metadata | Current task writes progress and stage metadata in the upload task. | Stage outcome counters must be append-only until the terminal coordinator writes final state. |
+
+The first implementation slice must be measurement-only unless the detection
+and bounding-box idempotency key is explicit.
+
+### Terminal coordinator entry gate
+
+The job may be marked terminal only after these states are all available:
+
+| Stage | Required terminal marker | Failure behavior |
+|---|---|---|
+| Inference producer | `frame_inference_done_at` and frame count | Fail closed if required detections are zero without an allowed partial policy. |
+| Persistence stream | persisted frame/detection/box counts plus last packet ID | Fail closed on row mismatch, duplicate packet, or non-idempotent retry. |
+| Render/audit | render status and audit artifact path or explicit skip reason | Do not report completed if render/audit is still pending. |
+| Embedding worker | embedding count, skipped-existing count, and final flush time | Fail closed on orphan embeddings or missing required vectors. |
+| Redis/side effects | Redis counters or `unavailable` reason | Do not treat Redis loss as PostgreSQL success evidence. |
+
+This gate is the reason Cycle 20 remains a lifecycle cycle rather than a simple
+queue optimization.
+
+### Rollback and live-profile exclusion
+
+Any future implementation must keep the rollback shape:
+
+```text
+OFFLINE_STREAM_POST_STAGES=0
+```
+
+Rollback must restore the current serial path: build `frame_detections`, run
+Step 3 persistence, render/audit, then dispatch the follow-up embedding chain.
+Because this first profile is `offline-only`, any shipped flag must also be
+explicitly disabled in the live profile block of
+`tools/prod/prod_enable_parallel_flow.sh`.
 
 ## New Measurements Required Before Code
 

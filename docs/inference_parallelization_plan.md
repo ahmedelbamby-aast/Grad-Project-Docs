@@ -1100,9 +1100,9 @@ completed `4541/4541` frames and retained the sharding performance gain
 tracks to existing parent IDs, `26/36` fell back to offset IDs, `StudentTracks`
 rose `53 -> 64`, model-agreement F1 remained `53.730 %` - `61.109 %`, and
 behavior RTT regressed `83.530 ms -> 90.372 ms`. Cycle 15.B2 remains blocked.
-The next sorted cycle is Cycle 17 Redis Streams investigation; further sharding
-requires a new identity-state design proof before more production runtime
-benchmarks.
+Cycle 17 Redis Streams later completed and was accepted as observability-only;
+further sharding requires a new identity-state design proof before more
+production runtime benchmarks.
 
 Broader Redis strategies are appended after the current Cycle 13/14/15 sequence
 unless production measurement promotes a specific Redis candidate. Cycle 13.C
@@ -1112,13 +1112,32 @@ were measured on production. Redis Streams, Redis scripts, and sharding-state
 cache remain later-cycle ideas in
 `docs/redis_broader_optimization_opportunities.md`.
 
-Cycle 17 Phase A has now started in
-`docs/cycle_17_redis_streams_progress_sampling_investigation.md`. Its scope is
-bounded Redis Streams for non-authoritative benchmark progress sampling and
-watcher evidence, not inference-wall reduction. PostgreSQL terminal state
-remains authoritative; acceptance requires a full production `combined.mp4`
-benchmark proving either lower DB polling/progress pressure, better evidence
-completeness without regression, or total-wall/FPS improvement.
+Cycle 17 Phase B is accepted as observability-only in
+`docs/cycle_17_redis_streams_progress_sampling_investigation.md`. Production
+replay `cycle17-redis-streams-20260604T025328Z` completed with exact DB/model
+parity, bounded Redis Stream evidence, and rollback verified. DB FPS was neutral
+(`5.620 -> 5.611`), so Cycle 17 must not be described as an inference-wall or
+throughput optimization.
+
+Four-agent coordination for the current cycle queue is recorded in
+`docs/four_agent_cycle_coordination_board.md`. Agent 18 has released Cycle 17,
+Agent 19 owns Cycle 18 design work, and Agent 20 owns the remaining Cycle 20
+readiness plus Cycle 21 concurrency/benchmark governance lanes. Shared roadmap
+and benchmark files are orchestrator-owned, and only one production benchmark
+may hold the lock at a time.
+
+Current turn records are `docs/agent_18_cycle_17_turn.md`,
+`docs/agent_19_cycle_18_turn.md`, and
+`docs/agent_20_remaining_lanes_turn.md`; future agents must update `AGENTS.md`
+when they take or release a turn.
+
+Cycle 17's decision is now recorded in `docs/production_inference_benchmark.md`
+§ 40.
+
+Cycle 18 is now documented as Phase A contract-only in
+`docs/cycle_18_redis_boundary_state_cache_investigation.md`. Runtime Redis
+boundary-state caching remains blocked until a new identity-state design proof
+addresses the Cycle 15 sharding correctness failures.
 
 Cycle 20 is now staged in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a

@@ -3218,4 +3218,86 @@ real production correctness gates.
 
 ---
 
+## 40. Cycle 17 Redis Streams Progress Sampling Production Benchmark
+
+Cycle 17 benchmarked the guarded Redis Streams progress mirror after Cycle 15
+sharding was rejected. The candidate is not an inference-wall optimization: it
+adds bounded, non-authoritative progress events for benchmark evidence while
+PostgreSQL remains terminal authority.
+
+| Item | Value |
+|---|---|
+| Decision | **ACCEPTED AS OBSERVABILITY-ONLY / NOT A THROUGHPUT OPTIMIZATION** |
+| Replay key | `cycle17-redis-streams-20260604T025328Z` |
+| Job ID | `a7cf6fc2-23fb-4e17-beac-42343ba8d634` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z` |
+| Metrics JSON/MD | `redis_streams_metrics.json`, `redis_streams_metrics.md` |
+| Model agreement JSON/MD | `model_agreement_baseline_vs_redis_streams.json`, `model_agreement_baseline_vs_redis_streams.md` |
+| Watcher / wrapper logs | `watcher_redis_stream.log`, `wrapper.log` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260604T055525.csv` |
+| Summary JSON | `/home/bamby/grad_project/backend/logs/bench_summary_20260604T055525.json` |
+| Base checkout | `feature/phase7a-crop-frame-mode` at `3b3be42` plus copied Cycle 17 working-tree patch |
+| Patch hashes | tracked diff `5ac01354c81ee66faf9bb6a9e6b122ea384c8bb6636dda16a0a8fb18ffa1bc24`; untracked bundle `7ae9a3841f7e9cf0ae125ea6728278773b489c1b6309b1074c0187b98ed01524` |
+| Candidate flags | `BENCHMARK_REDIS_STREAM_EVENTS=1`, `BENCHMARK_REDIS_STREAM_MAXLEN=1000`, `BENCHMARK_REDIS_STREAM_TTL_SECONDS=86400`, watcher `--redis-stream`, `WATCH_DB_FULL_POLL_EVERY_N=2` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | Wrapper reset `BENCHMARK_REDIS_STREAM_EVENTS=0`; workers were restarted with Django resolving `BENCHMARK_REDIS_STREAM_EVENTS=False`; Triton health remained ready. |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | Redis Streams candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.620` | `5.611` | `-0.15 %` |
+| DB completed elapsed | `808.038 s` | `809.245 s` | `+0.15 %` |
+| Step 2 frame wall | `467.450 s` | `461.087 s` | `-1.36 %` |
+| Step 2 through pose upload | `641.154 s` | `633.674 s` | `-1.17 %` |
+| GPU avg util | `11.846 %` | `12.014 %` | `+1.42 %` |
+| GPU peak util | `57.000 %` | `52.000 %` | `-8.77 %` |
+| Behavior RTT mean | `83.530 ms` | `84.089 ms` | `+0.67 %` |
+| Behavior RTT p95 | `129.514 ms` | `130.633 ms` | `+0.86 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| StudentTracks | `53` | `53` | `0.00 %` |
+
+Redis Stream evidence:
+
+| Metric | Value |
+|---|---:|
+| Stream key | `bench:cycle17-redis-streams-20260604T025328Z:events` |
+| Expected MAXLEN | `1000` |
+| Expected TTL seconds | `86400` |
+| XLen after run | `1002` |
+| Redis TTL after collection | `86396 s` |
+| Memory usage | `252242 bytes` |
+| Write attempts | `4729` |
+| Writes | `4729` |
+| Redis unavailable | `0` |
+| Write errors | `0` |
+| Read errors | `0` |
+| Last event status | `completed`, `4541/4541` |
+
+Model-agreement gate:
+
+| Model | Candidate F1@IoU0.5 | Precision | Recall | Count delta |
+|---|---:|---:|---:|---:|
+| `attention_tracking` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `hand_raising` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `person_detection` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+| `sitting_standing` | `100.000 %` | `100.000 %` | `100.000 %` | `0.00 %` |
+
+Benchmark decision explanation:
+
+| Question | Evidence-backed answer |
+|---|---|
+| Did the production benchmark complete on native Linux RTX 5090? | Yes: replay `cycle17-redis-streams-20260604T025328Z`, job `a7cf6fc2-23fb-4e17-beac-42343ba8d634`, status `completed`, `4541/4541` frames. |
+| Did correctness hold? | Yes: detection, bbox, embedding, and StudentTrack counts were unchanged, and all four model-agreement rows were `100.000 %` F1@IoU0.5. |
+| Did throughput improve? | No material throughput improvement: DB-completed FPS moved `5.620 -> 5.611` (`-0.15 %`). Step 2 frame wall improved `467.450 s -> 461.087 s` (`-1.36 %`), but this is below a throughput-acceptance threshold. |
+| Did evidence quality improve? | Yes: the run captured a bounded Redis Stream with `4729` successful writes, final completed status event, stream length near the configured cap, TTL, memory usage, and zero Redis read/write errors. |
+| Did rollback complete? | Yes: `BENCHMARK_REDIS_STREAM_EVENTS=0` was restored, workers were restarted, Django resolved the flag as `False`, and Triton remained ready. |
+| Decision | Accept the Cycle 17 implementation only as a default-off benchmark observability/progress evidence feature. Do not count it as a throughput optimization and do not enable it outside benchmark/watcher evidence contexts without a separate governed decision. |
+
+---
+
 *Updated from production run on 2026-06-04. Update this file after each major pipeline change or hardware migration.*

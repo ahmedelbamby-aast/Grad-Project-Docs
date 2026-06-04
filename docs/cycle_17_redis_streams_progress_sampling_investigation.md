@@ -2,10 +2,10 @@
 
 **Last updated:** 2026-06-04
 
-**Status:** PHASE A ACTIVE / INVESTIGATION ONLY. No code, env flag, runtime
-behavior, or benchmark result in this file is accepted, rejected, skipped, or
-closed until a completed production Linux RTX 5090 `combined.mp4` benchmark
-compares it against the latest accepted baseline.
+**Status:** ACCEPTED AS OBSERVABILITY-ONLY / NOT A THROUGHPUT OPTIMIZATION.
+The completed production Linux RTX 5090 `combined.mp4` benchmark proved bounded
+Redis Stream progress evidence with exact correctness parity and no material
+throughput gain.
 
 **Streaming compatibility:** `stream-safe-with-config`. Redis Streams may be
 used only as bounded, non-authoritative progress/evidence mirrors. PostgreSQL
@@ -80,6 +80,66 @@ benchmark proves DB progress writes or watcher polling were blocking the job.
 | Watcher | Read newest stream entries first, then DB fallback for authoritative status. | If Redis unavailable, watcher continues DB polling. |
 | Collector | Capture stream counters: entries, read errors, bytes estimate, fallback count, DB polls avoided estimate. | Evidence only. |
 
+## Phase B Implementation
+
+Implemented files:
+
+| File | Change |
+|---|---|
+| `backend/config/settings/base.py` | Adds default-off `BENCHMARK_REDIS_STREAM_EVENTS`, bounded `BENCHMARK_REDIS_STREAM_MAXLEN`, and bounded `BENCHMARK_REDIS_STREAM_TTL_SECONDS`. |
+| `backend/apps/video_analysis/tasks.py` | Adds capped Redis Stream progress mirror helper, process-local write/fallback counters, heartbeat/status hooks, terminal metadata/audit summary under `benchmark_redis_stream`. |
+| `tools/prod/prod_collect_benchmark_metrics.py` | Adds `redis_stream` evidence block and comparison-table metrics. |
+| `tools/prod/prod_watch_benchmark_metrics.sh` | Adds optional `--redis-stream` table with stream length, TTL, memory, latest event, metadata counters, and read errors. |
+| `tools/prod/prod_run_cycle17_redis_streams_benchmark.sh` | Adds reproducible production wrapper that enables the stream flag for one run, captures watcher log, collects metrics, runs model agreement, and resets the flag. |
+| `backend/tests/unit/video_analysis/test_redis_progress_stream.py` | Covers disabled no-op, Redis-unavailable fallback counter, and capped replay-key stream writes. |
+| `backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` | Covers collector parsing for Redis Stream health fields. |
+
+Current candidate flags:
+
+| Flag | Default | Candidate wrapper value | Authority |
+|---|---:|---:|---|
+| `BENCHMARK_REDIS_STREAM_EVENTS` | `0` | `1` for one benchmark run | PostgreSQL remains terminal authority. |
+| `BENCHMARK_REDIS_STREAM_MAXLEN` | `1000` | configurable | Bounds stream growth. |
+| `BENCHMARK_REDIS_STREAM_TTL_SECONDS` | `86400` | configurable | Ensures keys expire. |
+| `WATCH_REDIS_STREAM_EVENTS` | `0` | `1` in wrapper watcher | Read-only display only. |
+| `WATCH_DB_FULL_POLL_EVERY_N` | `1` | configurable | Evidence knob; current watcher still treats DB as authoritative. |
+
+Implementation state: `ACCEPTED_OBSERVABILITY_ONLY_NOT_THROUGHPUT`. The
+production benchmark and decision table are recorded in
+`docs/production_inference_benchmark.md` § 40.
+
+Benchmark release:
+
+```text
+BENCHMARK_RELEASE
+agent: Agent 18
+cycle: Cycle 17 Redis Streams progress sampling
+replay_key: cycle17-redis-streams-20260604T025328Z
+job_id: a7cf6fc2-23fb-4e17-beac-42343ba8d634
+status: completed
+metrics_json: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/redis_streams_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/redis_streams_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/model_agreement_baseline_vs_redis_streams.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/model_agreement_baseline_vs_redis_streams.md
+rollback_verified: yes; BENCHMARK_REDIS_STREAM_EVENTS=0, workers restarted, Django setting False, Triton ready
+released_at_utc: 2026-06-04T03:13:00Z
+```
+
+Local validation:
+
+| Validation | Result |
+|---|---|
+| `pytest -q backend/tests/unit/video_analysis/test_redis_progress_stream.py backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` | `9 passed` |
+| `py_compile backend/apps/video_analysis/tasks.py backend/config/settings/base.py tools/prod/prod_collect_benchmark_metrics.py` | Passed |
+| `bash -n tools/prod/prod_watch_benchmark_metrics.sh tools/prod/prod_run_cycle17_redis_streams_benchmark.sh tools/prod/prod_enable_parallel_flow.sh` | Passed |
+| `python scripts/ci/verify_doc_dates_and_reading_order.py` | Passed |
+| `python scripts/ci/verify_mermaid_diagrams.py --paths docs/four_agent_cycle_coordination_board.md docs/cycle_17_redis_streams_progress_sampling_investigation.md` | Passed |
+| `git diff --check` | Passed |
+| `bash tools/prod/prod_run_cycle17_redis_streams_benchmark.sh --dry-run --tag cycle17-dryrun-agent18 --baseline-replay-key cycle15b-pre-shard-baseline-20260603T193531Z --watch-db-full-poll-every-n 2` | Passed; final status `DRY_RUN_NO_BENCHMARK_RECORDED` |
+
+Local validation alone proved only fallback/collector behavior. The production
+benchmark above is the authority for the observability-only acceptance.
+
 ## Risks
 
 | Risk | Mitigation |
@@ -104,16 +164,16 @@ remain complete without Redis.
 
 ## Acceptance Criteria
 
-Cycle 17 can be accepted only if all gates pass:
+Cycle 17 acceptance gate result:
 
-| Gate | Required evidence |
+| Gate | Result |
 |---|---|
-| Production benchmark | Completed Linux RTX 5090 `combined.mp4` benchmark with replay key, job ID, deployed SHA, metrics JSON/MD, model agreement, and GPU CSV. |
-| Correctness | DB rows, embeddings, StudentTracks, and model agreement unchanged from the accepted baseline. |
-| Authority | PostgreSQL terminal status remains correct when Redis stream data is ignored. |
-| Bounded Redis | Stream `MAXLEN`, memory delta, write/read counters, and Redis errors recorded. |
-| Impact | Either DB polling/progress pressure decreases, evidence completeness improves, or total wall/FPS improves. |
-| Rollback | `BENCHMARK_REDIS_STREAM_EVENTS=0` plus worker restart restores the previous watcher/benchmark behavior. |
+| Production benchmark | Passed: replay `cycle17-redis-streams-20260604T025328Z`, job `a7cf6fc2-23fb-4e17-beac-42343ba8d634`, status `completed`, `4541/4541` frames. |
+| Correctness | Passed: DB rows, embeddings, StudentTracks, and all model-agreement rows matched the baseline exactly. |
+| Authority | Passed: PostgreSQL terminal status remained authoritative; Redis events were evidence-only. |
+| Bounded Redis | Passed: `XLen=1002` with approximate `MAXLEN 1000`, TTL `86396 s`, memory `252242 bytes`, `4729/4729` writes, zero Redis unavailable/write/read errors. |
+| Impact | Passed for evidence completeness only: Redis captured high-frequency progress and final completion evidence. Throughput was neutral (`DB FPS -0.15 %`) and must not be claimed as improved. |
+| Rollback | Passed: wrapper reset `BENCHMARK_REDIS_STREAM_EVENTS=0`, workers were restarted, Django resolved the setting as `False`, and Triton was ready. |
 
 ## Phase A Decision
 
@@ -121,3 +181,15 @@ Start Cycle 17 as an investigation and measurement-design cycle. Do not change
 runtime behavior until the implementation plan records exact stream keys,
 bounded retention, watcher fallback behavior, collector metrics, and the
 production benchmark wrapper.
+
+## Phase B Decision
+
+Phase B is **accepted as observability-only**. Keep
+`BENCHMARK_REDIS_STREAM_EVENTS` default-off and enable it only for governed
+benchmark/watcher evidence runs. Do not describe Cycle 17 as a throughput
+optimization: DB-completed FPS moved `5.620 -> 5.611` (`-0.15 %`), while Step 2
+frame wall moved `467.450 s -> 461.087 s` (`-1.36 %`). The accepted value is
+bounded replayable progress evidence: stream key
+`bench:cycle17-redis-streams-20260604T025328Z:events`, `4729` successful writes,
+TTL/memory/length recorded, final completed event captured, and zero Redis
+errors.

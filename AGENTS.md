@@ -27,12 +27,12 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
-- Active feature plan: [specs/011-bsil-semantic-runtime/plan.md](specs/011-bsil-semantic-runtime/plan.md)
+- Active feature plan: [specs/013-human-pose-kinematics/plan.md](specs/013-human-pose-kinematics/plan.md)
 <!-- SPECKIT END -->
 
 ## ⭐ Documentation Systematization Program (DSP) — BINDING
 
-**Constitution Section 19 (added in v2.5.0; current constitution v2.6.0)
+**Constitution Section 19 (added in v2.5.0; current constitution v2.8.0)
 makes the following rules non-bypassable. Hallucinations are FORBIDDEN — a
 documentation claim without a resolvable reference is a CI-blocking
 regression, not a style nit.**
@@ -882,18 +882,199 @@ Per § 8.6.2:
   person `60.933 %`, sitting/standing `53.730 %`). Behavior RTT regressed
   `83.530 ms -> 90.372 ms`. Decision: **NOT ACCEPTED**. Keep majority-vote
   default-off for reproducibility; do not enable it in production. Cycle 15.B2
-  remains blocked. Next sorted cycle is Cycle 17 Redis Streams investigation;
-  further sharding work needs a new identity-state design proof.
-- **2026-06-04 Cycle 17 Redis Streams progress sampling PHASE A STARTED**:
-  dedicated investigation file
-  `docs/cycle_17_redis_streams_progress_sampling_investigation.md` is now the
-  next sorted cycle after measured Cycle 15 sharding candidates failed
-  correctness. Scope is bounded, non-authoritative progress/evidence mirroring
-  only. PostgreSQL remains terminal-state authority; Redis Streams must use
-  capped `MAXLEN`, live-safe bounded consumers, DB fallback in the watcher, and
-  full production `combined.mp4` benchmark evidence before any acceptance. This
-  cycle must not claim Step 2 inference-wall improvement unless total-wall/FPS
-  metrics prove it.
+  remains blocked. Cycle 17 Redis Streams later completed and was accepted as
+  observability-only; further sharding work needs a new identity-state design
+  proof.
+- **2026-06-04 Cycle 17 Redis Streams progress sampling ACCEPTED
+  OBSERVABILITY-ONLY / TURN FREE**: dedicated investigation file
+  `docs/cycle_17_redis_streams_progress_sampling_investigation.md` records the
+  bounded, non-authoritative progress/evidence mirror. Agent 18 completed the
+  production Linux RTX 5090 `combined.mp4` benchmark
+  `cycle17-redis-streams-20260604T025328Z` and released the lock. PostgreSQL
+  remains terminal-state authority; Redis Streams are capped and default-off.
+  The cycle is accepted only as observability/evidence infrastructure, not as a
+  throughput or Step 2 inference-wall improvement.
+- **2026-06-04 Four-agent cycle coordination ACTIVE**:
+  `docs/four_agent_cycle_coordination_board.md` is the shared board for the
+  coordinated agent sessions. Current ownership: Agent 17 = historical Cycle 17
+  handoff only (`FREE`), Agent 18 = Cycle 17 Redis Streams (`FREE`, accepted
+  observability-only), Agent 19 = Cycle 18 measured contract/evidence audit
+  (`BLOCKED`, no runtime authority; recovered per-track evidence remains
+  blocked), and Agent 20 = Cycle 20 streaming persistence/embedding overlap
+  readiness plus Cycle 21 concurrency/benchmark governance (`TAKEN`,
+  docs/readiness only). Shared
+  roadmap files (`AGENTS.md`,
+  `README.md`, `docs/INDEX.md`, `docs/inference_parallelization_plan.md`,
+  `docs/production_inference_benchmark.md`,
+  `docs/crop_frame_optimization_execution.md`, and
+  `docs/cycle_9_and_10_improvements_todo.md`) are orchestrator-owned unless an
+  explicit edit window is granted. Only one production benchmark may hold the
+  benchmark lock at a time, and every decision still requires constitution
+  §12.5/§12.6 evidence.
+- **2026-06-04 Agent turn ledger rule ACTIVE**:
+  every cycle turn must be explicitly claimed and released in this file. A turn
+  claim must include the agent name, cycle, state (`TAKEN`, `FREE`, `BLOCKED`,
+  or `BENCHMARK_LOCK_HELD`), owned files, benchmark-lock state, validations run,
+  and next action. A future agent must not assume a turn is free while this file
+  says `TAKEN`; it must either see `FREE` or explicitly record a user-authorized
+  reassignment here before starting. **Current turn:** Agent 18 has released
+  the Cycle 17 Redis Streams turn as `FREE` after the 2026-06-04 production
+  benchmark. The
+  default-off progress mirror, watcher/collector metrics, focused tests, and
+  benchmark wrapper are implemented locally. Responsibility file:
+  `docs/agent_18_cycle_17_turn.md`. Production benchmark lock is `NOT HELD`;
+  replay `cycle17-redis-streams-20260604T025328Z` completed and rollback was
+  verified.
+  Validation state: focused Cycle 17 unit tests pass (`9 passed`), edited
+  Python files compile, edited production shell scripts pass `bash -n`, the
+  reading-order/date gate passes, the touched
+  coordination Mermaid block renders, and `git diff --check` reports no
+  whitespace errors. The Cycle 17 wrapper dry-run now ends with
+  `DRY_RUN_NO_BENCHMARK_RECORDED`, so dry-run output cannot be confused with
+  production evidence. Decision state is
+  `ACCEPTED_OBSERVABILITY_ONLY_NOT_THROUGHPUT`: DB/model parity was exact and
+  Redis Stream evidence was bounded, but DB FPS was neutral (`5.620 -> 5.611`),
+  so no throughput gain is claimed. Next action: open a new governed turn before
+  advancing another cycle.
+
+  BENCHMARK_RELEASE
+  agent: Agent 18
+  cycle: Cycle 17 Redis Streams progress sampling
+  replay_key: cycle17-redis-streams-20260604T025328Z
+  job_id: a7cf6fc2-23fb-4e17-beac-42343ba8d634
+  status: completed
+  metrics_json: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/redis_streams_metrics.json
+  metrics_md: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/redis_streams_metrics.md
+  model_agreement_json: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/model_agreement_baseline_vs_redis_streams.json
+  model_agreement_md: /home/bamby/grad_project/backend/logs/cycle17-redis-streams-20260604T025328Z/model_agreement_baseline_vs_redis_streams.md
+  rollback_verified: yes; BENCHMARK_REDIS_STREAM_EVENTS=0, workers restarted,
+  Django setting False, Triton ready
+  released_at_utc: 2026-06-04T03:13:00Z
+- **2026-06-04 Agent 19 Cycle 18 measured evidence turn `BLOCKED`**:
+  the user explicitly re-opened Cycle 18 and requested real measured benchmark
+  values and comparisons. Agent 19 owns only Cycle 18 contract/evidence work.
+  The requested comparisons and production read-only identity-candidate probe
+  are complete. The final governed decision is
+  `NO_RUNTIME_CANDIDATE_SELECTED` /
+  `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`; constitutional closure remains
+  blocked because no Cycle 18 runtime optimization or §12.6 production
+  decision table exists. The benchmark lock is not held, no Cycle 18 runtime
+  candidate was deployed, and the shared coordination board remains unchanged.
+  Responsibility file: `docs/agent_19_cycle_18_turn.md`. Owned files are that
+  ledger, `docs/cycle_18_redis_boundary_state_cache_investigation.md`,
+  `docs/architecture/cycle18_boundary_packet_v0.schema.json`,
+  `docs/architecture/cycle18_boundary_packet_v0.example.json`,
+  `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.json`,
+  `docs/architecture/cycle18_boundary_packet_v0.historical_cycle15b1c2.source.json`,
+  `tools/prod/prod_validate_cycle18_boundary_packet.py`,
+  `tools/prod/prod_project_cycle18_boundary_packet.py`,
+  `tools/prod/prod_audit_cycle18_recovered_evidence.py`,
+  `tools/prod/prod_check_cycle18_boundary_contract.py`,
+  `tools/prod/prod_check_cycle18_schema_validator_drift.py`,
+  `tools/prod/prod_check_cycle18_doc_references.py`,
+  `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py`,
+  `backend/tests/unit/pipeline/test_prod_project_cycle18_boundary_packet.py`,
+  `backend/tests/unit/pipeline/test_prod_audit_cycle18_recovered_evidence.py`,
+  `backend/tests/unit/pipeline/test_prod_check_cycle18_boundary_contract.py`,
+  `backend/tests/unit/pipeline/test_prod_check_cycle18_schema_validator_drift.py`,
+  `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py`,
+  `tools/prod/prod_check_cycle19_redis_script_eligibility.py`,
+  `backend/tests/unit/pipeline/test_prod_check_cycle19_redis_script_eligibility.py`,
+  `tools/prod/prod_check_cycle18_measured_benchmark_values.py`,
+  `backend/tests/unit/pipeline/test_prod_check_cycle18_measured_benchmark_values.py`,
+  `tools/prod/prod_probe_cycle18_identity_candidates.py`,
+  `backend/tests/unit/pipeline/test_prod_probe_cycle18_identity_candidates.py`,
+  `docs/architecture/cycle18_identity_candidate_probe.production_summary.json`,
+  and `.gitignore` only for the explicit CI visibility exceptions.
+  Shared coordination and roadmap files remain orchestrator-owned unless an
+  explicit edit window is granted. Production benchmark lock is `NOT HELD`;
+  runtime code, production env changes, sharding enablement, 15.B2, and all
+  Agent 17 or Agent 18 Cycle 17 files are out of scope. Validation
+  state: reading-order verifier passed, the coordination
+  board Mermaid rendered `1/1`, cited local paths resolved, and `git diff
+  --check` reported no whitespace errors. Contract slice result: the failed
+  Cycle 15 boundary audit, bounded V0 schema, synthetic unresolved example,
+  standalone read-only validator, reproducible historical projector,
+  recovered-evidence intake auditor, and one-command local contract gate are
+  recorded without runtime changes. The focused Cycle 18 suites passed `32`
+  tests. The optional external JSON Schema validator is unavailable in the
+  current Python environments; manual validation and the structural drift gate
+  pass. The
+  example is contract-valid and correctly not identity-merge-ready. Constitution
+  §18 CI visibility is preserved by explicit `.gitignore` exceptions for all
+  five JSON contract/projection/evidence files. The retained-evidence Cycle 15.B1.C2 projection
+  is now recorded and fails closed because raw per-track observations,
+  lifecycle, appearance, candidates, collision counters, and the historical
+  tracker fingerprint are unavailable locally; it also preserves the documented
+  `26` offset fallbacks. The historical packet is reproducible from a strict
+  local source manifest, and the one-command gate verifies contract results,
+  tracked projection drift, source references, expected historical failures,
+  recovered-evidence fail-closed behavior, and external schema conformance.
+  The recovered-evidence auditor keeps `full_projection_ready` separate from
+  `identity_merge_ready` and rejects invalid, partial, wrong-scope, or
+  wrong-range packets. The structural drift audit aligns `12` object shapes
+  and rejects all `92` deterministic missing/unknown-field mutations. The
+  recovered-evidence CLI now supports `--require-full-projection`, which fails
+  the aggregate-only historical path without implying identity-merge
+  readiness. The one-command gate verifies all `24` Agent 19 inventory entries
+  resolve and all five Cycle 18 JSON visibility exceptions are present. The
+  historical audit emits machine-readable recovery requirements and currently
+  has exactly two unmet projection checks: `packet_contract_valid` and
+  `packet_track_count_match`. The reference checker verifies `128` references
+  across the two owned docs plus only Agent 19's bounded `AGENTS.md` paragraph,
+  and all `25` line citations resolve. Cycle 19's conditional audit is backed
+  by `docs/cycle_16b_redis_side_effect_coalescing_results.md` and
+  `docs/redis_broader_optimization_opportunities.md`: Redis server command wall
+  is `194.039 ms`, while remaining DB flush and payload serialization are
+  seconds-scale, and the source recommendation says not to tune Redis server
+  execution next. Current Cycle 19 state is
+  `CONDITIONAL_GATE_NOT_MET / HYPOTHESIS_ONLY_NO_RUNTIME_DECISION`.
+  Lua/EVAL/EVALSHA, Redis runtime changes, production mutation, benchmark-lock
+  acquisition, and optimization decision claims remain forbidden. The local
+  eligibility audit passed all `11` source/evidence checks, the combined Cycle
+  18/19 focused suite passed `36` tests, the Cycle 18 contract gate still
+  passed, and the bounded reference checker resolved `128` references plus
+  `25` line citations. Next action is to wait for later production evidence
+  proving a measured read/compute/write hotspot that pipelining cannot remove.
+  The re-opened Cycle 18 evidence slice now carries real completed upstream
+  production measurements from the accepted pre-shard comparator plus 15.B1
+  context-32, 15.B1.C1 context-256, and 15.B1.C2 majority vote. Exact values
+  include DB FPS `5.619787 -> 7.866851 / 7.905 / 7.833`, StudentTracks
+  `53 -> 52 / 52 / 64`, and the C2 boundary diagnostics `10/36` mapped with
+  `26` offset fallbacks. The measured-value checker verifies exact parity with
+  `docs/production_inference_benchmark.md` and explicitly reports
+  `cycle18_runtime_benchmark_present=false`; it is integrated into the
+  one-command Cycle 18 contract gate. Derived comparisons are also
+  machine-verified: best carried DB FPS is `7.905` (`+40.66 %`), but that
+  candidate's model-agreement F1 range is only `53.730 %` to `61.767 %`; C2
+  mapping coverage is `10/36` (`27.78 %`) with `26/36` (`72.22 %`) offset
+  fallback. The closure gate reports `closure_eligible=false`, state
+  `CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK`, and decision authority
+  `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. The final production read-only
+  identity-candidate probe found zero child embeddings, aliases, lifecycle
+  events, canonical IDs, ReID scores, and ReID decisions. Its best
+  implementable policy reached only `62.021 %` minimum all-model F1 and
+  `19.978 %` minimum shard-1 F1; even the baseline-label oracle upper bound
+  reached only `73.086 %` and `49.445 %`. The hashed evidence summary is
+  `docs/architecture/cycle18_identity_candidate_probe.production_summary.json`.
+  Next action requires a separately reviewed identity-feature/state producer
+  before any runtime candidate, implementation, production benchmark, or
+  constitutional Cycle 18 decision can exist.
+- **2026-06-04 Agent 20 remaining lanes `TAKEN`**:
+  the user identified this session as the last agent and requested a ledger plus
+  remaining task ownership. Agent 20 maps to the coordination board's Agent C
+  and Agent D lanes: Cycle 20 streaming persistence/embedding overlap readiness
+  and Cycle 21 Celery concurrency governance. Responsibility file:
+  `docs/agent_20_remaining_lanes_turn.md`. Primary owned files are that ledger,
+  `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and
+  `docs/cycle_21_celery_concurrency_scaling_investigation.md`; coordination-only
+  edits may integrate the claim into the board and reading order. Production
+  benchmark lock is `NOT HELD`; runtime code, lifecycle/persistence/embedding
+  changes, worker-count changes, queue topology changes, GPU-cap changes,
+  `backend/.env` edits, and production env changes are out of scope. Validation
+  state is recorded in the Agent 20 ledger. Next action: keep Cycle 20/21 as
+  readiness/governance-only until a separate implementation or benchmark-lock
+  turn is explicitly opened under constitution §12.5/§12.6.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
