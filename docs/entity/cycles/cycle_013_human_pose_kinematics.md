@@ -32,7 +32,10 @@ classroom inference.
 
 ## 1. Purpose and scope
 
-Streaming compatibility: `stream-safe-with-config`.
+Streaming compatibility: `stream-safe-with-config` only when the live profile
+keeps `POSE_KINEMATICS_ENABLED=0` until
+`tools/prod/prod_run_pose_kinematics_live_validation.sh` produces governed
+real-media evidence for SC-007.
 
 Cycle 013 adds a deterministic Human Pose Kinematics Layer after RTMPose and
 before higher-level fusion/export. It converts RTMPose keypoints into compact

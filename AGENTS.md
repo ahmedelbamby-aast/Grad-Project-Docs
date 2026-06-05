@@ -1,6 +1,6 @@
 # Agents Execution Guide
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
@@ -28,6 +28,17 @@ This file defines how agents should execute tests quickly and safely in this rep
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
 - Active feature plan: [specs/013-human-pose-kinematics/plan.md](specs/013-human-pose-kinematics/plan.md)
+- 2026-06-05 Cycle 013 Human Pose Kinematics decision: **NOT ACCEPTED for
+  production enablement yet**. Offline `combined.mp4` matrix evidence and
+  disabled-layer rollback proof are recorded in
+  [docs/production_inference_benchmark.md](docs/production_inference_benchmark.md)
+  §43 and
+  [docs/entity/cycles/cycle_013_human_pose_kinematics.md](docs/entity/cycles/cycle_013_human_pose_kinematics.md).
+  Keep `POSE_KINEMATICS_ENABLED=0` until a governed
+  `reviewer_label_manifest.json` / label-agreement report satisfies SC-003
+  through SC-006 and real-media live validation evidence satisfies SC-007.
+  The open evidence tasks are T071, T073, and T075 in
+  [specs/013-human-pose-kinematics/tasks.md](specs/013-human-pose-kinematics/tasks.md).
 <!-- SPECKIT END -->
 
 ## ⭐ Documentation Systematization Program (DSP) — BINDING
