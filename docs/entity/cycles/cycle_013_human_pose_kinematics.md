@@ -241,6 +241,19 @@ rollback_verified: yes; POSE_KINEMATICS_ENABLED=0, active jobs=0, Triton ready H
 released_at_utc: 2026-06-05T11:54:02Z
 ```
 
+Current candidate-only retry benchmark lock:
+
+```text
+BENCHMARK_LOCK
+agent: Codex deployment session
+cycle: Cycle 013 Human Pose Kinematics
+replay_key: pose-kinematics-enabled-retry-20260605T121611Z-candidate-enabled
+baseline_metrics: prior same-head disabled baseline e2f218f6-97e4-4900-8365-f46158116fa0
+candidate_env_delta: POSE_KINEMATICS_ENABLED=1 for candidate-only retry
+started_at_utc: 2026-06-05T12:16:11Z
+expected_cleanup: wrapper rollback to POSE_KINEMATICS_ENABLED=0 and evidence collection under backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/
+```
+
 ## 14. Current decision
 
 Decision on 2026-06-05: `not_accepted` for production enablement.
