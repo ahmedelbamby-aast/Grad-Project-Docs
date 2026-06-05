@@ -1,0 +1,1699 @@
+{
+  "cycle_slug": "cycle20_post_stage_timeline",
+  "evidence_families": {
+    "bench_summary": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/bench_summary_20260606T002549.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "gpu": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "inference_audit": {
+      "paths": [
+        "/home/bamby/grad_project/backend/data/videos/58d53985-1c86-46fd-944c-771ea3afce1a/inference_audit.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "metrics": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "model_agreement": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "parity": {
+      "paths": [],
+      "reason": "not a tensor-route parity candidate; model agreement and DB row parity are the correctness gates",
+      "status": "unavailable"
+    },
+    "probe": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z.wrapper.log"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "readiness": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z.wrapper.log"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "rollback": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json"
+      ],
+      "reason": null,
+      "status": "available"
+    }
+  },
+  "figure_roles": {
+    "generator_scope": "tools/prod/prod_generate_cycle_figures.py",
+    "implementer": "Agent Cycle 20 kickoff",
+    "planner": "Agent Cycle 20 kickoff"
+  },
+  "generated_at": "2026-06-05T21:47:38.032422+00:00",
+  "input_digests": [
+    {
+      "bytes": 7360,
+      "path": "/home/bamby/grad_project/backend/data/videos/58d53985-1c86-46fd-944c-771ea3afce1a/inference_audit.json",
+      "sha256": "30bb3593bbec5a8d7c39f8bab49b2bb9401627a9419956477c176a3556b509a4"
+    },
+    {
+      "bytes": 1910,
+      "path": "/home/bamby/grad_project/backend/logs/bench_summary_20260606T002549.json",
+      "sha256": "95a74c25221af17c6816a9fe9ec5937092ed706a0d320c488ef382be91a5d4e6"
+    },
+    {
+      "bytes": 25713,
+      "path": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z.wrapper.log",
+      "sha256": "1c1bd453ee83ef1bbdd72a1de655f92357349253299b71cef5792bff2d828b16"
+    },
+    {
+      "bytes": 9212,
+      "path": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+      "sha256": "9a31be472d63086a7029b5b42f05105ecece12ac42c244385e5f231abb7f1101"
+    },
+    {
+      "bytes": 2870,
+      "path": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json",
+      "sha256": "edf8690c22c5b84654d70720d488dd09a733ecff0c96b8dc55c89a42f6a14158"
+    },
+    {
+      "bytes": 10871,
+      "path": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+      "sha256": "6ec7f991f0e261c36d8b3974e67bea61e9663dd5d96ddf2aa0a5a1327c49fab3"
+    },
+    {
+      "bytes": 114,
+      "path": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json",
+      "sha256": "ec2e81375263a8a0a34904a9f8ecfa9ed6a4355f4180dc02253d84dd57c748d8"
+    },
+    {
+      "bytes": 45253,
+      "path": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv",
+      "sha256": "7e9a644d79a556ff50cfed14509e0370bc9554e1ca18bd6be2163630146a3a97"
+    }
+  ],
+  "missing_metrics": {
+    "baseline": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "metric not found in supplied artifacts",
+      "parity_max_abs_diff": "metric not found in supplied artifacts",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "best": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "metric not found in supplied artifacts",
+      "parity_max_abs_diff": "metric not found in supplied artifacts",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "candidate": {
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "metric not found in supplied artifacts",
+      "parity_max_abs_diff": "metric not found in supplied artifacts",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    }
+  },
+  "outputs": {
+    "correctness_gate": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__correctness_gate.png",
+    "decision_delta": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__decision_delta.png",
+    "evidence_completeness": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__evidence_completeness.png",
+    "figure_manifest": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/figure_manifest.json",
+    "gate_matrix": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__gate_matrix.png",
+    "gpu_distribution": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__gpu_distribution.png",
+    "gpu_profile": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__gpu_profile.png",
+    "identity_label_invariant": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__identity_label_invariant.png",
+    "markdown": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures.md",
+    "model_rtt": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__model_rtt.png",
+    "packet_budget": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__packet_budget.png",
+    "packet_readiness": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__packet_readiness.png",
+    "redis_profile": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__redis_profile.png",
+    "relative_delta": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__relative_delta.png",
+    "resource_tail": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__resource_tail.png",
+    "sidecar_metadata": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__figure_metadata.json",
+    "statistical_table": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__statistical_table.png",
+    "unavailable_summary": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__unavailable_summary.png",
+    "wall_breakdown": "backend/logs/cycle20-post-stage-timeline-20260605T212526Z/figures/cycle20_post_stage_timeline__wall_breakdown.png"
+  },
+  "parsed_metrics": {
+    "baseline": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "best": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "candidate": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 84.206
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 130.849
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 137.963
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.216317
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.366
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 54.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json",
+        "status": "available",
+        "unit": "%",
+        "value": 100.0
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json",
+        "status": "available",
+        "unit": "bool",
+        "value": true
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 770.266312
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 462.124911
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 691.776287
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    }
+  },
+  "run_metadata": {
+    "baseline": {
+      "label": "accepted_non_sharded_baseline",
+      "role": "baseline"
+    },
+    "best": {
+      "label": "accepted_non_sharded_baseline",
+      "role": "best"
+    },
+    "candidate": {
+      "job_id": "58d53985-1c86-46fd-944c-771ea3afce1a",
+      "label": "cycle20-post-stage-timeline-20260605T212526Z",
+      "replay_key": "cycle20-post-stage-timeline-20260605T212526Z",
+      "role": "candidate"
+    }
+  },
+  "sources": {
+    "baseline": [
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json"
+    ],
+    "best": [
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/baseline_metrics.json"
+    ],
+    "candidate": [
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json",
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json",
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json",
+      "/home/bamby/grad_project/backend/logs/bench_summary_20260606T002549.json",
+      "/home/bamby/grad_project/backend/data/videos/58d53985-1c86-46fd-944c-771ea3afce1a/inference_audit.json",
+      "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv",
+      "/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z.wrapper.log"
+    ]
+  },
+  "statistics": {
+    "distribution_tests": {},
+    "methods": [
+      "relative_change_pct_vs_baseline",
+      "descriptive_summary (mean/median/std/cv/percentiles/iqr)",
+      "bootstrap_mean_ci_95 (2000 resamples, seed=0)",
+      "welch_t_unequal_variance (normal-approx p)",
+      "cohens_d_effect_size",
+      "cliffs_delta_nonparametric_effect_size"
+    ],
+    "relative_change": {
+      "bbox_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          }
+        }
+      },
+      "behavior_rtt_mean_ms": {
+        "baseline": 83.53,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 83.53
+          },
+          "candidate": {
+            "delta_pct": 0.8093,
+            "improved": false,
+            "value": 84.206
+          }
+        }
+      },
+      "behavior_rtt_p95_ms": {
+        "baseline": 129.514,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 129.514
+          },
+          "candidate": {
+            "delta_pct": 1.0308,
+            "improved": false,
+            "value": 130.849
+          }
+        }
+      },
+      "behavior_rtt_p99_ms": {
+        "baseline": 135.533,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 135.533
+          },
+          "candidate": {
+            "delta_pct": 1.7929,
+            "improved": false,
+            "value": 137.963
+          }
+        }
+      },
+      "db_completed_fps": {
+        "baseline": 5.619787,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 5.619787
+          },
+          "candidate": {
+            "delta_pct": -7.1795,
+            "improved": false,
+            "value": 5.216317
+          }
+        }
+      },
+      "detection_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          }
+        }
+      },
+      "embedding_rows": {
+        "baseline": 72578.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72578.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72578.0
+          }
+        }
+      },
+      "gpu_avg_util_pct": {
+        "baseline": 11.846,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 11.846
+          },
+          "candidate": {
+            "delta_pct": -4.052,
+            "improved": false,
+            "value": 11.366
+          }
+        }
+      },
+      "gpu_peak_mem_used_mib": {
+        "baseline": 15725.0,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15725.0
+          },
+          "candidate": {
+            "delta_pct": 0.0382,
+            "improved": false,
+            "value": 15731.0
+          }
+        }
+      },
+      "gpu_peak_util_pct": {
+        "baseline": 57.0,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 57.0
+          },
+          "candidate": {
+            "delta_pct": -5.2632,
+            "improved": false,
+            "value": 54.0
+          }
+        }
+      },
+      "run_complete_wall_s": {
+        "baseline": 707.716357,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 707.716357
+          },
+          "candidate": {
+            "delta_pct": 8.8383,
+            "improved": false,
+            "value": 770.266312
+          }
+        }
+      },
+      "step2_frame_wall_s": {
+        "baseline": 467.449833,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 467.449833
+          },
+          "candidate": {
+            "delta_pct": -1.1391,
+            "improved": true,
+            "value": 462.124911
+          }
+        }
+      },
+      "step2_through_pose_wall_s": {
+        "baseline": 641.154064,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 641.154064
+          },
+          "candidate": {
+            "delta_pct": 7.8955,
+            "improved": false,
+            "value": 691.776287
+          }
+        }
+      },
+      "track_count": {
+        "baseline": 53.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 53.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 53.0
+          }
+        }
+      }
+    },
+    "sampled_series_descriptive": {
+      "candidate": {
+        "gpu_mem_sample_mib": {
+          "cv_pct": 0.019,
+          "iqr": 6.0,
+          "max": 15731.0,
+          "mean": 15727.722807,
+          "mean_ci95": [
+            15727.512281,
+            15727.919298
+          ],
+          "median": 15725.0,
+          "min": 15725.0,
+          "n": 855,
+          "p05": 15725.0,
+          "p50": 15725.0,
+          "p95": 15731.0,
+          "p99": 15731.0,
+          "std": 2.988915
+        },
+        "gpu_power_sample_w": {
+          "cv_pct": 58.2821,
+          "iqr": 121.845,
+          "max": 168.8,
+          "mean": 92.972339,
+          "mean_ci95": [
+            89.45947,
+            96.763831
+          ],
+          "median": 123.6,
+          "min": 13.74,
+          "n": 855,
+          "p05": 14.837,
+          "p50": 123.6,
+          "p95": 156.762,
+          "p99": 162.2488,
+          "std": 54.186256
+        },
+        "gpu_util_sample_pct": {
+          "cv_pct": 141.2956,
+          "iqr": 24.0,
+          "max": 54.0,
+          "mean": 11.366082,
+          "mean_ci95": [
+            10.332105,
+            12.503099
+          ],
+          "median": 2.0,
+          "min": 0.0,
+          "n": 855,
+          "p05": 0.0,
+          "p50": 2.0,
+          "p95": 43.0,
+          "p99": 50.0,
+          "std": 16.059769
+        }
+      }
+    }
+  },
+  "status": "NO_DECISION_PENDING_REVIEW",
+  "target_gate": {
+    "correctness": "DB rows, StudentTrack count, embedding rows, and model agreement must not regress",
+    "post_stage_timeline": "prove serial lifecycle timestamps before any streaming implementation",
+    "rollback": "OFFLINE_STREAM_POST_STAGES and OFFLINE_STREAM_POST_STAGE_TIMELINE must return to 0",
+    "streaming_post_stages_enabled": "must remain false for this measurement-only cycle"
+  },
+  "unavailable_summary": {
+    "by_metric": {
+      "gpu_mem_p95_mib": [
+        "baseline",
+        "best"
+      ],
+      "gpu_mem_p99_mib": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_all_model_f1_pct": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_f1_pct": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "model_agreement_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "overall_fps": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_max_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_merge_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_observation_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_payload_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_total_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_track_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_truncated_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_unresolved_tracks": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_valid_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_failed_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_max_abs_diff": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "readiness_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_command_wall_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_memory_used_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p95_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p99_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_pipeline_execute_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "rollback_passed": [
+        "baseline",
+        "best"
+      ],
+      "worker_rss_p95_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "worker_rss_p99_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ]
+    },
+    "by_run": {
+      "baseline": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "metric not found in supplied artifacts",
+        "parity_max_abs_diff": "metric not found in supplied artifacts",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "best": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "metric not found in supplied artifacts",
+        "parity_max_abs_diff": "metric not found in supplied artifacts",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "candidate": {
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "metric not found in supplied artifacts",
+        "parity_max_abs_diff": "metric not found in supplied artifacts",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      }
+    },
+    "total_unavailable": 80
+  }
+}
