@@ -223,6 +223,19 @@ Evidence paths:
 | Reviewer-label agreement | `tools/prod/prod_collect_pose_kinematics_label_agreement.py` |
 | Rollback proof | `tools/prod/prod_verify_pose_kinematics_rollback.sh` |
 
+Current deployment-validation benchmark lock:
+
+```text
+BENCHMARK_LOCK
+agent: Codex deployment session
+cycle: Cycle 013 Human Pose Kinematics
+replay_key: pose-kinematics-deploy-20260605T112419Z
+baseline_metrics: backend/logs/pose-kinematics-deploy-20260605T112419Z/baseline_disabled_metrics.json
+candidate_env_delta: POSE_KINEMATICS_ENABLED=1 for candidate attempt only
+started_at_utc: 2026-06-05T11:24:19Z
+expected_cleanup: wrapper rollback to POSE_KINEMATICS_ENABLED=0 and evidence collection under backend/logs/pose-kinematics-deploy-20260605T112419Z/
+```
+
 ## 14. Current decision
 
 Decision on 2026-06-05: `not_accepted` for production enablement.
