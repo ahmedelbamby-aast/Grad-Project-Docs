@@ -1351,7 +1351,23 @@ rejected, or used to advance sharding.
   `18 passed`, wrapper `bash -n`, plus py_compile for the modified
   runtime/generator files. This
   is not a §12.6 benchmark decision and does not enable sharding or 15.B2.
-  Benchmark lock remains `NOT_HELD`.
+  The local-staging lock state was `NOT_HELD`.
+- **2026-06-05 Agent 19 Cycle 18.C benchmark lock `HELD`**: Agent 19 claimed
+  the production benchmark lock for replay
+  `cycle18c-packet-budget-active-edge-20260605T162825Z` after local gates and
+  GitHub CI passed for SHA `8dd37244`. Planned candidate env delta:
+  `OFFLINE_VIDEO_SHARDING_ENABLED=1`, `OFFLINE_VIDEO_SHARD_COUNT=2`,
+  `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256`,
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`,
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1`,
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1`,
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`,
+  `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`, and
+  `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. Figure metadata must use
+  `cycle18c_packet_budget_active_edge`, `Huygens` as planner, and `Archimedes`
+  as implementer. No §12.6 decision exists until the production benchmark,
+  packet validation, model agreement, label-invariant identity metrics,
+  rollback proof, figure manifest, and embedded Markdown figures are complete.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

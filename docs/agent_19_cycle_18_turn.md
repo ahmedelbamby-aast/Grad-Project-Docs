@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-05
 
-**Status:** RESUMED / CYCLE 18.C LOCAL REDESIGN STAGED /
+**Status:** RESUMED / CYCLE 18.C BENCHMARK LOCK HELD /
 `PACKET_BUDGET_AND_ACTIVE_EDGE_DEFAULT_OFF` /
 `NO_SECTION_12_6_PRODUCTION_DECISION` /
 `OPEN_PENDING_PRODUCTION_BENCHMARK`. This current agent session is **Agent 19**.
@@ -85,9 +85,9 @@ sharding enablement, production acceptance, or a runtime benchmark decision.
 | Claimed at | 2026-06-05 continuation of 2026-06-04 Cycle 18 work |
 | User authority | User explicitly requested continuing blocker resolution after asking whether solutions exist. |
 | Current phase | Cycle 18.C packet-budget/readiness redesign staged locally; production benchmark still pending |
-| Production benchmark lock | `NOT HELD` |
-| Runtime implementation permission | Local default-off Cycle 18 candidate only |
-| Production env permission | No mutation, no benchmark lock, no acceptance decision |
+| Production benchmark lock | `HELD` for replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
+| Runtime implementation permission | Default-off Cycle 18.C candidate only |
+| Production env permission | Governed Cycle 18.C benchmark mutation only; no acceptance decision |
 
 ## Junior Execution Responsibilities
 
@@ -178,6 +178,7 @@ Agent 19 owns a narrow evidence and contract lane:
 | `A19-64` Run focused Cycle 18.C local validation | `COMPLETED` | py_compile passed and focused runtime + figure + shard-planning tests reported `18 passed` |
 | `A19-65` Record Cycle 18.C no-decision state | `COMPLETED` | Cycle doc, AGENTS, board, and this ledger state `STAGED_LOCAL_ONLY / BENCHMARK_LOCK_NOT_HELD` |
 | `A19-66` Parameterize production figure manifest metadata | `COMPLETED` | Benchmark wrapper accepts figure slug/status/label/planner/implementer arguments so Cycle 18.C figures are not mislabeled as Cycle 18.B |
+| `A19-67` Acquire Cycle 18.C production benchmark lock | `COMPLETED` | Lock recorded for replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; no §12.6 decision exists until evidence is complete |
 
 ## Owned Files And Boundaries
 
@@ -363,11 +364,12 @@ production benchmark has been run for Cycle 18.C.
 
 ## Handoff Protocol
 
-Agent 19 is now `CYCLE_18C_STAGED_LOCAL_ONLY` for Cycle 18. The next valid work
-is doc/workflow-equivalent validation followed by a separately governed
-production benchmark only if a benchmark lock is recorded first. That benchmark
-must use the default-off Cycle 18.C profile with full packet validation,
+Agent 19 is now `CYCLE_18C_BENCHMARK_LOCK_HELD` for Cycle 18. The next valid
+work is production deployment of the reviewed SHA and a separately governed
+production benchmark. That benchmark must use the default-off Cycle 18.C profile
+with full packet validation,
 model-agreement and label-invariant association metrics, DB/GPU/RTT metrics,
 generated figure bundle/manifest, and rollback proof. The benchmark lock
-remains `NOT HELD`; no Redis write, default-on sharding enablement,
+is held only for replay `cycle18c-packet-budget-active-edge-20260605T162825Z`;
+no Redis write, default-on sharding enablement,
 acceptance, rejection, completion, or closure decision exists.

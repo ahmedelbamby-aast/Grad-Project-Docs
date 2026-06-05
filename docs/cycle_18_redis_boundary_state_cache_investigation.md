@@ -3,8 +3,8 @@
 **Last updated:** 2026-06-05
 
 **Status:** `CYCLE_18B_NOT_ACCEPTED` /
-`CYCLE_18C_STAGED_LOCAL_ONLY` /
-`BENCHMARK_LOCK_NOT_HELD`. The historical Agent 19 Phase A review remains
+`CYCLE_18C_BENCHMARK_LOCK_HELD` /
+`BENCHMARK_LOCK_HELD_FOR_CYCLE_18C`. The historical Agent 19 Phase A review remains
 `NO_RUNTIME_CANDIDATE_SELECTED` for Redis boundary-state identity evidence. The
 Agent 20 override production benchmark completed for the disabled-by-default
 `one_to_one` boundary track-map candidate and rejected that candidate on
@@ -895,8 +895,8 @@ Cycle 18.C is staged locally only. It is not a production benchmark, not a
 
 | Field | Value |
 |---|---|
-| Cycle state | `STAGED_LOCAL_ONLY` |
-| Benchmark lock | `NOT_HELD` |
+| Cycle state | `BENCHMARK_LOCK_HELD / NO_DECISION_PENDING_PRODUCTION_RUN` |
+| Benchmark lock | `HELD` for replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
 | Figure Planner | `Huygens` sub-agent, read-only plan; no files edited |
 | Figure Implementer | `Archimedes` sub-agent, generator/test lane only |
 | Runtime owner | Agent 19 |
@@ -933,6 +933,22 @@ Remaining blockers before any Cycle 18.C decision:
 | Model and label-invariant correctness | Model F1@IoU0.5 and label-invariant global-assignment gates must pass, including shard-1 residual association. |
 | Figure evidence | Cycle 18.C figure bundle and manifest must be generated from the raw production artifacts and embedded in this doc plus `docs/production_inference_benchmark.md`. |
 | Rollback | Production wrapper must prove sharding, packet, and appearance flags return to disabled defaults. |
+
+Cycle 18.C benchmark lock:
+
+```text
+BENCHMARK_LOCK
+cycle: 18.C packet-budget and association-readiness redesign
+agent: 19
+state: HELD
+claimed_at_utc: 2026-06-05T16:28:25Z
+replay_key: cycle18c-packet-budget-active-edge-20260605T162825Z
+candidate_code_sha: 8dd37244
+candidate_env_delta: OFFLINE_VIDEO_SHARDING_ENABLED=1, OFFLINE_VIDEO_SHARD_COUNT=2, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1, TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1, EMBEDDING_PREFETCH_TRACK_LOOKUP=1, EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1
+figure_metadata: cycle_slug=cycle18c_packet_budget_active_edge, status=NO_DECISION_PENDING_REVIEW, planner=Huygens, implementer=Archimedes
+required_evidence: metrics_json, metrics_md, sharded_summary_json, gpu_csv, boundary_packet_validation_json_md, model_agreement_json_md, label_invariant_json_md, rollback_json_md, figure_manifest, figure_markdown, generated_pngs
+decision_authority: NO_DECISION_UNTIL_SECTION_12_6_EVIDENCE_TABLE
+```
 
 Cycle 15.B1 and 15.B2 stay blocked until Cycle 18.C proves the two-shard
 identity boundary is valid. Cycle 20 remains staged behind this blocker unless a
