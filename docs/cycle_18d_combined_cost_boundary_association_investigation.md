@@ -94,6 +94,34 @@ bounded tracklets, and keep ambiguity unresolved.
 Local tests validate decision **logic and shape only**. They cannot establish
 identity correctness — that requires the production benchmark below.
 
+## 2026-06-05 Production Benchmark Lock
+
+```text
+BENCHMARK_LOCK
+agent: 18
+cycle: 18.D combined-cost boundary association
+state: HELD
+claimed_at_utc: 2026-06-05T17:41:15Z
+replay_key: cycle18d-combined-cost-20260605T174115Z
+baseline_metrics: /home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json
+candidate_env_delta: OFFLINE_VIDEO_SHARDING_ENABLED=1, OFFLINE_VIDEO_SHARD_COUNT=2, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=combined_cost, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1, TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1, EMBEDDING_PREFETCH_TRACK_LOOKUP=1, EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1
+expected_cleanup: OFFLINE_VIDEO_SHARDING_ENABLED=0, OFFLINE_VIDEO_SHARD_COUNT=1, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=0, Celery workers restarted
+required_evidence: metrics_json, metrics_md, sharded_summary_json, gpu_csv, boundary_packet_validation_json_md, model_agreement_json_md, label_invariant_json_md, rollback_json_md, figure_manifest, figures_md, generated_pngs, production_benchmark_section
+decision_authority: NO_DECISION_UNTIL_SECTION_12_6_EVIDENCE_TABLE
+```
+
+Figure evidence roles for this run:
+
+| Role | Owner | Evidence boundary |
+|---|---|---|
+| Figure Planner | Agent 18 current benchmark session | Required plots: decision delta, wall breakdown, correctness gate, packet budget/readiness, identity label-invariant, model RTT, GPU/resource, Redis/resource availability, unavailable summary. Inputs are the baseline metrics JSON, candidate metrics JSON/MD, sharded summary, GPU CSV, boundary packet validation, model agreement, label-invariant tracking, and rollback status from this replay. Missing metrics must render as `unavailable`, not zero. Markdown embeds target this document and `docs/production_inference_benchmark.md`. |
+| Figure Implementer | Agent 18 current benchmark session | No generator code change is planned before the run. The implementation evidence is the existing `tools/prod/prod_generate_cycle_figures.py` invocation through `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`, the generated figure manifest/digests, generated PNGs, and wrapper-produced `figures.md`. |
+
+Role separation is unavailable in this session because the user requested this
+agent to run the production benchmark directly and sub-agent spawning was not
+explicitly requested. The plan and implementation evidence are therefore kept
+as separate rows above per constitution §7.1.1 / §12.6.
+
 ## Required Production Benchmark Gate (not yet run)
 
 `combined_cost` cannot be accepted until a completed native-Linux RTX 5090
