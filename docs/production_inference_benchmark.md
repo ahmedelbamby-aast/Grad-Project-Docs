@@ -4107,10 +4107,101 @@ candidate against these measured gaps.
 Repo-side follow-up started on 2026-06-06: Cycle 20.C moves the
 `terminal_coordinator_done_at` measurement marker in `run_reid_pipeline` so it
 is persisted before the ReID task reports terminal `COMPLETED` status. This is
-not a new production benchmark and does not change the §48 decision. The next
-authoritative evidence must be a fresh Cycle 20 timeline replay with regenerated
-figures, rollback proof, and the terminal marker present or explicitly marked
-unavailable with a reason.
+not a streaming implementation and does not change the §48 decision. The fresh
+terminal-marker replay is recorded in §49.
+
+## 49. Cycle 20.C Terminal-Marker Timeline Rerun
+
+Cycle 20.C reran the measurement-only post-stage timeline after repairing the
+terminal-marker race. Attempts r1 and r2 are retained in the Cycle 20 doc as
+failed wrapper evidence: r1 disabled the timeline flag before offloaded
+embedding/ReID markers were written, and r2 recorded the markers but ran the
+wait subprocess from the wrong working directory. The r3 replay below is the
+authoritative Phase C production record.
+
+| Item | Value |
+|---|---|
+| Status | `NO_DECISION_PENDING_REVIEW / TERMINAL_MARKER_RECORDED` |
+| Runtime commit | `7bf66e97` |
+| Replay key | `cycle20c-terminal-marker-r3-20260605T233053Z` |
+| Job ID | `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/post_stage_timeline_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/model_agreement_baseline_vs_post_stage_timeline.json` / `.md` |
+| Wait snapshot | `/home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/post_stage_wait_snapshot.json` |
+| Rollback JSON | `/home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/rollback_status.json` |
+| Bench summary | `/home/bamby/grad_project/backend/logs/bench_summary_20260606T023338.json` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T023338.csv` |
+| Inference audit | `/home/bamby/grad_project/backend/data/videos/7ff0dfd4-890e-4210-92c7-f0f3b069c65e/inference_audit.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/figure_manifest.json` |
+| Figure roles | Planner `Cycle 20.C terminal-marker repair agent`; implementer `Cycle 20.C terminal-marker repair agent`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance and lifecycle measurements:
+
+| Metric | Baseline | Candidate | Delta / result |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `5.274878` | `-6.14 %` |
+| DB completed elapsed | `808.038 s` | `860.873 s` | `+6.54 %` |
+| Step 2 frame wall | `467.449833 s` | `462.458481 s` | `-1.07 %` |
+| Step 2 through-pose wall | `641.154064 s` | `690.903380 s` | `+7.76 %` |
+| GPU avg util | `11.846 %` | `11.691 %` | `-1.31 %` |
+| GPU peak util | `57.000 %` | `53.000 %` | `-7.02 %` |
+| Behavior RTT mean | `unavailable` | `84.300 ms` | measurement-only |
+| Embedding created span | `98.578 s` | `99.080 s` | `+0.51 %` |
+| Persistence starts before inference done | `unavailable` | `false` | current path is serial |
+| Embedding starts before inference done | `unavailable` | `false` | current path is serial |
+| Persistence wall | `unavailable` | `43.184512 s` | measurement-only |
+| Embedding start lag after inference done | `unavailable` | `69.173672 s` | measurement-only |
+| Embedding wall | `unavailable` | `99.369505 s` | measurement-only |
+| Terminal lag after embedding | `unavailable` | `0.244864 s` | terminal marker recorded |
+
+Timeline marker gate:
+
+| Marker | Result |
+|---|---|
+| `inference_started_at` | `2026-06-05T23:33:44.365107+00:00` |
+| `frame_inference_done_at` | `2026-06-05T23:45:15.390185+00:00` |
+| `first_frame_persisted_at` | `2026-06-05T23:45:15.405796+00:00` |
+| `all_frames_persisted_at` | `2026-06-05T23:45:58.590308+00:00` |
+| `first_embedding_eligible_at` | `2026-06-05T23:45:58.592820+00:00` |
+| `first_embedding_started_at` | `2026-06-05T23:46:24.563857+00:00` |
+| `embedding_done_at` | `2026-06-05T23:48:03.933362+00:00` |
+| `terminal_coordinator_done_at` | `2026-06-05T23:48:04.178226+00:00` |
+| `first_persist_packet_ready_at` | unavailable: `serial_path_no_streaming_persistence_packet` |
+| Wait snapshot | `status=ready`, `missing_required=[]` |
+
+Correctness and rollback gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72744` | Matches baseline row parity |
+| BBox rows | `72744` | Matches baseline row parity |
+| Embedding rows | `72578` | Matches baseline row parity |
+| StudentTracks | `53` | Matches baseline |
+| Per-model agreement F1@IoU0.5 | `100.000 %` for all four behavior models | Pass model-agreement proxy |
+| Rollback verified | `true` | `OFFLINE_STREAM_POST_STAGES=0` and `OFFLINE_STREAM_POST_STAGE_TIMELINE=0` restored |
+| Production health after rollback | Triton `200`, backend `200` | Pass service-readiness check |
+
+### 49.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__decision_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__wall_breakdown.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__gpu_profile.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__evidence_completeness.png)
+
+Decision: **NO DECISION PENDING REVIEW**. Cycle 20.C repaired and proved the
+terminal marker, and rollback restored both Cycle 20 flags to `0`. This replay
+still does not accept or reject streaming persistence/embedding overlap: it
+kept the serial post-stage path, and the next authoritative gate is a
+default-off streaming writer candidate with bounded persistence packets,
+idempotent detection/box writes, regenerated figures, and rollback proof.
 
 ---
 

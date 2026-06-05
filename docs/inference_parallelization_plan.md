@@ -1147,7 +1147,7 @@ cycle selection; the older paragraphs remain as historical context.
 
 | Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
 |---:|---|---|---|---|
-| 1 | **Cycle 20 post-stage timeline, then streaming persistence/embedding overlap** | `PHASE C TERMINAL-MARKER REPAIR STARTED / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane. Production replay `cycle20-post-stage-timeline-20260605T212526Z` proved the current lifecycle is still serial while keeping `OFFLINE_STREAM_POST_STAGES=0`; the repo-side follow-up now repairs the missing terminal marker before any streaming writer candidate. | The measured serial gaps are persistence wall `52.703285 s`, embedding start lag after inference done `78.581286 s`, and embedding wall `98.739642 s`; next gate is a fresh timeline replay proving `terminal_coordinator_done_at`, then a default-off streaming writer benchmark. |
+| 1 | **Cycle 20 post-stage timeline, then streaming persistence/embedding overlap** | `PHASE C TERMINAL-MARKER RECORDED / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane. Production replay `cycle20-post-stage-timeline-20260605T212526Z` proved the current lifecycle is still serial while keeping `OFFLINE_STREAM_POST_STAGES=0`; terminal-marker replay `cycle20c-terminal-marker-r3-20260605T233053Z` then proved `terminal_coordinator_done_at`. | Latest measured serial gaps are persistence wall `43.184512 s`, embedding start lag after inference done `69.173672 s`, embedding wall `99.369505 s`, and terminal lag after embedding `0.244864 s`; next gate is a default-off streaming writer benchmark. |
 | 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
 | 3 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | It is lower risk than lifecycle work, but the measured dominant-child gap caps the benefit. It cannot close the SLA alone. | Bounded at about `~4 %` Step 2 wall, roughly `18 s` on a `459 s` Step 2 frame wall. |
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Phase A measured decode/output work as small after Top-K, and the pinned Triton runtime lacks the Python backend. | Decode/NMS-only savings are about `2 %` of Step 2; a larger gain requires a backend/runtime change that also reduces server wait or execution. |
@@ -1163,18 +1163,19 @@ merge-ready packets `1/2`, shard-1 existing-parent mapping `17/36`, offset
 fallbacks `19/36`, StudentTracks `53 -> 57`, minimum model-agreement
 F1@IoU0.5 `53.788 %`, and minimum shard-1 global-assignment F1 `79.876 %`.
 
-Cycle 20 has a production measurement-only run in
+Cycle 20 has production measurement-only runs in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` and
-`docs/production_inference_benchmark.md` §48. Replay
+`docs/production_inference_benchmark.md` §48-§49. Replay
 `cycle20-post-stage-timeline-20260605T212526Z` / job
 `58d53985-1c86-46fd-944c-771ea3afce1a` completed `4541/4541` frames and
 confirmed that persistence and embedding still start after frame inference is
-done. The kickoff added `OFFLINE_STREAM_POST_STAGE_TIMELINE` evidence and the
-production wrapper `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`;
-it did not enable `OFFLINE_STREAM_POST_STAGES` or any queue/worker split. A
-2026-06-06 repo-side Cycle 20.C repair now moves the terminal measurement marker
-before ReID reports terminal status; production still needs a fresh replay before
-the sorted queue can advance to a streaming-writer candidate.
+done. Terminal-marker replay `cycle20c-terminal-marker-r3-20260605T233053Z` /
+job `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` then recorded
+`terminal_coordinator_done_at` with wait snapshot `missing_required=[]`. The
+wrapper added timeline evidence only; it did not enable
+`OFFLINE_STREAM_POST_STAGES` or any queue/worker split. The sorted queue can now
+advance only to a default-off streaming-writer candidate with bounded
+idempotent persistence evidence, not to an acceptance claim.
 
 Cycle 21 is staged in
 `docs/cycle_21_celery_concurrency_scaling_investigation.md` for Celery worker,

@@ -1457,15 +1457,31 @@ rejected, or used to advance sharding.
   coordinator candidate was enabled. Evidence is in
   `docs/production_inference_benchmark.md` §48 and
   `docs/figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/`.
-- **2026-06-06 Cycle 20.C terminal marker repair STARTED / NO DECISION**:
-  repo-side follow-up moves the `terminal_coordinator_done_at` measurement
-  marker in `run_reid_pipeline` so it is persisted before the ReID task reports
-  terminal `COMPLETED` status. Focused validation is
+- **2026-06-06 Cycle 20.C terminal marker repair
+  PRODUCTION RECORDED / NO_DECISION_PENDING_REVIEW**: repo-side follow-up moved
+  the `terminal_coordinator_done_at` measurement marker in `run_reid_pipeline`
+  so it is persisted before the ReID task reports terminal `COMPLETED` status.
+  Focused validation is
   `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py`.
-  This is not a production benchmark, not streaming persistence, not embedding
-  overlap, and not Cycle 20 acceptance. Next gate is a fresh governed Cycle 20
-  timeline replay with figures, rollback proof, and the terminal marker present
-  or explicitly unavailable with a reason.
+  The first two governed attempts are retained as wrapper-failure evidence:
+  `cycle20c-terminal-marker-20260605T225327Z` disabled the timeline flag before
+  embedding/ReID markers were written, and
+  `cycle20c-terminal-marker-r2-20260605T231222Z` recorded the markers but the
+  wrapper wait subprocess ran from the wrong directory. The final replay
+  `cycle20c-terminal-marker-r3-20260605T233053Z`, job
+  `7ff0dfd4-890e-4210-92c7-f0f3b069c65e`, completed `4541/4541` frames at SHA
+  `7bf66e97`; wait snapshot was `status=ready` with `missing_required=[]`,
+  `terminal_coordinator_done_at=2026-06-05T23:48:04.178226+00:00`,
+  rollback restored both Cycle 20 flags to `0`, and Triton/backend health was
+  `200/200`. Latest measured serial gaps are persistence wall `43.184512 s`,
+  embedding start lag after inference done `69.173672 s`, embedding wall
+  `99.369505 s`, and terminal lag after embedding `0.244864 s`; row parity and
+  all four model-agreement F1 values were exact. This is still not streaming
+  persistence, not embedding overlap, and not Cycle 20 acceptance. Evidence is
+  in `docs/production_inference_benchmark.md` §49 and
+  `docs/figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/`.
+  Next gate is a default-off streaming-writer candidate with bounded
+  idempotent persistence evidence, regenerated figures, and rollback proof.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

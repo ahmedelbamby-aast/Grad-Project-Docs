@@ -2,13 +2,12 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** Phase C terminal-coordinator timestamp repair started after the
-Phase B measurement-only production benchmark recorded the current serial
-post-stage gaps. The only valid benchmark decision state remains
-`NO_DECISION_PENDING_REVIEW`: replay
-`cycle20-post-stage-timeline-20260605T212526Z` completed on production, but
-this work still does **not** implement streaming persistence, embedding overlap,
-new queues, or terminal-coordinator behavior.
+**Status:** Phase C terminal-coordinator timestamp repair is production-recorded
+with replay `cycle20c-terminal-marker-r3-20260605T233053Z`. The only valid
+benchmark decision state remains `NO_DECISION_PENDING_REVIEW`: the replay proves
+the terminal marker is now captured, but this work still does **not** implement
+streaming persistence, embedding overlap, new queues, or terminal-coordinator
+behavior.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -45,7 +44,10 @@ proof that Step 3 or embedding has started.
 | Test | `backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` | Verifies derived Cycle 20 timeline metrics. |
 | Commit | `ba4e2882` | Production runtime commit used for the Cycle 20 measurement replay. |
 | Commit | `70aebb99` | Wrapper evidence-manifest fix deployed before strict figure regeneration. |
+| Commit | `a6bf10a3` | Wrapper wait gate that keeps the timeline flag enabled until required post-stage markers are recorded. |
+| Commit | `7bf66e97` | Backend-context wait fix used for the final Cycle 20.C terminal-marker production replay. |
 | Job | `58d53985-1c86-46fd-944c-771ea3afce1a` | Production Cycle 20 measurement job for replay `cycle20-post-stage-timeline-20260605T212526Z`. |
+| Job | `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` | Production Cycle 20.C terminal-marker replay job for `cycle20c-terminal-marker-r3-20260605T233053Z`. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -237,9 +239,11 @@ repair agent. Role separation is unavailable in this single-agent repair; the
 next wrapper run must still keep the planner intent, figure input manifest,
 unavailable-metric policy, generated plots, and rollback proof separate.
 
-No production rerun has been recorded for Phase C yet. Until a replay proves the
-marker and regenerates the evidence bundle, Section 48 of
-`docs/production_inference_benchmark.md` remains the governing production result.
+The first two Phase C attempts are retained as failed wrapper evidence because
+they exposed lifecycle collection gaps. The final r3 replay proves the terminal
+marker repair while preserving the measurement-only contract. Section 49 of
+`docs/production_inference_benchmark.md` is now the governing Phase C production
+record.
 
 ```text
 BENCHMARK_LOCK
@@ -307,6 +311,75 @@ candidate_env_delta: OFFLINE_STREAM_POST_STAGES=0; OFFLINE_STREAM_POST_STAGE_TIM
 started_at_utc: 2026-06-05T23:30:53Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, and figures
 ```
+
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-r3-20260605T233053Z
+job_id: 7ff0dfd4-890e-4210-92c7-f0f3b069c65e
+status: BENCHMARK_RECORDED_NEEDS_DOC_DECISION
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/post_stage_timeline_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/post_stage_timeline_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/model_agreement_baseline_vs_post_stage_timeline.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/model_agreement_baseline_vs_post_stage_timeline.md
+wait_snapshot_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/post_stage_wait_snapshot.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r3-20260605T233053Z/figures/figure_manifest.json
+released_at_utc: 2026-06-05T23:48:26Z
+notes: Job completed 4541/4541 frames, wait snapshot status ready, missing_required empty, rollback restored OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0.
+```
+
+### Phase C production rerun result (2026-06-06)
+
+Replay `cycle20c-terminal-marker-r3-20260605T233053Z` / job
+`7ff0dfd4-890e-4210-92c7-f0f3b069c65e` completed with deployed commit
+`7bf66e97`. The wrapper kept `OFFLINE_STREAM_POST_STAGES=0`, enabled only
+`OFFLINE_STREAM_POST_STAGE_TIMELINE=1` during the replay, waited from the
+`backend/` context until the required timeline markers existed, then rolled both
+Cycle 20 flags back to `0` and restarted workers.
+
+| Gate | Result |
+|---|---|
+| Wait snapshot | `status=ready`, `missing_required=[]` |
+| Processed frames | `4541/4541` |
+| DB-completed FPS | `5.274878` |
+| Step 2 frame wall | `462.458481 s` |
+| Persistence wall | `43.184512 s` |
+| Embedding start lag after inference done | `69.173672 s` |
+| Embedding wall | `99.369505 s` |
+| Terminal lag after embedding | `0.244864 s` |
+| Detection / bbox / embedding rows | `72744` / `72744` / `72578` |
+| StudentTracks | `53` |
+| Per-model agreement F1@IoU0.5 | `1.0` for attention, hand raising, person detection, and sitting/standing |
+| GPU avg / peak util | `11.691 %` / `53.0 %` |
+| Rollback | `rollback_verified=true`; both Cycle 20 flags restored to `0` |
+
+The repaired terminal timestamp set is:
+
+| Timestamp | Value |
+|---|---|
+| `inference_started_at` | `2026-06-05T23:33:44.365107+00:00` |
+| `frame_inference_done_at` | `2026-06-05T23:45:15.390185+00:00` |
+| `first_frame_persisted_at` | `2026-06-05T23:45:15.405796+00:00` |
+| `all_frames_persisted_at` | `2026-06-05T23:45:58.590308+00:00` |
+| `first_embedding_eligible_at` | `2026-06-05T23:45:58.592820+00:00` |
+| `first_embedding_started_at` | `2026-06-05T23:46:24.563857+00:00` |
+| `embedding_done_at` | `2026-06-05T23:48:03.933362+00:00` |
+| `terminal_coordinator_done_at` | `2026-06-05T23:48:04.178226+00:00` |
+| `first_persist_packet_ready_at` | unavailable: `serial_path_no_streaming_persistence_packet` |
+
+This closes the terminal-marker measurement gap only. It does not accept Cycle
+20 because persistence and embedding still start after frame inference, and no
+streaming writer or embedding-overlap candidate has been benchmarked.
+
+![Cycle 20.C decision delta](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__decision_delta.png)
+
+![Cycle 20.C wall breakdown](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__wall_breakdown.png)
+
+![Cycle 20.C correctness gate](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__correctness_gate.png)
+
+![Cycle 20.C evidence completeness](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__evidence_completeness.png)
 
 ### Measurement-only timestamp contract
 
