@@ -280,6 +280,34 @@ started_at_utc: 2026-06-05T23:12:22Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, and figures
 ```
 
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-r2-20260605T231222Z
+job_id: edf7b205-3e96-47b6-91fc-fadbe3f977ec
+status: POST_STAGE_WAIT_FAILED_NEEDS_REVIEW
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/post_stage_timeline_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/post_stage_timeline_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/model_agreement_baseline_vs_post_stage_timeline.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/model_agreement_baseline_vs_post_stage_timeline.md
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-r2-20260605T231222Z/figures/figure_manifest.json
+released_at_utc: 2026-06-05T23:30:53Z
+notes: Job reached terminal completed and recorded embedding_done_at plus terminal_coordinator_done_at, but the new wrapper wait subprocess ran from the repo root and failed to import Django's config module, so the wrapper status stayed failed.
+```
+
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-r3-20260605T233053Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=0; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only; wrapper waits for terminal timeline markers from backend/ before rollback
+started_at_utc: 2026-06-05T23:30:53Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence

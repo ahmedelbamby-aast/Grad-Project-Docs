@@ -70,7 +70,8 @@ without guessing from chat history.
 | `A20-HANDOFF-20260606` Cycle 20 production measurement recorded. | `COMPLETED` | Replay `cycle20-post-stage-timeline-20260605T212526Z` completed; next Cycle 20 behavior work must address terminal-coordinator timing before a streaming writer candidate. |
 | `A20-C20C-01` Repair Cycle 20 terminal marker race. | `STARTED` | `run_reid_pipeline` now writes `terminal_coordinator_done_at` before terminal status; fresh production replay still required. |
 | `A20-C20C-02` Hold Cycle 20.C production benchmark lock. | `RELEASED_NEEDS_REVIEW` | Replay key `cycle20c-terminal-marker-20260605T225327Z`; lower-level benchmark returned before offloaded embedding/ReID markers, so the wrapper wait was missing. |
-| `A20-C20C-03` Add wrapper wait and hold corrected benchmark lock. | `STARTED` | Replay key `cycle20c-terminal-marker-r2-20260605T231222Z`; wrapper now waits for terminal timeline markers before rollback. |
+| `A20-C20C-03` Add wrapper wait and hold corrected benchmark lock. | `RELEASED_NEEDS_REVIEW` | Replay key `cycle20c-terminal-marker-r2-20260605T231222Z`; job recorded terminal markers, but wrapper wait subprocess ran from repo root and failed Django import. |
+| `A20-C20C-04` Run backend-root corrected wrapper wait. | `STARTED` | Replay key `cycle20c-terminal-marker-r3-20260605T233053Z`; wait subprocess now runs from `backend/` before rollback. |
 
 ## Owned Files And Boundaries
 
