@@ -3597,6 +3597,69 @@ This rerun confirms the deployed offline path and artifacts, but it does not
 change the Cycle 013 decision: reviewer-label agreement and real-media live
 validation remain missing.
 
+### 43.6 Enabled Candidate Retry
+
+At production HEAD `3870d40b`, the candidate path was retried with
+`POSE_KINEMATICS_ENABLED=1` for the benchmark job only. The wrapper rolled the
+production env back to `POSE_KINEMATICS_ENABLED=0` after evidence collection.
+
+| Item | Value |
+|---|---|
+| Replay key | `pose-kinematics-enabled-retry-20260605T121611Z-candidate-enabled` |
+| Job ID | `6833a227-3738-4dec-afc8-fab149c172e1` |
+| Status | `completed`, `4541/4541` frames |
+| Metrics JSON | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_enabled_metrics.json` |
+| Metrics Markdown | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_enabled_metrics.md` |
+| Reconciliation JSON | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_reconciliation.json` |
+| Reconciliation Markdown | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_reconciliation.md` |
+| Reconciliation | `overall_ok=true`, `pose_kinematics_enabled=true` |
+
+Candidate metrics:
+
+| Metric | Value |
+|---|---:|
+| DB-completed FPS | `5.186345` |
+| DB-completed elapsed | `875.568 s` |
+| Step 2 frame wall | `466.425496 s` |
+| Step 2 through pose upload | `710.727718 s` |
+| Run-complete wall | `775.671720 s` |
+| GPU avg util | `10.857 %` |
+| GPU peak util | `52.000 %` |
+| GPU peak memory used | `15725 MiB` |
+| Detection rows | `72744` |
+| BBox rows | `72744` |
+| Embedding rows | `72578` |
+| StudentTracks | `53` |
+| Pose kinematics records | `19129` |
+| Pose artifact refs | `19129` |
+| History bound violations | `0` |
+| Override events | `0` |
+
+Pose output checks:
+
+| Field | Value |
+|---|---|
+| State counts | `valid=12577`, `degraded=5595`, `unavailable=957` |
+| Quality counts | `good=4756`, `partial_body=9335`, `weak=3090`, `occluded=991`, `invalid=957` |
+| Input records before dedupe | `19180` |
+| Deduplicated records | `19129` |
+| Duplicate record count | `51` |
+| Duplicate scope count | `38` |
+| Max history window | `5.000 s` |
+| Average history window | `4.621663 s` |
+| Max history samples | `67` |
+| Artifact path | `/home/bamby/grad_project/backend/data/videos/6833a227-3738-4dec-afc8-fab149c172e1/pose_kinematics_3a46008e4ebf280a051f9945b25c09597d3a20234988f68e53d0a9f4db9acefa.json` |
+| Artifact reference | `sha256:3a46008e4ebf280a051f9945b25c09597d3a20234988f68e53d0a9f4db9acefa` |
+| Artifact validation | `ok=true`; embedded digest matched the artifact reference |
+| Export validation | `ok=true`; sampled export rows contained pose kinematics fields |
+
+Post-run cleanup verified `POSE_KINEMATICS_ENABLED=0`, no active
+queued/processing/embedding/running jobs, and Triton readiness HTTP `200`.
+This enabled retry confirms that the feature writes the expected DB records and
+artifact output on the offline benchmark path. It does not change the Cycle 013
+production-enable decision because reviewer-label agreement and real-media live
+validation remain absent.
+
 ---
 
 *Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*

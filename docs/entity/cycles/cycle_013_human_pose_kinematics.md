@@ -210,6 +210,9 @@ Evidence paths:
 | Baseline reconciliation | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T015300Z-baseline-rerun/baseline_reconciliation.json` |
 | Candidate reconciliation | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T013200Z/candidate_reconciliation.json` |
 | Rollback report | `/home/bamby/grad_project/backend/logs/pose-kinematics-rollback-20260605T021500Z/rollback_report.json` |
+| Enabled retry metrics | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_enabled_metrics.json` |
+| Enabled retry reconciliation | `/home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_reconciliation.json` |
+| Enabled retry artifact | `/home/bamby/grad_project/backend/data/videos/6833a227-3738-4dec-afc8-fab149c172e1/pose_kinematics_3a46008e4ebf280a051f9945b25c09597d3a20234988f68e53d0a9f4db9acefa.json` |
 
 ## 13. Validation and gates
 
@@ -241,17 +244,25 @@ rollback_verified: yes; POSE_KINEMATICS_ENABLED=0, active jobs=0, Triton ready H
 released_at_utc: 2026-06-05T11:54:02Z
 ```
 
-Current candidate-only retry benchmark lock:
+Candidate-only enabled retry benchmark release:
 
 ```text
-BENCHMARK_LOCK
+BENCHMARK_RELEASE
 agent: Codex deployment session
 cycle: Cycle 013 Human Pose Kinematics
 replay_key: pose-kinematics-enabled-retry-20260605T121611Z-candidate-enabled
+candidate_job_id: 6833a227-3738-4dec-afc8-fab149c172e1
 baseline_metrics: prior same-head disabled baseline e2f218f6-97e4-4900-8365-f46158116fa0
-candidate_env_delta: POSE_KINEMATICS_ENABLED=1 for candidate-only retry
-started_at_utc: 2026-06-05T12:16:11Z
-expected_cleanup: wrapper rollback to POSE_KINEMATICS_ENABLED=0 and evidence collection under backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/
+candidate_env_delta: POSE_KINEMATICS_ENABLED=1 for candidate-only retry at production HEAD 3870d40b
+status: completed; candidate processed 4541/4541 frames
+metrics_json: /home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_enabled_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_enabled_metrics.md
+reconciliation_json: /home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_reconciliation.json
+reconciliation_md: /home/bamby/grad_project/backend/logs/pose-kinematics-enabled-retry-20260605T121611Z/candidate_reconciliation.md
+artifact_path: /home/bamby/grad_project/backend/data/videos/6833a227-3738-4dec-afc8-fab149c172e1/pose_kinematics_3a46008e4ebf280a051f9945b25c09597d3a20234988f68e53d0a9f4db9acefa.json
+result: overall_ok=true; 19129 pose records; 19129 artifact refs; zero history-bound violations
+rollback_verified: yes; POSE_KINEMATICS_ENABLED=0, active jobs=0, Triton ready HTTP 200
+released_at_utc: 2026-06-05T12:43:00Z
 ```
 
 ## 14. Current decision
