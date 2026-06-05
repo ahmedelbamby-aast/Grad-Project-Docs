@@ -3535,18 +3535,19 @@ bash tools/prod/prod_verify_pose_kinematics_rollback.sh \
 
 | Gate | Current state | Decision impact |
 |---|---|---|
-| Reviewer-label agreement | No Cycle 013 `reviewer_label_manifest.json` or generated agreement report exists in production evidence. | Blocks SC-003 through SC-006. |
-| Live validation | No `live_validation_manifest.json` and no real stream URL was available to run `prod_run_pose_kinematics_live_validation.sh`. | Blocks SC-007 and live-profile acceptance. |
-| Offline benchmark | Completed; DB/model row parity held and the DB FPS regression was `-5.20 %`, inside the 10% regression boundary. | Supports offline-only readiness, not full acceptance. |
+| Reviewer-label agreement | No Cycle 013 `reviewer_label_manifest.json` or generated agreement report exists in production evidence. | Remains open for SC-003 through SC-006; not covered by the enablement exception. |
+| Live validation | No `live_validation_manifest.json` and no real stream URL was available to run `prod_run_pose_kinematics_live_validation.sh`. | Remains open for SC-007 and live-profile acceptance; not covered by the enablement exception. |
+| Offline benchmark | Completed; DB/model row parity held and the DB FPS regression was `-5.20 %`, inside the 10% regression boundary. | Supports initial offline-path production enablement by operator exception. |
 | Rollback | Completed with `overall_ok=true`. | Safety gate passed. |
 
 ### 43.4 Decision
 
-Final decision for 2026-06-05: **Cycle 013 is not accepted for production
-enablement yet**. The offline matrix and rollback proof are valid production
-evidence, but the feature still lacks required reviewer-label agreement and
-live-profile validation. Keep `POSE_KINEMATICS_ENABLED=0` as the production
-default until those two gates are backed by governed evidence.
+Decision for 2026-06-05: **Cycle 013 receives initial production enablement by
+operator exception for the offline-proven profile**. The offline matrix,
+enabled retry, and rollback proof are valid production evidence for defaulting
+`POSE_KINEMATICS_ENABLED=1` on the production offline path. This is not full
+scientific/live acceptance: reviewer-label agreement and real-media live
+validation remain open and must be completed before final Cycle 013 acceptance.
 
 ### 43.5 Deployment Validation Rerun
 
@@ -3656,9 +3657,30 @@ Pose output checks:
 Post-run cleanup verified `POSE_KINEMATICS_ENABLED=0`, no active
 queued/processing/embedding/running jobs, and Triton readiness HTTP `200`.
 This enabled retry confirms that the feature writes the expected DB records and
-artifact output on the offline benchmark path. It does not change the Cycle 013
-production-enable decision because reviewer-label agreement and real-media live
-validation remain absent.
+artifact output on the offline benchmark path. At the time of the retry it did
+not change the Cycle 013 production-enable decision because reviewer-label
+agreement and real-media live validation were absent; Section 43.7 records the
+later operator exception that enables the offline-proven profile while keeping
+those gates open.
+
+### 43.7 Initial Production Enablement Exception
+
+After operator approval on 2026-06-05, the production default changed from
+`POSE_KINEMATICS_ENABLED=0` to `POSE_KINEMATICS_ENABLED=1`. The authority for
+this exception is limited to the offline-proven production path:
+
+| Evidence | Result |
+|---|---|
+| Offline matrix | Candidate enabled run completed `4541/4541`, produced `19129` pose records and `19129` artifact refs, and kept DB/model row counts unchanged. |
+| Enabled retry | Job `6833a227-3738-4dec-afc8-fab149c172e1` completed `4541/4541`, reconciliation `overall_ok=true`, artifact check `ok=true`, and history-bound violations `0`. |
+| Rollback proof | Job `1011ee9f-2d53-43b8-93de-d2238bf6f7f5` completed with `POSE_KINEMATICS_ENABLED=0`, zero pose records, and `overall_ok=true`. |
+| New production default | `POSE_KINEMATICS_ENABLED=1` in code defaults and `tools/prod/prod_enable_parallel_flow.sh`. |
+| Open reminder | Reviewer-label agreement for SC-003 through SC-006 and live validation for SC-007 remain open. |
+
+This exception should not be cited as final scientific acceptance for posture,
+hand-raise, orientation, or attention-support quality until a governed reviewer
+label manifest and agreement report exist. It also should not be cited as
+live-profile acceptance until real-media live validation evidence exists.
 
 ---
 

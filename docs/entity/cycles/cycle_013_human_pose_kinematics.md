@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-05
 **Entity kind:** `cycle`
-**Status:** `not_accepted`
+**Status:** `initial_production_enabled_exception`
 
 Deterministic post-RTMPose body-mechanics evidence for offline and live
 classroom inference.
@@ -32,9 +32,9 @@ classroom inference.
 
 ## 1. Purpose and scope
 
-Streaming compatibility: `stream-safe-with-config` only when the live profile
-keeps `POSE_KINEMATICS_ENABLED=0` until
-`tools/prod/prod_run_pose_kinematics_live_validation.sh` produces governed
+Streaming compatibility: `stream-safe-with-config` for the offline-proven
+profile. Live-profile acceptance still requires
+`tools/prod/prod_run_pose_kinematics_live_validation.sh` to produce governed
 real-media evidence for SC-007.
 
 Cycle 013 adds a deterministic Human Pose Kinematics Layer after RTMPose and
@@ -127,7 +127,7 @@ flowchart LR
 
 | Variable | Default | Required? | Effect |
 |---|---|---|---|
-| `POSE_KINEMATICS_ENABLED` | `0` | no | Master feature switch. |
+| `POSE_KINEMATICS_ENABLED` | `1` | no | Master feature switch, enabled by initial production exception. |
 | `POSE_KINEMATICS_HISTORY_SECONDS` | `5` | no | Bounded history time window. |
 | `POSE_KINEMATICS_HISTORY_MAX_SAMPLES` | `150` | no | Bounded history sample count. |
 | `POSE_KINEMATICS_OVERRIDE_MARGIN` | `0.15` | no | Pose-vs-model confidence margin. |
@@ -267,18 +267,21 @@ released_at_utc: 2026-06-05T12:43:00Z
 
 ## 14. Current decision
 
-Decision on 2026-06-05: `not_accepted` for production enablement.
+Decision on 2026-06-05: `initial_production_enabled_exception`.
 
-The offline matrix and disabled-layer rollback proof exist and pass their
-evidence checks. The candidate produced `19129` pose kinematics records and
-`19129` artifact refs with zero history-bound violations, while DB/model row
-counts stayed unchanged against baseline. Rollback job
+The offline matrix, enabled retry, and disabled-layer rollback proof exist and
+pass their evidence checks. The enabled retry job
+`6833a227-3738-4dec-afc8-fab149c172e1` produced `19129` pose kinematics
+records and `19129` artifact refs with zero history-bound violations and
+`overall_ok=true` reconciliation. The baseline/candidate matrix kept DB/model
+row counts unchanged against baseline, and rollback job
 `1011ee9f-2d53-43b8-93de-d2238bf6f7f5` completed `4541/4541` frames with
 `POSE_KINEMATICS_ENABLED=0`, zero pose records, and `overall_ok=true` in
 `rollback_report.json`.
 
-Full production acceptance remains blocked because no Cycle 013
-`reviewer_label_manifest.json` or generated agreement report exists, and no
-real-media live validation manifest exists. Keep `POSE_KINEMATICS_ENABLED=0`
-as the production default until reviewer-label agreement and live validation
-are backed by governed evidence.
+Operator exception: `POSE_KINEMATICS_ENABLED=1` is the production default for
+the offline-proven profile. This is not full scientific/live acceptance because
+no Cycle 013 `reviewer_label_manifest.json` or generated agreement report
+exists, and no real-media live validation manifest exists. Reviewer-label
+agreement for SC-003 through SC-006 and real-media live validation for SC-007
+remain open acceptance reminders.

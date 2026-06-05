@@ -1,6 +1,6 @@
 # Implementation Plan: Human Pose Kinematics Layer
 
-**Branch**: `013-human-pose-kinematics` | **Date**: 2026-06-04 | **Spec**: [spec.md](spec.md)
+**Branch**: `013-human-pose-kinematics` | **Date**: 2026-06-05 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `specs/013-human-pose-kinematics/spec.md`
 
 ## Summary
@@ -39,7 +39,7 @@ through `.env`/Django settings.
 **Deployment Topology**: No Docker or sudo assumption for production. Feature flags are read from `backend/.env` through `backend/config/settings/base.py`; production launch remains governed by existing Triton/Celery scripts.  
 **Runtime Reconciliation**: Job metadata, DB summaries, artifacts, telemetry, and frontend/export payloads must converge. Invalid or missing pose generates an explicit state and reason. Override events preserve original model prediction, corrected pose basis, confidence values, bounded-history evidence, spike-vs-contradiction classification, and root-cause fields.  
 **Lineage/Fingerprints**: Evidence records include feature version, code SHA, `.env`/config digest, RTMPose model identity, source media digest or stream identity, job/replay key, artifact digest, and telemetry artifact path.  
-**Budgets/SLOs**: Defaults are `POSE_KINEMATICS_ENABLED=0`, `POSE_KINEMATICS_HISTORY_SECONDS=5`, `POSE_KINEMATICS_OVERRIDE_MARGIN=0.15`, and `POSE_KINEMATICS_OVERRIDE_MIN_FRAMES=3`. Implementation tasks must add bounded env parsing and production benchmark tables before enabling by default.
+**Budgets/SLOs**: Defaults are `POSE_KINEMATICS_ENABLED=1` by the 2026-06-05 initial production enablement exception, `POSE_KINEMATICS_HISTORY_SECONDS=5`, `POSE_KINEMATICS_OVERRIDE_MARGIN=0.15`, and `POSE_KINEMATICS_OVERRIDE_MIN_FRAMES=3`. Reviewer-label agreement and live validation remain open acceptance gates before final Cycle 013 acceptance.
 
 ## Constitution Check
 

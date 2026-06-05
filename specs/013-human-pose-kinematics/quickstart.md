@@ -1,13 +1,13 @@
 # Quickstart: Human Pose Kinematics Layer
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 ## Preconditions
 
 - PostgreSQL is the only accepted database backend.
 - RTMPose remains the authoritative pose keypoint source.
-- The feature is off by default until implementation, tests, and production
-  benchmark evidence pass.
+- The feature is on by default after the 2026-06-05 initial production
+  enablement exception for the offline-proven profile.
 - All thresholds are read from `.env`/Django settings; no service logic may
   hardcode override gates.
 
@@ -17,7 +17,7 @@ These keys are now read in `backend/config/settings/base.py` and consumed
 through `PoseKinematicsConfig`:
 
 ```bash
-POSE_KINEMATICS_ENABLED=0
+POSE_KINEMATICS_ENABLED=1
 POSE_KINEMATICS_HISTORY_SECONDS=5
 POSE_KINEMATICS_OVERRIDE_MARGIN=0.15
 POSE_KINEMATICS_OVERRIDE_MIN_FRAMES=3
@@ -25,8 +25,8 @@ POSE_KINEMATICS_ARTIFACTS_ENABLED=1
 POSE_KINEMATICS_TELEMETRY_ENABLED=1
 ```
 
-`POSE_KINEMATICS_ENABLED` remains `0` by default. Production validation wrappers
-toggle it for baseline-disabled and candidate-enabled attempts.
+`POSE_KINEMATICS_ENABLED` is `1` by default. Production validation wrappers can
+still force `0` for baseline-disabled and rollback attempts.
 
 ## Local Validation Shape
 

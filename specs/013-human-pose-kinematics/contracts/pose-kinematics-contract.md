@@ -1,6 +1,6 @@
 # Contract: Pose Kinematics v1
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 ## Contract Version
 
@@ -180,7 +180,7 @@ must read active values from configuration and must not hardcode them.
 
 | Key | Default | Required behavior |
 | --- | --- | --- |
-| `POSE_KINEMATICS_ENABLED` | `0` | Master feature flag. |
+| `POSE_KINEMATICS_ENABLED` | `1` | Master feature flag, default-enabled by initial production exception. |
 | `POSE_KINEMATICS_HISTORY_SECONDS` | `5` | Maximum same-track history window. |
 | `POSE_KINEMATICS_HISTORY_MAX_SAMPLES` | implementation bounded default | Maximum samples retained per track. |
 | `POSE_KINEMATICS_OVERRIDE_MARGIN` | `0.15` | Pose confidence must exceed target by this margin. |

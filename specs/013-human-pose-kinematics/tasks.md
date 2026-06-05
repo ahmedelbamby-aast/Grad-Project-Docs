@@ -241,7 +241,9 @@ T053 backend/tests/contract/test_pose_kinematics_override_contract.py
 1. Complete Phase 1 and Phase 2.
 2. Complete US1 only.
 3. Validate one compact pose mechanics record per pose-eligible track/frame.
-4. Keep `POSE_KINEMATICS_ENABLED=0` by default until production evidence exists.
+4. Set `POSE_KINEMATICS_ENABLED=1` by default only after the recorded initial
+   production enablement exception; keep reviewer-label and live evidence as
+   open acceptance reminders.
 
 ### Incremental Delivery
 
@@ -252,7 +254,8 @@ T053 backend/tests/contract/test_pose_kinematics_override_contract.py
 
 ### Acceptance Boundary
 
-Code completion is not acceptance. Acceptance requires the production offline
-benchmark matrix in T067, documented evidence in T068, hardening checks in
-T069, live production validation in T071, runtime reconciliation in T073,
-reviewer-label agreement evidence in T075, and rollback verification in T077.
+Code completion is not final acceptance. The 2026-06-05 operator exception
+allows initial production enablement for the offline-proven path after T067,
+T068, T069, and T077 evidence. Final Cycle 013 acceptance still requires live
+production validation in T071, live reconciliation in T073, and reviewer-label
+agreement evidence in T075.
