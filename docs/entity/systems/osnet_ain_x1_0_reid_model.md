@@ -76,7 +76,7 @@ resulting appearance feature JSON.
 |---|---|---|
 | TensorRT build entry | `backend/scripts/build_tensorrt_engines.py` | Adds `osnet_ain_x1_0`, checkpoint acquisition, ONNX export, FP32 engine build, Triton config generation, and manifest rows. |
 | Triton model config | `backend/models/triton_repository_cuda12/osnet_ain_x1_0/config.pbtxt` | Declares TensorRT backend IO: `input` FP32 `[3,256,128]`, `embedding` FP32 `[512]`, max batch 64, and warmup. |
-| Production build wrapper | `tools/prod/prod_build_osnet_reid_tensorrt.sh` | Installs pinned Torchreid, invokes the central builder, updates `.env`, restarts offline Triton, and checks `READY`. |
+| Production build wrapper | `tools/prod/prod_build_osnet_reid_tensorrt.sh` | Checks out pinned Torchreid source, invokes the central builder, updates `.env`, restarts offline Triton, and checks `READY`. |
 | Runtime client | `backend/apps/pipeline/services/reid_triton_client.py` | Clamps crops, converts BGR to RGB, resizes to 256x128, normalizes, calls Triton gRPC, L2-normalizes output, and fails closed. |
 | Boundary consumer | `backend/apps/video_analysis/services/offline_sharding.py` | Adds `triton_reid` descriptor mode and writes native 512-d appearance references for packet tracks. |
 | Parity probe | `tools/prod/prod_probe_reid_triton.py` | Compares PyTorch reference outputs against Triton outputs and writes JSON plus Markdown evidence. |
@@ -133,14 +133,14 @@ offline pipeline.
 | `TritonReidClient.embed_crops(crops)` | List of `(frame_bgr, xyxy)` to `ReidEmbeddingResult` rows | `_track_appearance_reference` |
 | `preprocess_reid_crop(frame_bgr, xyxy)` | BGR crop to NCHW FP32 `[3,256,128]` | `TritonReidClient`, parity probe |
 | Triton model `osnet_ain_x1_0` | Input `input`; output `embedding`; FP32; dynamic batch | `TritonReidClient` |
-| CLI `prod_build_osnet_reid_tensorrt.sh` | `--tag`, `--workspace-mib`, `--skip-pip-install`, `--skip-restart` | Production operator |
+| CLI `prod_build_osnet_reid_tensorrt.sh` | `--tag`, `--workspace-mib`, `--skip-source-checkout`, `--skip-restart` | Production operator |
 | CLI `prod_probe_reid_triton.py` | JSON and Markdown parity evidence outputs | Production operator |
 
 ## 7. Dependencies
 
 | Dependency | Reason | Pinned version or source |
 |---|---|---|
-| Torchreid | Defines OSNet-AIN architecture and weight loading | `KaiyangZhou/deep-person-reid` commit `f8cd150fdf77e8d9e1ed143b7f308c2c609ded50` in `prod_build_osnet_reid_tensorrt.sh`. |
+| Torchreid | Defines OSNet-AIN architecture and weight loading | `KaiyangZhou/deep-person-reid` commit `f8cd150fdf77e8d9e1ed143b7f308c2c609ded50` checked out by `prod_build_osnet_reid_tensorrt.sh`. |
 | Hugging Face OSNet repo | Checkpoint acquisition path | `kaiyangzhou/osnet` revision `a5c5cc037c24235cda3b21085b93ad77c9616224` in `build_tensorrt_engines.py`. |
 | TensorRT | Builds and serves `model.plan` | Runtime version recorded by `latest_compat.json` from `build_tensorrt_engines.py`. |
 | Triton gRPC client | Runtime inference transport | Imported in `reid_triton_client.py`. |
@@ -164,6 +164,7 @@ manifest.
 | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_REID_MIN_CROP_SIZE` | `16` | no | Rejects tiny or degenerate crops before inference. |
 | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_REID_TIMEOUT_MS` | `1500` | no | Per-request gRPC timeout for boundary ReID inference. |
 | `TORCHREID_COMMIT` | pinned commit above | no | Override for the production build wrapper. |
+| `TORCHREID_SRC_DIR` | `backend/models/source_deps/deep-person-reid` | no | Local pinned source checkout used on `PYTHONPATH` for export and parity. |
 | `OSNET_REID_BUILD_TAG` | timestamp tag | no | Engine and manifest version tag for the production build. |
 
 ## 9. Sequence diagram
