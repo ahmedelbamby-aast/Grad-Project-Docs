@@ -1,6 +1,6 @@
 # Inference Pipeline Parallelization Plan
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 **Status:** IMPLEMENTATION COMPLETE — **ROI-320 production benchmark partial; final GPU-utilization acceptance pending.**
 **Owner:** runtime/inference
@@ -1138,6 +1138,32 @@ Cycle 18 is now documented as Phase A contract-only in
 `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Runtime Redis
 boundary-state caching remains blocked until a new identity-state design proof
 addresses the Cycle 15 sharding correctness failures.
+
+### 2026-06-05 Open Latency-Cycle Sort
+
+The next optimization work is sorted by measured upside, dependency order, and
+readiness. This replaces the older "Cycle 20 last" wording below for active
+cycle selection; the older paragraphs remain as historical context.
+
+| Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
+|---:|---|---|---|---|
+| 1 | **Cycle 18.B appearance-backed boundary association** | `STAGED_LOCAL_ONLY / NO_PRODUCTION_DECISION` | Cycle 15 sharding already proved the largest speed path, but failed identity/model agreement. The default-off appearance-packet continuation is the direct blocker-removal candidate. | It does not count as a gain until benchmarked, but it can unlock the measured sharding envelope: DB FPS `5.620 -> 7.867` (`+39.98 %`), Step 2 wall `467.450 s -> 233.038 s` (`-50.15 %`), and GPU avg `11.846 % -> 17.495 %` if correctness is restored. |
+| 2 | **Cycle 15.B1 identity-fixed sharding rerun, then 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Four-shard runtime is not allowed while two-shard identity is wrong. After Cycle 18.B, the next proof is a two-shard production rerun with model agreement, label-invariant tracking, and rollback. | Same measured two-shard envelope above; four-shard has no valid expected gain until B1 passes because each extra boundary increases identity risk. |
+| 3 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | Latest accepted single-job evidence still has post-frame embedding/span work, but lifecycle/idempotency changes are riskier than fixing the already-measured sharding blocker. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
+| 4 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
+| 5 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | It is lower risk than lifecycle work, but the measured dominant-child gap caps the benefit. It cannot close the SLA alone. | Bounded at about `~4 %` Step 2 wall, roughly `18 s` on a `459 s` Step 2 frame wall. |
+| 6 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Phase A measured decode/output work as small after Top-K, and the pinned Triton runtime lacks the Python backend. | Decode/NMS-only savings are about `2 %` of Step 2; a larger gain requires a backend/runtime change that also reduces server wait or execution. |
+| 7 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already coalesced the measured Redis side-effect bottleneck; scripts require a new measured Redis read/compute/write hotspot. | No current gain estimate; start only if new production profiling exposes a Redis script-shaped hotspot. |
+| 8 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | Important for fusion quality, but not a latency-first cycle. It should not preempt higher-throughput blockers unless the user explicitly changes priority to behavior correctness. | No latency gain expected; acceptance would be correctness/contradiction-signal quality, not throughput. |
+
+**Next cycle to start:** Cycle 18.B appearance-backed boundary association. It
+is the first actionable blocker in front of the largest measured latency
+improvement. The required first production run is a two-shard `combined.mp4`
+benchmark with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet
+validation, raw model agreement, label-invariant association metrics, DB/GPU/RTT
+metrics, rollback proof, and a generated figure bundle/manifest embedded in the
+responsible benchmark/result docs. No Cycle 18.B result is accepted, rejected,
+or closed until that benchmark exists in `docs/production_inference_benchmark.md`.
 
 Cycle 20 is now staged in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a

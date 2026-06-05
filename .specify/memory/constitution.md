@@ -1,6 +1,25 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.9.0 -> 2.10.0
+Bump rationale: MINOR - Adds benchmark-figure evidence and cycle-execution
+completion gates to Sections 7.1.1 and 12.6, plus a matching Section 14.25
+enforcement row. Future optimization decisions must include generated figures
+from the same raw benchmark artifacts as the decision tables. Figures do not
+replace raw JSON/CSV/log evidence; they make before/after deltas, latency,
+throughput, resource use, correctness, and remaining bottlenecks visually
+auditable. A benchmark decision package without the figure manifest, generated
+artifacts, Markdown embeds, and missing-metric disclosure has no decision
+authority.
+
+Triggering observation: repeated optimization cycles produced valid raw
+tables, but follow-up coordination required visual comparison of FPS, wall
+time, RTT, GPU, and correctness deltas across accepted, not-accepted, staged,
+and hypothesis-only states. The new gate prevents prose-only decisions and
+standardizes figure generation as part of every cycle's evidence bundle.
+
+Prior MINOR (2.8.0 -> 2.9.0) text below.
+
 Version change: 2.8.0 -> 2.9.0
 Bump rationale: MINOR - Adds Section 4.6 (Independent-Run and Sharded
 Tracklet Association Doctrine) and two matching Section 14.25 enforcement
@@ -1037,12 +1056,22 @@ mark the family as `unavailable` with the reason:
 | Resource metrics | GPU live and benchmark average/peak utilization, VRAM, power, worker RSS, CPU/process contention when available |
 | Correctness metrics | DB parity, model agreement, detection/box/embedding/track counts, missing-frame counts and stage error ratios |
 | Evidence integrity | replay key, job ID, deployed SHA, exact video, env/config delta, raw JSON/CSV/log paths and metric freshness |
+| Figure evidence | generated plots from the same raw artifacts, figure manifest/digests, Markdown embed paths, and unavailable-metric annotations |
 
 Missing measurements MUST NOT be silently converted to zero. A decision may
 still proceed only if the missing family is irrelevant to the declared target
 gate and the decision table explains why. If a candidate improves one metric but
 the precision breakdown shows the dominant wall moved elsewhere or correctness
 regressed, the candidate MUST NOT be accepted on the improved metric alone.
+
+Benchmark figures are evidence views, not independent authority. They MUST be
+generated from the exact JSON/CSV/log artifacts cited by the benchmark table and
+MUST include, when available: FPS/throughput, per-step and per-phase wall time,
+model RTT and call-rate, GPU/VRAM/resource use, correctness/model-agreement,
+identity/reconciliation gates, and the final decision status. Missing metrics
+MUST render as `unavailable` with the reason; they MUST NOT be plotted as zero
+or omitted without disclosure. The figure bundle MUST contain a manifest with
+input artifact paths and digests so the plots can be reproduced.
 
 #### 7.2 Benchmark Integrity Laws
 
@@ -1616,7 +1645,7 @@ include an explicit decision explanation table. The table MUST state:
 | Decision reason | why the status follows from the gate, not from intuition |
 | Causal interpretation | why the measured metrics moved, including competing explanations when present |
 | Remaining bottleneck | measured unresolved limiter and the next validation needed to attack it |
-| Evidence paths | durable JSON/Markdown/log/GPU/DB artifacts and deployed SHA when applicable |
+| Evidence paths | durable JSON/Markdown/log/GPU/DB artifacts, generated figure bundle, figure manifest, Markdown embed targets, and deployed SHA when applicable |
 
 A metric improvement is not sufficient evidence of success when the targeted
 gate fails, correctness regresses, or the improved component is not the dominant
@@ -1630,6 +1659,16 @@ without the Section 12.5 production benchmark and this comparison table.
 Decision tables that omit the Section 7.1.1 precision breakdown are incomplete
 and have no optimization decision authority unless the omission is explicitly
 justified as unavailable and irrelevant to the target gate.
+
+Every optimization cycle MUST read AGENTS.md, this constitution, the active
+cycle investigation/results document, and the current production benchmark
+history before implementation. The cycle remains open until implementation,
+local validation, workflow/CI validation, production benchmark, baseline and
+best-cycle deltas, generated figures, Markdown figure embeds, rollback proof,
+and the Section 12.6 decision table are all recorded. When a candidate is
+staged, probe-only, hypothesis-only, not accepted, or needs further iteration,
+the same figure evidence requirement applies to the evidence that exists for
+that state.
 
 ### 13. Cross-Wave Dependency Constitution
 
@@ -2101,6 +2140,7 @@ reproduce the claimed result.
 | Offline-only optimization shipped to live | Profile-block + cycle-doc `Streaming compatibility:` audit | Streaming source doctrine (8.6) | offline-only env knob present in `tools/prod/prod_enable_parallel_flow.sh` live block, OR cycle entity doc missing the `Streaming compatibility:` field, OR live profile inheriting offline knob implicitly | fail streaming-safety gate | disable knob in live block + add explicit `0` assignment | restart live workers with the corrected profile | live runtime + AI infra owners |
 | Raw local-ID equality used as independent-run identity proof | Identity evaluator and evidence review | Independent-run association doctrine (4.6) | source-scoped labels, observation matching, deterministic one-to-one assignment, separated detection/association metrics, and proxy-ground-truth disclosure | fail identity/scientific gate | block identity claim and rerun valid evaluation | invalidate unsupported comparison | AI validity + evidence owners |
 | Geometry-only or forced cross-shard canonical merge | Boundary contract and association audit | Identity continuity and association doctrine (4.3/4.6) | bounded tracklet state with motion, appearance, lifecycle, quality, ambiguity, one-to-one decision, and unresolved fallback | fail identity/runtime gate | leave association unresolved and disable candidate | restore prior non-sharded or unresolved profile | tracking + AI validity owners |
+| Decision without benchmark figure evidence | Benchmark artifact validator and docs review | Benchmark scientific rigor (7.1.1/12.6) | raw artifacts, figure-generation command, figure manifest/digests, generated plots, Markdown embeds, and unavailable-metric reasons | fail benchmark/figure gate | keep candidate staged or rerun evidence generation before decision | supersede incomplete decision artifact and regenerate figures | benchmark owner + evidence owner |
 
 ### 15. Final Architectural Positioning
 
@@ -2730,4 +2770,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.9.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-04
+**Version**: 2.10.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-05

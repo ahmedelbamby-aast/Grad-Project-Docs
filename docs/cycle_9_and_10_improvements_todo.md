@@ -1,6 +1,6 @@
 # Cycle 9 + Cycle 10 — Remaining Improvements (TODO)
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 **Status:** Consolidated TODO list. Nothing in this document is accepted or
 flagged "done" until each improvement has its own production benchmark on
@@ -825,7 +825,32 @@ quality of the diff.
 | **Cycle 12.A** | Persistent async dispatcher measurement | **PHASE A MEASUREMENT COMPLETE; NO OPTIMIZATION DECISION** | Clean production replay `cycle12-async-dispatch-profile-clean-20260602T213441Z` / job `dfa1f138-7086-418a-ba17-9999cd12b9ac` completed. Async-dispatch blocking wall was `349.643 s`; `behavior_all` owned `338.779 s`. No optimization candidate was deployed, so no acceptance/rejection/skip/closure decision exists. Metric decision: do not implement bridge-only dispatcher because the estimated `35.3 s` bridge gap is below the `>=10 %` Step 2 gate. | `docs/cycle_12_persistent_dispatcher_investigation.md`, `docs/cycle_12_persistent_dispatcher_results.md`, `docs/inference_parallelization_plan.md`, `docs/crop_frame_optimization_execution.md` |
 | **Cycle 12.B** | Bounded behavior-wait overlap dispatcher | **NEEDS FURTHER ITERATION; NOT ACCEPTED 2026-06-03** | Production benchmark `cycle12-behavior-overlap-20260602T223350Z` / job `46ba8b2a-3c61-4d89-b7b6-63ec72159428` completed. It improved Step 2 wall `540.399 s → 395.495 s` and DB FPS `4.439 → 5.195`, with tracks unchanged and F1 `>=99.716 %`, but behavior RTT mean regressed `84.865 ms → 115.420 ms` and p95 regressed `128.056 ms → 224.661 ms`. The likely contention source is two behavior jobs briefly in flight. | `docs/cycle_12_overlap_dispatcher_investigation.md`, `docs/cycle_12_overlap_dispatcher_results.md`, `docs/production_inference_benchmark.md` §25 |
 
-### Z.3 Cycles planned or newly started (restaged after Cycle 12.C)
+### Z.3 Current Sorted Open Latency Queue (2026-06-05)
+
+This queue is sorted by measured upside, dependency order, and implementation
+readiness. It supersedes the older restaged table below for deciding what to
+start next.
+
+| Sort | Cycle | State | Why this position | Expected gain / gate |
+|---:|---|---|---|---|
+| 1 | **Cycle 18.B appearance-backed boundary association** | `STAGED_LOCAL_ONLY / NO_PRODUCTION_DECISION` | It is the direct blocker for the largest measured speed path: sharding. Cycle 15.B1 proved throughput but failed identity/model agreement. | No gain can be claimed until a production benchmark passes. If correctness is restored, it can unlock the measured sharding envelope: DB FPS `5.620 -> 7.867` (`+39.98 %`), Step 2 wall `467.450 s -> 233.038 s` (`-50.15 %`), GPU avg `11.846 % -> 17.495 %`. |
+| 2 | **Cycle 15.B1 identity-fixed sharding rerun; 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Four-shard runtime must not start while two-shard identity is wrong. The next sharding proof must rerun two-shard with the Cycle 18.B association fix. | Same two-shard performance envelope above; 15.B2 has no valid gain estimate until B1 correctness passes. |
+| 3 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | It can reduce total wall, but it changes lifecycle, idempotency, terminal-state, and evidence contracts, so it follows the sharding blocker. | Upper bound from the accepted pre-shard baseline is the embedding created span `98.578 s`; fully hiding it would move total wall `808.038 s -> ~709.460 s` and DB FPS `5.620 -> ~6.40` (`~+13.9 %`). |
+| 4 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers help only when independent work exists from sharding, post-stage overlap, multiple jobs, or another measured queue bottleneck. | Unknown until topology matrix benchmark; must include duplicate-worker checks, resource budgets, DB/Redis/GPU contention, correctness, and rollback. |
+| 5 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | The remaining dominant-child gap is real but small compared with sharding/post-stage work. | About `~4 %` Step 2 wall ceiling, roughly `18 s` on a `459 s` Step 2 frame wall. |
+| 6 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Top-K already removed most output bytes; Phase A measured decode/NMS as small and Python BLS is blocked by the pinned runtime. | Decode/NMS-only gain is about `2 %` of Step 2; a real candidate must reduce server wait or execution, not only output bytes. |
+| 7 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already removed the measured Redis side-effect bottleneck. Scripts require a new measured Redis read/compute/write hotspot. | No active gain estimate; start only after a production profiler shows a script-shaped hotspot. |
+| 8 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | LPM is a fusion-quality/correctness lane, not the latency-first lane. | No throughput gain expected; acceptance depends on contradiction/fusion correctness, not FPS. |
+
+**Next cycle:** Cycle 18.B appearance-backed boundary association. The first
+valid production proof is a two-shard `combined.mp4` benchmark with
+`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet validation,
+raw model agreement, label-invariant association metrics, DB/GPU/RTT metrics,
+rollback proof, and a generated figure bundle/manifest embedded in the
+responsible benchmark/result docs. Until that exists, Cycle 18.B remains
+staged.
+
+### Z.3a Historical planned/newly-started map (restaged after Cycle 12.C)
 
 | # | Title | Status | Projected gain | Primary docs |
 |---|---|---|---:|---|

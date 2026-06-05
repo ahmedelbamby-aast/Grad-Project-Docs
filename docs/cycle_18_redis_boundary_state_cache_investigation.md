@@ -1,6 +1,6 @@
 # Cycle 18 Redis Boundary-State Cache Investigation
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 **Status:** `ONE_TO_ONE_RUNTIME_CANDIDATE_NOT_ACCEPTED` /
 `BOUNDARY_PACKET_PRODUCER_PRODUCTION_VALIDATED` /
@@ -71,6 +71,8 @@ runtime Redis cache or changing the parent merge.
 | Production benchmark log | `docs/production_inference_benchmark.md` | Records the completed Cycle 18 `one_to_one` production benchmark and section 12.6 decision table. |
 | Validator | `tools/prod/prod_validate_cycle18_boundary_packet.py` | Standalone read-only packet, digest, bounds, and duplicate validator. |
 | Test | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Focused fail-closed validator contract coverage. |
+| Figure generator | `tools/prod/prod_generate_cycle_figures.py` | Creates the required benchmark figure bundle and manifest from raw Cycle 18.B artifacts. |
+| Figure generator test | `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` | Proves strict unavailable-family handling and PNG/manifest/Markdown generation. |
 | File | `.gitignore` | Explicitly exposes the four CI-read contract/projection JSON files despite the blanket `*.json` ignore rule. |
 | Turn ledger | `docs/agent_19_cycle_18_turn.md` | Agent 19 contract-only ownership and non-overlap boundaries. |
 | Constitution | `.specify/memory/constitution.md` §8.6 | Streaming-source compatibility and live-profile restrictions. |
@@ -759,7 +761,7 @@ acceptance claim.
 | Preview-frame evidence carrier | `STAGED` | `backend/apps/pipeline/multi_model.py`, `backend/apps/video_analysis/tasks.py` |
 | Parent-side association consumer | `STAGED_DEFAULT_OFF` as `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet` | `backend/apps/video_analysis/services/offline_sharding.py` |
 | Runtime gates | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0`, `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=0` by default | `backend/config/settings/base.py`, `tools/prod/prod_enable_parallel_flow.sh` |
-| Benchmark wrapper support | `STAGED`; cleanup restores appearance flags to disabled defaults | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+| Benchmark wrapper support | `STAGED`; cleanup restores appearance flags to disabled defaults and emits metrics, packet validation, model agreement, label-invariant tracking, rollback proof, and figure bundle/manifest | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
 | Local focused validation | `PASSED` | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
 
 What changed:
@@ -779,6 +781,8 @@ Local validation run on 2026-06-05:
 | Shard/Cycle 18 unit suite | `9 passed` | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
 | Focused Cycle 18 slice | `12 passed` | `backend/tests/unit/pipeline/test_prod_probe_cycle18_label_invariant_tracking.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
 | Measured-value checker | `PASS`; still reports `cycle18_runtime_benchmark_present=false` | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` |
+| Benchmark wrapper syntax | `PASS` | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+| Figure generator focused unit test | `4 passed` | `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
 
 Final local decision for this step:
 
@@ -788,4 +792,4 @@ Final local decision for this step:
 | Production benchmark lock | `NOT_HELD` |
 | Section 12.6 optimization decision | `MISSING` |
 | Cycle 18 closure state | `OPEN_PENDING_PRODUCTION_BENCHMARK` |
-| Required next evidence | Full `combined.mp4` Linux RTX 5090 benchmark with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet validation, model agreement, label-invariant association metrics, DB/GPU/RTT metrics, and rollback proof. |
+| Required next evidence | Full `combined.mp4` Linux RTX 5090 benchmark with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet validation, model agreement, label-invariant association metrics, DB/GPU/RTT metrics, rollback proof, and generated figure bundle/manifest embedded in the responsible benchmark/result docs. |

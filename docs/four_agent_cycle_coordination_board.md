@@ -1,6 +1,6 @@
 # Four-Agent Cycle Coordination Board
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 **Status:** ACTIVE COORDINATION GUIDE. This document divides current cycle work
 across four agent sessions. It does not accept, reject, skip, or complete any
@@ -25,6 +25,22 @@ candidate also completed and is not accepted. The follow-up Cycle 18 boundary
 packet producer is production-validated as evidence-only and not
 identity-merge-ready. Cycle 20 and Cycle 21 may proceed only as bounded
 readiness/governance work unless their dependency gates are satisfied.
+
+2026-06-05 queue update: the next latency cycle is **Cycle 18.B
+appearance-backed boundary association**, not Cycle 20 or Cycle 21. The reason
+is dependency-based: two-shard sharding produced the largest measured speed
+path, but identity/model agreement failed. The sorted queue is:
+
+| Sort | Cycle | Coordination state |
+|---:|---|---|
+| 1 | Cycle 18.B appearance-backed boundary association | Take first; benchmark lock required before production run. |
+| 2 | Cycle 15.B1 identity-fixed sharding rerun | Blocked until Cycle 18.B candidate exists; 15.B2 remains blocked until B1 passes. |
+| 3 | Cycle 20 streaming persistence/embedding overlap | Readiness only until sharding blocker is handled or metrics reorder it. |
+| 4 | Cycle 21 Celery concurrency matrix | Governance only until independent work exists. |
+| 5 | Cycle 11.B / 9b B.3 child-kernel tuning | Low-ceiling fallback. |
+| 6 | Cycle 9b B.1 / 14.D compact postprocessing | Runtime/backend-blocked or low measured decode-cost. |
+| 7 | Cycle 19 Redis scripts | Conditional on a new measured Redis hotspot. |
+| 8 | Cycle 10 LPM redesign | Fusion-quality lane, not latency-first. |
 
 ## Source-of-Truth References
 
@@ -161,6 +177,7 @@ Every cycle decision must include:
 | Model F1@IoU0.5 | required | required | required | Signal gate |
 | Redis/DB counters | if touched | if touched | required | Side-effect gate |
 | Rollback proof | required | required | required | Safety gate |
+| Figure bundle + manifest | required | required | required | Evidence visualization gate |
 
 ## Four-Agent Work Split
 

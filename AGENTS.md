@@ -44,9 +44,46 @@ This file defines how agents should execute tests quickly and safely in this rep
   [specs/013-human-pose-kinematics/tasks.md](specs/013-human-pose-kinematics/tasks.md).
 <!-- SPECKIT END -->
 
+## ⭐ Benchmark Figure Evidence — BINDING
+
+Constitution v2.10.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
+cycle decision has authority unless generated figures are created from the same
+raw artifacts as the benchmark decision table and embedded or linked from the
+connected Markdown evidence.
+
+Before implementation or benchmark work on any optimization cycle, the agent
+MUST read:
+
+1. this `AGENTS.md`;
+2. [`.specify/memory/constitution.md`](.specify/memory/constitution.md);
+3. the cycle's investigation/results Markdown file;
+4. the current benchmark history in
+   [`docs/production_inference_benchmark.md`](docs/production_inference_benchmark.md);
+5. the current sorted queue in
+   [`docs/inference_parallelization_plan.md`](docs/inference_parallelization_plan.md)
+   and [`docs/cycle_9_and_10_improvements_todo.md`](docs/cycle_9_and_10_improvements_todo.md).
+
+For every cycle state (`ACCEPTED`, `NOT ACCEPTED`, `NEEDS FURTHER ITERATION`,
+`PROBE_ONLY`, `HYPOTHESIS_ONLY`, `STAGED`, or rollback), the evidence package
+MUST include:
+
+- baseline-vs-candidate-vs-best-cycle metric deltas when comparable;
+- FPS, latency, throughput, per-model RTT/call-rate, per-step/per-phase wall,
+  GPU/VRAM, CPU/worker memory, DB/Redis, correctness/model agreement, identity,
+  reconciliation, rollback, and unavailable-metric reasons;
+- generated plots plus a manifest that records input artifact paths and digests;
+- Markdown embeds or links in the responsible cycle/result/benchmark docs;
+- workflow/CI updates when code or evidence-generation scripts are changed.
+
+Figures are not a substitute for raw JSON/CSV/log evidence. A missing metric
+must render as `unavailable` with a reason and must not be hidden, omitted, or
+plotted as zero. A cycle remains open until implementation, local tests,
+workflow validation, production Linux RTX 5090 benchmark, metric deltas, figure
+generation, documentation updates, and rollback proof are all recorded.
+
 ## ⭐ Documentation Systematization Program (DSP) — BINDING
 
-**Constitution Section 19 (added in v2.5.0; current constitution v2.8.0)
+**Constitution Section 19 (added in v2.5.0; current constitution v2.10.0)
 makes the following rules non-bypassable. Hallucinations are FORBIDDEN — a
 documentation claim without a resolvable reference is a CI-blocking
 regression, not a style nit.**
@@ -1240,6 +1277,19 @@ rejected, or used to advance sharding.
   full `combined.mp4` Linux RTX 5090 benchmark with packet validation,
   model-agreement and label-invariant association metrics, DB/GPU/RTT metrics,
   and rollback proof before any acceptance or rejection claim.
+- **2026-06-05 open latency-cycle sort updated**: the active optimization
+  queue is now dependency-sorted in
+  `docs/inference_parallelization_plan.md` and
+  `docs/cycle_9_and_10_improvements_todo.md`. Start with **Cycle 18.B
+  appearance-backed boundary association** because it is the blocker in front
+  of the largest measured speed path. Cycle 15.B1 sharding already showed DB
+  FPS `5.620 -> 7.867`, Step 2 wall `467.450 s -> 233.038 s`, and GPU average
+  `11.846 % -> 17.495 %`, but it failed identity/model agreement. Cycle 20
+  moves behind the Cycle 18.B -> Cycle 15.B1 correctness gate; Cycle 21 stays
+  after independent work exists; Cycle 11.B/B.3, compact postprocessing,
+  Cycle 19 Redis scripts, and Cycle 10 LPM follow behind in that order. No
+  cycle decision exists without a completed production Linux RTX 5090
+  `combined.mp4` benchmark, model/identity agreement evidence, and rollback.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
