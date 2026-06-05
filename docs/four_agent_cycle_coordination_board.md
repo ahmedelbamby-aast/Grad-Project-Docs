@@ -26,12 +26,15 @@ packet producer is production-validated as evidence-only and not
 identity-merge-ready. Cycle 20 and Cycle 21 may proceed only as bounded
 readiness/governance work unless their dependency gates are satisfied.
 
-2026-06-05 Cycle 18.C result update: Cycle 18.C completed production replay
-`cycle18c-packet-budget-active-edge-20260605T162825Z` and is **NOT ACCEPTED**.
-It fixed packet byte validity (`0/2 -> 2/2`) but still failed merge readiness
-(`1/2`), StudentTrack parity (`53 -> 64`), model agreement, and label-invariant
-identity. The sharding lane remains blocked; the next non-sharding latency
-queue is:
+2026-06-05 Cycle 18.D result update: Cycle 18.D completed production replay
+`cycle18d-combined-cost-20260605T174115Z` and is **NOT ACCEPTED**. It improved
+the failed Cycle 18.C association coverage (`10/36 -> 18/36` shard-1 tracks
+mapped to existing parent IDs) and moved StudentTracks closer to baseline
+(`64 -> 56`, accepted baseline `53`), but it failed packet validity (`1/2`),
+merge readiness (`0/2`), model agreement, and label-invariant identity. The
+second packet exposed a schema gap for the new `combined_score` / `motion_score`
+candidate fields. The sharding lane remains blocked; the next non-sharding
+latency queue is:
 
 | Sort | Cycle | Coordination state |
 |---:|---|---|
@@ -42,10 +45,12 @@ queue is:
 | 5 | Cycle 19 Redis scripts | Conditional on a new measured Redis hotspot. |
 | 6 | Cycle 10 LPM redesign | Fusion-quality lane, not latency-first. |
 
-Blocked sharding work: Cycle 15.B1 and 15.B2 cannot proceed until a new
+Blocked sharding work: Cycle 15.B1 and 15.B2 cannot proceed until the Cycle 18
+boundary-packet schema accepts combined-cost diagnostics and a new
 identity-state producer or association redesign eliminates shard-1 unresolved
 and offset-fallback tracks in a two-shard production benchmark. Rerunning the
-same Cycle 18.C `appearance_packet` profile is not valid new evidence.
+same Cycle 18.C `appearance_packet` or Cycle 18.D `combined_cost` profile
+unchanged is not valid new evidence.
 
 ## Source-of-Truth References
 
@@ -63,6 +68,7 @@ same Cycle 18.C `appearance_packet` profile is not valid new evidence.
 | Turn ledger | `docs/agent_18_cycle_17_turn.md` | Current Cycle 17 ledger; turn is free after production benchmark release. |
 | Prior turn ledger | `docs/agent_17_cycle_17_turn.md` | Historical Cycle 17 handoff; superseded by Agent 18 continuation. |
 | Turn ledger | `docs/agent_19_cycle_18_turn.md` | Maps Agent 19 to the active Cycle 18.C packet-budget/readiness lane. |
+| Cycle doc | `docs/cycle_18d_combined_cost_boundary_association_investigation.md` | Records the latest Cycle 18.D combined-cost production benchmark and NOT ACCEPTED decision. |
 | Turn ledger | `docs/agent_20_remaining_lanes_turn.md` | Maps Agent 20 to the remaining Agent C and Agent D lanes. |
 | Turn ledger | `docs/agent_20_cycle_18_override_turn.md` | Maps the user-authorized Agent 20 Cycle 18 override, rejected one-to-one candidate, and evidence-only boundary packet producer. |
 
@@ -70,8 +76,8 @@ same Cycle 18.C `appearance_packet` profile is not valid new evidence.
 
 | Agent | Lane | Status | Primary owned files | Must not do |
 |---|---|---|---|---|
-| Agent 18 | Cycle 17 Redis Streams | Free; accepted observability-only | `docs/agent_18_cycle_17_turn.md`, `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, Cycle 17 scripts/tests and wrapper | Claim inference-wall gain or leave stream flag enabled outside governed benchmark evidence. |
-| Agent 19 (Agent B) | Cycle 18.C packet-budget and association readiness | Lock released; Cycle 18.C **NOT ACCEPTED** after production replay `cycle18c-packet-budget-active-edge-20260605T162825Z` | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/production_inference_benchmark.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Enable sharding by default, start 15.B2, rerun failed 18.B/18.C unchanged, or claim acceptance without passing §12.6 evidence. |
+| Agent 18 | Cycle 18.D combined-cost boundary association | Lock released; Cycle 18.D **NOT ACCEPTED** after production replay `cycle18d-combined-cost-20260605T174115Z` | `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, `docs/production_inference_benchmark.md` §46, `docs/figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/` | Enable sharding by default, start 15.B2, rerun failed 18.C/18.D unchanged, or claim acceptance without passing §12.6 evidence. |
+| Agent 19 (Agent B) | Cycle 18.C packet-budget and association readiness | Lock released; Cycle 18.C **NOT ACCEPTED** after production replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; superseded by Cycle 18.D result | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/production_inference_benchmark.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Enable sharding by default, start 15.B2, rerun failed 18.B/18.C unchanged, or claim acceptance without passing §12.6 evidence. |
 | Agent 20 override | Cycle 18 boundary state | Free; `one_to_one` not accepted; packet producer evidence-only; benchmark lock released | `docs/agent_20_cycle_18_override_turn.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Rerun or enable `one_to_one`; claim sharding/15.B2 acceptance while packets are not identity-merge-ready. |
 | Agent 20 (Agent C) | Cycle 20 stream post-stages | Turn taken; readiness only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` | Change lifecycle or persistence code before an implementation gate. |
 | Agent 20 (Agent D) | Cycle 21 concurrency | Turn taken; governance only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_21_celery_concurrency_scaling_investigation.md` | Increase worker counts without a full benchmark matrix. |
@@ -186,10 +192,15 @@ Every cycle decision must include:
 
 ## Four-Agent Work Split
 
-### Agent 18: Cycle 17
+### Agent 18: Cycle 17 / Cycle 18.D
 
 Objective: preserve the completed Cycle 17 evidence and prevent accidental
 reruns or throughput claims from an observability-only result.
+
+2026-06-05 update: the user explicitly reassigned Agent 18 for the Cycle 18.D
+combined-cost production benchmark. That run is complete and **NOT ACCEPTED**;
+Agent 18 must now preserve the Cycle 18.D evidence, keep the benchmark lock
+released, and prevent default-on sharding or unchanged reruns.
 
 Allowed next outputs:
 
@@ -236,7 +247,7 @@ reassignment.
 | Agent | Prompt |
 |---|---|
 | Agent 17 | "Read `AGENTS.md`, `docs/agent_17_cycle_17_turn.md`, and `docs/agent_18_cycle_17_turn.md`. Your Cycle 17 role is historical only; do not take Cycle 17, run benchmarks, or edit runtime files unless the user explicitly reassigns a new governed follow-up." |
-| Agent 18 | "Read `AGENTS.md`, constitution §12.5/§12.6, `docs/four_agent_cycle_coordination_board.md`, `docs/agent_18_cycle_17_turn.md`, and `docs/cycle_17_redis_streams_progress_sampling_investigation.md`. Confirm Cycle 17 is `FREE / ACCEPTED_OBSERVABILITY_ONLY_NOT_THROUGHPUT`; do not rerun or claim throughput gain unless the user opens a new benchmark-locked follow-up." |
+| Agent 18 | "Read `AGENTS.md`, constitution §7.1.1/§8.6/§12.5/§12.6, `docs/four_agent_cycle_coordination_board.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, and `docs/production_inference_benchmark.md` §46. Confirm Cycle 18.D is `BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`; do not enable sharding, start 15.B2, or rerun the same `combined_cost` profile unchanged. Next sharding work must first fix the Cycle 18 packet schema for combined-cost diagnostics and reduce unresolved/offset fallback tracks." |
 | Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your Cycle 18.C lane is released and **NOT ACCEPTED**; only final docs, evidence checks, and handoff cleanup are allowed unless a new identity-state design is explicitly opened. Runtime Redis writes, default-on sharding, 15.B2, reruns of failed profiles, and production benchmarks without a recorded lock are forbidden." |
 | Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Keep Cycle 20 readiness and Cycle 21 governance documentation-only; do not change lifecycle code, embeddings, workers, queues, env, or production state." |
 

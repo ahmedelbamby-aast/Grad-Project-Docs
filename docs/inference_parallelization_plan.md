@@ -1147,24 +1147,22 @@ cycle selection; the older paragraphs remain as historical context.
 
 | Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
 |---:|---|---|---|---|
-| 1 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | Cycle 18.C is complete and **NOT ACCEPTED**; sharding remains blocked by identity correctness. Cycle 20 is now the next non-sharding latency lane, but lifecycle/idempotency gates still apply. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
+| 1 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane, but lifecycle/idempotency gates still apply. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
 | 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
 | 3 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | It is lower risk than lifecycle work, but the measured dominant-child gap caps the benefit. It cannot close the SLA alone. | Bounded at about `~4 %` Step 2 wall, roughly `18 s` on a `459 s` Step 2 frame wall. |
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Phase A measured decode/output work as small after Top-K, and the pinned Triton runtime lacks the Python backend. | Decode/NMS-only savings are about `2 %` of Step 2; a larger gain requires a backend/runtime change that also reduces server wait or execution. |
 | 5 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already coalesced the measured Redis side-effect bottleneck; scripts require a new measured Redis read/compute/write hotspot. | No current gain estimate; start only if new production profiling exposes a Redis script-shaped hotspot. |
 | 6 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | Important for fusion quality, but not a latency-first cycle. It should not preempt higher-throughput blockers unless the user explicitly changes priority to behavior correctness. | No latency gain expected; acceptance would be correctness/contradiction-signal quality, not throughput. |
-| Blocked | **Cycle 15.B1 identity-fixed sharding rerun, then 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Cycle 18.C fixed packet validity (`0/2 -> 2/2`) but failed merge readiness (`1/2`), StudentTracks (`53 -> 64`), model agreement, and label-invariant identity. | Same measured two-shard envelope exists, but no sharding gain is accepted. A new identity-state producer or association redesign must pass a two-shard benchmark before 15.B1/15.B2 can resume. |
+| Blocked | **Cycle 15.B1 identity-fixed sharding rerun, then 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Cycle 18.D improved shard-1 mapping (`10/36 -> 18/36`) and StudentTracks (`64 -> 56`) but failed packet validity (`1/2`), merge readiness (`0/2`), model agreement, and label-invariant identity. | Same measured two-shard envelope exists, but no sharding gain is accepted. The Cycle 18 packet schema must accept combined-cost diagnostics, and a new identity-state producer or association redesign must pass a two-shard benchmark before 15.B1/15.B2 can resume. |
 
-**Most recent cycle decision:** Cycle 18.C packet-budget and
-association-readiness production replay
-`cycle18c-packet-budget-active-edge-20260605T162825Z` is **NOT ACCEPTED**.
-It improved DB FPS `5.619787 -> 7.477400`, Step 2 wall
-`467.449833 s -> 244.490729 s`, and GPU average `11.846 % -> 19.177 %`, and it
-fixed packet byte validity (`0/2 -> 2/2`). It failed because only `1/2`
-packets was merge-ready, shard1 mapped only `10/36` tracks to existing parent
-IDs, `26/36` used offset fallback, `StudentTracks` regressed `53 -> 64`,
-minimum model-agreement F1@IoU0.5 stayed `53.730 %`, and minimum shard-1
-global-assignment F1 stayed `79.876 %`.
+**Most recent cycle decision:** Cycle 18.D combined-cost boundary association
+production replay `cycle18d-combined-cost-20260605T174115Z` is **NOT
+ACCEPTED**. It improved DB FPS `5.619787 -> 7.502768`, Step 2 wall
+`467.449833 s -> 244.259645 s`, shard-1 existing-parent mapping
+`10/36 -> 18/36`, and StudentTracks `64 -> 56`, but it failed because only
+`1/2` packets was schema-valid, `0/2` packets was merge-ready, shard-1 still
+had `18/36` offset fallbacks, minimum model-agreement F1@IoU0.5 was
+`53.788 %`, and minimum shard-1 global-assignment F1 stayed `79.876 %`.
 
 Cycle 20 is now staged in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a

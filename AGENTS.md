@@ -1380,6 +1380,31 @@ rejected, or used to advance sharding.
   global-assignment F1 stayed `79.876 %`. Rollback verified sharding defaults
   restored. Cycle 15.B1/15.B2 remain blocked; do not rerun the same
   `appearance_packet` profile as new evidence.
+- **2026-06-05 Agent 18 Cycle 18.D benchmark lock `RELEASED / NOT
+  ACCEPTED`**: user explicitly requested the Cycle 18.D correction benchmark.
+  Agent 18 claimed/released the production benchmark lock for replay
+  `cycle18d-combined-cost-20260605T174115Z` at deployed SHA `d976817b`.
+  Candidate env delta used `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=combined_cost`,
+  two shards, context `256`, boundary packets and appearance enabled, plus the
+  accepted overlap/embedding Redis flags. Parent job
+  `94098d79-fed1-4a67-a0c6-9f0f067f2990` completed `4541/4541`; child jobs
+  were `a3d6e334-08bf-48d3-a804-1f86a7dcca33` and
+  `9c68766d-6b91-4090-af51-04c8180eff50`. Throughput remained in the sharded
+  envelope (`DB FPS 5.619787 -> 7.502768`, Step 2 wall
+  `467.449833 s -> 244.259645 s`) and StudentTracks improved versus Cycle
+  18.C (`64 -> 56`), but the cycle is **NOT ACCEPTED**: valid packets fell to
+  `1/2`, merge-ready packets fell to `0/2`, shard-1 still had `18/36` offset
+  fallbacks, minimum model-agreement F1@IoU0.5 was `53.788 %`, and minimum
+  shard-1 global-assignment F1 stayed `79.876 %`. The second packet failed the
+  governed schema because new `combined_score` / `motion_score` candidate
+  fields are not accepted yet. Rollback verified sharding disabled and
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`. Evidence:
+  `docs/cycle_18d_combined_cost_boundary_association_investigation.md`,
+  `docs/production_inference_benchmark.md` §46, and
+  `docs/figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/`.
+  Cycle 15.B1/15.B2 remain blocked; next sharding work must first update the
+  Cycle 18 packet schema for combined-cost diagnostics and then reduce
+  unresolved/offset-fallback tracks in a new governed benchmark.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

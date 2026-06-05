@@ -2,13 +2,14 @@
 
 **Last updated:** 2026-06-05
 
-**Status:** `STAGED_LOCAL_ONLY` / `BENCHMARK_LOCK_NOT_HELD` /
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. This cycle implements a new
-default-off boundary association consumer that addresses the confirmed Cycle
-18.C root causes. It carries **no** optimization decision: only a completed
-native-Linux RTX 5090 `combined.mp4` benchmark may accept, reject, or close it
-under constitution §12.5 / §12.6. The accepted production profile is unchanged
-(`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`, sharding disabled).
+**Status:** `PRODUCTION_BENCHMARK_COMPLETE` /
+`BENCHMARK_LOCK_RELEASED` / `NOT_ACCEPTED`. This cycle implemented a new
+default-off boundary association consumer that addressed part of the confirmed
+Cycle 18.C root cause, but the completed native-Linux RTX 5090 `combined.mp4`
+benchmark did not pass the packet-validity, merge-readiness, model-agreement,
+or identity gates required by constitution §12.5 / §12.6. The accepted
+production profile is unchanged (`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`,
+sharding disabled).
 
 **Streaming compatibility:** `offline-only`. The association depends on finite
 shard boundaries and whole-file parent coordination. It MUST stay disabled for
@@ -122,7 +123,112 @@ agent to run the production benchmark directly and sub-agent spawning was not
 explicitly requested. The plan and implementation evidence are therefore kept
 as separate rows above per constitution §7.1.1 / §12.6.
 
-## Required Production Benchmark Gate (not yet run)
+## 2026-06-05 Production Benchmark Result
+
+```text
+BENCHMARK_RELEASE
+agent: 18
+cycle: 18.D combined-cost boundary association
+state: CYCLE_18D_BENCHMARK_LOCK_RELEASED / CYCLE_18D_NOT_ACCEPTED
+released_at_utc: 2026-06-05T17:54:05Z
+replay_key: cycle18d-combined-cost-20260605T174115Z
+candidate_code_sha: d976817b
+parent_job_id: 94098d79-fed1-4a67-a0c6-9f0f067f2990
+child_job_ids: a3d6e334-08bf-48d3-a804-1f86a7dcca33, 9c68766d-6b91-4090-af51-04c8180eff50
+status: completed_but_candidate_not_accepted
+metrics_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/metrics.md
+sharded_summary_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/sharded_summary.json
+gpu_csv: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/gpu_monitor.csv
+packet_validation_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/boundary_packet_validation.json
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/model_agreement.json
+label_invariant_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/label_invariant_tracking.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/rollback_status.json
+figure_manifest: docs/figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/figure_manifest.json
+figure_markdown: /home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/figures.md
+rollback_verified: true
+```
+
+### Cycle 18.D Production Metrics
+
+| Metric | Accepted pre-shard baseline | Cycle 18.C prior sharded profile | Cycle 18.D candidate | Delta vs baseline | Delta vs 18.C |
+|---|---:|---:|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.477400` | `7.502768` | `+33.51 %` | `+0.34 %` |
+| DB completed elapsed | `808.038 s` | `607.297 s` | `605.243 s` | `-25.10 %` | `-0.34 %` |
+| Step 2 frame wall | `467.449833 s` | `244.490729 s` | `244.259645 s` | `-47.75 %` | `-0.09 %` |
+| Step 2 through-pose wall | `641.154064 s` | `369.948615 s` | `370.990517 s` | `-42.14 %` | `+0.28 %` |
+| GPU average utilization | `11.846 %` | `19.177 %` | `17.035 %` | `+43.80 %` | `-11.17 %` |
+| GPU peak utilization | `57.000 %` | `93.000 %` | `85.000 %` | `+49.12 %` | `-8.60 %` |
+| Detection rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| BBox rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| Embedding rows | `72578` | `72650` | `72650` | `+0.10 %` | `0.00 %` |
+| StudentTracks | `53` | `64` | `56` | `+5.66 %` | `-12.50 %` |
+| Behavior RTT mean | `83.530 ms` | unavailable | `91.495 ms` | `+9.54 %` | unavailable |
+| Behavior RTT p95 | `129.514 ms` | unavailable | `149.335 ms` | `+15.30 %` | unavailable |
+
+Cycle 18.D preserved the sharded throughput envelope and improved StudentTrack
+count versus Cycle 18.C, but correctness gates still failed.
+
+### Cycle 18.D Correctness Gates
+
+| Gate | Cycle 18.C | Cycle 18.D | Result |
+|---|---:|---:|---|
+| Valid boundary packets | `2/2` | `1/2` | Fails packet-validity gate |
+| Merge-ready boundary packets | `1/2` | `0/2` | Fails identity-merge gate |
+| Shard-1 mapped to existing parent IDs | `10/36` | `18/36` | Improves coverage but still leaves half unmapped |
+| Shard-1 offset fallbacks | `26/36` | `18/36` | Improves fallback rate but still fails |
+| Minimum model-agreement F1@IoU0.5 | `53.730 %` | `53.788 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `69.830 %` | `72.414 %` | Improves but fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | Residual shard-1 association gap unchanged |
+| Minimum shard-1 raw-label F1 | `2.917 %` | `3.581 %` | Local-ID discontinuity remains |
+| Rollback verified | `true` | `true` | Pass safety gate |
+
+Boundary packet validation shows why the candidate cannot be accepted:
+
+| Child job | Packet valid | Merge-ready | Packet bytes | Tracks | Observations | Unresolved tracks | Key reason |
+|---|---|---|---:|---:|---:|---:|---|
+| `a3d6e334-08bf-48d3-a804-1f86a7dcca33` | `true` | `false` | `181162` | `24` | `1128` | `24` | First-shard packet is not identity-merge-ready. |
+| `9c68766d-6b91-4090-af51-04c8180eff50` | `false` | `false` | `236173` | `24` | `1424` | `6` | Schema rejected new `combined_score` / `motion_score` candidate fields, and unresolved tracks remain. |
+
+Cycle 18.D therefore reveals a new contract gap: the runtime emitted useful
+combined-cost diagnostics, but the governed boundary-packet schema did not
+accept the new candidate fields. Even if the schema gap were fixed, the
+remaining unresolved tracks and shard-1 residual association gap would still
+block acceptance.
+
+### Cycle 18.D Figure Evidence
+
+![Cycle 18.D Decision Delta](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__decision_delta.png)
+
+![Cycle 18.D Packet Readiness](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__packet_readiness.png)
+
+![Cycle 18.D Packet Budget](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__packet_budget.png)
+
+![Cycle 18.D Identity Label-Invariant](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__identity_label_invariant.png)
+
+![Cycle 18.D Correctness Gate](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__correctness_gate.png)
+
+![Cycle 18.D GPU Profile](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__gpu_profile.png)
+
+### Cycle 18.D Final Decision
+
+Decision: **NOT ACCEPTED**. The candidate completed `4541/4541` frames and
+improved DB FPS versus the accepted pre-shard baseline (`5.619787 -> 7.502768`)
+while reducing Step 2 frame wall (`467.449833 s -> 244.259645 s`). It also
+improved shard-1 mapping versus Cycle 18.C (`10/36 -> 18/36`) and reduced
+StudentTracks (`64 -> 56`), but it failed the required identity and evidence
+contracts: only `1/2` packets was schema-valid, `0/2` packets was merge-ready,
+`18/36` shard-1 tracks still fell back to offset IDs, minimum model-agreement
+F1 stayed at `53.788 %`, minimum shard-1 global-assignment F1 stayed
+`79.876 %`, and rollback was required to restore the accepted profile.
+
+No sharding gain is accepted from Cycle 18.D. Cycle 15.B1 and 15.B2 remain
+blocked. Next work must update the Cycle 18 boundary packet schema for the
+combined-cost fields and then reduce unresolved/offset fallback tracks enough
+to pass packet validity, merge readiness, model agreement, and label-invariant
+identity in a new production benchmark.
+
+## Required Production Benchmark Gate
 
 `combined_cost` cannot be accepted until a completed native-Linux RTX 5090
 two-shard `combined.mp4` benchmark records, versus the accepted baseline:

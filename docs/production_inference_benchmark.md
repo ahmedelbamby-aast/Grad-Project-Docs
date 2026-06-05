@@ -3848,6 +3848,95 @@ cycle. Cycle 15.B1 and 15.B2 remain blocked until a new identity-state producer
 or association redesign proves all boundary packets merge-ready and restores
 model/label-invariant correctness in production.
 
+## 46. Cycle 18.D Combined-Cost Boundary Association
+
+Cycle 18.D ran the combined-cost boundary association redesign on the
+production Linux RTX 5090 at deployed SHA `d976817b`. The candidate fused
+geometry, appearance, and motion evidence through
+`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=combined_cost`. It completed the governed
+two-shard `combined.mp4` benchmark and rollback proof, but it is **NOT
+ACCEPTED** because packet validity, merge readiness, model agreement, and
+identity gates still failed.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle18d-combined-cost-20260605T174115Z` |
+| Parent job ID | `94098d79-fed1-4a67-a0c6-9f0f067f2990` |
+| Child job IDs | `a3d6e334-08bf-48d3-a804-1f86a7dcca33`, `9c68766d-6b91-4090-af51-04c8180eff50` |
+| Status | `completed`, `4541/4541` parent frames |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/metrics.json` / `.md` |
+| Packet validation JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/boundary_packet_validation.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/model_agreement.json` / `.md` |
+| Label-invariant JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/label_invariant_tracking.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-combined-cost-20260605T174115Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/figure_manifest.json` |
+| Figure roles | Planner `Agent 18 current benchmark session`; implementer `Agent 18 current benchmark session`; separation unavailable because no sub-agent delegation was requested. |
+
+Performance versus the accepted pre-shard baseline and Cycle 18.C:
+
+| Metric | Baseline | Cycle 18.C | Cycle 18.D | Delta vs baseline | Delta vs 18.C |
+|---|---:|---:|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.477400` | `7.502768` | `+33.51 %` | `+0.34 %` |
+| DB completed elapsed | `808.038 s` | `607.297 s` | `605.243 s` | `-25.10 %` | `-0.34 %` |
+| Step 2 frame wall | `467.449833 s` | `244.490729 s` | `244.259645 s` | `-47.75 %` | `-0.09 %` |
+| Step 2 through-pose wall | `641.154064 s` | `369.948615 s` | `370.990517 s` | `-42.14 %` | `+0.28 %` |
+| GPU avg util | `11.846 %` | `19.177 %` | `17.035 %` | `+43.80 %` | `-11.17 %` |
+| GPU peak util | `57.000 %` | `93.000 %` | `85.000 %` | `+49.12 %` | `-8.60 %` |
+| Detection rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| BBox rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| Embedding rows | `72578` | `72650` | `72650` | `+0.10 %` | `0.00 %` |
+| StudentTracks | `53` | `64` | `56` | `+5.66 %` | `-12.50 %` |
+
+Correctness and identity gates:
+
+| Gate | Cycle 18.C | Cycle 18.D | Decision impact |
+|---|---:|---:|---|
+| Valid boundary packets | `2/2` | `1/2` | Fails packet-validity gate |
+| Merge-ready packets | `1/2` | `0/2` | Fails identity-merge gate |
+| Shard-1 mapped to existing parent IDs | `10/36` | `18/36` | Improves, but half of shard-1 still falls back |
+| Shard-1 offset fallbacks | `26/36` | `18/36` | Improves, but still fails |
+| Minimum model-agreement F1@IoU0.5 | `53.730 %` | `53.788 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `69.830 %` | `72.414 %` | Improves, but fails identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | Residual shard-1 association gap unchanged |
+| Minimum shard-1 raw-label F1 | `2.917 %` | `3.581 %` | Local-ID discontinuity remains |
+| Rollback verified | `true` | `true` | Pass safety gate |
+
+Packet validation:
+
+| Child | Packet valid | Merge-ready | Packet bytes | Tracks | Observations | Unresolved tracks |
+|---|---|---|---:|---:|---:|---:|
+| `a3d6e334-08bf-48d3-a804-1f86a7dcca33` | `true` | `false` | `181162` | `24` | `1128` | `24` |
+| `9c68766d-6b91-4090-af51-04c8180eff50` | `false` | `false` | `236173` | `24` | `1424` | `6` |
+
+The second packet failed schema validation because the new `combined_score` and
+`motion_score` candidate fields are not yet part of the governed Cycle 18
+boundary-packet schema. That contract gap is now a required next fix, but it is
+not the only blocker: unresolved tracks and the shard-1 residual association
+gap still prevent acceptance.
+
+### 46.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__decision_delta.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__packet_readiness.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__packet_budget.png)
+
+![Identity Label-Invariant](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__identity_label_invariant.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle18d-combined-cost-20260605T174115Z/cycle18d_combined_cost__correctness_gate.png)
+
+Decision: **NOT ACCEPTED**. Cycle 18.D improved mapping coverage compared with
+Cycle 18.C (`10/36 -> 18/36`) and moved StudentTracks closer to baseline
+(`64 -> 56` versus accepted `53`), while preserving the sharding throughput
+envelope. It still fails the required identity/evidence gates: `1/2` valid
+packets, `0/2` merge-ready packets, `18/36` shard-1 offset fallbacks, minimum
+model-agreement F1 `53.788 %`, and unchanged minimum shard-1 global-assignment
+F1 `79.876 %`. No Cycle 18.D sharding gain is accepted, and Cycle 15.B1/15.B2
+remain blocked.
+
 ---
 
 *Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*
