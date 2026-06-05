@@ -311,6 +311,56 @@ motion, and gives merge-readiness a governed ReID feature instead of a crop
 descriptor. Whether it is sufficient to pass the identity gates is a question
 only the production benchmark can answer.
 
+## 2026-06-05 Contract-Fix + ReID Production Benchmark Result
+
+Replay `cycle18d-combined-cost-reid-20260605T182708Z`, parent job
+`153c7719-6b09-4867-92dc-fb1f3775904e`, deployed SHA `216767e9`, completed
+`4541/4541` frames, `rc=0`, rollback verified. Decision: **NOT ACCEPTED**, but
+two sub-blockers from the prior 18.D run were genuinely fixed.
+
+| Gate | 18.D prior | 18.D contract-fix+ReID | Result |
+|---|---:|---:|---|
+| Valid boundary packets | `1/2` | **`2/2`** | **FIXED** by the schema/validator contract change. |
+| Merge-ready boundary packets | `0/2` | **`1/2`** | **IMPROVED**: shard-0 now merge-ready via first-shard identity in combined_cost. |
+| Shard-1 unresolved tracks | — | `6/24` | Shard-1 still not merge-ready. |
+| StudentTracks (baseline 53) | `56` | `56` | Still inflated. |
+| Min model-agreement F1@IoU0.5 | `53.788 %` | `53.788 %` | **Unchanged** — association quality did not move. |
+| Min shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | **Unchanged**. |
+| Rollback verified | `true` | `true` | Pass. |
+
+Performance held: DB FPS `5.620 -> 7.522` (`+33.85 %`), Step 2 frame wall
+`467.45 s -> 244.80 s` (`-47.63 %`), GPU avg `11.846 % -> 16.709 %`; behavior RTT
+mean regressed `+8.22 %`.
+
+### Why association did not improve: no working backbone ReID in production
+
+The run log proves the ReID upgrade could not take effect on this estate:
+
+```
+[TRACKER] Model loaded: backend=openvino ... student_teacher_openvino_model/model.xml device=intel:gpu
+[EMBED] model.embed() incompatible for this model instance; permanently using cv2 fallback for this process.
+```
+
+The production "primary model" is an **OpenVINO export**, which does not support
+Ultralytics `model.embed()`. So the entire embedding stage — and therefore the
+boundary appearance producer that reuses the same model — falls back to the weak
+`cv2 16x16` descriptor. There is **no learned ReID embedding deployed** in this
+runtime. The combined-cost fusion (geometry + motion + cv2-appearance) therefore
+cannot close the residual cross-shard association gap, exactly as measured.
+
+Two follow-ups recorded from this run:
+
+1. **Provenance honesty fix (required):** the loader labelled the feature
+   `yolo_backbone_embed` based on `hasattr(model, 'embed')`, but the runtime
+   value is cv2. The loader must smoke-test `model.embed()` and only claim/use
+   the backbone when it actually works, otherwise report `cv2_16x16_rgb_descriptor`.
+2. **Real lever without infra change:** replace the 16x16 RGB flatten with a
+   per-body-region HSV colour-histogram descriptor (classic person-ReID colour
+   signature), which is far more discriminative and runs on the OpenVINO box.
+   This is the next benchmarked candidate. A genuine learned ReID network (or a
+   `.pt` model loaded purely for `.embed()`) remains the stronger option but is
+   an infrastructure decision.
+
 ## Required Production Benchmark Gate
 
 `combined_cost` cannot be accepted until a completed native-Linux RTX 5090
