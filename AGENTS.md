@@ -1352,10 +1352,13 @@ rejected, or used to advance sharding.
   runtime/generator files. This
   is not a §12.6 benchmark decision and does not enable sharding or 15.B2.
   The local-staging lock state was `NOT_HELD`.
-- **2026-06-05 Agent 19 Cycle 18.C benchmark lock `HELD`**: Agent 19 claimed
-  the production benchmark lock for replay
-  `cycle18c-packet-budget-active-edge-20260605T162825Z` after local gates and
-  GitHub CI passed for SHA `8dd37244`. Planned candidate env delta:
+- **2026-06-05 Agent 19 Cycle 18.C benchmark lock `RELEASED / NOT
+  ACCEPTED`**: Agent 19 claimed and released the production benchmark lock for
+  replay `cycle18c-packet-budget-active-edge-20260605T162825Z`. Production
+  deployed SHA `e90db7a2245fd0169e51f11120867a42d45571ee`, parent job
+  `56f5782b-aceb-48fd-83eb-15017f57bf70`, and child jobs
+  `1471c0c4-3c02-4b8a-8df9-0ec10a285b20` /
+  `2e0712fc-d113-4628-bea3-3a160cf3ca65`. Candidate env delta:
   `OFFLINE_VIDEO_SHARDING_ENABLED=1`, `OFFLINE_VIDEO_SHARD_COUNT=2`,
   `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256`,
   `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`,
@@ -1363,11 +1366,20 @@ rejected, or used to advance sharding.
   `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1`,
   `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`,
   `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`, and
-  `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. Figure metadata must use
+  `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. Figure metadata used
   `cycle18c_packet_budget_active_edge`, `Huygens` as planner, and `Archimedes`
-  as implementer. No §12.6 decision exists until the production benchmark,
-  packet validation, model agreement, label-invariant identity metrics,
-  rollback proof, figure manifest, and embedded Markdown figures are complete.
+  as implementer; figures are tracked under
+  `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/`.
+  Decision: **NOT ACCEPTED**. Packet validity improved from `0/2` to `2/2`,
+  and throughput improved versus the accepted pre-shard baseline
+  (`DB FPS 5.619787 -> 7.477400`, Step 2 wall `467.449833 s -> 244.490729 s`,
+  GPU average `11.846 % -> 19.177 %`), but only `1/2` packets was merge-ready,
+  shard1 still mapped only `10/36` tracks to existing parent IDs,
+  `26/36` tracks used offset fallback, `StudentTracks` regressed `53 -> 64`,
+  minimum model-agreement F1@IoU0.5 stayed `53.730 %`, and minimum shard-1
+  global-assignment F1 stayed `79.876 %`. Rollback verified sharding defaults
+  restored. Cycle 15.B1/15.B2 remain blocked; do not rerun the same
+  `appearance_packet` profile as new evidence.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

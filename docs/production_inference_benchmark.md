@@ -3766,6 +3766,88 @@ redesign boundary packet payloads so packets are valid within the configured
 byte cap, then improve the association consumer so shard-1 residual association
 loss and unresolved tracks are eliminated before another production benchmark.
 
+## 45. Cycle 18.C Packet-Budget Active-Edge Boundary Association
+
+Cycle 18.C ran the packet-budget and active inter-shard-edge redesign on the
+production Linux RTX 5090 at deployed SHA
+`e90db7a2245fd0169e51f11120867a42d45571ee`. The candidate fixed packet byte
+validity and improved the sharding speed envelope, but it is **NOT ACCEPTED**
+because merge readiness and identity correctness still failed.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle18c-packet-budget-active-edge-20260605T162825Z` |
+| Parent job ID | `56f5782b-aceb-48fd-83eb-15017f57bf70` |
+| Child job IDs | `1471c0c4-3c02-4b8a-8df9-0ec10a285b20`, `2e0712fc-d113-4628-bea3-3a160cf3ca65` |
+| Status | `completed`, `4541/4541` parent frames |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json` / `.md` |
+| Packet validation JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json` / `.md` |
+| Label-invariant JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/figure_manifest.json` |
+| Figure roles | Planner `Huygens`; implementer `Archimedes`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance versus the accepted pre-shard baseline and Cycle 18.B:
+
+| Metric | Baseline | Cycle 18.B | Cycle 18.C | Delta vs baseline | Delta vs 18.B |
+|---|---:|---:|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.409522` | `7.477400` | `+33.05 %` | `+0.92 %` |
+| DB completed elapsed | `808.038 s` | `612.860 s` | `607.297 s` | `-24.84 %` | `-0.91 %` |
+| Step 2 frame wall | `467.449833 s` | `248.323884 s` | `244.490729 s` | `-47.70 %` | `-1.54 %` |
+| Step 2 through-pose wall | `641.154064 s` | `376.362543 s` | `369.948615 s` | `-42.30 %` | `-1.70 %` |
+| GPU avg util | `11.846 %` | `16.325 %` | `19.177 %` | `+61.89 %` | `+17.47 %` |
+| GPU peak util | `57.000 %` | `91.000 %` | `93.000 %` | `+63.16 %` | `+2.20 %` |
+| Detection rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| BBox rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| Embedding rows | `72578` | `72650` | `72650` | `+0.10 %` | `0.00 %` |
+| StudentTracks | `53` | `65` | `64` | `+20.75 %` | `-1.54 %` |
+
+Correctness and identity gates:
+
+| Gate | Cycle 18.B | Cycle 18.C | Decision impact |
+|---|---:|---:|---|
+| Valid boundary packets | `0/2` | `2/2` | Packet byte-budget blocker fixed |
+| Merge-ready packets | `0/2` | `1/2` | Fails identity-merge gate |
+| Minimum model-agreement F1@IoU0.5 | `53.730 %` | `53.730 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `69.752 %` | `69.830 %` | Fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | Fails residual association gate |
+| Minimum shard-1 raw-label F1 | `2.917 %` | `2.917 %` | Local-ID discontinuity remains |
+| Rollback verified | `true` | `true` | Pass safety gate |
+
+Packet validation:
+
+| Child | Packet valid | Merge-ready | Packet bytes | Tracks | Observations | Unresolved tracks |
+|---|---|---|---:|---:|---:|---:|
+| `1471c0c4-3c02-4b8a-8df9-0ec10a285b20` | `true` | `true` | `185391` | `24` | `1128` | `0` |
+| `2e0712fc-d113-4628-bea3-3a160cf3ca65` | `true` | `false` | `233988` | `24` | `1424` | `14` |
+
+Shard-1 association still failed: the parent mapped only `10/36` shard-1
+tracks to existing parent IDs and used offset fallback for `26/36`. That
+explains why `StudentTracks` remained wrong (`53 -> 64`) even after packet byte
+validity was repaired.
+
+### 45.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__decision_delta.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__packet_budget.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__packet_readiness.png)
+
+![Identity Label-Invariant](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__identity_label_invariant.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__correctness_gate.png)
+
+Decision: **NOT ACCEPTED**. Cycle 18.C fixed the packet byte-budget portion of
+the blocker, but it did not fix shard-1 association readiness or identity
+correctness. No FPS, wall-time, or GPU-utilization gain is accepted from this
+cycle. Cycle 15.B1 and 15.B2 remain blocked until a new identity-state producer
+or association redesign proves all boundary packets merge-ready and restores
+model/label-invariant correctness in production.
+
 ---
 
 *Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*

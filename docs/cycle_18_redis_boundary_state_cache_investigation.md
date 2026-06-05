@@ -890,18 +890,21 @@ not a rerun of the failed Cycle 18.B `appearance_packet` profile.
 
 ### 2026-06-05 Cycle 18.C Local Redesign
 
-Cycle 18.C is staged locally only. It is not a production benchmark, not a
-§12.6 decision, and not a sharding acceptance claim.
+Cycle 18.C started as a default-off local redesign and then ran a governed
+production benchmark under replay
+`cycle18c-packet-budget-active-edge-20260605T162825Z`. The local redesign
+evidence remains useful, but the production decision below supersedes the
+temporary `BENCHMARK_LOCK_HELD` state.
 
 | Field | Value |
 |---|---|
-| Cycle state | `BENCHMARK_LOCK_HELD / NO_DECISION_PENDING_PRODUCTION_RUN` |
-| Benchmark lock | `HELD` for replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
+| Cycle state | `PRODUCTION_BENCHMARK_COMPLETE / CYCLE_18C_NOT_ACCEPTED` |
+| Benchmark lock | `RELEASED` after replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
 | Figure Planner | `Huygens` sub-agent, read-only plan; no files edited |
 | Figure Implementer | `Archimedes` sub-agent, generator/test lane only |
 | Runtime owner | Agent 19 |
 | Streaming compatibility | `offline-only`; sharding remains disabled for live profiles |
-| Decision authority | `NO_PRODUCTION_DECISION`; full Linux RTX 5090 `combined.mp4` benchmark still required |
+| Decision authority | `SECTION_12_6_PRODUCTION_EVIDENCE`; final result is **NOT ACCEPTED** |
 
 Implemented local changes:
 
@@ -923,7 +926,7 @@ Local validation:
 | Active-edge regression | `PASS`; a final shard packet/summary excludes the terminal video edge and reports `boundary_side=left` |
 | Figure generator regression | `PASS`; generated manifest includes figure roles, run metadata, packet/readiness metrics, identity metrics, Redis/resource metrics, and unavailable summary |
 
-Remaining blockers before any Cycle 18.C decision:
+Remaining blockers that the production benchmark had to decide:
 
 | Blocker | Required proof |
 |---|---|
@@ -950,7 +953,106 @@ required_evidence: metrics_json, metrics_md, sharded_summary_json, gpu_csv, boun
 decision_authority: NO_DECISION_UNTIL_SECTION_12_6_EVIDENCE_TABLE
 ```
 
-Cycle 15.B1 and 15.B2 stay blocked until Cycle 18.C proves the two-shard
-identity boundary is valid. Cycle 20 remains staged behind this blocker unless a
-new benchmark shows post-stage persistence/embedding has become the dominant
-latency source.
+```text
+BENCHMARK_RELEASE
+cycle: 18.C packet-budget and association-readiness redesign
+agent: 19
+state: CYCLE_18C_BENCHMARK_LOCK_RELEASED / CYCLE_18C_NOT_ACCEPTED
+released_at_utc: 2026-06-05T16:49:17Z
+replay_key: cycle18c-packet-budget-active-edge-20260605T162825Z
+candidate_code_sha: e90db7a2245fd0169e51f11120867a42d45571ee
+parent_job_id: 56f5782b-aceb-48fd-83eb-15017f57bf70
+child_job_ids: 1471c0c4-3c02-4b8a-8df9-0ec10a285b20, 2e0712fc-d113-4628-bea3-3a160cf3ca65
+status: completed_but_candidate_not_accepted
+metrics_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.md
+sharded_summary_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json
+gpu_csv: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv
+packet_validation_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json
+label_invariant_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json
+figure_manifest: docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/figure_manifest.json
+figure_markdown: /home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures.md
+rollback_verified: true
+```
+
+#### Cycle 18.C Production Metrics
+
+| Metric | Accepted pre-shard baseline | Cycle 18.B best sharded envelope | Cycle 18.C candidate | Delta vs baseline | Delta vs 18.B |
+|---|---:|---:|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.409522` | `7.477400` | `+33.05 %` | `+0.92 %` |
+| DB completed elapsed | `808.038 s` | `612.860 s` | `607.297 s` | `-24.84 %` | `-0.91 %` |
+| Step 2 frame wall | `467.449833 s` | `248.323884 s` | `244.490729 s` | `-47.70 %` | `-1.54 %` |
+| Step 2 through-pose wall | `641.154064 s` | `376.362543 s` | `369.948615 s` | `-42.30 %` | `-1.70 %` |
+| GPU average utilization | `11.846 %` | `16.325 %` | `19.177 %` | `+61.89 %` | `+17.47 %` |
+| GPU peak utilization | `57.000 %` | `91.000 %` | `93.000 %` | `+63.16 %` | `+2.20 %` |
+| Detection rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| BBox rows | `72744` | `72816` | `72816` | `+0.10 %` | `0.00 %` |
+| Embedding rows | `72578` | `72650` | `72650` | `+0.10 %` | `0.00 %` |
+| StudentTracks | `53` | `65` | `64` | `+20.75 %` | `-1.54 %` |
+
+#### Cycle 18.C Correctness Gates
+
+| Gate | Cycle 18.B | Cycle 18.C | Result |
+|---|---:|---:|---|
+| Valid boundary packets | `0/2` | `2/2` | Packet byte-budget blocker fixed |
+| Merge-ready boundary packets | `0/2` | `1/2` | Fails identity-merge gate |
+| Minimum model-agreement F1@IoU0.5 | `53.730 %` | `53.730 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `69.752 %` | `69.830 %` | Fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | Fails residual association gate |
+| Minimum shard-1 raw-label F1 | `2.917 %` | `2.917 %` | Confirms local-ID discontinuity remains |
+| Rollback verified | `true` | `true` | Pass safety gate |
+
+Packet validation improved because Cycle 18.C sampled non-critical boundary
+observations within the configured packet byte budget:
+
+| Child job | Packet valid | Merge-ready | Packet bytes | Track rows | Observations | Unresolved tracks |
+|---|---|---|---:|---:|---:|---:|
+| `1471c0c4-3c02-4b8a-8df9-0ec10a285b20` | `true` | `true` | `185391` | `24` | `1128` | `0` |
+| `2e0712fc-d113-4628-bea3-3a160cf3ca65` | `true` | `false` | `233988` | `24` | `1424` | `14` |
+
+The shard-1 consumer still did not have enough identity evidence to merge
+tracks safely:
+
+| Shard-1 diagnostic | Value |
+|---|---:|
+| Track-map mode | `appearance_packet` |
+| Shard-1 tracks | `36` |
+| Mapped to existing parent IDs | `10` |
+| Offset fallbacks | `26` |
+| Boundary child entries | `2146` |
+| Boundary parent entries | `1131` |
+| Unresolved packet tracks | `14` |
+
+#### Cycle 18.C Figure Evidence
+
+![Cycle 18.C Decision Delta](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__decision_delta.png)
+
+![Cycle 18.C Packet Budget](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__packet_budget.png)
+
+![Cycle 18.C Packet Readiness](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__packet_readiness.png)
+
+![Cycle 18.C Identity Label-Invariant](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__identity_label_invariant.png)
+
+![Cycle 18.C Correctness Gate](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__correctness_gate.png)
+
+![Cycle 18.C GPU Profile](figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/cycle18c_packet_budget_active_edge__gpu_profile.png)
+
+#### Cycle 18.C Final Decision
+
+Decision: **NOT ACCEPTED**. Cycle 18.C fixed the packet byte-budget blocker
+(`valid boundary packets` moved from `0/2` to `2/2`) and preserved the sharding
+speed envelope (`DB FPS 5.619787 -> 7.477400`, `Step 2 frame wall
+467.449833 s -> 244.490729 s`, `GPU average 11.846 % -> 19.177 %`). It still
+failed the required identity/correctness gates: only `1/2` packets was
+merge-ready, shard1 still mapped only `10/36` tracks to existing parent IDs,
+`26/36` fell back to offset IDs, `StudentTracks` increased `53 -> 64`, minimum
+model-agreement F1@IoU0.5 stayed `53.730 %`, and shard-1 global-assignment F1
+stayed `79.876 %`.
+
+No sharding gain is accepted from Cycle 18.C. Cycle 15.B1 and 15.B2 remain
+blocked. The next sharding attempt must be a new identity-state producer or
+association redesign that eliminates shard-1 unresolved/offset fallback tracks
+before another production benchmark; rerunning the same `appearance_packet`
+profile is not valid evidence.

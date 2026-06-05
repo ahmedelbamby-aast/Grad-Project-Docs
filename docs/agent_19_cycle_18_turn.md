@@ -2,16 +2,16 @@
 
 **Last updated:** 2026-06-05
 
-**Status:** RESUMED / CYCLE 18.C BENCHMARK LOCK HELD /
-`PACKET_BUDGET_AND_ACTIVE_EDGE_DEFAULT_OFF` /
-`NO_SECTION_12_6_PRODUCTION_DECISION` /
-`OPEN_PENDING_PRODUCTION_BENCHMARK`. This current agent session is **Agent 19**.
-The prior read-only identity probes remain valid historical evidence. The
-2026-06-05 continuation stages a default-off appearance-backed packet producer
-and parent-side association consumer; the Cycle 18.C continuation now stages
-packet byte-budget sampling, inter-shard-edge scoping, and figure evidence
-plumbing. Cycle 18 is still not accepted, closed, or complete until a full
-production benchmark and rollback proof exist.
+**Status:** RESUMED / CYCLE 18.C BENCHMARK LOCK RELEASED /
+`PACKET_BUDGET_AND_ACTIVE_EDGE_PRODUCTION_BENCHMARKED` /
+`SECTION_12_6_DECISION_NOT_ACCEPTED`. This current agent session is **Agent
+19**. The prior read-only identity probes remain valid historical evidence.
+The 2026-06-05 continuation staged packet byte-budget sampling,
+inter-shard-edge scoping, and figure evidence plumbing, then ran production
+replay `cycle18c-packet-budget-active-edge-20260605T162825Z`. Cycle 18.C is
+**NOT ACCEPTED**: packet byte validity was fixed, but merge readiness,
+StudentTrack parity, model agreement, and label-invariant identity still
+failed. The production benchmark lock is released.
 
 ## Purpose
 
@@ -21,7 +21,8 @@ rules. Agent 19 may carry real completed upstream production measurements into
 Cycle 18, run read-only evidence probes, preserve the contract gate, and under
 the 2026-06-05 continuation stage a default-off runtime candidate for local
 validation. This turn does not authorize a Redis boundary cache, permanent
-sharding enablement, production acceptance, or a runtime benchmark decision.
+sharding enablement, production acceptance, or rerunning a failed sharding
+profile as new evidence.
 
 ## Source-of-Truth References
 
@@ -81,13 +82,13 @@ sharding enablement, production acceptance, or a runtime benchmark decision.
 | Agent name | Agent 19 |
 | Board lane | Agent B Cycle 18 contract/evidence lane |
 | Cycle | Cycle 18 Redis boundary-state cache investigation |
-| Turn state | `RESUMED_LOCAL_CANDIDATE_STAGED` |
+| Turn state | `CYCLE_18C_NOT_ACCEPTED / BENCHMARK_LOCK_RELEASED` |
 | Claimed at | 2026-06-05 continuation of 2026-06-04 Cycle 18 work |
 | User authority | User explicitly requested continuing blocker resolution after asking whether solutions exist. |
-| Current phase | Cycle 18.C packet-budget/readiness redesign staged locally; production benchmark still pending |
-| Production benchmark lock | `HELD` for replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
-| Runtime implementation permission | Default-off Cycle 18.C candidate only |
-| Production env permission | Governed Cycle 18.C benchmark mutation only; no acceptance decision |
+| Current phase | Cycle 18.C production decision recorded; sharding remains blocked |
+| Production benchmark lock | `RELEASED` after replay `cycle18c-packet-budget-active-edge-20260605T162825Z` |
+| Runtime implementation permission | None after release without a fresh lane |
+| Production env permission | None after rollback; production defaults restored |
 
 ## Junior Execution Responsibilities
 
@@ -100,10 +101,10 @@ Agent 19 owns a narrow evidence and contract lane:
 | Source discipline | Cite resolvable files and docs; delete unsupported claims. |
 | Blocker reporting | Keep 15.B2 and Cycle 18 runtime implementation blocked until a new identity-state proof exists. |
 | Coordination | Avoid all Agent 17 and Agent 18 Cycle 17 files and runtime work. |
-| Decision authority | Do not accept, reject, skip, close, or benchmark an optimization. |
+| Decision authority | Do not accept an optimization unless §12.6 production evidence passes every gate; Cycle 18.C is documented as not accepted. |
 | Cycle 19 gate | Prove whether a measured Redis read/compute/write hotspot remains after Cycle 16.B before any implementation. |
 | Fail-closed behavior | Keep Lua/EVAL/EVALSHA and runtime Redis changes forbidden while either eligibility condition is unmet. |
-| Measured-value discipline | Write only values reproduced from completed production evidence; label them as upstream Cycle 15 measurements, not a Cycle 18 benchmark. |
+| Measured-value discipline | Write only values reproduced from completed production evidence; distinguish historical Cycle 15 measurements from the completed Cycle 18.C benchmark. |
 | Independent-run identity discipline | Treat local IDs as opaque namespaces; use deterministic one-to-one association and separate localization from association metrics. |
 | Runtime candidate discipline | Keep `appearance_packet` default-off and fail closed unless verified appearance, geometry, lifecycle, and ambiguity gates pass. |
 | Figure evidence discipline | Keep Figure Planner and Figure Implementer outputs separate; no decision without generated figures, manifest, and Markdown embeds. |
@@ -179,6 +180,11 @@ Agent 19 owns a narrow evidence and contract lane:
 | `A19-65` Record Cycle 18.C no-decision state | `COMPLETED` | Cycle doc, AGENTS, board, and this ledger state `STAGED_LOCAL_ONLY / BENCHMARK_LOCK_NOT_HELD` |
 | `A19-66` Parameterize production figure manifest metadata | `COMPLETED` | Benchmark wrapper accepts figure slug/status/label/planner/implementer arguments so Cycle 18.C figures are not mislabeled as Cycle 18.B |
 | `A19-67` Acquire Cycle 18.C production benchmark lock | `COMPLETED` | Lock recorded for replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; no §12.6 decision exists until evidence is complete |
+| `A19-68` Deploy reviewed Cycle 18.C SHA to production | `COMPLETED` | Production fast-forwarded to `e90db7a2245fd0169e51f11120867a42d45571ee` and local production smoke gates passed |
+| `A19-69` Run governed Cycle 18.C production benchmark | `COMPLETED` | Replay `cycle18c-packet-budget-active-edge-20260605T162825Z`, parent job `56f5782b-aceb-48fd-83eb-15017f57bf70`, child jobs `1471c0c4-3c02-4b8a-8df9-0ec10a285b20` and `2e0712fc-d113-4628-bea3-3a160cf3ca65` |
+| `A19-70` Collect production metrics, packet validation, model agreement, label-invariant identity, rollback, and figures | `COMPLETED` | Evidence under `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/` plus tracked figure bundle under `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/` |
+| `A19-71` Record Cycle 18.C final decision | `COMPLETED` | Decision **NOT ACCEPTED**: packet validity fixed, but merge readiness, StudentTrack parity, model agreement, and label-invariant identity failed |
+| `A19-72` Release Cycle 18.C production benchmark lock | `COMPLETED` | `CYCLE_18C_BENCHMARK_LOCK_RELEASED`; rollback verified sharding defaults restored |
 
 ## Owned Files And Boundaries
 
@@ -240,12 +246,12 @@ Agent 19 must not:
 | Enable default-on sharding or appearance packet behavior | Cycle 18 production benchmark and rollback gate |
 | Enable sharding or start 15.B2 | New identity-state proof plus production authority required |
 | Change lifecycle, persistence, embeddings, workers, or Celery topology | Agent C / Agent D lanes |
-| Hold a production benchmark lock | Not authorized by this turn |
+| Hold a production benchmark lock | Lock released after Cycle 18.C; any new production run needs a fresh recorded lock |
 | Implement Lua, `EVAL`, `EVALSHA`, or any Redis server-side script | Cycle 19 eligibility gate is not met |
 | Modify Redis runtime helpers, settings, env, or production state | Separate implementation turn plus production evidence required |
 | Claim Cycle 19 accepted, rejected, skipped, closed, complete, or deprioritized | Constitution §12.5/§12.6 production decision authority |
-| Claim Cycle 18 accepted, rejected, skipped, closed, or complete | No `appearance_packet` production benchmark or §12.6 decision table exists |
-| Label upstream Cycle 15 or local validation as a Cycle 18 runtime benchmark | No `appearance_packet` production benchmark has been run |
+| Claim Cycle 18.C accepted or complete | Cycle 18.C production evidence failed merge readiness, StudentTrack parity, model agreement, and label-invariant identity |
+| Rerun failed `appearance_packet` Cycle 18.B/18.C profiles as new evidence | A new identity-state producer or association redesign is required first |
 | Invent or estimate a benchmark value not present in resolvable production evidence | Constitution §19 source discipline |
 
 ## Validation Ledger
@@ -350,26 +356,38 @@ largest shard-1 residual association gap remained `20.124 pp`; fragmented and
 merged tracks therefore remain a real runtime blocker. Constitution v2.9.0,
 AGENTS guidance, and the Spec Kit templates now encode this distinction.
 
-The 2026-06-05 continuation stages the first local blocker-resolution
-candidate after the Agent 20 packet producer. Boundary packets can now carry a
-digest-backed crop-descriptor reference when explicitly enabled, and the new
-`appearance_packet` track-map mode can consume verified packet appearance plus
-boundary geometry to write fail-closed candidate decisions. Cycle 18.C adds two
-local fixes on top of that candidate: byte-budget sampling for non-critical
-observations and active inter-shard-edge scoping so terminal video edges do not
-inflate merge-readiness checks. Local tests prove the packet can become
-contract-valid under a tight byte cap and can exclude a final-shard terminal
-edge. This is still local evidence only; no `combined.mp4` Linux RTX 5090
-production benchmark has been run for Cycle 18.C.
+The 2026-06-05 continuation implemented and benchmarked the first
+blocker-resolution candidate after the Agent 20 packet producer. Boundary
+packets can carry a digest-backed crop-descriptor reference when explicitly
+enabled, and the `appearance_packet` track-map mode can consume verified packet
+appearance plus boundary geometry to write fail-closed candidate decisions.
+Cycle 18.C added byte-budget sampling for non-critical observations and active
+inter-shard-edge scoping so terminal video edges do not inflate
+merge-readiness checks.
+
+Production replay `cycle18c-packet-budget-active-edge-20260605T162825Z`
+completed on `combined.mp4`. It fixed packet byte validity (`0/2 -> 2/2`) and
+kept the sharding speed path measurable: DB FPS `5.619787 -> 7.477400`, Step 2
+frame wall `467.449833 s -> 244.490729 s`, and GPU average `11.846 % ->
+19.177 %`. It did not fix identity: only `1/2` packets was merge-ready, shard1
+mapped only `10/36` tracks to existing parent IDs, `26/36` used offset
+fallback, `StudentTracks` regressed `53 -> 64`, minimum model-agreement
+F1@IoU0.5 stayed `53.730 %`, and minimum shard-1 global-assignment F1 stayed
+`79.876 %`. Rollback verified sharding defaults restored, and the generated
+figure bundle is tracked under
+`docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/`.
 
 ## Handoff Protocol
 
-Agent 19 is now `CYCLE_18C_BENCHMARK_LOCK_HELD` for Cycle 18. The next valid
-work is production deployment of the reviewed SHA and a separately governed
-production benchmark. That benchmark must use the default-off Cycle 18.C profile
-with full packet validation,
-model-agreement and label-invariant association metrics, DB/GPU/RTT metrics,
-generated figure bundle/manifest, and rollback proof. The benchmark lock
-is held only for replay `cycle18c-packet-budget-active-edge-20260605T162825Z`;
-no Redis write, default-on sharding enablement,
-acceptance, rejection, completion, or closure decision exists.
+Agent 19 is now `CYCLE_18C_BENCHMARK_LOCK_RELEASED` for Cycle 18. The final
+decision is **NOT ACCEPTED**. No Redis write, default-on sharding enablement,
+accepted gain, 15.B1 rerun, or 15.B2 start is authorized from this result.
+
+The next valid sharding work is not another run of the failed
+`appearance_packet` profile. It must be a fresh identity-state producer or
+association redesign that eliminates shard-1 unresolved/offset fallback tracks,
+then a new two-shard production benchmark with packet validation, model
+agreement, label-invariant identity metrics, DB/GPU/RTT metrics, generated
+figure bundle/manifest, and rollback proof. Until that lane is explicitly
+opened, the coordination board marks the next non-sharding latency lane as
+Cycle 20 streaming persistence and embedding overlap.
