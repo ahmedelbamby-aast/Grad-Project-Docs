@@ -1344,10 +1344,12 @@ rejected, or used to advance sharding.
   include only actual inter-shard edges instead of terminal video edges. The
   Figure Planner lane was completed by sub-agent `Huygens`, and the Figure
   Implementer lane was completed by sub-agent `Archimedes` in
-  `tools/prod/prod_generate_cycle_figures.py` with focused tests. Local
-  validation passed: shard/Cycle 18, figure-generator, and shard-planning
-  focused set `18 passed`, plus py_compile for the modified runtime/generator
-  files. This
+  `tools/prod/prod_generate_cycle_figures.py` with focused tests. The
+  production benchmark wrapper now accepts figure slug/status/role metadata so
+  a Cycle 18.C run cannot emit mislabeled Cycle 18.B plots. Local validation
+  passed: shard/Cycle 18, figure-generator, and shard-planning focused set
+  `18 passed`, wrapper `bash -n`, plus py_compile for the modified
+  runtime/generator files. This
   is not a §12.6 benchmark decision and does not enable sharding or 15.B2.
   Benchmark lock remains `NOT_HELD`.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:

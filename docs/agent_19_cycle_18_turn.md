@@ -177,6 +177,7 @@ Agent 19 owns a narrow evidence and contract lane:
 | `A19-63` Integrate Cycle 18.C figure evidence generator support | `COMPLETED` | Packet/readiness, identity, Redis/resource, unavailable-summary, historical/context, and role metadata support added by the Figure Implementer |
 | `A19-64` Run focused Cycle 18.C local validation | `COMPLETED` | py_compile passed and focused runtime + figure + shard-planning tests reported `18 passed` |
 | `A19-65` Record Cycle 18.C no-decision state | `COMPLETED` | Cycle doc, AGENTS, board, and this ledger state `STAGED_LOCAL_ONLY / BENCHMARK_LOCK_NOT_HELD` |
+| `A19-66` Parameterize production figure manifest metadata | `COMPLETED` | Benchmark wrapper accepts figure slug/status/label/planner/implementer arguments so Cycle 18.C figures are not mislabeled as Cycle 18.B |
 
 ## Owned Files And Boundaries
 
@@ -283,6 +284,7 @@ Agent 19 must not:
 | 2026-06-05 measured-value checker | Passed and still reports `cycle18_runtime_benchmark_present=false`; no production decision exists for `appearance_packet` |
 | 2026-06-05 Cycle 18.C py_compile | Passed for `backend/apps/video_analysis/services/offline_sharding.py`, `tools/prod/prod_generate_cycle_figures.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, and `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
 | 2026-06-05 Cycle 18.C focused runtime + figure + shard-planning tests | Passed: `18` tests across `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py`, and `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` |
+| 2026-06-05 Cycle 18.C wrapper syntax | Passed: `bash -n tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
 
 ## First Slice Result And Next Action
 

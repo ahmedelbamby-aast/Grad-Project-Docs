@@ -910,6 +910,7 @@ Implemented local changes:
 | Boundary packets exceeded the default byte budget and were marked truncated. | Packet construction now deterministically samples non-critical observations until the serialized packet fits `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES`; track rows, tracker hints, and appearance references are retained. | `backend/apps/video_analysis/services/offline_sharding.py` |
 | Shard boundary packets could include video start/end evidence that is not an inter-shard merge edge. | Shard metadata now carries `shard_count`, and packet/summary windows include only actual inter-shard edges for first, middle, and final shards. | `backend/apps/video_analysis/services/offline_sharding.py` |
 | Figure evidence lacked Cycle 18.C packet/readiness and label-invariant plots. | The generator now supports packet budget/readiness, identity label-invariant, resource-tail, Redis profile, unavailable-summary, historical/context runs, run labels, and figure role metadata. | `tools/prod/prod_generate_cycle_figures.py` |
+| Production wrapper would have labeled Cycle 18.C figure output with the historical Cycle 18.B slug. | The wrapper now accepts figure slug, status, label, planner, and implementer metadata for the generated manifest while preserving old defaults. | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
 
 Local validation:
 
@@ -917,6 +918,7 @@ Local validation:
 |---|---|
 | Python compile | `PASS` for `backend/apps/video_analysis/services/offline_sharding.py`, `tools/prod/prod_generate_cycle_figures.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, and `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
 | Focused runtime + figure + shard-planning tests | `18 passed` across `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py`, and `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` |
+| Wrapper syntax | `PASS` for `bash -n tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
 | Packet byte-budget regression | `PASS`; generated packet remains contract-valid under a tight byte cap and records observation sampling without setting `bounds.truncated=true` |
 | Active-edge regression | `PASS`; a final shard packet/summary excludes the terminal video edge and reports `boundary_side=left` |
 | Figure generator regression | `PASS`; generated manifest includes figure roles, run metadata, packet/readiness metrics, identity metrics, Redis/resource metrics, and unavailable summary |
