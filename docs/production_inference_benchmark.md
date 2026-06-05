@@ -3455,4 +3455,99 @@ Decision explanation:
 
 ---
 
-*Updated from production run on 2026-06-04. Update this file after each major pipeline change or hardware migration.*
+## 43. Cycle 013 Human Pose Kinematics Production Evidence
+
+Cycle 013 production evidence was collected on branch
+`013-human-pose-kinematics` at deployed SHA `bbc30af7` after the metrics
+collector fix that separates job-time pose-kinematics enablement from the
+current rolled-back process setting.
+
+### 43.1 Offline Matrix
+
+| Item | Baseline disabled | Candidate enabled |
+|---|---|---|
+| Replay key | `pose-kinematics-prod-20260605T015300Z-baseline-disabled-rerun` | `pose-kinematics-prod-20260605T013200Z-candidate-enabled` |
+| Job ID | `c83f3c7d-226d-41e6-a9cc-b5dfcd9a150f` | `545bdec2-96b8-4c72-b8c1-b06453cd8e9c` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T015300Z-baseline-rerun` | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T013200Z` |
+| Metrics JSON/MD | `baseline_disabled_metrics.json`, `baseline_disabled_metrics.md` | `candidate_enabled_vs_baseline_rerun_metrics.json`, `candidate_enabled_vs_baseline_rerun_metrics.md` |
+| Reconciliation JSON/MD | `baseline_reconciliation.json`, `baseline_reconciliation.md` | `candidate_reconciliation.json`, `candidate_reconciliation.md` |
+| Status | `completed`, `4541/4541` frames | `completed`, `4541/4541` frames |
+| Pose kinematics enabled for job | `false` | `true` |
+| Current settings enabled at collection | `false` | `false` |
+
+Performance and correctness:
+
+| Metric | Baseline disabled | Candidate enabled | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.655908` | `5.361580` | `-5.20 %` |
+| Step 2 frame wall | `460.804618 s` | `451.563517 s` | `-2.01 %` |
+| Step 2 through pose upload | `635.637226 s` | `680.034363 s` | `+6.98 %` |
+| GPU avg util | `11.667 %` | `10.925 %` | `-6.36 %` |
+| GPU peak util | `54.000 %` | `53.000 %` | `-1.85 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| StudentTracks | `53` | `53` | `0.00 %` |
+| Pose kinematics records | `0` | `19129` | Evidence added |
+| Pose artifact refs | `0` | `19129` | Evidence added |
+| History bound violations | `0` | `0` | Pass |
+| Max history window | `0.000 s` | `5.000 s` | Within bound |
+| Max history samples | `0` | `67` | Within configured cap |
+
+Runtime reconciliation:
+
+| Evidence | Result |
+|---|---|
+| Baseline reconciliation | `overall_ok=true`, `pose_kinematics_enabled=false` |
+| Candidate reconciliation | `overall_ok=true`, `pose_kinematics_enabled=true` |
+| Candidate state counts | `valid=12577`, `degraded=5595`, `unavailable=957` |
+| Candidate quality counts | `good=4756`, `invalid=957`, `occluded=991`, `partial_body=9335`, `weak=3090` |
+| Override events | `0` |
+
+### 43.2 Rollback Proof
+
+Disabled-layer rollback was verified with:
+
+```bash
+bash tools/prod/prod_verify_pose_kinematics_rollback.sh \
+  --video "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4" \
+  --timeout 7200 \
+  --tag pose-kinematics-rollback-20260605T021500Z
+```
+
+| Item | Value |
+|---|---|
+| Replay key | `pose-kinematics-rollback-20260605T021500Z-disabled` |
+| Job ID | `1011ee9f-2d53-43b8-93de-d2238bf6f7f5` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/pose-kinematics-rollback-20260605T021500Z` |
+| Rollback report | `rollback_report.json` |
+| Rollback metrics | `rollback_disabled_metrics.json`, `rollback_disabled_metrics.md` |
+| Rollback reconciliation | `rollback_reconciliation.json`, `rollback_reconciliation.md` |
+| Status | `completed`, `4541/4541` frames |
+| Detection rows / BBox rows | `72744` / `72744` |
+| Pose kinematics enabled | `false` |
+| Pose kinematics records | `0` |
+| Explicit disabled state | `enabled=false`, `state=unavailable`, `reason=pose_kinematics_disabled` |
+| Reconciliation | `overall_ok=true` |
+| Rollback result | `overall_ok=true` |
+
+### 43.3 Open Acceptance Blockers
+
+| Gate | Current state | Decision impact |
+|---|---|---|
+| Reviewer-label agreement | No Cycle 013 `reviewer_label_manifest.json` or generated agreement report exists in production evidence. | Blocks SC-003 through SC-006. |
+| Live validation | No `live_validation_manifest.json` and no real stream URL was available to run `prod_run_pose_kinematics_live_validation.sh`. | Blocks SC-007 and live-profile acceptance. |
+| Offline benchmark | Completed; DB/model row parity held and the DB FPS regression was `-5.20 %`, inside the 10% regression boundary. | Supports offline-only readiness, not full acceptance. |
+| Rollback | Completed with `overall_ok=true`. | Safety gate passed. |
+
+### 43.4 Decision
+
+Final decision for 2026-06-05: **Cycle 013 is not accepted for production
+enablement yet**. The offline matrix and rollback proof are valid production
+evidence, but the feature still lacks required reviewer-label agreement and
+live-profile validation. Keep `POSE_KINEMATICS_ENABLED=0` as the production
+default until those two gates are backed by governed evidence.
+
+---
+
+*Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*

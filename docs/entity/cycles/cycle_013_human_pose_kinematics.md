@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-06-05
 **Entity kind:** `cycle`
-**Status:** `active`
+**Status:** `not_accepted`
 
 Deterministic post-RTMPose body-mechanics evidence for offline and live
 classroom inference.
@@ -178,9 +178,35 @@ stateDiagram-v2
 
 ## 12. Performance characteristics
 
-Production values are not recorded in this entity doc until
-`prod_run_pose_kinematics_benchmark.sh` completes baseline and candidate
-runs on the production RTX 5090 host.
+Production values were collected on the production Linux RTX 5090 host at
+deployed SHA `bbc30af7`.
+
+| Metric | Baseline disabled | Candidate enabled | Delta |
+|---|---:|---:|---:|
+| Replay key | `pose-kinematics-prod-20260605T015300Z-baseline-disabled-rerun` | `pose-kinematics-prod-20260605T013200Z-candidate-enabled` | n/a |
+| Job ID | `c83f3c7d-226d-41e6-a9cc-b5dfcd9a150f` | `545bdec2-96b8-4c72-b8c1-b06453cd8e9c` | n/a |
+| Status | `completed`, `4541/4541` frames | `completed`, `4541/4541` frames | n/a |
+| DB-completed FPS | `5.655908` | `5.361580` | `-5.20 %` |
+| Step 2 frame wall | `460.804618 s` | `451.563517 s` | `-2.01 %` |
+| Step 2 through pose upload | `635.637226 s` | `680.034363 s` | `+6.98 %` |
+| GPU avg util | `11.667 %` | `10.925 %` | `-6.36 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| StudentTracks | `53` | `53` | `0.00 %` |
+| Pose kinematics records | `0` | `19129` | Evidence added |
+| Pose artifact refs | `0` | `19129` | Evidence added |
+| History bound violations | `0` | `0` | Pass |
+
+Evidence paths:
+
+| Evidence | Reference |
+|---|---|
+| Baseline metrics | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T015300Z-baseline-rerun/baseline_disabled_metrics.json` |
+| Candidate metrics | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T013200Z/candidate_enabled_vs_baseline_rerun_metrics.json` |
+| Baseline reconciliation | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T015300Z-baseline-rerun/baseline_reconciliation.json` |
+| Candidate reconciliation | `/home/bamby/grad_project/backend/logs/pose-kinematics-prod-20260605T013200Z/candidate_reconciliation.json` |
+| Rollback report | `/home/bamby/grad_project/backend/logs/pose-kinematics-rollback-20260605T021500Z/rollback_report.json` |
 
 ## 13. Validation and gates
 
@@ -196,6 +222,18 @@ runs on the production RTX 5090 host.
 
 ## 14. Current decision
 
-No production acceptance decision is recorded yet. The feature remains
-candidate-stage until the required production offline matrix, live validation,
-label-agreement report, reconciliation report, and rollback proof exist.
+Decision on 2026-06-05: `not_accepted` for production enablement.
+
+The offline matrix and disabled-layer rollback proof exist and pass their
+evidence checks. The candidate produced `19129` pose kinematics records and
+`19129` artifact refs with zero history-bound violations, while DB/model row
+counts stayed unchanged against baseline. Rollback job
+`1011ee9f-2d53-43b8-93de-d2238bf6f7f5` completed `4541/4541` frames with
+`POSE_KINEMATICS_ENABLED=0`, zero pose records, and `overall_ok=true` in
+`rollback_report.json`.
+
+Full production acceptance remains blocked because no Cycle 013
+`reviewer_label_manifest.json` or generated agreement report exists, and no
+real-media live validation manifest exists. Keep `POSE_KINEMATICS_ENABLED=0`
+as the production default until reviewer-label agreement and live validation
+are backed by governed evidence.

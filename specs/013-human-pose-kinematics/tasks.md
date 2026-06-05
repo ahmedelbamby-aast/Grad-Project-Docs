@@ -151,8 +151,8 @@ acceptance requires a native Linux RTX 5090 run.
 - [X] T064 [P] Add or update entity documentation for the pose kinematics feature in `docs/entity/cycles/cycle_013_human_pose_kinematics.md`
 - [X] T065 Add production offline benchmark matrix wrapper for baseline-disabled and candidate-enabled `combined.mp4` runs with `new-attempt` replay policy in `tools/prod/prod_run_pose_kinematics_benchmark.sh`
 - [X] T066 Run local PostgreSQL-backed unit, contract, and integration validation commands from `specs/013-human-pose-kinematics/quickstart.md`
-- [ ] T067 Run production Linux RTX 5090 offline baseline-disabled and candidate-enabled benchmark matrix and collect evidence using `tools/prod/prod_run_pose_kinematics_benchmark.sh`
-- [ ] T068 Append offline baseline/candidate benchmark decision table, reviewer-label agreement table, runtime reconciliation table, and artifact paths to `docs/production_inference_benchmark.md`
+- [X] T067 Run production Linux RTX 5090 offline baseline-disabled and candidate-enabled benchmark matrix and collect evidence using `tools/prod/prod_run_pose_kinematics_benchmark.sh`
+- [X] T068 Append offline baseline/candidate benchmark decision table, reviewer-label agreement table, runtime reconciliation table, and artifact paths to `docs/production_inference_benchmark.md`
 - [X] T069 Add and run pose-kinematics hardening gate for hidden xfails, SQLite fallback, hardcoded override thresholds, unbounded history, unsupported live assumptions, and env/config drift in `scripts/ci/verify_pose_kinematics_requirements_gates.py`
 - [X] T070 Add production live-profile validation wrapper for real RTSP/RTSPS/WHEP media or governed live-capture manifest in `tools/prod/prod_run_pose_kinematics_live_validation.sh`
 - [ ] T071 Run production live-profile validation and collect session latency, frame/drop/gap, unavailable/degraded, telemetry, artifact, and evidence-path metrics using `tools/prod/prod_run_pose_kinematics_live_validation.sh`
@@ -161,7 +161,13 @@ acceptance requires a native Linux RTX 5090 run.
 - [X] T074 Add reviewer-label agreement report generator with manifest digest, sample count, per-model threshold results, and artifact path in `tools/prod/prod_collect_pose_kinematics_label_agreement.py`
 - [ ] T075 Run reviewer-label agreement report on the accepted validation manifest and attach results to production evidence using `tools/prod/prod_collect_pose_kinematics_label_agreement.py`
 - [X] T076 Add disabled-layer rollback verification proving existing pose/behavior flows continue with explicit `unavailable` kinematics state in `tools/prod/prod_verify_pose_kinematics_rollback.sh`
-- [ ] T077 Run disabled-layer rollback verification and document rollback command, env delta, job/session identity, and evidence paths using `tools/prod/prod_verify_pose_kinematics_rollback.sh`
+- [X] T077 Run disabled-layer rollback verification and document rollback command, env delta, job/session identity, and evidence paths using `tools/prod/prod_verify_pose_kinematics_rollback.sh`
+
+2026-06-05 production evidence note: T067/T068/T077 are complete with
+evidence in `docs/production_inference_benchmark.md` Section 43. T071 and T075 remain
+open because no governed live-validation manifest/stream URL or Cycle 013
+`reviewer_label_manifest.json` exists. T073 remains open for the live half even
+though offline baseline/candidate reconciliation passed.
 
 ---
 
