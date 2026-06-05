@@ -1,0 +1,120 @@
+# Cycle 18.D Combined-Cost Boundary Association Investigation
+
+**Last updated:** 2026-06-05
+
+**Status:** `STAGED_LOCAL_ONLY` / `BENCHMARK_LOCK_NOT_HELD` /
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. This cycle implements a new
+default-off boundary association consumer that addresses the confirmed Cycle
+18.C root causes. It carries **no** optimization decision: only a completed
+native-Linux RTX 5090 `combined.mp4` benchmark may accept, reject, or close it
+under constitution §12.5 / §12.6. The accepted production profile is unchanged
+(`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`, sharding disabled).
+
+**Streaming compatibility:** `offline-only`. The association depends on finite
+shard boundaries and whole-file parent coordination. It MUST stay disabled for
+RTSP, RTSPS, WHEP/WebRTC, and HLS live profiles (constitution §8.6).
+
+## Why This Cycle Exists
+
+Cycle 18.C (`appearance_packet`) was **NOT ACCEPTED**. The production benchmark
+`cycle18c-packet-budget-active-edge-20260605T162825Z` fixed packet byte
+validity but failed every correctness gate: only `1/2` packets merge-ready,
+shard-1 mapped `10/36` tracks with `26/36` offset fallbacks, `StudentTracks`
+regressed `53 -> 64`, minimum model-agreement F1@IoU0.5 stayed `53.730 %`, and
+minimum shard-1 global-assignment F1 stayed `79.876 %`. Evidence:
+[docs/agent_19_cycle_18_turn.md](agent_19_cycle_18_turn.md) and
+[docs/cycle_18_redis_boundary_state_cache_investigation.md](cycle_18_redis_boundary_state_cache_investigation.md).
+
+The deep root-cause audit
+([docs/cycle_18_identity_association_root_cause_investigation.md](cycle_18_identity_association_root_cause_investigation.md))
+isolated the failure mechanism. This cycle implements the redesign the prior
+handoff required.
+
+## Blocker → Root Cause → Cycle 18.D Response
+
+| Cycle 18.C blocker | Root cause | Cycle 18.D response |
+|---|---|---|
+| Merge-ready packets `1/2` | Shard-1 association left most tracks unresolved. | Fuse geometry + appearance + motion so confident non-appearance matches still resolve; write packet identity for assigned tracks. |
+| `StudentTracks 53 -> 64` | `26` unmapped shard-1 tracks took offset IDs that inflate canonical count. | Better association reduces fallbacks; ambiguous tracks stay `unresolved` (§4.6) instead of forcing/duplicating a merge. |
+| Shard-1 mapping `10/36` | `appearance_packet` fails closed whenever the weak `cv2_16x16_rgb_descriptor` is unavailable or below the `0.90` cosine gate. | A missing modality is dropped and remaining evidence re-normalised; a strong geometry + motion agreement can associate without appearance. |
+| Min model-agreement F1 `53.730 %` | Invalid raw-label equality gate plus real association loss. | Evaluation stays label-invariant (probe unchanged); this cycle targets the real association loss only. |
+| Min shard-1 global-assignment F1 `79.876 %` | Fragmentation/merge ambiguity from geometry-only voting over a context window. | Global one-to-one assignment over fused cost reduces both fragmentation and merge collisions; no parent is ever reused. |
+
+## Design
+
+The new mode is `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=combined_cost`.
+
+1. **Candidate generation** reuses the existing per-frame boundary IoU vote rows
+   (`_boundary_vote_rows`). A child track only proposes parents it geometrically
+   co-located with at shared boundary frames.
+2. **Motion evidence** (`_boundary_motion_score`) compares per-step displacement
+   vectors of the child and candidate-parent boxes across shared frames,
+   normalised by box diagonal. It separates two people who momentarily overlap
+   but move apart. Fewer than two shared frames returns `unavailable` (not zero),
+   per constitution §1.6.
+3. **Appearance evidence** reuses the governed packet appearance prototypes
+   (`_load_appearance_vector` + cosine). When unavailable it is dropped, not
+   scored as zero.
+4. **Available-component fusion** computes
+   `combined = Σ(wₖ·scoreₖ) / Σ(wₖ)` over only the available modalities, so a
+   missing appearance descriptor no longer collapses an otherwise strong match.
+   Default weights: geometry `0.40`, appearance `0.40`, motion `0.20`.
+5. **Global one-to-one assignment** (`_min_cost_one_to_one`, min-cost max-flow)
+   selects a globally optimal, collision-free child→parent mapping. Ambiguous,
+   below-threshold (`combined_score < 0.55`), low-margin (`< 0.05`), or
+   geometry-gate-failing tracks remain `unresolved` and fall to offset
+   namespace allocation — recorded as namespace management, not a merge.
+6. **Explainability**: every candidate records geometry/appearance/motion/combined
+   components and an append-only decision reason.
+
+This follows the Deep SORT / BoT-SORT / clip-association doctrine already cited
+in the root-cause investigation: combine motion and appearance, reason over
+bounded tracklets, and keep ambiguity unresolved.
+
+## Source-of-Truth References
+
+| Kind | Reference | Role |
+|---|---|---|
+| Runtime | `backend/apps/video_analysis/services/offline_sharding.py` | `_boundary_motion_score`, `_min_cost_one_to_one`, `_combined_cost_assignment`, `_track_map_config`, `_build_track_map`. |
+| Settings | `backend/config/settings/base.py` | Default-off `OFFLINE_VIDEO_SHARD_COMBINED_*` weights and thresholds. |
+| Tests | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | `test_cycle18d_*` matcher, motion, fusion, and unresolved-contention coverage. |
+| Profile reset | `tools/prod/prod_enable_parallel_flow.sh` | Restores combined-cost defaults with the accepted non-sharded profile. |
+| Root cause | `docs/cycle_18_identity_association_root_cause_investigation.md` | Confirmed root causes and required future-candidate contract. |
+| Prior decision | `docs/cycle_18_redis_boundary_state_cache_investigation.md` | Cycle 18.B/18.C NOT-ACCEPTED evidence. |
+| Constitution | `.specify/memory/constitution.md` §4.6 / §8.6 / §12.5 / §12.6 | Association doctrine, streaming guard, and benchmark decision authority. |
+
+## Local Validation
+
+| Check | Result |
+|---|---|
+| `py_compile` of `offline_sharding.py`, `base.py`, focused test | Passed. |
+| `test_cycle18d_*` focused tests | Passed: `4` (matcher contention, motion separation, geometry+motion assignment without appearance, contested-track unresolved). |
+| Full `test_cycle15b1_shard_merge.py` suite | Passed: `15`; existing `best_iou` / `majority_vote` / `one_to_one` / `appearance_packet` paths unchanged. |
+
+Local tests validate decision **logic and shape only**. They cannot establish
+identity correctness — that requires the production benchmark below.
+
+## Required Production Benchmark Gate (not yet run)
+
+`combined_cost` cannot be accepted until a completed native-Linux RTX 5090
+two-shard `combined.mp4` benchmark records, versus the accepted baseline:
+
+| Gate | Required evidence |
+|---|---|
+| Identity correctness | Ground-truth-backed HOTA/AssA, IDF1, ID switches, fragmentation; label-invariant global-assignment F1 reported separately and not used alone to accept. |
+| Mapping coverage | Shard-1 offset-fallback rate materially reduced; `StudentTracks` returns toward the accepted `53`. |
+| Model agreement | Minimum F1@IoU0.5 recovered to the acceptance threshold. |
+| DB parity | Frames, detections, boxes, embeddings, and terminal state preserved. |
+| Performance | FPS, Step 2 wall, RTT, GPU, and memory deltas with figure bundle + manifest. |
+| Rollback | One env/profile change restores `best_iou` and disabled sharding. |
+
+Until then this cycle is `STAGED_LOCAL_ONLY`. Re-running a previously failed
+profile as new evidence is forbidden; `combined_cost` is a distinct mechanism,
+so its first completed benchmark is the only valid decision point.
+
+## Rollback
+
+`combined_cost` is inert unless explicitly selected. To disable, set
+`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou` (and keep
+`OFFLINE_VIDEO_SHARDING_ENABLED=0`) and restart Celery workers. No persisted
+baseline evidence is mutated by staging this code.
