@@ -3548,6 +3548,55 @@ evidence, but the feature still lacks required reviewer-label agreement and
 live-profile validation. Keep `POSE_KINEMATICS_ENABLED=0` as the production
 default until those two gates are backed by governed evidence.
 
+### 43.5 Deployment Validation Rerun
+
+After deploying branch `013-human-pose-kinematics` to production HEAD
+`f11b2435`, the offline matrix was rerun with replay key prefix
+`pose-kinematics-deploy-20260605T112419Z`.
+
+| Item | Baseline disabled | Candidate enabled |
+|---|---|---|
+| Job ID | `e2f218f6-97e4-4900-8365-f46158116fa0` | `5d02260f-f54c-4246-b247-e942bbd06dfe` |
+| Status | `completed`, `4541/4541` frames | `completed`, `4541/4541` frames |
+| Metrics JSON | `/home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/baseline_disabled_metrics.json` | `/home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_enabled_metrics.json` |
+| Reconciliation JSON | `/home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/baseline_reconciliation.json` | `/home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_reconciliation.json` |
+| Reconciliation | `overall_ok=true` | `overall_ok=true` |
+
+Performance and correctness:
+
+| Metric | Baseline disabled | Candidate enabled | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.644776` | `5.300015` | `-6.11 %` |
+| Step 2 frame wall | `459.396571 s` | `461.480911 s` | `+0.45 %` |
+| Step 2 through pose upload | `632.847555 s` | `686.908842 s` | `+8.54 %` |
+| GPU avg util | `12.494 %` | `11.466 %` | `-8.23 %` |
+| GPU peak util | `53.000 %` | `53.000 %` | `0.00 %` |
+| Detection rows | `72744` | `72744` | `0.00 %` |
+| BBox rows | `72744` | `72744` | `0.00 %` |
+| Embedding rows | `72578` | `72578` | `0.00 %` |
+| StudentTracks | `53` | `53` | `0.00 %` |
+| Pose kinematics records | `0` | `19129` | Evidence added |
+| Pose artifact refs | `0` | `19129` | Evidence added |
+| History bound violations | `0` | `0` | Pass |
+
+Candidate pose evidence:
+
+| Field | Value |
+|---|---|
+| State counts | `valid=12577`, `degraded=5595`, `unavailable=957` |
+| Quality counts | `good=4756`, `partial_body=9335`, `weak=3090`, `occluded=991`, `invalid=957` |
+| Max history window | `5.000 s` |
+| Max history samples | `67` |
+| Artifact path | `/home/bamby/grad_project/backend/data/videos/5d02260f-f54c-4246-b247-e942bbd06dfe/pose_kinematics_2cab0b2a49aa88166a6ba5a9c280588cafa60b46a87cee909b274664bbf99704.json` |
+| Artifact digest | `sha256:2cab0b2a49aa88166a6ba5a9c280588cafa60b46a87cee909b274664bbf99704` |
+| Artifact validation | `record_count=19129`, digest recomputation matched, reconciliation artifact check `ok=true` |
+
+Post-run cleanup verified `POSE_KINEMATICS_ENABLED=0`, no active
+queued/processing/embedding/running jobs, and Triton readiness HTTP `200`.
+This rerun confirms the deployed offline path and artifacts, but it does not
+change the Cycle 013 decision: reviewer-label agreement and real-media live
+validation remain missing.
+
 ---
 
 *Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*

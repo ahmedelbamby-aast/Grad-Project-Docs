@@ -223,17 +223,22 @@ Evidence paths:
 | Reviewer-label agreement | `tools/prod/prod_collect_pose_kinematics_label_agreement.py` |
 | Rollback proof | `tools/prod/prod_verify_pose_kinematics_rollback.sh` |
 
-Current deployment-validation benchmark lock:
+Deployment-validation benchmark release:
 
 ```text
-BENCHMARK_LOCK
+BENCHMARK_RELEASE
 agent: Codex deployment session
 cycle: Cycle 013 Human Pose Kinematics
 replay_key: pose-kinematics-deploy-20260605T112419Z
-baseline_metrics: backend/logs/pose-kinematics-deploy-20260605T112419Z/baseline_disabled_metrics.json
-candidate_env_delta: POSE_KINEMATICS_ENABLED=1 for candidate attempt only
-started_at_utc: 2026-06-05T11:24:19Z
-expected_cleanup: wrapper rollback to POSE_KINEMATICS_ENABLED=0 and evidence collection under backend/logs/pose-kinematics-deploy-20260605T112419Z/
+baseline_job_id: e2f218f6-97e4-4900-8365-f46158116fa0
+candidate_job_id: 5d02260f-f54c-4246-b247-e942bbd06dfe
+status: completed; both attempts processed 4541/4541 frames
+metrics_json: /home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_enabled_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_enabled_metrics.md
+reconciliation_json: /home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_reconciliation.json
+reconciliation_md: /home/bamby/grad_project/backend/logs/pose-kinematics-deploy-20260605T112419Z/candidate_reconciliation.md
+rollback_verified: yes; POSE_KINEMATICS_ENABLED=0, active jobs=0, Triton ready HTTP 200
+released_at_utc: 2026-06-05T11:54:02Z
 ```
 
 ## 14. Current decision
