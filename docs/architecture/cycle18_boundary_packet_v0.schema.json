@@ -278,6 +278,8 @@
         "geometry_score",
         "geometry_votes",
         "appearance_score",
+        "motion_score",
+        "combined_score",
         "lifecycle_gate",
         "decision",
         "reason"
@@ -287,6 +289,18 @@
         "geometry_score": {"type": "number", "minimum": 0, "maximum": 1},
         "geometry_votes": {"type": "integer", "minimum": 0},
         "appearance_score": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        },
+        "motion_score": {
+          "anyOf": [
+            {"type": "number", "minimum": 0, "maximum": 1},
+            {"type": "null"}
+          ]
+        },
+        "combined_score": {
           "anyOf": [
             {"type": "number", "minimum": 0, "maximum": 1},
             {"type": "null"}

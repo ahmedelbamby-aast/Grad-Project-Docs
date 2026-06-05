@@ -3,13 +3,20 @@
 **Last updated:** 2026-06-05
 
 **Status:** `PRODUCTION_BENCHMARK_COMPLETE` /
-`BENCHMARK_LOCK_RELEASED` / `NOT_ACCEPTED`. This cycle implemented a new
+`BENCHMARK_LOCK_RELEASED` / `NOT_ACCEPTED` /
+`CONTRACT_GAP_REMEDIATED_LOCAL_ONLY`. This cycle implemented a new
 default-off boundary association consumer that addressed part of the confirmed
 Cycle 18.C root cause, but the completed native-Linux RTX 5090 `combined.mp4`
 benchmark did not pass the packet-validity, merge-readiness, model-agreement,
 or identity gates required by constitution §12.5 / §12.6. The accepted
 production profile is unchanged (`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`,
-sharding disabled).
+sharding disabled). The one mechanically-fixable blocker — the boundary-packet
+schema rejecting the new combined-cost candidate fields — is **now remediated
+locally** (see "Contract-Gap Remediation" below). The remaining association-
+quality blockers are **not** code-fixable here: they require a production-served
+ReID appearance model and a fresh production benchmark, neither of which can be
+run from the Windows development environment. No new decision exists until that
+benchmark completes; this document does not claim acceptance.
 
 **Streaming compatibility:** `offline-only`. The association depends on finite
 shard boundaries and whole-file parent coordination. It MUST stay disabled for
@@ -227,6 +234,60 @@ blocked. Next work must update the Cycle 18 boundary packet schema for the
 combined-cost fields and then reduce unresolved/offset fallback tracks enough
 to pass packet validity, merge readiness, model agreement, and label-invariant
 identity in a new production benchmark.
+
+## 2026-06-05 Contract-Gap Remediation (local-only, re-staged)
+
+The 18.D benchmark exposed one blocker that was a genuine bug in the staged
+code, not a runtime/identity limitation: the shard-1 packet carried the new
+`combined_score` / `motion_score` candidate fields, but the governed boundary
+packet V0 schema and the standalone validator both used a closed field set, and
+the validator additionally required an *appearance* score on any accepted
+candidate. That rejected combined-cost packets and regressed packet validity
+`2/2 -> 1/2`. This is now fixed:
+
+| Change | File | Effect |
+|---|---|---|
+| `motion_score` / `combined_score` added as required nullable candidate fields | `docs/architecture/cycle18_boundary_packet_v0.schema.json`, `docs/architecture/cycle18_boundary_packet_v0.example.json` | Packets carrying fused-evidence candidates are schema-valid; digest recomputed. |
+| Validator accepts the new fields and treats `combined_score` as identity evidence | `tools/prod/prod_validate_cycle18_boundary_packet.py` | An accepted candidate is valid with an appearance **or** a combined score; geometry/motion alone still never authorise a merge (§4.6). |
+| All candidate producers emit the two fields | `backend/apps/video_analysis/services/offline_sharding.py` | `appearance_packet`, first-shard, and `combined_cost` candidates share one contract. |
+| First-shard identity also written in `combined_cost` mode | `backend/apps/video_analysis/services/offline_sharding.py` (`_build_track_map`) | Shard-0 packets become merge-ready when appearance evidence is valid, matching `appearance_packet`. |
+| Focused tests + drift/contract counts updated | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py`, `…/test_prod_check_cycle18_schema_validator_drift.py`, `…/test_prod_check_cycle18_boundary_contract.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Proves a combined-cost-accepted candidate without appearance is valid, and that an accepted candidate with no identity evidence is still rejected. |
+
+Local validation after remediation: `29 passed` across the validator, schema/
+manual drift, one-command contract gate, shard-merge, and figure-generator
+suites; the one-command contract gate reports `passed: true` with `94` drift
+mutations; runtime `py_compile` passes.
+
+This remediation restores **packet validity only**. It does not by itself make
+Cycle 18.D acceptable. The benchmark's other failures — minimum model-agreement
+F1 `53.788 %`, minimum shard-1 global-assignment F1 `79.876 %`, and ~half the
+shard-1 tracks still unresolved — are the real cross-shard re-identification
+gap. Per §4.6 they cannot be closed by lowering the merge bar to geometry+motion;
+they require a **governed learned ReID appearance model served through Triton**
+(the current `cv2_16x16_rgb_descriptor` is too weak), then a fresh two-shard
+production benchmark.
+
+### Why no new benchmark numbers are reported here
+
+The acceptance authority (§12.5/§12.6) is a completed native-Linux RTX 5090
+`combined.mp4` run. That hardware is the production server; this remediation was
+prepared in the Windows development environment, which cannot deploy to or
+benchmark on the RTX 5090. No production numbers are invented. To validate this
+remediation the operator must, on the production host, deploy the remediated
+SHA and run:
+
+```bash
+tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh \
+  --replay-key cycle18d-combined-cost-contractfix-<UTC> \
+  --track-map-mode combined_cost
+# then collect metrics, boundary_packet_validation, model_agreement,
+# label_invariant_tracking, rollback, and the figure bundle as in the prior run.
+```
+
+Expected from the remediation alone: valid boundary packets should return to
+`2/2` (the schema no longer rejects the candidate fields) and shard-0 should be
+merge-ready; model-agreement and shard-1 association are expected to stay failing
+until the ReID model lands.
 
 ## Required Production Benchmark Gate
 
