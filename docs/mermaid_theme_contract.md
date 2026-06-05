@@ -208,10 +208,10 @@ Apply via `class NodeId class1,class2;` at the bottom of the diagram.
 
 When a diagram is updated, the old version stays. Pattern:
 
-```markdown
+````markdown
 ## <Feature> diagram — v2026-06-02 (current)
 
-```mermaid
+```text
 ... new diagram with the current implementation ...
 ```
 
@@ -220,10 +220,13 @@ When a diagram is updated, the old version stays. Pattern:
 > This diagram described the pre-Top-K ensemble topology. Preserved for
 > the maturity arc per constitution § 19.5.
 
-```mermaid
+```text
 ... old diagram untouched ...
 ```
-```
+````
+
+Use `mermaid` instead of `text` for real diagrams; the `text` fences above are
+non-rendered placeholders only.
 
 The CI gate verifies (via `git log` on each `.md`) that no mermaid block
 was *removed* without a sibling addition in the same commit.
