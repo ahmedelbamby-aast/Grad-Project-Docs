@@ -2,12 +2,12 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** SUPERSEDED FOR CYCLE 20 IMPLEMENTATION / CYCLE 21 GOVERNANCE
+**Status:** CYCLE 20.C TERMINAL-MARKER REPAIR STARTED / CYCLE 21 GOVERNANCE
 REMAINS. Agent 20 completed the readiness/governance claim. On 2026-06-05 the
 user requested the next cycle to start, so Cycle 20 moved into a
 measurement-only implementation kickoff; production replay
-`cycle20-post-stage-timeline-20260605T212526Z` is now recorded while Cycle 21
-remains governance-only.
+`cycle20-post-stage-timeline-20260605T212526Z` is now recorded, and a repo-side
+terminal-marker repair is started while Cycle 21 remains governance-only.
 
 ## Purpose
 
@@ -41,7 +41,7 @@ without guessing from chat history.
 | Turn state | `TAKEN` |
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
-| Current phase | Cycle 20 measurement-only production replay recorded; Cycle 21 governance only |
+| Current phase | Cycle 20.C terminal-marker repair started; Cycle 21 governance only |
 | Production benchmark lock | `NOT HELD` |
 | Runtime implementation permission | Cycle 20 timeline instrumentation only; no streaming behavior |
 | Production env permission | Cycle 20 timeline-only replay completed; no persistent behavior change |
@@ -50,7 +50,7 @@ without guessing from chat history.
 
 | Lane | Responsibility | Current boundary |
 |---|---|---|
-| Cycle 20 | Completed readiness contract; superseded by measurement-only production replay. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
+| Cycle 20 | Measurement-only replay recorded; terminal-marker repair started repo-side. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
 | Cycle 21 | Prepare concurrency benchmark governance and topology-proof requirements. | No worker count, pool type, prefetch, GPU cap, or `backend/.env` changes. |
 | Coordination | Keep shared docs aligned with the turn claim. | No production benchmark decision, acceptance, rejection, skip, or closure. |
 
@@ -68,6 +68,7 @@ without guessing from chat history.
 | `A20-08` Write Cycle 21 governance packet V0. | `COMPLETED` | Topology capture, duplicate-worker proof, resource-budget packet, and rollback format in `docs/cycle_21_celery_concurrency_scaling_investigation.md`. |
 | `A20-HANDOFF-20260605` Cycle 20 readiness-only boundary superseded. | `COMPLETED` | New work may implement only the measurement timeline and governed wrapper recorded in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
 | `A20-HANDOFF-20260606` Cycle 20 production measurement recorded. | `COMPLETED` | Replay `cycle20-post-stage-timeline-20260605T212526Z` completed; next Cycle 20 behavior work must address terminal-coordinator timing before a streaming writer candidate. |
+| `A20-C20C-01` Repair Cycle 20 terminal marker race. | `STARTED` | `run_reid_pipeline` now writes `terminal_coordinator_done_at` before terminal status; fresh production replay still required. |
 
 ## Owned Files And Boundaries
 
@@ -106,16 +107,17 @@ Agent 20 must not:
 | Mermaid compilation for coordination docs | Passed: coordination board rendered `1/1` block. |
 | Source-reference path checks | Passed: Agent 20, Cycle 20, and Cycle 21 source references resolve. |
 | Git whitespace check | Passed: no whitespace errors; line-ending warnings only. |
-| Runtime tests | Not applicable: this turn owns no runtime code. |
+| Runtime tests | Passed: `backend/.venv/Scripts/python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py -q` (`3 passed`). |
 
 ## Current Summary For Next Agent
 
 Agent 20 completed the documentation/readiness slice, and Cycle 20 now has a
 measurement-only production replay recorded with `OFFLINE_STREAM_POST_STAGES=0`.
-Cycle 21 still has no worker-topology change or production benchmark lock. Any
+Cycle 20.C has started repo-side only to repair the missing
+`terminal_coordinator_done_at` marker before terminal status is reported. Cycle
+21 still has no worker-topology change or production benchmark lock. Any
 streaming writer or embedding overlap behavior requires a later
-production-evidence gate and must fix or explicitly record the
-`terminal_coordinator_done_at` timing gap first.
+production-evidence gate and a fresh Cycle 20 timeline replay first.
 
 ## Handoff Protocol
 

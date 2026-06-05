@@ -2,13 +2,13 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** Phase B measurement-only production benchmark recorded after the
-2026-06-05 Cycle 18.D OSNet-AIN rejection promoted Cycle 20 to the next
-non-sharding latency lane. The only valid decision state is now
+**Status:** Phase C terminal-coordinator timestamp repair started after the
+Phase B measurement-only production benchmark recorded the current serial
+post-stage gaps. The only valid benchmark decision state remains
 `NO_DECISION_PENDING_REVIEW`: replay
 `cycle20-post-stage-timeline-20260605T212526Z` completed on production, but
-this kickoff does **not** implement streaming persistence, embedding overlap,
-new queues, or a terminal coordinator.
+this work still does **not** implement streaming persistence, embedding overlap,
+new queues, or terminal-coordinator behavior.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -147,7 +147,7 @@ The code adds:
 | Settings | `OFFLINE_STREAM_POST_STAGES=0` remains the future rollback flag; `OFFLINE_STREAM_POST_STAGE_TIMELINE=0` defaults the measurement probe off. |
 | Upload task | When the timeline flag is enabled, `process_video_upload` records `inference_started_at`, `frame_inference_done_at`, `first_frame_persisted_at`, `all_frames_persisted_at`, and `first_embedding_eligible_at` in `VideoAnalysisJob.metadata.cycle20_post_stage_timeline`. |
 | Embedding task | `generate_embeddings` records `first_embedding_started_at`, `embedding_done_at`, created/skipped/error counters, and the embedding stage outcome in the same metadata block. |
-| Terminal stage | `run_reid_pipeline` records `terminal_coordinator_done_at` after final status/summary handling. |
+| Terminal stage | Phase B attempted `terminal_coordinator_done_at`; Phase C moves the measurement marker before the ReID task reports terminal `COMPLETED` status so the benchmark collector cannot observe completion before the marker is present. |
 | Missing packet fields | `first_persist_packet_ready_at` is explicitly marked unavailable with reason `serial_path_no_streaming_persistence_packet`; it is not faked as a zero timestamp. |
 | Metrics collector | `prod_collect_benchmark_metrics.py` emits `post_stage_timeline` with timestamps, unavailable reasons, missing required fields, and derived serial gaps. |
 | Production wrapper | `prod_run_cycle20_post_stage_timeline_benchmark.sh` enables only `OFFLINE_STREAM_POST_STAGE_TIMELINE=1`, forces `OFFLINE_STREAM_POST_STAGES=0`, collects metrics/model agreement, generates figures, and restores both flags to `0`. |
@@ -210,6 +210,36 @@ started after frame inference finished. It also exposes one instrumentation gap:
 `terminal_coordinator_done_at` remained missing, so later Cycle 20 work must
 either record that boundary reliably or keep it explicitly unavailable with a
 reason before any decision claim.
+
+### Phase C terminal-marker repair start (2026-06-06)
+
+The next Cycle 20 step has started repo-side as a default-off measurement
+repair. `run_reid_pipeline` now writes
+`VideoAnalysisJob.metadata.cycle20_post_stage_timeline.terminal_coordinator_done_at`
+before it calls `_set_job_status(...COMPLETED...)`. This keeps the Phase B
+measurement flag contract but closes the race where benchmark collection could
+observe terminal status before the terminal marker was persisted.
+
+The focused unit test
+`backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py`
+verifies that the marker is already present in PostgreSQL when the ReID task
+attempts the terminal status update. The repair remains gated by
+`OFFLINE_STREAM_POST_STAGE_TIMELINE=1`; live-source metadata is still excluded by
+the existing `_cycle20_post_stage_timeline_enabled` guard.
+
+Figure Planner for the next production rerun: Cycle 20.C terminal-marker repair
+agent. Required plots and manifest inputs are unchanged from Phase B because the
+rerun still measures the same serial lifecycle fields and unavailable streaming
+packet fields.
+
+Figure Implementer for the next production rerun: Cycle 20.C terminal-marker
+repair agent. Role separation is unavailable in this single-agent repair; the
+next wrapper run must still keep the planner intent, figure input manifest,
+unavailable-metric policy, generated plots, and rollback proof separate.
+
+No production rerun has been recorded for Phase C yet. Until a replay proves the
+marker and regenerates the evidence bundle, Section 48 of
+`docs/production_inference_benchmark.md` remains the governing production result.
 
 ### Measurement-only timestamp contract
 

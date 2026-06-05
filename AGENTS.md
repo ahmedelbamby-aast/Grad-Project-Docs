@@ -1457,6 +1457,15 @@ rejected, or used to advance sharding.
   coordinator candidate was enabled. Evidence is in
   `docs/production_inference_benchmark.md` §48 and
   `docs/figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/`.
+- **2026-06-06 Cycle 20.C terminal marker repair STARTED / NO DECISION**:
+  repo-side follow-up moves the `terminal_coordinator_done_at` measurement
+  marker in `run_reid_pipeline` so it is persisted before the ReID task reports
+  terminal `COMPLETED` status. Focused validation is
+  `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py`.
+  This is not a production benchmark, not streaming persistence, not embedding
+  overlap, and not Cycle 20 acceptance. Next gate is a fresh governed Cycle 20
+  timeline replay with figures, rollback proof, and the terminal marker present
+  or explicitly unavailable with a reason.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

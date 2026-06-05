@@ -4104,6 +4104,14 @@ terminal coordinator was enabled. The next Cycle 20 step is to fix/record the
 terminal coordinator timestamp and design the default-off streaming writer
 candidate against these measured gaps.
 
+Repo-side follow-up started on 2026-06-06: Cycle 20.C moves the
+`terminal_coordinator_done_at` measurement marker in `run_reid_pipeline` so it
+is persisted before the ReID task reports terminal `COMPLETED` status. This is
+not a new production benchmark and does not change the §48 decision. The next
+authoritative evidence must be a fresh Cycle 20 timeline replay with regenerated
+figures, rollback proof, and the terminal marker present or explicitly marked
+unavailable with a reason.
+
 ---
 
 *Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*
