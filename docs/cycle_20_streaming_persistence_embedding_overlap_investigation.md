@@ -252,6 +252,34 @@ started_at_utc: 2026-06-05T22:53:27Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json and figures
 ```
 
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-20260605T225327Z
+job_id: dd807237-24b5-49c7-a392-db41f9b7e128
+status: POST_STAGE_WAIT_FAILED_NEEDS_REVIEW
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/post_stage_timeline_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/post_stage_timeline_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/model_agreement_baseline_vs_post_stage_timeline.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/model_agreement_baseline_vs_post_stage_timeline.md
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20c-terminal-marker-20260605T225327Z/figures/figure_manifest.json
+released_at_utc: 2026-06-05T23:12:22Z
+notes: Lower-level benchmark returned while the job was still in embedding; the wrapper disabled OFFLINE_STREAM_POST_STAGE_TIMELINE before embedding_done_at and terminal_coordinator_done_at could be recorded.
+```
+
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-r2-20260605T231222Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=0; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only; wrapper waits for terminal timeline markers before rollback
+started_at_utc: 2026-06-05T23:12:22Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence
