@@ -58,7 +58,7 @@ agreement. The sorted queue is:
 | Cycle doc | `docs/cycle_17_redis_streams_progress_sampling_investigation.md` | Closed Cycle 17 source; accepted observability-only. |
 | Turn ledger | `docs/agent_18_cycle_17_turn.md` | Current Cycle 17 ledger; turn is free after production benchmark release. |
 | Prior turn ledger | `docs/agent_17_cycle_17_turn.md` | Historical Cycle 17 handoff; superseded by Agent 18 continuation. |
-| Turn ledger | `docs/agent_19_cycle_18_turn.md` | Maps Agent 19 to the Agent B Cycle 18 contract-only lane. |
+| Turn ledger | `docs/agent_19_cycle_18_turn.md` | Maps Agent 19 to the active Cycle 18.C packet-budget/readiness lane. |
 | Turn ledger | `docs/agent_20_remaining_lanes_turn.md` | Maps Agent 20 to the remaining Agent C and Agent D lanes. |
 | Turn ledger | `docs/agent_20_cycle_18_override_turn.md` | Maps the user-authorized Agent 20 Cycle 18 override, rejected one-to-one candidate, and evidence-only boundary packet producer. |
 
@@ -67,7 +67,7 @@ agreement. The sorted queue is:
 | Agent | Lane | Status | Primary owned files | Must not do |
 |---|---|---|---|---|
 | Agent 18 | Cycle 17 Redis Streams | Free; accepted observability-only | `docs/agent_18_cycle_17_turn.md`, `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, Cycle 17 scripts/tests and wrapper | Claim inference-wall gain or leave stream flag enabled outside governed benchmark evidence. |
-| Agent 19 (Agent B) | Cycle 18 boundary state | Historical blocked handoff; superseded for active work by Agent 20 override | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md` | Enable sharding or start 15.B2. |
+| Agent 19 (Agent B) | Cycle 18.C packet-budget and association readiness | Active local redesign; benchmark lock not held; no production decision | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Enable sharding by default, start 15.B2, rerun failed 18.B unchanged, or claim acceptance without §12.6 evidence. |
 | Agent 20 override | Cycle 18 boundary state | Free; `one_to_one` not accepted; packet producer evidence-only; benchmark lock released | `docs/agent_20_cycle_18_override_turn.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Rerun or enable `one_to_one`; claim sharding/15.B2 acceptance while packets are not identity-merge-ready. |
 | Agent 20 (Agent C) | Cycle 20 stream post-stages | Turn taken; readiness only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` | Change lifecycle or persistence code before an implementation gate. |
 | Agent 20 (Agent D) | Cycle 21 concurrency | Turn taken; governance only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_21_celery_concurrency_scaling_investigation.md` | Increase worker counts without a full benchmark matrix. |
@@ -233,7 +233,7 @@ reassignment.
 |---|---|
 | Agent 17 | "Read `AGENTS.md`, `docs/agent_17_cycle_17_turn.md`, and `docs/agent_18_cycle_17_turn.md`. Your Cycle 17 role is historical only; do not take Cycle 17, run benchmarks, or edit runtime files unless the user explicitly reassigns a new governed follow-up." |
 | Agent 18 | "Read `AGENTS.md`, constitution §12.5/§12.6, `docs/four_agent_cycle_coordination_board.md`, `docs/agent_18_cycle_17_turn.md`, and `docs/cycle_17_redis_streams_progress_sampling_investigation.md`. Confirm Cycle 17 is `FREE / ACCEPTED_OBSERVABILITY_ONLY_NOT_THROUGHPUT`; do not rerun or claim throughput gain unless the user opens a new benchmark-locked follow-up." |
-| Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your lane is `BLOCKED` contract/evidence only: historical packet projection and validator evidence are allowed; runtime Redis writes, sharding enablement, parent-row mutation, and production benchmarks are forbidden." |
+| Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your lane is Cycle 18.C packet-budget/readiness redesign: default-off local packet/readiness code, focused tests, figure evidence plumbing, and docs are allowed. Runtime Redis writes, default-on sharding, 15.B2, and production benchmarks without a recorded lock are forbidden." |
 | Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Keep Cycle 20 readiness and Cycle 21 governance documentation-only; do not change lifecycle code, embeddings, workers, queues, env, or production state." |
 
 ### Agent 19 (Agent B): Cycle 18
@@ -242,19 +242,19 @@ Objective: recover value from failed sharding work without enabling sharding.
 
 Allowed next outputs:
 
-- A Phase A design doc for Redis boundary-state cache or non-Redis identity
-  state proof.
-- A blocker matrix explaining why 15.B2 remains blocked.
-- No runtime code until a design proof is accepted for implementation.
+- Default-off local Cycle 18.C packet-budget and readiness code.
+- Focused packet, association, and figure-generator tests.
+- Cycle 18.C benchmark-lock preparation docs with no production mutation until
+  a lock is recorded.
 
 Agent 19 charter:
 
 | Topic | Decision |
 |---|---|
-| Current state | `BLOCKED_FOR_RUNTIME_IMPLEMENTATION / PHASE_A_CONTRACT_ONLY`. |
-| Why blocked | Cycle 15.B1, 15.B1.C1, and 15.B1.C2 are all `NOT ACCEPTED`; 15.B2 is `BLOCKED`. |
-| Safe work | Contract/design proof only. |
-| Forbidden work | No runtime Redis boundary cache, no parent merge behavior change, no sharded production run. |
+| Current state | `CYCLE_18C_STAGED_LOCAL_ONLY / NO_PRODUCTION_DECISION`. |
+| Why still blocked | Cycle 18.B preserved speed but failed packet validity, merge readiness, StudentTrack parity, model agreement, and label-invariant identity. |
+| Safe work | Default-off packet-budget/readiness redesign, focused tests, figure evidence plumbing, and docs. |
+| Forbidden work | No runtime Redis boundary cache, no default-on sharding, no 15.B2, no production run without a benchmark lock. |
 | Redis authority | Ephemeral coordination only; PostgreSQL remains final source of truth. |
 | Coordination dependency | Reuse Cycle 17 Redis discipline but do not depend on Cycle 17 for identity authority. |
 | Potential future flag | `OFFLINE_VIDEO_SHARD_BOUNDARY_REDIS_ENABLED=0`. |
@@ -268,8 +268,9 @@ Safe Phase A outputs:
   schema, ambiguous identity, and duplicate shard completion.
 - Audit of existing 15.B1 artifacts to identify missing identity-state fields.
 
-Cycle 18 cannot unblock sharding alone. Any future runtime work needs a new
-identity-state design proof and then a full production benchmark.
+Cycle 18.C cannot unblock sharding from local tests. Any runtime decision needs
+a full production benchmark with packet validation, model agreement,
+label-invariant identity, DB/GPU/RTT metrics, generated figures, and rollback.
 
 ### Agent C: Cycle 20
 
@@ -361,3 +362,4 @@ rollback failure, even if FPS improves.
 | 2026-06-04 | Agent 20 | 18 | User overrode Cycle 18; one-to-one boundary track-map candidate staged locally with no benchmark lock and no production decision. | Finish local validation, then acquire a benchmark lock before any production env change or wrapper run. |
 | 2026-06-04 | Agent 20 | 18 | Replay `cycle18-one-to-one-trackmap-20260604T174231Z` completed; rollback verified; one-to-one candidate not accepted. | Do not rerun or enable `one_to_one`; packet producer follow-up is recorded in the next Agent 20 Cycle 18 row. |
 | 2026-06-04 | Agent 20 | 18 | Replay `cycle18-boundary-packet-producer-20260604T181738Z` completed; rollback verified; `2/2` packets valid and `0/2` merge-ready. | Keep packet flag default-off; next Cycle 18 work needs appearance-backed association consumer evidence. |
+| 2026-06-05 | Agent 19 | 18.C | Local packet-budget/readiness redesign staged; focused runtime and figure-generator tests passed; benchmark lock not held. | Run doc/workflow-equivalent gates, then only acquire a production benchmark lock if local and production checkout gates pass. |

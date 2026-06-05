@@ -2,14 +2,16 @@
 
 **Last updated:** 2026-06-05
 
-**Status:** RESUMED / LOCAL RUNTIME CANDIDATE STAGED /
-`APPEARANCE_PACKET_DEFAULT_OFF` /
+**Status:** RESUMED / CYCLE 18.C LOCAL REDESIGN STAGED /
+`PACKET_BUDGET_AND_ACTIVE_EDGE_DEFAULT_OFF` /
 `NO_SECTION_12_6_PRODUCTION_DECISION` /
 `OPEN_PENDING_PRODUCTION_BENCHMARK`. This current agent session is **Agent 19**.
 The prior read-only identity probes remain valid historical evidence. The
 2026-06-05 continuation stages a default-off appearance-backed packet producer
-and parent-side association consumer, but Cycle 18 is still not accepted,
-closed, or complete until a full production benchmark and rollback proof exist.
+and parent-side association consumer; the Cycle 18.C continuation now stages
+packet byte-budget sampling, inter-shard-edge scoping, and figure evidence
+plumbing. Cycle 18 is still not accepted, closed, or complete until a full
+production benchmark and rollback proof exist.
 
 ## Purpose
 
@@ -82,7 +84,7 @@ sharding enablement, production acceptance, or a runtime benchmark decision.
 | Turn state | `RESUMED_LOCAL_CANDIDATE_STAGED` |
 | Claimed at | 2026-06-05 continuation of 2026-06-04 Cycle 18 work |
 | User authority | User explicitly requested continuing blocker resolution after asking whether solutions exist. |
-| Current phase | Default-off appearance packet producer and parent-side association consumer staged locally; production benchmark still pending |
+| Current phase | Cycle 18.C packet-budget/readiness redesign staged locally; production benchmark still pending |
 | Production benchmark lock | `NOT HELD` |
 | Runtime implementation permission | Local default-off Cycle 18 candidate only |
 | Production env permission | No mutation, no benchmark lock, no acceptance decision |
@@ -104,6 +106,7 @@ Agent 19 owns a narrow evidence and contract lane:
 | Measured-value discipline | Write only values reproduced from completed production evidence; label them as upstream Cycle 15 measurements, not a Cycle 18 benchmark. |
 | Independent-run identity discipline | Treat local IDs as opaque namespaces; use deterministic one-to-one association and separate localization from association metrics. |
 | Runtime candidate discipline | Keep `appearance_packet` default-off and fail closed unless verified appearance, geometry, lifecycle, and ambiguity gates pass. |
+| Figure evidence discipline | Keep Figure Planner and Figure Implementer outputs separate; no decision without generated figures, manifest, and Markdown embeds. |
 
 ## Claimed Tasks
 
@@ -167,6 +170,13 @@ Agent 19 owns a narrow evidence and contract lane:
 | `A19-56` Extend production wrapper/profile reset for new flags | `COMPLETED` | Appearance flags are explicit and cleanup restores disabled defaults |
 | `A19-57` Run focused local validation | `COMPLETED` | `9 passed` shard suite, `12 passed` focused Cycle 18 slice, py_compile pass |
 | `A19-58` Record no-decision local handoff | `COMPLETED` | Cycle doc and this ledger state `OPEN_PENDING_PRODUCTION_BENCHMARK` |
+| `A19-59` Claim Cycle 18.C packet-budget/readiness redesign | `COMPLETED` | Coordination board and this ledger record Agent 19 as active for Cycle 18.C |
+| `A19-60` Assign Figure Planner and Figure Implementer lanes | `COMPLETED` | `Huygens` produced the read-only figure plan; `Archimedes` implemented generator/test changes in the figure lane |
+| `A19-61` Stage packet byte-budget sampling | `COMPLETED` | Boundary packets sample non-critical observations to fit `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES` without setting `bounds.truncated=true` when the sampled packet fits |
+| `A19-62` Stage active inter-shard-edge scoping | `COMPLETED` | Shard metadata carries `shard_count`; packet and summary windows exclude non-merge terminal video edges |
+| `A19-63` Integrate Cycle 18.C figure evidence generator support | `COMPLETED` | Packet/readiness, identity, Redis/resource, unavailable-summary, historical/context, and role metadata support added by the Figure Implementer |
+| `A19-64` Run focused Cycle 18.C local validation | `COMPLETED` | py_compile passed and focused runtime + figure + shard-planning tests reported `18 passed` |
+| `A19-65` Record Cycle 18.C no-decision state | `COMPLETED` | Cycle doc, AGENTS, board, and this ledger state `STAGED_LOCAL_ONLY / BENCHMARK_LOCK_NOT_HELD` |
 
 ## Owned Files And Boundaries
 
@@ -211,6 +221,8 @@ Primary owned files for this turn:
 | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Focused appearance packet and association tests |
 | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` | Explicit benchmark flags and cleanup reset for appearance packet candidate |
 | `tools/prod/prod_enable_parallel_flow.sh` | Profile reset defaults for new Cycle 18 appearance flags |
+| `tools/prod/prod_generate_cycle_figures.py` | Figure Implementer-owned Cycle 18.C plot and manifest support |
+| `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` | Focused figure generator regression tests |
 
 Shared coordination and roadmap files remain orchestrator-owned unless an
 explicit edit window is granted. The current user request permits Agent 19 to
@@ -269,6 +281,8 @@ Agent 19 must not:
 | 2026-06-05 shard/Cycle 18 focused tests | Passed: `9` tests in `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
 | 2026-06-05 focused Cycle 18 slice | Passed: `12` tests across label-invariant probe tests and shard merge/packet tests |
 | 2026-06-05 measured-value checker | Passed and still reports `cycle18_runtime_benchmark_present=false`; no production decision exists for `appearance_packet` |
+| 2026-06-05 Cycle 18.C py_compile | Passed for `backend/apps/video_analysis/services/offline_sharding.py`, `tools/prod/prod_generate_cycle_figures.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, and `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
+| 2026-06-05 Cycle 18.C focused runtime + figure + shard-planning tests | Passed: `18` tests across `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py`, and `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` |
 
 ## First Slice Result And Next Action
 
@@ -337,17 +351,21 @@ The 2026-06-05 continuation stages the first local blocker-resolution
 candidate after the Agent 20 packet producer. Boundary packets can now carry a
 digest-backed crop-descriptor reference when explicitly enabled, and the new
 `appearance_packet` track-map mode can consume verified packet appearance plus
-boundary geometry to write fail-closed candidate decisions. Local tests prove
-the packet can become identity-merge-ready for a synthetic two-shard case with
-verified appearance and unambiguous geometry. This is still local evidence
-only; no `combined.mp4` Linux RTX 5090 production benchmark has been run for
-`appearance_packet`.
+boundary geometry to write fail-closed candidate decisions. Cycle 18.C adds two
+local fixes on top of that candidate: byte-budget sampling for non-critical
+observations and active inter-shard-edge scoping so terminal video edges do not
+inflate merge-readiness checks. Local tests prove the packet can become
+contract-valid under a tight byte cap and can exclude a final-shard terminal
+edge. This is still local evidence only; no `combined.mp4` Linux RTX 5090
+production benchmark has been run for Cycle 18.C.
 
 ## Handoff Protocol
 
-Agent 19 is now `STAGED_LOCAL_ONLY` for Cycle 18. The next valid work is a
-separately governed production benchmark of the default-off
-`appearance_packet` candidate with full packet validation, model-agreement and
-label-invariant association metrics, DB/GPU/RTT metrics, and rollback proof.
-The benchmark lock remains `NOT HELD`; no Redis write, default-on sharding
-enablement, acceptance, rejection, completion, or closure decision exists.
+Agent 19 is now `CYCLE_18C_STAGED_LOCAL_ONLY` for Cycle 18. The next valid work
+is doc/workflow-equivalent validation followed by a separately governed
+production benchmark only if a benchmark lock is recorded first. That benchmark
+must use the default-off Cycle 18.C profile with full packet validation,
+model-agreement and label-invariant association metrics, DB/GPU/RTT metrics,
+generated figure bundle/manifest, and rollback proof. The benchmark lock
+remains `NOT HELD`; no Redis write, default-on sharding enablement,
+acceptance, rejection, completion, or closure decision exists.

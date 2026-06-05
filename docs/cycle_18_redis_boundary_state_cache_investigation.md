@@ -2,15 +2,16 @@
 
 **Last updated:** 2026-06-05
 
-**Status:** `ONE_TO_ONE_RUNTIME_CANDIDATE_NOT_ACCEPTED` /
-`BOUNDARY_PACKET_PRODUCER_PRODUCTION_VALIDATED` /
-`BENCHMARK_LOCK_RELEASED`. The historical Agent 19 Phase A review remains
+**Status:** `CYCLE_18B_NOT_ACCEPTED` /
+`CYCLE_18C_STAGED_LOCAL_ONLY` /
+`BENCHMARK_LOCK_NOT_HELD`. The historical Agent 19 Phase A review remains
 `NO_RUNTIME_CANDIDATE_SELECTED` for Redis boundary-state identity evidence. The
 Agent 20 override production benchmark completed for the disabled-by-default
 `one_to_one` boundary track-map candidate and rejected that candidate on
-identity/model-agreement evidence. The continuation production-validated a
-default-off boundary packet producer as evidence-only; its packets are not
-identity-merge-ready. Cycle 18 as a whole is not closed or complete.
+identity/model-agreement evidence. Cycle 18.B then ran the appearance-backed
+packet association profile and rejected it on packet-validity, merge-readiness,
+StudentTrack, model-agreement, and label-invariant identity evidence. Cycle
+18.C is now staged locally only; Cycle 18 as a whole is not closed or complete.
 
 **Streaming compatibility:** `offline-only` for any future sharding runtime.
 Boundary state depends on finite shard boundaries and whole-file coordination.
@@ -73,6 +74,8 @@ runtime Redis cache or changing the parent merge.
 | Test | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Focused fail-closed validator contract coverage. |
 | Figure generator | `tools/prod/prod_generate_cycle_figures.py` | Creates the required benchmark figure bundle and manifest from raw Cycle 18.B artifacts. |
 | Figure generator test | `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` | Proves strict unavailable-family handling and PNG/manifest/Markdown generation. |
+| Runtime packet redesign | `backend/apps/video_analysis/services/offline_sharding.py` | Stages Cycle 18.C packet byte-budget sampling and inter-shard-edge selection. |
+| Runtime packet tests | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Proves packet validity under a tight byte budget and exclusion of terminal video edges. |
 | File | `.gitignore` | Explicitly exposes the four CI-read contract/projection JSON files despite the blanket `*.json` ignore rule. |
 | Turn ledger | `docs/agent_19_cycle_18_turn.md` | Agent 19 contract-only ownership and non-overlap boundaries. |
 | Constitution | `.specify/memory/constitution.md` §8.6 | Streaming-source compatibility and live-profile restrictions. |
@@ -873,7 +876,7 @@ not a rerun of the failed Cycle 18.B `appearance_packet` profile.
 | Field | Value |
 |---|---|
 | Cycle | `18.C packet-budget and association-readiness redesign` |
-| State | `PLANNED_AFTER_18B_NOT_ACCEPTED` |
+| State | `STAGED_LOCAL_ONLY_AFTER_18B_NOT_ACCEPTED` |
 | Streaming compatibility | `offline-only` because it depends on offline sharding and cross-shard boundary state |
 | Primary blocker | Boundary packets were present but invalid: `0/2` valid and `0/2` merge-ready. |
 | Packet-budget blocker | Shard packets serialized at `301968` and `299423` bytes and were marked truncated. |
@@ -884,6 +887,50 @@ not a rerun of the failed Cycle 18.B `appearance_packet` profile.
 | Production benchmark gate | Full `combined.mp4` Linux RTX 5090 benchmark with packet validation, model agreement, label-invariant tracking, DB/GPU/RTT metrics, rollback proof, and figure bundle. |
 | Expected gain if gates pass | Recover the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, and GPU avg `11.846 % -> 16.325 %+`. |
 | Acceptance rule | No acceptance if packet validity, merge readiness, StudentTrack parity, model agreement, or label-invariant identity gates fail, regardless of FPS. |
+
+### 2026-06-05 Cycle 18.C Local Redesign
+
+Cycle 18.C is staged locally only. It is not a production benchmark, not a
+§12.6 decision, and not a sharding acceptance claim.
+
+| Field | Value |
+|---|---|
+| Cycle state | `STAGED_LOCAL_ONLY` |
+| Benchmark lock | `NOT_HELD` |
+| Figure Planner | `Huygens` sub-agent, read-only plan; no files edited |
+| Figure Implementer | `Archimedes` sub-agent, generator/test lane only |
+| Runtime owner | Agent 19 |
+| Streaming compatibility | `offline-only`; sharding remains disabled for live profiles |
+| Decision authority | `NO_PRODUCTION_DECISION`; full Linux RTX 5090 `combined.mp4` benchmark still required |
+
+Implemented local changes:
+
+| Blocker | Local change | Reference |
+|---|---|---|
+| Boundary packets exceeded the default byte budget and were marked truncated. | Packet construction now deterministically samples non-critical observations until the serialized packet fits `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES`; track rows, tracker hints, and appearance references are retained. | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Shard boundary packets could include video start/end evidence that is not an inter-shard merge edge. | Shard metadata now carries `shard_count`, and packet/summary windows include only actual inter-shard edges for first, middle, and final shards. | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Figure evidence lacked Cycle 18.C packet/readiness and label-invariant plots. | The generator now supports packet budget/readiness, identity label-invariant, resource-tail, Redis profile, unavailable-summary, historical/context runs, run labels, and figure role metadata. | `tools/prod/prod_generate_cycle_figures.py` |
+
+Local validation:
+
+| Validation | Result |
+|---|---|
+| Python compile | `PASS` for `backend/apps/video_analysis/services/offline_sharding.py`, `tools/prod/prod_generate_cycle_figures.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, and `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
+| Focused runtime + figure + shard-planning tests | `18 passed` across `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py`, and `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` |
+| Packet byte-budget regression | `PASS`; generated packet remains contract-valid under a tight byte cap and records observation sampling without setting `bounds.truncated=true` |
+| Active-edge regression | `PASS`; a final shard packet/summary excludes the terminal video edge and reports `boundary_side=left` |
+| Figure generator regression | `PASS`; generated manifest includes figure roles, run metadata, packet/readiness metrics, identity metrics, Redis/resource metrics, and unavailable summary |
+
+Remaining blockers before any Cycle 18.C decision:
+
+| Blocker | Required proof |
+|---|---|
+| Production packet validity | New production `boundary_packet_validation.json` must show all packets valid under the configured byte cap. |
+| Identity merge readiness | New production packet validation must show merge-ready packets; unresolved active boundary tracks must be explained and fail closed. |
+| StudentTrack parity | Candidate `StudentTracks` must stay at or near the accepted baseline (`53`) without hidden identity merges. |
+| Model and label-invariant correctness | Model F1@IoU0.5 and label-invariant global-assignment gates must pass, including shard-1 residual association. |
+| Figure evidence | Cycle 18.C figure bundle and manifest must be generated from the raw production artifacts and embedded in this doc plus `docs/production_inference_benchmark.md`. |
+| Rollback | Production wrapper must prove sharding, packet, and appearance flags return to disabled defaults. |
 
 Cycle 15.B1 and 15.B2 stay blocked until Cycle 18.C proves the two-shard
 identity boundary is valid. Cycle 20 remains staged behind this blocker unless a

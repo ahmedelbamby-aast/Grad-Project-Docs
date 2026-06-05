@@ -833,7 +833,7 @@ start next.
 
 | Sort | Cycle | State | Why this position | Expected gain / gate |
 |---:|---|---|---|---|
-| 1 | **Cycle 18.C packet-budget and association-readiness redesign** | `PLANNED AFTER 18.B NOT ACCEPTED` | Cycle 18.B preserved the sharding speed path but failed packet validity (`0/2` valid), merge readiness (`0/2`), and identity/model agreement. The same `appearance_packet` profile must not be rerun until packets fit the byte budget and shard-1 association readiness improves. | No gain can be accepted before a new production benchmark. If correctness is repaired, it can still unlock the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, GPU avg `11.846 % -> 16.325 %+`. |
+| 1 | **Cycle 18.C packet-budget and association-readiness redesign** | `STAGED LOCAL ONLY / NO PRODUCTION DECISION` | Cycle 18.B preserved the sharding speed path but failed packet validity (`0/2` valid), merge readiness (`0/2`), and identity/model agreement. Local 18.C now stages packet byte-budget sampling, active inter-shard-edge scoping, and figure-evidence generator support; the same failed 18.B profile must not be rerun unchanged. | No gain can be accepted before a new production benchmark. If correctness is repaired, it can still unlock the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, GPU avg `11.846 % -> 16.325 %+`. |
 | 2 | **Cycle 15.B1 identity-fixed sharding rerun; 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Four-shard runtime must not start while two-shard identity is wrong. The next sharding proof must rerun two-shard only after Cycle 18.C fixes packet validity and association readiness. | Same two-shard performance envelope above; 15.B2 has no valid gain estimate until B1 correctness passes. |
 | 3 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | It can reduce total wall, but it changes lifecycle, idempotency, terminal-state, and evidence contracts, so it follows the sharding blocker. | Upper bound from the accepted pre-shard baseline is the embedding created span `98.578 s`; fully hiding it would move total wall `808.038 s -> ~709.460 s` and DB FPS `5.620 -> ~6.40` (`~+13.9 %`). |
 | 4 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers help only when independent work exists from sharding, post-stage overlap, multiple jobs, or another measured queue bottleneck. | Unknown until topology matrix benchmark; must include duplicate-worker checks, resource budgets, DB/Redis/GPU contention, correctness, and rollback. |
@@ -842,14 +842,16 @@ start next.
 | 7 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already removed the measured Redis side-effect bottleneck. Scripts require a new measured Redis read/compute/write hotspot. | No active gain estimate; start only after a production profiler shows a script-shaped hotspot. |
 | 8 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | LPM is a fusion-quality/correctness lane, not the latency-first lane. | No throughput gain expected; acceptance depends on contradiction/fusion correctness, not FPS. |
 
-**Next cycle:** Cycle 18.C packet-budget and association-readiness redesign.
+**Next cycle in progress locally:** Cycle 18.C packet-budget and
+association-readiness redesign.
 Cycle 18.B replay `cycle18b-appearance-packet-20260605T151057Z` is
 **NOT ACCEPTED**: DB FPS improved `5.620 -> 7.410` and Step 2 wall improved
 `467.450 s -> 248.324 s`, but valid boundary packets were `0/2`,
 merge-ready packets were `0/2`, `StudentTracks` regressed `53 -> 65`,
 minimum model-agreement F1@IoU0.5 was `53.730 %`, and minimum all-model
-global-assignment F1 was `69.752 %`. Do not rerun the same profile; first
-redesign packet byte budgeting and shard-1 association readiness.
+global-assignment F1 was `69.752 %`. Local 18.C has staged packet
+byte-budgeting, active-edge, and figure-evidence changes; production packet
+validity and association correctness remain unproven.
 
 ### Z.3a Historical planned/newly-started map (restaged after Cycle 12.C)
 

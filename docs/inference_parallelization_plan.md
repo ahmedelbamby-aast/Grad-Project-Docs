@@ -1147,7 +1147,7 @@ cycle selection; the older paragraphs remain as historical context.
 
 | Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
 |---:|---|---|---|---|
-| 1 | **Cycle 18.C packet-budget and association-readiness redesign** | `PLANNED AFTER 18.B NOT ACCEPTED` | Cycle 18.B preserved the sharding speed path but failed packet validity (`0/2` valid), merge readiness (`0/2`), and identity/model agreement. The same `appearance_packet` profile must not be rerun until packets fit the byte budget and shard-1 association readiness improves. | No gain can be accepted before a new production benchmark. If correctness is repaired, it can still unlock the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, and GPU avg `11.846 % -> 16.325 %+`. |
+| 1 | **Cycle 18.C packet-budget and association-readiness redesign** | `STAGED LOCAL ONLY / NO PRODUCTION DECISION` | Cycle 18.B preserved the sharding speed path but failed packet validity (`0/2` valid), merge readiness (`0/2`), and identity/model agreement. Local 18.C now stages packet byte-budget sampling, active inter-shard-edge scoping, and figure-evidence generator support; the same failed 18.B profile must not be rerun unchanged. | No gain can be accepted before a new production benchmark. If correctness is repaired, it can still unlock the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, and GPU avg `11.846 % -> 16.325 %+`. |
 | 2 | **Cycle 15.B1 identity-fixed sharding rerun, then 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Four-shard runtime is not allowed while two-shard identity is wrong. After a Cycle 18.C fix, the next proof is a two-shard production rerun with model agreement, label-invariant tracking, packet validation, figures, and rollback. | Same measured two-shard envelope above; four-shard has no valid expected gain until B1 passes because each extra boundary increases identity risk. |
 | 3 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | Latest accepted single-job evidence still has post-frame embedding/span work, but lifecycle/idempotency changes are riskier than fixing the already-measured sharding blocker. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
 | 4 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
@@ -1156,15 +1156,16 @@ cycle selection; the older paragraphs remain as historical context.
 | 7 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already coalesced the measured Redis side-effect bottleneck; scripts require a new measured Redis read/compute/write hotspot. | No current gain estimate; start only if new production profiling exposes a Redis script-shaped hotspot. |
 | 8 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | Important for fusion quality, but not a latency-first cycle. It should not preempt higher-throughput blockers unless the user explicitly changes priority to behavior correctness. | No latency gain expected; acceptance would be correctness/contradiction-signal quality, not throughput. |
 
-**Next cycle to start:** Cycle 18.C packet-budget and association-readiness
-redesign. Cycle 18.B production replay
+**Next cycle in progress locally:** Cycle 18.C packet-budget and
+association-readiness redesign. Cycle 18.B production replay
 `cycle18b-appearance-packet-20260605T151057Z` is **NOT ACCEPTED** even though
 it improved DB FPS `5.620 -> 7.410` and Step 2 wall `467.450 s -> 248.324 s`.
 It failed because valid boundary packets were `0/2`, merge-ready packets were
 `0/2`, `StudentTracks` regressed `53 -> 65`, minimum model-agreement
 F1@IoU0.5 was `53.730 %`, and minimum all-model global-assignment F1 was
-`69.752 %`. Cycle 18.C must redesign payload budgeting and association
-readiness before any new sharding benchmark.
+`69.752 %`. Cycle 18.C has local payload-budgeting, active-edge, and figure
+evidence changes staged, but must still prove packet validity and association
+correctness in production before any decision.
 
 Cycle 20 is now staged in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a

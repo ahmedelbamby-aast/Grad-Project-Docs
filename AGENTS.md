@@ -1303,16 +1303,14 @@ rejected, or used to advance sharding.
 - **2026-06-05 open latency-cycle sort updated**: the active optimization
   queue is now dependency-sorted in
   `docs/inference_parallelization_plan.md` and
-  `docs/cycle_9_and_10_improvements_todo.md`. Start with **Cycle 18.B
-  appearance-backed boundary association** because it is the blocker in front
-  of the largest measured speed path. Cycle 15.B1 sharding already showed DB
-  FPS `5.620 -> 7.867`, Step 2 wall `467.450 s -> 233.038 s`, and GPU average
-  `11.846 % -> 17.495 %`, but it failed identity/model agreement. Cycle 20
-  moves behind the Cycle 18.B -> Cycle 15.B1 correctness gate; Cycle 21 stays
-  after independent work exists; Cycle 11.B/B.3, compact postprocessing,
-  Cycle 19 Redis scripts, and Cycle 10 LPM follow behind in that order. No
-  cycle decision exists without a completed production Linux RTX 5090
-  `combined.mp4` benchmark, model/identity agreement evidence, and rollback.
+  `docs/cycle_9_and_10_improvements_todo.md`. Cycle 18.B has now completed
+  and is **NOT ACCEPTED**, so the next start point is **Cycle 18.C packet-
+  budget and association-readiness redesign**. The speed path remains valuable
+  (`DB FPS 5.620 -> 7.410`, Step 2 wall `467.450 s -> 248.324 s` in 18.B),
+  but no gain is accepted until packet validity, merge readiness,
+  `StudentTracks`, model agreement, label-invariant identity, figures, and
+  rollback all pass in a new production Linux RTX 5090 `combined.mp4`
+  benchmark.
 - **2026-06-05 Cycle 18.B benchmark lock `RELEASED / NOT ACCEPTED`**: current Codex runtime
   session took the production benchmark lock for replay
   `cycle18b-appearance-packet-20260605T151057Z`. Candidate env delta:
@@ -1337,6 +1335,21 @@ rejected, or used to advance sharding.
   production benchmark lock is now released; do not rerun the same
   `appearance_packet` profile until packet byte-budget validity and shard-1
   association readiness are redesigned.
+- **2026-06-05 Agent 19 Cycle 18.C local redesign
+  `STAGED_LOCAL_ONLY / NO_PRODUCTION_DECISION`**: Agent 19 resumed the sorted
+  Cycle 18.C lane. Local code now samples non-critical packet observations so
+  a boundary packet can fit `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES`
+  while keeping track rows, tracker hints, and appearance references; shard
+  metadata now carries `shard_count`; boundary summaries and packets now
+  include only actual inter-shard edges instead of terminal video edges. The
+  Figure Planner lane was completed by sub-agent `Huygens`, and the Figure
+  Implementer lane was completed by sub-agent `Archimedes` in
+  `tools/prod/prod_generate_cycle_figures.py` with focused tests. Local
+  validation passed: shard/Cycle 18, figure-generator, and shard-planning
+  focused set `18 passed`, plus py_compile for the modified runtime/generator
+  files. This
+  is not a §12.6 benchmark decision and does not enable sharding or 15.B2.
+  Benchmark lock remains `NOT_HELD`.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`
