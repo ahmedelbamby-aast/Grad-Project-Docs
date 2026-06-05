@@ -1,6 +1,6 @@
 # Cycle 9 + Cycle 10 — Remaining Improvements (TODO)
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
 **Status:** Consolidated TODO list. Nothing in this document is accepted or
 flagged "done" until each improvement has its own production benchmark on
@@ -833,7 +833,7 @@ start next.
 
 | Sort | Cycle | State | Why this position | Expected gain / gate |
 |---:|---|---|---|---|
-| 1 | **Cycle 20 post-stage timeline, then streaming persistence and embedding overlap** | `PHASE B MEASUREMENT-ONLY IMPLEMENTATION STARTED / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane, but the first slice only records serial lifecycle timestamps and keeps `OFFLINE_STREAM_POST_STAGES=0`. | Upper bound from the accepted pre-shard baseline is the embedding created span `98.578 s`; fully hiding it would move total wall `808.038 s -> ~709.460 s` and DB FPS `5.620 -> ~6.40` (`~+13.9 %`). |
+| 1 | **Cycle 20 post-stage timeline, then streaming persistence and embedding overlap** | `PHASE B MEASUREMENT-ONLY PRODUCTION RECORDED / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane. Production replay `cycle20-post-stage-timeline-20260605T212526Z` proved the current lifecycle is still serial while keeping `OFFLINE_STREAM_POST_STAGES=0`. | Measured gaps are persistence wall `52.703285 s`, embedding start lag after inference done `78.581286 s`, and embedding wall `98.739642 s`; future overlap work must first fix/record the terminal coordinator timestamp and then benchmark a default-off streaming writer. |
 | 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers help only when independent work exists from sharding, post-stage overlap, multiple jobs, or another measured queue bottleneck. | Unknown until topology matrix benchmark; must include duplicate-worker checks, resource budgets, DB/Redis/GPU contention, correctness, and rollback. |
 | 3 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | The remaining dominant-child gap is real but small compared with sharding/post-stage work. | About `~4 %` Step 2 wall ceiling, roughly `18 s` on a `459 s` Step 2 frame wall. |
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Top-K already removed most output bytes; Phase A measured decode/NMS as small and Python BLS is blocked by the pinned runtime. | Decode/NMS-only gain is about `2 %` of Step 2; a real candidate must reduce server wait or execution, not only output bytes. |
@@ -866,7 +866,7 @@ F1@IoU0.5 `53.788 %`, and minimum shard-1 global-assignment F1 `79.876 %`.
 | **Cycle 17** | Redis Streams for non-authoritative progress and benchmark sampling | **ACCEPTED OBSERVABILITY-ONLY / NOT THROUGHPUT** | Production replay `cycle17-redis-streams-20260604T025328Z` completed with exact DB/model parity, bounded stream evidence (`4729` writes, `XLen=1002`, zero Redis errors), and rollback verified; DB FPS was neutral (`5.620 -> 5.611`), so no throughput gain is claimed. | `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, `docs/production_inference_benchmark.md` |
 | **Cycle 18** | Redis boundary-state cache for future sharding | **PHASE A CONTRACT ONLY / RUNTIME BLOCKED** | two-shard runtime failed identity/model-agreement gates; Redis may document boundary-state requirements only until a new identity-state design proof exists | `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/redis_broader_optimization_opportunities.md` |
 | **Cycle 19** | Redis server-side scripts for measured read/compute/write hotspots | **CONDITIONAL** | only if Cycle 16.B leaves a measured Redis read/compute/write hotspot that pipelining cannot remove | `docs/redis_broader_optimization_opportunities.md` |
-| **Cycle 20** | Streaming DB persistence and embedding overlap with inference | **PHASE B MEASUREMENT-ONLY STARTED / NO DECISION** | first slice records post-stage timeline evidence only; no streaming behavior until production proof and lifecycle gates pass | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` |
+| **Cycle 20** | Streaming DB persistence and embedding overlap with inference | **PHASE B MEASUREMENT-ONLY PRODUCTION RECORDED / NO DECISION** | production replay `cycle20-post-stage-timeline-20260605T212526Z` records post-stage timeline evidence only; no streaming behavior until terminal-coordinator evidence and lifecycle gates pass | `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` |
 | **Cycle 21** | Celery worker/thread/concurrency scaling matrix | **PLANNED AFTER PARALLEL WORK EXISTS / PHASE A STAGED** | only if extra workers have independent work to consume; otherwise likely idle capacity or contention | `docs/cycle_21_celery_concurrency_scaling_investigation.md` |
 
 Coordination note: the four active agent sessions are divided in

@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -4026,6 +4026,84 @@ blocked. Further sharding work needs human-labeled identity ground truth and/or
 a redesigned identity-state producer that addresses intra-shard fragmentation,
 not another boundary-descriptor rerun.
 
+## 48. Cycle 20 Measurement-Only Post-Stage Timeline
+
+Cycle 20 then started on production as the next non-sharding latency lane. This
+run is a measurement-only replay, not a streaming persistence candidate:
+`OFFLINE_STREAM_POST_STAGES=0` remained disabled, and the wrapper enabled only
+`OFFLINE_STREAM_POST_STAGE_TIMELINE=1` during the replay. The production job
+completed and rollback restored both Cycle 20 flags to `0`.
+
+| Item | Value |
+|---|---|
+| Status | `NO_DECISION_PENDING_REVIEW` |
+| Runtime commit | `ba4e2882` |
+| Evidence fix commit | `70aebb99` |
+| Replay key | `cycle20-post-stage-timeline-20260605T212526Z` |
+| Job ID | `58d53985-1c86-46fd-944c-771ea3afce1a` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json` / `.md` |
+| Bench summary | `/home/bamby/grad_project/backend/logs/bench_summary_20260606T002549.json` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T002549.csv` |
+| Inference audit | `/home/bamby/grad_project/backend/data/videos/58d53985-1c86-46fd-944c-771ea3afce1a/inference_audit.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/figure_manifest.json` |
+| Figure roles | Planner `Agent Cycle 20 kickoff`; implementer `Agent Cycle 20 kickoff`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance and lifecycle measurements:
+
+| Metric | Baseline | Candidate | Delta / result |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `5.216317` | `-7.18 %` |
+| DB completed elapsed | `808.038 s` | `870.538 s` | `+7.73 %` |
+| Step 2 frame wall | `467.449833 s` | `462.124911 s` | `-1.14 %` |
+| Step 2 through-pose wall | `641.154064 s` | `691.776287 s` | `+7.90 %` |
+| GPU avg util | `11.846 %` | `11.366 %` | `-4.05 %` |
+| GPU peak util | `57.000 %` | `54.000 %` | `-5.26 %` |
+| Embedding created span | `98.578 s` | `98.418 s` | `-0.16 %` |
+| Persistence starts before inference done | `unavailable` | `false` | current path is serial |
+| Embedding starts before inference done | `unavailable` | `false` | current path is serial |
+| Persistence wall | `unavailable` | `52.703285 s` | measurement-only |
+| Embedding start lag after inference done | `unavailable` | `78.581286 s` | measurement-only |
+| Embedding wall | `unavailable` | `98.739642 s` | measurement-only |
+
+Correctness and rollback gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72744` | Matches baseline row parity |
+| BBox rows | `72744` | Matches baseline row parity |
+| Embedding rows | `72578` | Matches baseline row parity |
+| StudentTracks | `53` | Matches baseline |
+| Per-model agreement F1@IoU0.5 | `100.000 %` for all four behavior models | Pass model-agreement proxy |
+| `first_persist_packet_ready_at` | unavailable: `serial_path_no_streaming_persistence_packet` | Expected for measurement-only serial path |
+| `terminal_coordinator_done_at` | missing | Instrumentation gap; blocks decision closure |
+| Rollback verified | `true` | Cycle flags restored to `0` |
+
+### 48.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/cycle20_post_stage_timeline__decision_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/cycle20_post_stage_timeline__wall_breakdown.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/cycle20_post_stage_timeline__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/cycle20_post_stage_timeline__gpu_profile.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/cycle20_post_stage_timeline__evidence_completeness.png)
+
+Decision: **NO DECISION PENDING REVIEW**. Cycle 20 has started on production and
+the first measurement-only run proves the current post-stage boundaries are
+serial: persistence and embedding both start after frame inference is done.
+This replay does not accept or reject streaming persistence/embedding overlap,
+because no streaming writer, bounded persistence queue, embedding watermark, or
+terminal coordinator was enabled. The next Cycle 20 step is to fix/record the
+terminal coordinator timestamp and design the default-off streaming writer
+candidate against these measured gaps.
+
 ---
 
-*Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*
+*Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*

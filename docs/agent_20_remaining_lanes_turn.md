@@ -1,11 +1,13 @@
 # Agent 20 Remaining Lanes Turn Record
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
 **Status:** SUPERSEDED FOR CYCLE 20 IMPLEMENTATION / CYCLE 21 GOVERNANCE
 REMAINS. Agent 20 completed the readiness/governance claim. On 2026-06-05 the
 user requested the next cycle to start, so Cycle 20 moved into a
-measurement-only implementation kickoff while Cycle 21 remains governance-only.
+measurement-only implementation kickoff; production replay
+`cycle20-post-stage-timeline-20260605T212526Z` is now recorded while Cycle 21
+remains governance-only.
 
 ## Purpose
 
@@ -39,16 +41,16 @@ without guessing from chat history.
 | Turn state | `TAKEN` |
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
-| Current phase | Cycle 20 measurement-only implementation kickoff; Cycle 21 governance only |
+| Current phase | Cycle 20 measurement-only production replay recorded; Cycle 21 governance only |
 | Production benchmark lock | `NOT HELD` |
 | Runtime implementation permission | Cycle 20 timeline instrumentation only; no streaming behavior |
-| Production env permission | None |
+| Production env permission | Cycle 20 timeline-only replay completed; no persistent behavior change |
 
 ## Claimed Responsibilities
 
 | Lane | Responsibility | Current boundary |
 |---|---|---|
-| Cycle 20 | Completed readiness contract; superseded by measurement-only implementation kickoff. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
+| Cycle 20 | Completed readiness contract; superseded by measurement-only production replay. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
 | Cycle 21 | Prepare concurrency benchmark governance and topology-proof requirements. | No worker count, pool type, prefetch, GPU cap, or `backend/.env` changes. |
 | Coordination | Keep shared docs aligned with the turn claim. | No production benchmark decision, acceptance, rejection, skip, or closure. |
 
@@ -65,6 +67,7 @@ without guessing from chat history.
 | `A20-07` Write Cycle 20 readiness contract V0. | `COMPLETED` | Measurement timestamps, idempotency checklist, terminal coordinator gate, and rollback/live exclusion in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
 | `A20-08` Write Cycle 21 governance packet V0. | `COMPLETED` | Topology capture, duplicate-worker proof, resource-budget packet, and rollback format in `docs/cycle_21_celery_concurrency_scaling_investigation.md`. |
 | `A20-HANDOFF-20260605` Cycle 20 readiness-only boundary superseded. | `COMPLETED` | New work may implement only the measurement timeline and governed wrapper recorded in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
+| `A20-HANDOFF-20260606` Cycle 20 production measurement recorded. | `COMPLETED` | Replay `cycle20-post-stage-timeline-20260605T212526Z` completed; next Cycle 20 behavior work must address terminal-coordinator timing before a streaming writer candidate. |
 
 ## Owned Files And Boundaries
 
@@ -107,11 +110,12 @@ Agent 20 must not:
 
 ## Current Summary For Next Agent
 
-Agent 20 completed the documentation/readiness slice. Cycle 20 is now allowed
-to proceed only as a measurement-only timeline implementation with
-`OFFLINE_STREAM_POST_STAGES=0`; Cycle 21 still has no worker-topology change or
-production benchmark lock. Any streaming writer or embedding overlap behavior
-requires a later production-evidence gate.
+Agent 20 completed the documentation/readiness slice, and Cycle 20 now has a
+measurement-only production replay recorded with `OFFLINE_STREAM_POST_STAGES=0`.
+Cycle 21 still has no worker-topology change or production benchmark lock. Any
+streaming writer or embedding overlap behavior requires a later
+production-evidence gate and must fix or explicitly record the
+`terminal_coordinator_done_at` timing gap first.
 
 ## Handoff Protocol
 

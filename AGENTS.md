@@ -1,6 +1,6 @@
 # Agents Execution Guide
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
@@ -1426,11 +1426,16 @@ rejected, or used to advance sharding.
   15.B1/15.B2 remain blocked; future sharding work needs human-labeled identity
   ground truth and/or a redesigned identity-state producer that addresses
   intra-shard fragmentation.
-- **2026-06-05 Cycle 20 post-stage timeline
-  `MEASUREMENT_ONLY_IMPLEMENTATION_STARTED / NO_DECISION`**:
+- **2026-06-06 Cycle 20 post-stage timeline
+  `MEASUREMENT_ONLY_PRODUCTION_RECORDED / NO_DECISION_PENDING_REVIEW`**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
-  now records the next non-sharding latency lane after the Cycle 18.D OSNet
-  rejection. Current offline `crop_frame` behavior writes authoritative
+  records the next non-sharding latency lane after the Cycle 18.D OSNet
+  rejection. Production replay
+  `cycle20-post-stage-timeline-20260605T212526Z`, job
+  `58d53985-1c86-46fd-944c-771ea3afce1a`, completed `4541/4541` frames on
+  `combined.mp4` with `OFFLINE_STREAM_POST_STAGES=0` and timeline-only
+  `OFFLINE_STREAM_POST_STAGE_TIMELINE=1`; rollback restored both Cycle 20 flags
+  to `0`. Current offline `crop_frame` behavior writes authoritative
   `Frame`/`Detection`/`BoundingBox` rows in Step 3 after the in-memory frame
   inference aggregation, then queues follow-up tracking confirmation and
   embedding generation after render/audit finalization.
@@ -1442,9 +1447,16 @@ rejected, or used to advance sharding.
   `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`,
   `VideoAnalysisJob.metadata.cycle20_post_stage_timeline`,
   `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`,
-  and collector/watch support. It must not be described as streaming
-  persistence, embedding overlap, or throughput acceptance until a production
-  `combined.mp4` benchmark with figures and rollback proof is recorded.
+  and collector/watch support. The run measured persistence wall `52.703285 s`,
+  embedding wall `98.739642 s`, and proved both persistence and embedding still
+  start after frame inference is done. Model agreement was `100.000 %` for all
+  four behavior models, row parity held, and rollback was verified. This must
+  still not be described as streaming persistence, embedding overlap, or
+  throughput acceptance: `terminal_coordinator_done_at` was missing and no
+  streaming writer, bounded persistence queue, embedding watermark, or terminal
+  coordinator candidate was enabled. Evidence is in
+  `docs/production_inference_benchmark.md` §48 and
+  `docs/figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/`.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

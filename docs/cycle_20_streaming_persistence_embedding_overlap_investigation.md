@@ -1,14 +1,14 @@
 # Cycle 20 Streaming Persistence and Embedding Overlap Investigation
 
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
-**Status:** Phase B measurement-only implementation started after the
+**Status:** Phase B measurement-only production benchmark recorded after the
 2026-06-05 Cycle 18.D OSNet-AIN rejection promoted Cycle 20 to the next
-non-sharding latency lane. The only valid decision state is
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` until a completed production Linux
-RTX 5090 benchmark on `combined.mp4` compares this candidate against the latest
-accepted baseline. This kickoff does **not** implement streaming persistence,
-embedding overlap, new queues, or a terminal coordinator.
+non-sharding latency lane. The only valid decision state is now
+`NO_DECISION_PENDING_REVIEW`: replay
+`cycle20-post-stage-timeline-20260605T212526Z` completed on production, but
+this kickoff does **not** implement streaming persistence, embedding overlap,
+new queues, or a terminal coordinator.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -43,6 +43,9 @@ proof that Step 3 or embedding has started.
 | File | `tools/prod/prod_triton_endpoint_policy.sh` | Keeps `OFFLINE_STREAM_POST_STAGES=0` on the live profile. |
 | Test | `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py` | Verifies default-off and timestamp/unavailable metadata behavior. |
 | Test | `backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` | Verifies derived Cycle 20 timeline metrics. |
+| Commit | `ba4e2882` | Production runtime commit used for the Cycle 20 measurement replay. |
+| Commit | `70aebb99` | Wrapper evidence-manifest fix deployed before strict figure regeneration. |
+| Job | `58d53985-1c86-46fd-944c-771ea3afce1a` | Production Cycle 20 measurement job for replay `cycle20-post-stage-timeline-20260605T212526Z`. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -159,9 +162,54 @@ this single-agent kickoff; the wrapper still keeps planner intent, generator
 inputs, unavailable-metric policy, manifest, and produced images as separate
 artifacts before any benchmark decision is claimed.
 
-The Phase B benchmark remains `NO_DECISION_PENDING_REVIEW` until production
-evidence is captured and this document plus
-`docs/production_inference_benchmark.md` record the §12.6 decision table.
+The Phase B benchmark remains `NO_DECISION_PENDING_REVIEW`: production evidence
+is captured, but the run proves the current serial gaps only and does not
+enable the future streaming writer, embedding overlap, or terminal coordinator.
+
+### Phase B production measurement (2026-06-05 UTC / 2026-06-06 Cairo)
+
+Production replay `cycle20-post-stage-timeline-20260605T212526Z` ran on
+`combined.mp4` as job `58d53985-1c86-46fd-944c-771ea3afce1a`. The benchmark
+completed `4541/4541` frames with `OFFLINE_STREAM_POST_STAGES=0` and
+`OFFLINE_STREAM_POST_STAGE_TIMELINE=1` during the run. Rollback then restored
+both Cycle 20 flags to `0`.
+
+| Evidence item | Value |
+|---|---|
+| Runtime commit | `ba4e2882` |
+| Figure/evidence fix commit | `70aebb99` |
+| Replay key | `cycle20-post-stage-timeline-20260605T212526Z` |
+| Job ID | `58d53985-1c86-46fd-944c-771ea3afce1a` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/post_stage_timeline_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/model_agreement_baseline_vs_post_stage_timeline.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20-post-stage-timeline-20260605T212526Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20-post-stage-timeline-20260605T212526Z/figure_manifest.json` |
+| Figure roles | Planner `Agent Cycle 20 kickoff`; implementer `Agent Cycle 20 kickoff` |
+
+Measured serial lifecycle gaps:
+
+| Metric | Value |
+|---|---:|
+| DB-completed FPS | `5.216317` |
+| Step 2 frame wall | `462.124911 s` |
+| Step 2 through-pose wall | `691.776287 s` |
+| Persistence starts before inference done | `false` |
+| Persistence wall | `52.703285 s` |
+| Embedding starts before inference done | `false` |
+| Embedding start lag after inference done | `78.581286 s` |
+| Embedding wall | `98.739642 s` |
+| Detection / bbox rows | `72744 / 72744` |
+| Embedding rows | `72578` |
+| Student tracks | `53` |
+| Model agreement F1@IoU0.5 | `100.000 %` for all four behavior models |
+| Rollback verified | `true` |
+
+The measurement proves the current path is serial for the Cycle 20 boundaries:
+first frame persistence happened after frame inference finished, and embedding
+started after frame inference finished. It also exposes one instrumentation gap:
+`terminal_coordinator_done_at` remained missing, so later Cycle 20 work must
+either record that boundary reliably or keep it explicitly unavailable with a
+reason before any decision claim.
 
 ### Measurement-only timestamp contract
 
