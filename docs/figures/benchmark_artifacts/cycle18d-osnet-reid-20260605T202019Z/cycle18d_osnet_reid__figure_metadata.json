@@ -1,0 +1,1676 @@
+{
+  "cycle_slug": "cycle18d_osnet_reid",
+  "evidence_families": {
+    "bench_summary": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/sharded_summary.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "gpu": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/gpu_monitor.csv"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "inference_audit": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "metrics": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "model_agreement": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "parity": {
+      "paths": [],
+      "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark is an identity/runtime benchmark; tensor parity is not the target gate.",
+      "status": "unavailable"
+    },
+    "probe": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "readiness": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "rollback": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json"
+      ],
+      "reason": null,
+      "status": "available"
+    }
+  },
+  "figure_roles": {
+    "generator_scope": "tools/prod/prod_generate_cycle_figures.py",
+    "implementer": "Agent 18 OSNet ReID benchmark session",
+    "planner": "Agent 18 OSNet ReID benchmark session"
+  },
+  "generated_at": "2026-06-05T20:30:55.107805+00:00",
+  "input_digests": [
+    {
+      "bytes": 6943,
+      "path": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+      "sha256": "8d7c497221f1a946d2955119a9ebe0d7abcf902e39d235c54fdea32576e85849"
+    },
+    {
+      "bytes": 1430,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+      "sha256": "b63d8fccc4bee168a48742c90a3aabd25fc34f0c316e71e75d3c1aa159509dd5"
+    },
+    {
+      "bytes": 31189,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/gpu_monitor.csv",
+      "sha256": "6b141ca283d93080e8b31cc15c34a725446af7b4872941612b3a3af4c345d39c"
+    },
+    {
+      "bytes": 98485,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json",
+      "sha256": "ee9daa52953b770ad5bca9aa3667ab8dfaa8f34914c4d169d397316b4fb13fbb"
+    },
+    {
+      "bytes": 127125,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+      "sha256": "bf248eeb0b3ed1a942fe038acce30605d1793509cf4011bcc8653081365789b5"
+    },
+    {
+      "bytes": 3149,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json",
+      "sha256": "c117f3270ad7ca60ddab99e0d6ec5c062c47a428dbde34ed2bf2afad35910430"
+    },
+    {
+      "bytes": 1098,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json",
+      "sha256": "3bf0e451a38fcf7f738a58b81e74195a13f2e775106acc1c41d96db20982df2c"
+    },
+    {
+      "bytes": 54753,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/sharded_summary.json",
+      "sha256": "3a9016f2a8367dccded2707101a3735d3d079ba93e43fa12a15b5c23a1735abe"
+    }
+  ],
+  "missing_metrics": {
+    "baseline": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "best": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "candidate": {
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "run_complete_wall_s": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    }
+  },
+  "outputs": {
+    "correctness_gate": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__correctness_gate.png",
+    "decision_delta": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__decision_delta.png",
+    "evidence_completeness": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__evidence_completeness.png",
+    "figure_manifest": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/figure_manifest.json",
+    "gate_matrix": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__gate_matrix.png",
+    "gpu_distribution": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__gpu_distribution.png",
+    "gpu_profile": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__gpu_profile.png",
+    "identity_label_invariant": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__identity_label_invariant.png",
+    "markdown": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures.md",
+    "model_rtt": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__model_rtt.png",
+    "packet_budget": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__packet_budget.png",
+    "packet_readiness": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__packet_readiness.png",
+    "redis_profile": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__redis_profile.png",
+    "relative_delta": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__relative_delta.png",
+    "resource_tail": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__resource_tail.png",
+    "sidecar_metadata": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__figure_metadata.json",
+    "statistical_table": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__statistical_table.png",
+    "unavailable_summary": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__unavailable_summary.png",
+    "wall_breakdown": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/figures/cycle18d_osnet_reid__wall_breakdown.png"
+  },
+  "parsed_metrics": {
+    "baseline": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "best": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "candidate": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 91.833
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 149.532
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 163.371
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 7.584265
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72650.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 16.903
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/gpu_monitor.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 16365.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/gpu_monitor.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 16365.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 16365.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 89.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json",
+        "status": "available",
+        "unit": "%",
+        "value": 72.414
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json",
+        "status": "available",
+        "unit": "%",
+        "value": 79.876
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json",
+        "status": "available",
+        "unit": "%",
+        "value": 59.27782497875956
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/sharded_summary.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "count",
+        "value": 1.0
+      },
+      "packet_observation_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "observations",
+        "value": 1128.0
+      },
+      "packet_payload_bytes": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "bytes",
+        "value": 186303.0
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "count",
+        "value": 2.0
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json",
+        "status": "available",
+        "unit": "bool",
+        "value": true
+      },
+      "run_complete_wall_s": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "s",
+        "value": null
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 231.434934
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 362.336924
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/sharded_summary.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 38.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    }
+  },
+  "run_metadata": {
+    "baseline": {
+      "label": "accepted_pre_shard_baseline",
+      "role": "baseline"
+    },
+    "best": {
+      "label": "best_comparable_baseline",
+      "role": "best"
+    },
+    "candidate": {
+      "label": "cycle18d-osnet-reid-20260605T202019Z",
+      "role": "candidate"
+    }
+  },
+  "sources": {
+    "baseline": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "best": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "candidate": [
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/sharded_summary.json",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/gpu_monitor.csv",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json",
+      "/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json"
+    ]
+  },
+  "statistics": {
+    "distribution_tests": {},
+    "methods": [
+      "relative_change_pct_vs_baseline",
+      "descriptive_summary (mean/median/std/cv/percentiles/iqr)",
+      "bootstrap_mean_ci_95 (2000 resamples, seed=0)",
+      "welch_t_unequal_variance (normal-approx p)",
+      "cohens_d_effect_size",
+      "cliffs_delta_nonparametric_effect_size"
+    ],
+    "relative_change": {
+      "bbox_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.099,
+            "improved": null,
+            "value": 72816.0
+          }
+        }
+      },
+      "behavior_rtt_mean_ms": {
+        "baseline": 83.53,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 83.53
+          },
+          "candidate": {
+            "delta_pct": 9.9401,
+            "improved": false,
+            "value": 91.833
+          }
+        }
+      },
+      "behavior_rtt_p95_ms": {
+        "baseline": 129.514,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 129.514
+          },
+          "candidate": {
+            "delta_pct": 15.4562,
+            "improved": false,
+            "value": 149.532
+          }
+        }
+      },
+      "behavior_rtt_p99_ms": {
+        "baseline": 135.533,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 135.533
+          },
+          "candidate": {
+            "delta_pct": 20.5396,
+            "improved": false,
+            "value": 163.371
+          }
+        }
+      },
+      "db_completed_fps": {
+        "baseline": 5.619787,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 5.619787
+          },
+          "candidate": {
+            "delta_pct": 34.9564,
+            "improved": true,
+            "value": 7.584265
+          }
+        }
+      },
+      "detection_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.099,
+            "improved": null,
+            "value": 72816.0
+          }
+        }
+      },
+      "embedding_rows": {
+        "baseline": 72578.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72578.0
+          },
+          "candidate": {
+            "delta_pct": 0.0992,
+            "improved": null,
+            "value": 72650.0
+          }
+        }
+      },
+      "gpu_avg_util_pct": {
+        "baseline": 11.846,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 11.846
+          },
+          "candidate": {
+            "delta_pct": 42.6895,
+            "improved": true,
+            "value": 16.903
+          }
+        }
+      },
+      "gpu_peak_mem_used_mib": {
+        "baseline": 15725.0,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15725.0
+          },
+          "candidate": {
+            "delta_pct": 4.07,
+            "improved": false,
+            "value": 16365.0
+          }
+        }
+      },
+      "gpu_peak_util_pct": {
+        "baseline": 57.0,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 57.0
+          },
+          "candidate": {
+            "delta_pct": 56.1404,
+            "improved": true,
+            "value": 89.0
+          }
+        }
+      },
+      "run_complete_wall_s": {
+        "baseline": 707.716357,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 707.716357
+          }
+        }
+      },
+      "step2_frame_wall_s": {
+        "baseline": 467.449833,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 467.449833
+          },
+          "candidate": {
+            "delta_pct": -50.4899,
+            "improved": true,
+            "value": 231.434934
+          }
+        }
+      },
+      "step2_through_pose_wall_s": {
+        "baseline": 641.154064,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 641.154064
+          },
+          "candidate": {
+            "delta_pct": -43.4868,
+            "improved": true,
+            "value": 362.336924
+          }
+        }
+      },
+      "track_count": {
+        "baseline": 53.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 53.0
+          },
+          "candidate": {
+            "delta_pct": -28.3019,
+            "improved": null,
+            "value": 38.0
+          }
+        }
+      }
+    },
+    "sampled_series_descriptive": {
+      "candidate": {
+        "gpu_mem_sample_mib": {
+          "cv_pct": 0.0,
+          "iqr": 0.0,
+          "max": 16365.0,
+          "mean": 16365.0,
+          "mean_ci95": [
+            16365.0,
+            16365.0
+          ],
+          "median": 16365.0,
+          "min": 16365.0,
+          "n": 590,
+          "p05": 16365.0,
+          "p50": 16365.0,
+          "p95": 16365.0,
+          "p99": 16365.0,
+          "std": 0.0
+        },
+        "gpu_power_sample_w": {
+          "cv_pct": 86.5083,
+          "iqr": 196.385,
+          "max": 254.21,
+          "mean": 107.365017,
+          "mean_ci95": [
+            100.110467,
+            115.479594
+          ],
+          "median": 70.105,
+          "min": 15.07,
+          "n": 590,
+          "p05": 15.969,
+          "p50": 70.105,
+          "p95": 238.0905,
+          "p99": 246.3199,
+          "std": 92.879639
+        },
+        "gpu_util_sample_pct": {
+          "cv_pct": 143.6558,
+          "iqr": 36.0,
+          "max": 89.0,
+          "mean": 16.90339,
+          "mean_ci95": [
+            14.931992,
+            18.971271
+          ],
+          "median": 2.0,
+          "min": 0.0,
+          "n": 590,
+          "p05": 0.0,
+          "p50": 2.0,
+          "p95": 67.0,
+          "p99": 80.22,
+          "std": 24.282697
+        }
+      }
+    }
+  },
+  "status": "NO_DECISION_PENDING_REVIEW",
+  "target_gate": {
+    "db_completed_fps": "increase while preserving correctness",
+    "label_invariant_tracking": "global assignment and residual association gates must pass",
+    "model_agreement": "no material regression",
+    "rollback": "must restore sharding and packet flags to disabled defaults",
+    "step2_frame_wall_s": "decrease while preserving identity/model agreement"
+  },
+  "unavailable_summary": {
+    "by_metric": {
+      "gpu_mem_p95_mib": [
+        "baseline",
+        "best"
+      ],
+      "gpu_mem_p99_mib": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_all_model_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_shard1_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "model_agreement_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "overall_fps": [
+        "baseline",
+        "best"
+      ],
+      "packet_max_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_merge_ready_count": [
+        "baseline",
+        "best"
+      ],
+      "packet_observation_count": [
+        "baseline",
+        "best"
+      ],
+      "packet_payload_bytes": [
+        "baseline",
+        "best"
+      ],
+      "packet_total_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_track_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_truncated_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_unresolved_tracks": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_valid_count": [
+        "baseline",
+        "best"
+      ],
+      "parity_failed_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_max_abs_diff": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "readiness_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_command_wall_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_memory_used_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p95_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p99_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_pipeline_execute_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "rollback_passed": [
+        "baseline",
+        "best"
+      ],
+      "run_complete_wall_s": [
+        "candidate"
+      ],
+      "worker_rss_p95_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "worker_rss_p99_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ]
+    },
+    "by_run": {
+      "baseline": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "best": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "candidate": {
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.D OSNet-AIN ReID boundary benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "run_complete_wall_s": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      }
+    },
+    "total_unavailable": 74
+  }
+}

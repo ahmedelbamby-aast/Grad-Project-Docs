@@ -1405,29 +1405,27 @@ rejected, or used to advance sharding.
   Cycle 15.B1/15.B2 remain blocked; next sharding work must first update the
   Cycle 18 packet schema for combined-cost diagnostics and then reduce
   unresolved/offset-fallback tracks in a new governed benchmark.
-- **2026-06-05 Agent 18 Cycle 18.D OSNet-AIN ReID continuation `TAKEN /
-  LOCAL_IMPLEMENTATION_STAGED / BENCHMARK_LOCK_NOT_HELD`**: user explicitly
-  opened a distinct learned ReID follow-up for the Cycle 18.D association gap.
-  Agent 18 owns the offline-only `osnet_ain_x1_0` Triton TensorRT candidate,
-  `backend/apps/pipeline/services/reid_triton_client.py`,
-  `backend/scripts/build_tensorrt_engines.py`,
-  `tools/prod/prod_build_osnet_reid_tensorrt.sh`,
-  `tools/prod/prod_probe_reid_triton.py`,
-  `backend/apps/video_analysis/services/offline_sharding.py`,
-  `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`,
-  `tools/prod/prod_triton_endpoint_policy.sh`,
-  `docs/entity/systems/osnet_ain_x1_0_reid_model.md`, and the Cycle 18.D
-  ledger. Local staged code adds the `triton_reid` descriptor, native 512-d
-  fail-closed ReID client, production build/parity wrappers, live-isolation
-  coverage, and entity docs. Focused local suite:
-  `backend/.venv/Scripts/python.exe -m pytest backend/tests/unit/pipeline/test_reid_triton_client.py backend/tests/unit/scripts/test_prod_probe_reid_triton.py backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py backend/tests/unit/test_live_scheduler.py -q --tb=short`
-  passed `29 passed`. This is **not** a production decision: no production
-  `osnet_ain_x1_0/1/model.plan`, Triton `READY` state, PyTorch-vs-Triton parity
-  report, governed benchmark, figure bundle, or rollback proof exists yet.
-  Next action is local gates, commit/push, production build/parity, then a
-  benchmark lock for a fresh `triton_reid` replay. Do not enable sharding by
-  default, touch live/RTSP sharding, start 15.B2, or claim acceptance without
-  constitution §12.5/§12.6 evidence.
+- **2026-06-05 Agent 18 Cycle 18.D OSNet-AIN ReID continuation
+  `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`**:
+  the offline-only `osnet_ain_x1_0` TensorRT model was built and loaded in the
+  offline Triton profile, and PyTorch-vs-Triton parity passed
+  (`backend/logs/osnet-ain-reid-parity-20260605T201608Z/reid_triton_parity.json`,
+  min cosine `0.9999725818634033`, repeat cosine `1.0`). Governed replay
+  `cycle18d-osnet-reid-20260605T202019Z`, parent job
+  `39e8ea9f-1de7-487d-98cb-6c40512158c6`, completed `4541/4541` frames at SHA
+  `99581661`, generated figures, and verified rollback. The candidate is
+  **NOT ACCEPTED**: valid packets `2/2`, but merge-ready packets `1/2`,
+  shard-1 mapping `17/36`, offset fallbacks `19/36`, StudentTracks `53 -> 57`,
+  minimum model-agreement F1 `53.788 %`, and shard-1 label-invariant F1
+  `79.876 %`. The model may remain loaded but unused; rollback restored
+  sharding off, packets off, and descriptor `region_hsv`. Evidence:
+  `docs/production_inference_benchmark.md` §47,
+  `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, and
+  `docs/figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/`.
+  Do not rerun the same `triton_reid` profile as a new decision. Cycle
+  15.B1/15.B2 remain blocked; future sharding work needs human-labeled identity
+  ground truth and/or a redesigned identity-state producer that addresses
+  intra-shard fragmentation.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

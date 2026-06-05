@@ -839,16 +839,15 @@ start next.
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Top-K already removed most output bytes; Phase A measured decode/NMS as small and Python BLS is blocked by the pinned runtime. | Decode/NMS-only gain is about `2 %` of Step 2; a real candidate must reduce server wait or execution, not only output bytes. |
 | 5 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already removed the measured Redis side-effect bottleneck. Scripts require a new measured Redis read/compute/write hotspot. | No active gain estimate; start only after a production profiler shows a script-shaped hotspot. |
 | 6 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | LPM is a fusion-quality/correctness lane, not the latency-first lane. | No throughput gain expected; acceptance depends on contradiction/fusion correctness, not FPS. |
-| Blocked | **Cycle 15.B1 identity-fixed sharding rerun; 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Cycle 18.D improved shard-1 mapping (`10/36 -> 18/36`) and StudentTracks (`64 -> 56`) but failed packet validity (`1/2`), merge readiness (`0/2`), model agreement, and label-invariant identity. | Same measured two-shard envelope exists, but no sharding gain is accepted. The Cycle 18 packet schema must accept combined-cost diagnostics, and a new identity-state producer or association redesign must pass a two-shard benchmark before 15.B1/15.B2 can resume. |
+| Blocked | **Cycle 15.B1 identity-fixed sharding rerun; 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Cycle 18.D fixed packet validity and then tested a real OSNet-AIN `triton_reid` descriptor, but the latest replay still failed merge readiness (`1/2`), StudentTrack parity (`53 -> 57`), model agreement, and label-invariant identity. | Same measured two-shard envelope exists, but no sharding gain is accepted. A new identity-state producer, human-labeled ground-truth evaluation, or association redesign must pass a two-shard benchmark before 15.B1/15.B2 can resume. |
 
-**Most recent cycle decision:** Cycle 18.D combined-cost boundary association
-production replay `cycle18d-combined-cost-20260605T174115Z` is **NOT
-ACCEPTED**. It improved DB FPS `5.619787 -> 7.502768`, Step 2 wall
-`467.449833 s -> 244.259645 s`, shard-1 existing-parent mapping
-`10/36 -> 18/36`, and StudentTracks `64 -> 56`, but it failed because only
-`1/2` packets was schema-valid, `0/2` packets was merge-ready, shard-1 still
-had `18/36` offset fallbacks, minimum model-agreement F1@IoU0.5 was
-`53.788 %`, and minimum shard-1 global-assignment F1 stayed `79.876 %`.
+**Most recent cycle decision:** Cycle 18.D OSNet-AIN Triton ReID replay
+`cycle18d-osnet-reid-20260605T202019Z` is **NOT ACCEPTED**. The model build and
+parity gates passed, DB FPS improved `5.619787 -> 7.584265`, and Step 2 wall
+improved `467.449833 s -> 245.762854 s`, but identity gates still failed:
+merge-ready packets `1/2`, shard-1 existing-parent mapping `17/36`, offset
+fallbacks `19/36`, StudentTracks `53 -> 57`, minimum model-agreement
+F1@IoU0.5 `53.788 %`, and minimum shard-1 global-assignment F1 `79.876 %`.
 
 ### Z.3a Historical planned/newly-started map (restaged after Cycle 12.C)
 

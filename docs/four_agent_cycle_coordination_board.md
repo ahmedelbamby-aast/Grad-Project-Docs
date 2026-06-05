@@ -208,10 +208,11 @@ Objective: build and validate an offline-only OSNet-AIN x1.0 Triton TensorRT
 ReID model, wire it into Cycle 18.D boundary appearance as `triton_reid`, and
 run a fresh governed production benchmark before any decision.
 
-2026-06-05 update: the user explicitly reopened Agent 18's Cycle 18.D lane for
-this learned ReID candidate. The previous `combined_cost` replay remains **NOT
-ACCEPTED** and released. The new OSNet-AIN candidate is `TAKEN /
-LOCAL_IMPLEMENTATION_STAGED`; the production benchmark lock is not held yet.
+2026-06-05 update: Agent 18 completed the learned ReID candidate benchmark.
+The previous `combined_cost` replay remains **NOT ACCEPTED** and released. The
+new OSNet-AIN `triton_reid` replay is also **NOT ACCEPTED** after production
+benchmark `cycle18d-osnet-reid-20260605T202019Z`; the benchmark lock is
+released.
 
 Allowed next outputs:
 
@@ -226,12 +227,12 @@ Agent 18 charter:
 
 | Topic | Decision |
 |---|---|
-| Current state | `TAKEN / LOCAL_IMPLEMENTATION_STAGED`; no benchmark lock held. |
+| Current state | `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`. |
 | Scope | Offline-only boundary appearance descriptor `triton_reid` for Cycle 18.D. |
-| Triton model | `osnet_ain_x1_0` in the offline profile only. |
+| Triton model | `osnet_ain_x1_0` in the offline profile only; built and parity-passed, but unused after rollback. |
 | Descriptor contract | BGR crop -> RGB 256x128 ImageNet-normalized NCHW FP32 -> 512-d L2-normalized vector. |
 | PostgreSQL authority | Benchmark status and DB counters remain PostgreSQL-sourced. |
-| Candidate flags | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_DESCRIPTOR=triton_reid` only inside the governed benchmark profile. |
+| Candidate flags | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_DESCRIPTOR=triton_reid` only inside the governed benchmark profile; rollback restored `region_hsv`. |
 | Owned runtime files | `backend/apps/pipeline/services/reid_triton_client.py`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/config/settings/base.py`, `backend/scripts/build_tensorrt_engines.py`. |
 | New wrappers | `tools/prod/prod_build_osnet_reid_tensorrt.sh`, `tools/prod/prod_probe_reid_triton.py`. |
 | Tests | `backend/tests/unit/pipeline/test_reid_triton_client.py`, `backend/tests/unit/scripts/test_prod_probe_reid_triton.py`, Cycle 18.D shard-merge tests, and live-isolation test. |
@@ -245,6 +246,8 @@ Implementation boundaries:
   without the governed production benchmark.
 - Rollback must restore `best_iou`, sharding off, packet off, and appearance
   off; the model may remain loaded but unused.
+- Do not rerun `cycle18d-osnet-reid-20260605T202019Z` or the same `triton_reid`
+  profile as new evidence; it is already rejected.
 
 ## Agent Self-Update Prompts
 
@@ -255,7 +258,7 @@ reassignment.
 | Agent | Prompt |
 |---|---|
 | Agent 17 | "Read `AGENTS.md`, `docs/agent_17_cycle_17_turn.md`, and `docs/agent_18_cycle_17_turn.md`. Your Cycle 17 role is historical only; do not take Cycle 17, run benchmarks, or edit runtime files unless the user explicitly reassigns a new governed follow-up." |
-| Agent 18 | "Read `AGENTS.md`, constitution §7.1.1/§8.6/§12.5/§12.6/§17/§19, `docs/four_agent_cycle_coordination_board.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, `docs/entity/systems/osnet_ain_x1_0_reid_model.md`, and `goal.md`. Confirm the previous Cycle 18.D replay is `BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`, then continue only the distinct OSNet-AIN `triton_reid` candidate: build the production TensorRT model, run PyTorch-vs-Triton parity, acquire a benchmark lock, run the governed two-shard benchmark, verify rollback, and record an honest §12.6 decision. Do not touch live sharding, enable sharding by default, start 15.B2, or claim acceptance without production evidence." |
+| Agent 18 | "Read `AGENTS.md`, constitution §7.1.1/§8.6/§12.5/§12.6/§17/§19, `docs/four_agent_cycle_coordination_board.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, and `docs/entity/systems/osnet_ain_x1_0_reid_model.md`. Confirm both Cycle 18.D `combined_cost` and OSNet-AIN `triton_reid` replays are `BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`. Do not rerun the same profiles, touch live sharding, enable sharding by default, start 15.B2, or claim acceptance without new production evidence and a new identity-state mechanism." |
 | Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your Cycle 18.C lane is released and **NOT ACCEPTED**; only final docs, evidence checks, and handoff cleanup are allowed unless a new identity-state design is explicitly opened. Runtime Redis writes, default-on sharding, 15.B2, reruns of failed profiles, and production benchmarks without a recorded lock are forbidden." |
 | Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Keep Cycle 20 readiness and Cycle 21 governance documentation-only; do not change lifecycle code, embeddings, workers, queues, env, or production state." |
 

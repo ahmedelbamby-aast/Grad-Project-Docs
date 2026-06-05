@@ -451,8 +451,8 @@ baseline evidence is mutated by staging this code.
 
 ## 2026-06-05 OSNet-AIN Triton ReID Candidate Ledger
 
-**Status:** `IMPLEMENTATION_IN_PROGRESS` /
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`.
+**Status:** `PRODUCTION_BENCHMARK_COMPLETE` /
+`BENCHMARK_LOCK_RELEASED` / `NOT_ACCEPTED`.
 
 The next distinct candidate is a real learned ReID model served by the offline
 Triton TensorRT profile, not another `region_hsv`, `backbone`, or `cv2`
@@ -483,7 +483,7 @@ unchanged; this candidate only feeds Cycle 18 boundary appearance packets.
 | 5 | Boundary appearance producer supports `triton_reid` while keeping `region_hsv`, `backbone`, and `cv2` intact. | `IMPLEMENTED_LOCAL`: `_descriptor_mode` accepts `triton_reid`; `_track_appearance_reference` batches through the client and writes native 512-d features. |
 | 6 | Live-isolation test proves the live path does not construct boundary packets or call the offline ReID descriptor. | `IMPLEMENTED_LOCAL`: `test_live_scheduler_does_not_construct_offline_boundary_packets_or_reid` passed in the focused suite. |
 | 7 | Benchmark wrapper can select `triton_reid` explicitly and rollback restores `best_iou` plus sharding/packet/appearance disabled. | `IMPLEMENTED_LOCAL`: wrapper accepts `--boundary-packet-appearance-descriptor`; rollback proof now checks descriptor reset as well. |
-| 8 | ReID model entity doc, Cycle 18.D result section, `AGENTS.md`, and coordination board record the final evidence. | `PARTIAL`: entity doc and this ledger are staged; `AGENTS.md`, coordination board, production benchmark result, and final §12.6 decision remain pending. |
+| 8 | ReID model entity doc, Cycle 18.D result section, `AGENTS.md`, and coordination board record the final evidence. | `COMPLETED_FOR_THIS_REPLAY`: entity doc, benchmark history, this ledger, `AGENTS.md`, and coordination board record the production build, parity, benchmark, figures, rollback, and **NOT ACCEPTED** decision. |
 
 ### Production preflight evidence
 
@@ -525,3 +525,81 @@ Collected before implementation changes in this turn:
 | 16 | 2026-06-05 | Production OSNet build succeeded. | Build tag `osnet-ain-reid-20260605T20260605T201255Z` downloaded the pinned checkpoint, loaded `550` tensors, exported ONNX, built a 9 MB FP32 TensorRT engine, deployed `backend/models/triton_repository_cuda12/osnet_ain_x1_0/1/model.plan`, and wrote checkpoint / ONNX / engine digests to `latest_compat.json`. The wrapper then failed after launch because it checked Triton repository index with `GET`; the model itself loaded and returned `READY`. |
 | 17 | 2026-06-05 | Production parity probe passed. | `backend/logs/osnet-ain-reid-parity-20260605T201608Z/reid_triton_parity.json` and `.md` were written with `overall_passed=true`; minimum PyTorch-vs-Triton cosine `0.9999725818634033`, repeat cosine `1.0`, mean Triton latency `19.329396076500416 ms`; workers were restarted afterward. |
 | 18 | 2026-06-05 | Fixed the production wrapper post-build readiness check. | `prod_build_osnet_reid_tensorrt.sh` now uses `POST /v2/repository/index` with JSON body for the Triton repository-index check. The tracked `osnet_ain_x1_0/config.pbtxt` was aligned with the builder-emitted format so production does not remain dirty after the build. |
+| 19 | 2026-06-05 | Ran the governed `triton_reid` two-shard benchmark. | Replay `cycle18d-osnet-reid-20260605T202019Z` completed `4541/4541` frames at SHA `99581661`; rollback verified; figures were generated. Decision is **NOT ACCEPTED** because merge readiness, StudentTrack parity, model agreement, and label-invariant identity still failed. |
+
+## 2026-06-05 OSNet-AIN Triton ReID Production Benchmark Result
+
+Replay `cycle18d-osnet-reid-20260605T202019Z`, parent job
+`39e8ea9f-1de7-487d-98cb-6c40512158c6`, child jobs
+`0cf25360-054c-41b6-9027-4aa0f0dfbae3` and
+`a387b9e5-d38e-4ef3-badc-05f181353dfa`, deployed SHA `99581661`, completed
+`4541/4541` frames. Rollback verified `best_iou`, sharding off, packet off,
+appearance off, and descriptor reset to `region_hsv`.
+
+Figure roles: planner `Agent 18 OSNet ReID benchmark session`; implementer
+`Agent 18 OSNet ReID benchmark session`. Separation was unavailable in this
+single-agent continuation, so the role evidence is recorded in
+`figure_input_manifest.json` and the generated figure manifest.
+
+| Item | Evidence |
+|---|---|
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json` / `.md` |
+| Packet validation JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json` / `.md` |
+| Label-invariant JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/figure_manifest.json` |
+| Parity preflight | `/home/bamby/grad_project/backend/logs/osnet-ain-reid-parity-20260605T201608Z/reid_triton_parity.json` |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | OSNet candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.584265` | `+34.96 %` |
+| DB completed elapsed | `808.038 s` | `598.740 s` | `-25.90 %` |
+| Step 2 frame wall | `467.449833 s` | `245.762854 s` | `-47.42 %` |
+| Step 2 through-pose wall | `641.154064 s` | `363.297142 s` | `-43.34 %` |
+| Behavior RTT mean | `83.530 ms` | `91.833 ms` | `+9.94 %` |
+| Behavior RTT p95 | `129.514 ms` | `149.532 ms` | `+15.46 %` |
+| GPU avg util | `11.846 %` | `16.903 %` | `+42.69 %` |
+| GPU peak util | `57.000 %` | `89.000 %` | `+56.14 %` |
+| Detection rows | `72744` | `72816` | `+0.10 %` |
+| BBox rows | `72744` | `72816` | `+0.10 %` |
+| Embedding rows | `72578` | `72650` | `+0.10 %` |
+| StudentTracks | `53` | `57` | `+7.55 %` |
+
+Correctness and identity gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Valid boundary packets | `2/2` | Pass packet-validity gate |
+| Merge-ready packets | `1/2` | Fails identity-merge gate |
+| Shard-1 mapped to existing parent IDs | `17/36` | Worse than the prior `18/36`; fails mapping gate |
+| Shard-1 offset fallbacks | `19/36` | Fails namespace/association gate |
+| Shard-1 unresolved packet tracks | `7/24` | Fails merge-readiness gate |
+| Minimum model-agreement F1@IoU0.5 | `53.788 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `72.414 %` | Fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | Residual shard-1 gap unchanged |
+| Rollback verified | `true` | Pass safety gate |
+
+### OSNet Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__decision_delta.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__packet_readiness.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__packet_budget.png)
+
+![Identity Label-Invariant](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__identity_label_invariant.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__gpu_profile.png)
+
+Decision: **NOT ACCEPTED**. The OSNet-AIN TensorRT model was correctly built,
+loaded, and parity-checked, but the runtime candidate did not close the
+cross-shard identity gap. It preserved the sharding throughput envelope and
+kept packet validity at `2/2`, but merge readiness stayed `1/2`, StudentTracks
+regressed to `57` versus baseline `53`, shard-1 still used `19/36` offset
+fallbacks, minimum model-agreement F1 remained `53.788 %`, and shard-1
+label-invariant F1 remained `79.876 %`. Cycle 15.B1 and 15.B2 remain blocked.

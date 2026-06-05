@@ -3,7 +3,7 @@
 **Last updated:** 2026-06-05
 **Entity kind:** `system`
 **Status:** `active` / `engine_built` / `parity_passed` /
-`benchmark_pending`
+`benchmark_not_accepted`
 
 > Offline-only OSNet-AIN x1.0 person-ReID model served through Triton
 > TensorRT for Cycle 18 boundary appearance prototypes.
@@ -208,8 +208,9 @@ stateDiagram-v2
     not_accepted --> [*]
 ```
 
-The current production state is `parity_passed`. The governed benchmark
-decision still requires a fresh two-shard `combined.mp4` run.
+The current production state is `benchmark_not_accepted`. The model may remain
+loaded in offline Triton, but rollback keeps it unused by restoring descriptor
+`region_hsv` and disabling sharding plus boundary packets.
 
 ## 11. Failure modes
 
@@ -230,6 +231,13 @@ passed before benchmarking. It reported `all_available=true`,
 repeat cosine `1.0`, and mean Triton latency `19.329396076500416 ms` over
 four synthetic samples. This is parity evidence only; it is not a Cycle 18.D
 benchmark decision.
+
+The governed benchmark
+`cycle18d-osnet-reid-20260605T202019Z` completed, but the candidate is
+**NOT ACCEPTED**. It preserved throughput (`DB FPS 5.619787 -> 7.584265`) and
+valid packets (`2/2`), but failed identity gates: merge-ready packets `1/2`,
+StudentTracks `53 -> 57`, shard-1 offset fallbacks `19/36`, minimum
+model-agreement F1 `53.788 %`, and shard-1 label-invariant F1 `79.876 %`.
 
 ## 13. Operational notes
 
@@ -275,8 +283,6 @@ off, packet off, and appearance off.
 
 ## 16. Open questions
 
-- Owner: Agent 18. Target close date: 2026-06-06. Record the governed
-  two-shard benchmark decision after the RTX 5090 production run completes.
 - Owner: Agent 18. Target close date: 2026-06-06. Record exact checkpoint
   license evidence for the Hugging Face artifact before a final acceptance
   claim.
@@ -287,3 +293,4 @@ off, packet off, and appearance off.
 |---|---|---|
 | 2026-06-05 | First entity doc for offline OSNet-AIN Triton ReID candidate. | `docs/cycle_18d_combined_cost_boundary_association_investigation.md` |
 | 2026-06-05 | Production FP32 TensorRT engine built and PyTorch-vs-Triton parity passed; two-shard benchmark still pending. | `13d6340e` |
+| 2026-06-05 | Governed two-shard `triton_reid` benchmark completed and was not accepted. | `docs/production_inference_benchmark.md` §47 |

@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -3936,6 +3936,95 @@ packets, `0/2` merge-ready packets, `18/36` shard-1 offset fallbacks, minimum
 model-agreement F1 `53.788 %`, and unchanged minimum shard-1 global-assignment
 F1 `79.876 %`. No Cycle 18.D sharding gain is accepted, and Cycle 15.B1/15.B2
 remain blocked.
+
+## 47. Cycle 18.D OSNet-AIN Triton ReID Boundary Association
+
+Cycle 18.D then ran the distinct learned-ReID candidate requested after the
+region-HSV and OpenVINO-backbone fallback failures. The candidate built and
+loaded a real OSNet-AIN x1.0 FP32 TensorRT model in the offline Triton profile,
+selected `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_DESCRIPTOR=triton_reid`,
+and reran the governed two-shard `combined.mp4` benchmark. The model build and
+parity gates passed, but the runtime candidate is **NOT ACCEPTED** because the
+identity gates still failed.
+
+| Item | Value |
+|---|---|
+| ReID build tag | `osnet-ain-reid-20260605T20260605T201255Z` |
+| ReID model | `osnet_ain_x1_0`, offline Triton only |
+| Engine SHA-256 | `93c7b1a6562ff21d51f46129259545aa144fbdaa275ed42b73df1021c6c1cfff` |
+| ONNX SHA-256 | `7a493dde67b823d9a52173eb674da744cc2091c4184b0eaa456dcb82b80be49c` |
+| Checkpoint SHA-256 | `8a07e8da38946f7cee37f4561617bf8b6d2fe8f3a4027852893ea092e46d919f` |
+| Parity JSON/MD | `/home/bamby/grad_project/backend/logs/osnet-ain-reid-parity-20260605T201608Z/reid_triton_parity.json` / `.md` |
+| Parity result | `overall_passed=true`; min PyTorch-vs-Triton cosine `0.9999725818634033`; repeat cosine `1.0`; mean Triton latency `19.329 ms` |
+| Replay key | `cycle18d-osnet-reid-20260605T202019Z` |
+| Parent job ID | `39e8ea9f-1de7-487d-98cb-6c40512158c6` |
+| Child job IDs | `0cf25360-054c-41b6-9027-4aa0f0dfbae3`, `a387b9e5-d38e-4ef3-badc-05f181353dfa` |
+| Status | `completed`, `4541/4541` parent frames |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/metrics.json` / `.md` |
+| Packet validation JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/boundary_packet_validation.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/model_agreement.json` / `.md` |
+| Label-invariant JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/label_invariant_tracking.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18d-osnet-reid-20260605T202019Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/figure_manifest.json` |
+| Figure roles | Planner `Agent 18 OSNet ReID benchmark session`; implementer `Agent 18 OSNet ReID benchmark session`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | OSNet candidate | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `7.584265` | `+34.96 %` |
+| DB completed elapsed | `808.038 s` | `598.740 s` | `-25.90 %` |
+| Step 2 frame wall | `467.449833 s` | `245.762854 s` | `-47.42 %` |
+| Step 2 through-pose wall | `641.154064 s` | `363.297142 s` | `-43.34 %` |
+| Behavior RTT mean | `83.530 ms` | `91.833 ms` | `+9.94 %` |
+| Behavior RTT p95 | `129.514 ms` | `149.532 ms` | `+15.46 %` |
+| GPU avg util | `11.846 %` | `16.903 %` | `+42.69 %` |
+| GPU peak util | `57.000 %` | `89.000 %` | `+56.14 %` |
+| Detection rows | `72744` | `72816` | `+0.10 %` |
+| BBox rows | `72744` | `72816` | `+0.10 %` |
+| Embedding rows | `72578` | `72650` | `+0.10 %` |
+| StudentTracks | `53` | `57` | `+7.55 %` |
+
+Correctness and identity gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Valid boundary packets | `2/2` | Pass packet-validity gate |
+| Merge-ready packets | `1/2` | Fails identity-merge gate |
+| Shard-1 mapped to existing parent IDs | `17/36` | Worse than the prior `18/36`; fails mapping gate |
+| Shard-1 offset fallbacks | `19/36` | Fails namespace/association gate |
+| Shard-1 unresolved packet tracks | `7/24` | Fails merge-readiness gate |
+| Minimum model-agreement F1@IoU0.5 | `53.788 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `72.414 %` | Fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | Residual shard-1 association gap unchanged |
+| Rollback verified | `true` | Pass safety gate |
+
+### 47.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__decision_delta.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__packet_readiness.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__packet_budget.png)
+
+![Identity Label-Invariant](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__identity_label_invariant.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle18d-osnet-reid-20260605T202019Z/cycle18d_osnet_reid__gpu_profile.png)
+
+Decision: **NOT ACCEPTED**. The OSNet-AIN TensorRT model itself is production
+usable as an offline Triton model, but the `triton_reid` boundary descriptor did
+not close the Cycle 18 identity gap. The candidate preserved the sharding speed
+envelope and kept packet validity at `2/2`, but merge readiness stayed `1/2`,
+StudentTracks regressed to `57` versus baseline `53`, shard-1 still used
+`19/36` offset fallbacks, minimum model-agreement F1 stayed `53.788 %`, and
+minimum shard-1 label-invariant F1 stayed `79.876 %`. Cycle 15.B1/15.B2 remain
+blocked. Further sharding work needs human-labeled identity ground truth and/or
+a redesigned identity-state producer that addresses intra-shard fragmentation,
+not another boundary-descriptor rerun.
 
 ---
 
