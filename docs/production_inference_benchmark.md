@@ -3682,6 +3682,90 @@ hand-raise, orientation, or attention-support quality until a governed reviewer
 label manifest and agreement report exist. It also should not be cited as
 live-profile acceptance until real-media live validation evidence exists.
 
+## 44. Cycle 18.B Appearance-Packet Boundary Association
+
+Cycle 18.B ran the next sorted latency-cycle candidate on the production Linux
+RTX 5090 at deployed SHA `9ceadf8`. The candidate enabled two-shard offline
+runtime with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet` and bounded
+boundary appearance packets. The run completed, rollback passed, and figures
+were generated from the raw artifacts, but the candidate is **NOT ACCEPTED**.
+
+| Item | Value |
+|---|---|
+| Replay key | `cycle18b-appearance-packet-20260605T151057Z` |
+| Parent job ID | `85be8348-dc0b-4319-9974-f1a206203884` |
+| Child job IDs | `dfde180b-7c5a-4fa5-8085-a360c5e2b77f`, `b77ec8b5-04b2-41de-9a60-6b1fe83899a1` |
+| Status | `completed`, `4541/4541` parent frames |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json` / `.md` |
+| Packet validation JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json` / `.md` |
+| Label-invariant JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.json` / `.md` |
+| Rollback JSON/MD | `/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/rollback_status.json` / `.md` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/figure_manifest.json` |
+| Wrapper note | `driver.exit=1` because the initial wrapper had a post-run figure-manifest syntax bug after benchmark/evidence collection; the wrapper was fixed and the figure bundle was generated from the completed raw artifacts. |
+
+Performance versus the accepted pre-shard baseline:
+
+| Metric | Baseline | Candidate | Delta | Decision impact |
+|---|---:|---:|---:|---|
+| DB-completed FPS | `5.619787` | `7.409522` | `+31.85 %` | Pass throughput direction |
+| DB completed elapsed | `808.038 s` | `612.860 s` | `-24.15 %` | Pass total-wall direction |
+| Step 2 frame wall | `467.449833 s` | `248.323884 s` | `-46.88 %` | Pass inference-wall direction |
+| Step 2 through-pose wall | `641.154064 s` | `376.362543 s` | `-41.30 %` | Pass through-pose direction |
+| Behavior RTT mean | `83.530 ms` | `90.765 ms` | `+8.66 %` | Regressed latency |
+| GPU avg util | `11.846 %` | `16.325 %` | `+37.81 %` | Pass utilization direction |
+| GPU peak util | `57.000 %` | `91.000 %` | `+59.65 %` | Pass utilization direction |
+| Detection rows | `72744` | `72816` | `+0.10 %` | Near row parity |
+| BBox rows | `72744` | `72816` | `+0.10 %` | Near row parity |
+| Embedding rows | `72578` | `72650` | `+0.10 %` | Near row parity |
+| StudentTracks | `53` | `65` | `+22.64 %` | Fails identity gate |
+
+Correctness and identity gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Boundary packets present | `2/2` | Evidence was produced |
+| Valid boundary packets | `0/2` | Fails packet-validity gate |
+| Merge-ready packets | `0/2` | Fails identity-merge gate |
+| `attention_tracking` F1@IoU0.5 | `58.997 %` | Fails model-agreement gate |
+| `hand_raising` F1@IoU0.5 | `61.109 %` | Fails model-agreement gate |
+| `person_detection` F1@IoU0.5 | `60.855 %` | Fails model-agreement gate |
+| `sitting_standing` F1@IoU0.5 | `53.730 %` | Fails model-agreement gate |
+| Minimum all-model global-assignment F1 | `69.752 %` | Fails label-invariant identity gate |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | Fails residual association gate |
+| Rollback verified | `true` | Pass safety gate |
+
+Packet-validation root cause:
+
+| Child | Packet bytes | Validation errors |
+|---|---:|---|
+| `dfde180b-7c5a-4fa5-8085-a360c5e2b77f` | `301968` | `$.bounds.truncated: must be false for a usable proof packet`; `$.bounds.max_bytes: serialized packet is 301968 bytes` |
+| `b77ec8b5-04b2-41de-9a60-6b1fe83899a1` | `299423` | `$.bounds.truncated: must be false for a usable proof packet`; `$.bounds.max_bytes: serialized packet is 299423 bytes`; `identity_merge_not_ready: unresolved_tracks=23` |
+
+### 44.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__decision_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__wall_breakdown.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__correctness_gate.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__evidence_completeness.png)
+
+![Model RTT](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__model_rtt.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__gpu_profile.png)
+
+Decision: **NOT ACCEPTED**. The candidate preserves the measured sharding
+performance win, but it fails packet validity, identity merge readiness,
+StudentTrack parity, model-agreement, and label-invariant tracking gates. The
+next Cycle 18 task should not rerun the same profile. It must first reduce or
+redesign boundary packet payloads so packets are valid within the configured
+byte cap, then improve the association consumer so shard-1 residual association
+loss and unresolved tracks are eliminated before another production benchmark.
+
 ---
 
 *Updated from production run on 2026-06-05. Update this file after each major pipeline change or hardware migration.*

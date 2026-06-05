@@ -793,3 +793,99 @@ Final local decision for this step:
 | Section 12.6 optimization decision | `MISSING` |
 | Cycle 18 closure state | `OPEN_PENDING_PRODUCTION_BENCHMARK` |
 | Required next evidence | Full `combined.mp4` Linux RTX 5090 benchmark with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet validation, model agreement, label-invariant association metrics, DB/GPU/RTT metrics, rollback proof, and generated figure bundle/manifest embedded in the responsible benchmark/result docs. |
+
+## 2026-06-05 Cycle 18.B Production Benchmark Lock
+
+```text
+BENCHMARK_LOCK
+agent: current Codex runtime session
+cycle: Cycle 18.B appearance-backed boundary association
+replay_key: cycle18b-appearance-packet-20260605T151057Z
+baseline_metrics: /home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json
+candidate_env_delta: OFFLINE_VIDEO_SHARDING_ENABLED=1, OFFLINE_VIDEO_SHARD_COUNT=2, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1, TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1, EMBEDDING_PREFETCH_TRACK_LOOKUP=1, EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1
+started_at_utc: 2026-06-05T15:10:57Z
+expected_cleanup: wrapper restores sharding disabled, shard count 1, context 32, track-map best_iou, boundary packet disabled, boundary appearance disabled, and restarts Celery workers
+```
+
+```text
+BENCHMARK_RELEASE
+agent: current Codex runtime session
+cycle: Cycle 18.B appearance-backed boundary association
+replay_key: cycle18b-appearance-packet-20260605T151057Z
+job_id: 85be8348-dc0b-4319-9974-f1a206203884
+status: completed_but_candidate_not_accepted
+metrics_json: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.md
+label_invariant_json: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.json
+label_invariant_md: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.md
+packet_validation_json: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.json
+packet_validation_md: /home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.md
+rollback_verified: true
+figure_manifest: docs/figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/figure_manifest.json
+wrapper_note: driver.exit=1 because the initial wrapper had a post-run figure-manifest syntax bug after benchmark and evidence collection; the wrapper was fixed and figures were generated from completed raw artifacts
+released_at_utc: 2026-06-05T15:24:30Z
+```
+
+### Cycle 18.B Decision
+
+Decision: **NOT ACCEPTED**. The production run completed and preserved the
+sharding performance upside, but the correctness gates failed.
+
+| Metric | Accepted pre-shard baseline | Cycle 18.B candidate | Delta | Decision impact |
+|---|---:|---:|---:|---|
+| DB-completed FPS | `5.619787` | `7.409522` | `+31.85 %` | Pass throughput direction |
+| DB completed elapsed | `808.038 s` | `612.860 s` | `-24.15 %` | Pass total-wall direction |
+| Step 2 frame wall | `467.449833 s` | `248.323884 s` | `-46.88 %` | Pass inference-wall direction |
+| Step 2 through-pose wall | `641.154064 s` | `376.362543 s` | `-41.30 %` | Pass through-pose direction |
+| Behavior RTT mean | `83.530 ms` | `90.765 ms` | `+8.66 %` | Regressed latency |
+| GPU average utilization | `11.846 %` | `16.325 %` | `+37.81 %` | Pass utilization direction |
+| GPU peak utilization | `57.000 %` | `91.000 %` | `+59.65 %` | Pass utilization direction |
+| StudentTracks | `53` | `65` | `+22.64 %` | Fails identity gate |
+
+| Correctness gate | Value | Result |
+|---|---:|---|
+| Valid boundary packets | `0/2` | Fail |
+| Merge-ready boundary packets | `0/2` | Fail |
+| Minimum model-agreement F1@IoU0.5 | `53.730 %` | Fail |
+| Minimum all-model global-assignment F1 | `69.752 %` | Fail |
+| Minimum shard-1 global-assignment F1 | `79.876 %` | Fail |
+| Rollback verified | `true` | Pass |
+
+Packet payloads exceeded the configured byte cap and were marked truncated:
+`301968` bytes for shard0 and `299423` bytes for shard1. Shard1 also retained
+`23` unresolved tracks. The next Cycle 18 task must first make appearance
+packets valid under the configured byte budget and then improve association
+readiness before another sharding runtime benchmark.
+
+Figure evidence:
+
+![Cycle 18.B Decision Delta](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__decision_delta.png)
+
+![Cycle 18.B Correctness Gate](figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/cycle18b_appearance_packet__correctness_gate.png)
+
+### Cycle 18.C Next Work Package
+
+Cycle 18.C is the next sorted latency cycle. It is a redesign-and-proof cycle,
+not a rerun of the failed Cycle 18.B `appearance_packet` profile.
+
+| Field | Value |
+|---|---|
+| Cycle | `18.C packet-budget and association-readiness redesign` |
+| State | `PLANNED_AFTER_18B_NOT_ACCEPTED` |
+| Streaming compatibility | `offline-only` because it depends on offline sharding and cross-shard boundary state |
+| Primary blocker | Boundary packets were present but invalid: `0/2` valid and `0/2` merge-ready. |
+| Packet-budget blocker | Shard packets serialized at `301968` and `299423` bytes and were marked truncated. |
+| Association blocker | Shard1 retained `23` unresolved tracks and the candidate produced `65` StudentTracks versus baseline `53`. |
+| Correctness blocker | Minimum model-agreement F1@IoU0.5 was `53.730 %`; minimum all-model global-assignment F1 was `69.752 %`. |
+| First implementation target | Make packets valid within the configured byte budget without dropping identity-critical evidence. |
+| Second implementation target | Improve shard-1 association readiness before parent merge, including unresolved-track diagnostics and fail-closed ambiguity handling. |
+| Production benchmark gate | Full `combined.mp4` Linux RTX 5090 benchmark with packet validation, model agreement, label-invariant tracking, DB/GPU/RTT metrics, rollback proof, and figure bundle. |
+| Expected gain if gates pass | Recover the measured sharding envelope: DB FPS `5.620 -> 7.410+`, Step 2 wall `467.450 s -> 248.324 s`, and GPU avg `11.846 % -> 16.325 %+`. |
+| Acceptance rule | No acceptance if packet validity, merge readiness, StudentTrack parity, model agreement, or label-invariant identity gates fail, regardless of FPS. |
+
+Cycle 15.B1 and 15.B2 stay blocked until Cycle 18.C proves the two-shard
+identity boundary is valid. Cycle 20 remains staged behind this blocker unless a
+new benchmark shows post-stage persistence/embedding has become the dominant
+latency source.

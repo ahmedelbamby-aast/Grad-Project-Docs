@@ -1290,6 +1290,30 @@ rejected, or used to advance sharding.
   Cycle 19 Redis scripts, and Cycle 10 LPM follow behind in that order. No
   cycle decision exists without a completed production Linux RTX 5090
   `combined.mp4` benchmark, model/identity agreement evidence, and rollback.
+- **2026-06-05 Cycle 18.B benchmark lock `RELEASED / NOT ACCEPTED`**: current Codex runtime
+  session took the production benchmark lock for replay
+  `cycle18b-appearance-packet-20260605T151057Z`. Candidate env delta:
+  `OFFLINE_VIDEO_SHARDING_ENABLED=1`,
+  `OFFLINE_VIDEO_SHARD_COUNT=2`,
+  `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256`,
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`,
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1`,
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1`,
+  `TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1`,
+  `EMBEDDING_PREFETCH_TRACK_LOOKUP=1`, and
+  `EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1`. Parent job
+  `85be8348-dc0b-4319-9974-f1a206203884` completed `4541/4541` frames, figures
+  were generated under
+  `docs/figures/benchmark_artifacts/cycle18b-appearance-packet-20260605T151057Z/`,
+  and rollback restored sharding defaults. Decision: **NOT ACCEPTED** because
+  valid boundary packets were `0/2`, merge-ready packets were `0/2`,
+  `StudentTracks` regressed `53 -> 65`, minimum model-agreement F1@IoU0.5 was
+  `53.730 %`, and minimum all-model global-assignment F1 was `69.752 %`.
+  Throughput improved (`DB FPS 5.620 -> 7.410`, Step 2 wall
+  `467.450 s -> 248.324 s`), but correctness/identity gates failed. The
+  production benchmark lock is now released; do not rerun the same
+  `appearance_packet` profile until packet byte-budget validity and shard-1
+  association readiness are redesigned.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

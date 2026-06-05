@@ -26,15 +26,16 @@ packet producer is production-validated as evidence-only and not
 identity-merge-ready. Cycle 20 and Cycle 21 may proceed only as bounded
 readiness/governance work unless their dependency gates are satisfied.
 
-2026-06-05 queue update: the next latency cycle is **Cycle 18.B
-appearance-backed boundary association**, not Cycle 20 or Cycle 21. The reason
-is dependency-based: two-shard sharding produced the largest measured speed
-path, but identity/model agreement failed. The sorted queue is:
+2026-06-05 queue update: the next latency cycle is **Cycle 18.C packet-budget
+and association-readiness redesign**, not Cycle 20 or Cycle 21. The reason is
+dependency-based: two-shard sharding produced the largest measured speed path,
+but Cycle 18.B failed packet validity, merge readiness, and identity/model
+agreement. The sorted queue is:
 
 | Sort | Cycle | Coordination state |
 |---:|---|---|
-| 1 | Cycle 18.B appearance-backed boundary association | Take first; benchmark lock required before production run. |
-| 2 | Cycle 15.B1 identity-fixed sharding rerun | Blocked until Cycle 18.B candidate exists; 15.B2 remains blocked until B1 passes. |
+| 1 | Cycle 18.C packet-budget and association-readiness redesign | Take first; do not rerun the failed 18.B `appearance_packet` profile. |
+| 2 | Cycle 15.B1 identity-fixed sharding rerun | Blocked until Cycle 18.C fixes packet validity and association readiness; 15.B2 remains blocked until B1 passes. |
 | 3 | Cycle 20 streaming persistence/embedding overlap | Readiness only until sharding blocker is handled or metrics reorder it. |
 | 4 | Cycle 21 Celery concurrency matrix | Governance only until independent work exists. |
 | 5 | Cycle 11.B / 9b B.3 child-kernel tuning | Low-ceiling fallback. |
