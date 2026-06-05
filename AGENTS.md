@@ -1405,6 +1405,29 @@ rejected, or used to advance sharding.
   Cycle 15.B1/15.B2 remain blocked; next sharding work must first update the
   Cycle 18 packet schema for combined-cost diagnostics and then reduce
   unresolved/offset-fallback tracks in a new governed benchmark.
+- **2026-06-05 Agent 18 Cycle 18.D OSNet-AIN ReID continuation `TAKEN /
+  LOCAL_IMPLEMENTATION_STAGED / BENCHMARK_LOCK_NOT_HELD`**: user explicitly
+  opened a distinct learned ReID follow-up for the Cycle 18.D association gap.
+  Agent 18 owns the offline-only `osnet_ain_x1_0` Triton TensorRT candidate,
+  `backend/apps/pipeline/services/reid_triton_client.py`,
+  `backend/scripts/build_tensorrt_engines.py`,
+  `tools/prod/prod_build_osnet_reid_tensorrt.sh`,
+  `tools/prod/prod_probe_reid_triton.py`,
+  `backend/apps/video_analysis/services/offline_sharding.py`,
+  `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`,
+  `tools/prod/prod_triton_endpoint_policy.sh`,
+  `docs/entity/systems/osnet_ain_x1_0_reid_model.md`, and the Cycle 18.D
+  ledger. Local staged code adds the `triton_reid` descriptor, native 512-d
+  fail-closed ReID client, production build/parity wrappers, live-isolation
+  coverage, and entity docs. Focused local suite:
+  `backend/.venv/Scripts/python.exe -m pytest backend/tests/unit/pipeline/test_reid_triton_client.py backend/tests/unit/scripts/test_prod_probe_reid_triton.py backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py backend/tests/unit/test_live_scheduler.py -q --tb=short`
+  passed `29 passed`. This is **not** a production decision: no production
+  `osnet_ain_x1_0/1/model.plan`, Triton `READY` state, PyTorch-vs-Triton parity
+  report, governed benchmark, figure bundle, or rollback proof exists yet.
+  Next action is local gates, commit/push, production build/parity, then a
+  benchmark lock for a fresh `triton_reid` replay. Do not enable sharding by
+  default, touch live/RTSP sharding, start 15.B2, or claim acceptance without
+  constitution §12.5/§12.6 evidence.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

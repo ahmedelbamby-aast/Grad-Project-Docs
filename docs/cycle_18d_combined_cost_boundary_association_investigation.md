@@ -448,3 +448,74 @@ so its first completed benchmark is the only valid decision point.
 `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou` (and keep
 `OFFLINE_VIDEO_SHARDING_ENABLED=0`) and restart Celery workers. No persisted
 baseline evidence is mutated by staging this code.
+
+## 2026-06-05 OSNet-AIN Triton ReID Candidate Ledger
+
+**Status:** `IMPLEMENTATION_IN_PROGRESS` /
+`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`.
+
+The next distinct candidate is a real learned ReID model served by the offline
+Triton TensorRT profile, not another `region_hsv`, `backbone`, or `cv2`
+descriptor rerun. The selected model is `osnet_ain_x1_0`; it must produce a
+native 512-d L2-normalized boundary appearance vector and record provenance as
+`triton_osnet_ain_x1_0`. The persisted `FrameEmbedding` 768-d contract remains
+unchanged; this candidate only feeds Cycle 18 boundary appearance packets.
+
+### Candidate scope
+
+| Item | Scope |
+|---|---|
+| Runtime path | Offline `combined_cost` sharded benchmark only. |
+| Live/RTSP path | Explicitly disabled; sharding and boundary packets remain forbidden on live profiles. |
+| Triton model | `backend/models/triton_repository_cuda12/osnet_ain_x1_0/` in the offline profile. |
+| Descriptor knob | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_DESCRIPTOR=triton_reid`. |
+| Acceptance authority | Native Linux RTX 5090 `combined.mp4` two-shard benchmark with §12.6 table, figures, and rollback. |
+| Maximum honest result without labels | `ACCEPTED_PROXY_PENDING_GROUND_TRUTH`; true identity acceptance still needs HOTA/AssA, IDF1, ID switches, and fragmentation against human-labeled identity ground truth. |
+
+### Required implementation steps
+
+| Step | Requirement | Current state |
+|---:|---|---|
+| 1 | Reproducible OSNet-AIN acquisition/export/build recipe records source, license, checkpoint digest, ONNX opset, TensorRT version, and engine digest. | `IMPLEMENTED_LOCAL_PENDING_PROD_BUILD`: `build_tensorrt_engines.py` and `prod_build_osnet_reid_tensorrt.sh` now pin Torchreid and checkpoint revision, export ONNX, build FP32 TensorRT, and record digests in `latest_compat.json`. |
+| 2 | Production TensorRT FP32 engine is built with TRT `10.16.1.11`, installed as `osnet_ain_x1_0/1/model.plan`, and loaded `READY` on offline Triton. | `PENDING_PRODUCTION`: no production `model.plan` or `READY` state has been recorded yet. |
+| 3 | PyTorch-vs-Triton parity probe records cosine parity, latency, determinism, digests, JSON, and Markdown. | `IMPLEMENTED_LOCAL_PENDING_PROD_RUN`: `tools/prod/prod_probe_reid_triton.py` exists and has focused unit coverage; no production output exists yet. |
+| 4 | Backend ReID Triton client preprocesses BGR crops to RGB `256x128`, ImageNet-normalized NCHW FP32 batches, L2-normalizes 512-d outputs, and fails closed to `unavailable`. | `IMPLEMENTED_LOCAL`: `backend/apps/pipeline/services/reid_triton_client.py`; focused unit tests passed. |
+| 5 | Boundary appearance producer supports `triton_reid` while keeping `region_hsv`, `backbone`, and `cv2` intact. | `IMPLEMENTED_LOCAL`: `_descriptor_mode` accepts `triton_reid`; `_track_appearance_reference` batches through the client and writes native 512-d features. |
+| 6 | Live-isolation test proves the live path does not construct boundary packets or call the offline ReID descriptor. | `IMPLEMENTED_LOCAL`: `test_live_scheduler_does_not_construct_offline_boundary_packets_or_reid` passed in the focused suite. |
+| 7 | Benchmark wrapper can select `triton_reid` explicitly and rollback restores `best_iou` plus sharding/packet/appearance disabled. | `IMPLEMENTED_LOCAL`: wrapper accepts `--boundary-packet-appearance-descriptor`; rollback proof now checks descriptor reset as well. |
+| 8 | ReID model entity doc, Cycle 18.D result section, `AGENTS.md`, and coordination board record the final evidence. | `PARTIAL`: entity doc and this ledger are staged; `AGENTS.md`, coordination board, production benchmark result, and final §12.6 decision remain pending. |
+
+### Production preflight evidence
+
+Collected before implementation changes in this turn:
+
+| Check | Evidence |
+|---|---|
+| Production branch/head | `013-human-pose-kinematics` at `98ad25a`; local branch head is `2728c1e4`, so production must fast-forward before OSNet benchmark work. |
+| Worktree | Production tracked status was empty. |
+| Active jobs | PostgreSQL query returned `0` queued/processing/embedding jobs. |
+| Backend venv python | `/home/bamby/grad_project/backend/.venv/bin/python`. |
+| TensorRT runtime | `10.16.1.11`; `tools/prod/prod_trt_guard.sh` passed against `/home/bamby/grad_project/backend/models/tensorrt_builds/latest_compat.json`. |
+| Active Triton profile | Offline endpoint `http://127.0.0.1:39100/v2/health/ready` returned `200`; live endpoint `39000` was unreachable (`000`). |
+| Active Triton process | Single `tritonserver` bound to `39100/39101/39102` with explicit model loading. |
+| Loaded backend list | `distributed_addsub`, `dyna_sequence`, `implicit_state`, `iterative_sequence`, `query`, `sequence`, `tensorrt`; no `python` backend. |
+| Ready model list | Existing offline models returned `READY` through `/v2/repository/index`; `osnet_ain_x1_0` is not present yet. |
+| Benchmark video | `/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4` exists (`35M`). |
+| Baseline metrics | `/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json` exists; baseline job `74561b05-105f-4ca8-aeaf-f510f4f802de`. |
+
+### Step log
+
+| Step | UTC date | Action | Result |
+|---:|---|---|---|
+| 1 | 2026-06-05 | Read `goal.md`, `AGENTS.md`, constitution §§1.7/2/3/4.3/4.6/7.1.1/8.4/8.6/12.5/12.6/17/18/19, Cycle 18 docs, benchmark history, and the current boundary code. | Confirmed the required candidate is offline-only OSNet-AIN through Triton TensorRT; local/proxy evidence cannot decide acceptance. |
+| 2 | 2026-06-05 | Verified production host, single active Triton endpoint, TRT guard, backend list, baseline metrics, video, and active-job count. | Preconditions pass, but production is behind local head and must be fast-forwarded before new benchmark work. |
+| 3 | 2026-06-05 | Inspected existing boundary appearance and embedding code. | Current descriptors are `region_hsv`, `backbone`, and `cv2`; no `triton_reid` path or OSNet model exists yet. |
+| 4 | 2026-06-05 | Added OSNet-AIN model support to the central TensorRT builder and tracked Triton config. | Local recipe now downloads the pinned checkpoint, exports dynamic ONNX, builds FP32 TensorRT with profile `1/16/64`, writes warmup config, and merges manifest rows. No engine has been built on production yet. |
+| 5 | 2026-06-05 | Added `prod_build_osnet_reid_tensorrt.sh`. | Production wrapper installs Torchreid from pinned commit, invokes the central builder, updates `.env`, appends `TRITON_LOAD_MODEL` only after the plan exists, restarts offline Triton, and checks `osnet_ain_x1_0 READY`. |
+| 6 | 2026-06-05 | Added `TritonReidClient`, `preprocess_reid_crop`, and `triton_reid` descriptor wiring. | Boundary appearance can now use native 512-d OSNet output with provenance `triton_osnet_ain_x1_0`; Triton errors and invalid crops fail closed to `unavailable`, never zero vectors. |
+| 7 | 2026-06-05 | Added production parity probe and benchmark wrapper descriptor selector. | `prod_probe_reid_triton.py` writes JSON/Markdown parity evidence; `prod_run_cycle15b1_two_shard_runtime_benchmark.sh` can explicitly run `--boundary-packet-appearance-descriptor triton_reid`. |
+| 8 | 2026-06-05 | Added focused local tests for client preprocessing, fail-closed inference, probe helpers, boundary producer, and live isolation. | `backend/.venv/Scripts/python.exe -m pytest backend/tests/unit/pipeline/test_reid_triton_client.py backend/tests/unit/scripts/test_prod_probe_reid_triton.py backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py backend/tests/unit/test_live_scheduler.py -q --tb=short` passed: `29 passed`. |
+| 9 | 2026-06-05 | Added `docs/entity/systems/osnet_ain_x1_0_reid_model.md` and README reading-order entry. | Entity doc records staged status and open production evidence gates; no benchmark decision is claimed. |
+| 10 | 2026-06-05 | Updated Agent 18 coordination records for the OSNet-AIN continuation. | `AGENTS.md`, `docs/four_agent_cycle_coordination_board.md`, and `docs/INDEX.md` now distinguish this learned ReID candidate from the rejected Cycle 18.D `combined_cost` replay; benchmark lock remains not held. |
+| 11 | 2026-06-05 | Added a live-profile endpoint-policy guard for the OSNet candidate. | `tools/prod/prod_triton_endpoint_policy.sh` now fails live-profile validation if offline sharding, boundary packets, `triton_reid`, or `osnet_ain_x1_0` are active; no production state changed. |
+| 12 | 2026-06-05 | Preserved the accepted offline descriptor default. | `prod_enable_parallel_flow.sh` records ReID model env keys but keeps `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_DESCRIPTOR=region_hsv`; only the benchmark wrapper opts into `triton_reid`. |

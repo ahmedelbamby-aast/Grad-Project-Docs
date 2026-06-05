@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated**: 2026-06-04
+**Last Updated**: 2026-06-05
 
 > **Reading-order note (2026-06-02):** the canonical reading order through
 > every project-owned narrative doc lives in the README under
@@ -86,6 +86,7 @@
 - [Agent 20 Cycle 18 Override Turn Record](agent_20_cycle_18_override_turn.md)
 - [Cycle 18 Redis Boundary-State Cache Investigation](cycle_18_redis_boundary_state_cache_investigation.md)
 - [Cycle 18 Identity Association Root-Cause Investigation](cycle_18_identity_association_root_cause_investigation.md)
+- [OSNet-AIN x1.0 ReID Triton Model Entity](entity/systems/osnet_ain_x1_0_reid_model.md)
 - [Four-Agent Cycle Coordination Board](four_agent_cycle_coordination_board.md)
 - [Cycle 20 Streaming Persistence and Embedding Overlap Investigation](cycle_20_streaming_persistence_embedding_overlap_investigation.md)
 - [Cycle 21 Celery Concurrency Scaling Investigation](cycle_21_celery_concurrency_scaling_investigation.md)
