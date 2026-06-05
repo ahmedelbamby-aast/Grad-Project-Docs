@@ -182,7 +182,7 @@ Agent 19 owns a narrow evidence and contract lane:
 | `A19-67` Acquire Cycle 18.C production benchmark lock | `COMPLETED` | Lock recorded for replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; no §12.6 decision exists until evidence is complete |
 | `A19-68` Deploy reviewed Cycle 18.C SHA to production | `COMPLETED` | Production fast-forwarded to `e90db7a2245fd0169e51f11120867a42d45571ee` and local production smoke gates passed |
 | `A19-69` Run governed Cycle 18.C production benchmark | `COMPLETED` | Replay `cycle18c-packet-budget-active-edge-20260605T162825Z`, parent job `56f5782b-aceb-48fd-83eb-15017f57bf70`, child jobs `1471c0c4-3c02-4b8a-8df9-0ec10a285b20` and `2e0712fc-d113-4628-bea3-3a160cf3ca65` |
-| `A19-70` Collect production metrics, packet validation, model agreement, label-invariant identity, rollback, and figures | `COMPLETED` | Evidence under `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/` plus tracked figure bundle under `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/` |
+| `A19-70` Collect production metrics, packet validation, model agreement, label-invariant identity, rollback, and figures | `COMPLETED` | Evidence under `/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/` plus tracked figure manifest `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/figure_manifest.json` and sibling PNGs |
 | `A19-71` Record Cycle 18.C final decision | `COMPLETED` | Decision **NOT ACCEPTED**: packet validity fixed, but merge readiness, StudentTrack parity, model agreement, and label-invariant identity failed |
 | `A19-72` Release Cycle 18.C production benchmark lock | `COMPLETED` | `CYCLE_18C_BENCHMARK_LOCK_RELEASED`; rollback verified sharding defaults restored |
 
@@ -279,7 +279,7 @@ Agent 19 must not:
 | Cycle 19 eligibility audit | Passed: all `11` source/evidence checks; state `CONDITIONAL_GATE_NOT_MET`; runtime implementation false; benchmark lock `NOT_HELD` |
 | Cycle 19 focused tests | Passed: `4` tests covering evidence extraction, fail-closed eligibility, source resolution, and local-only imports |
 | Documentation reading-order and Mermaid gates | Passed: `260` priority docs resolved and `5/5` Mermaid blocks across the changed governed docs rendered |
-| Cycle 18 real measured-value and comparison gate | Passed: exact carried replay/job IDs, eight metric rows, twelve F1 values, eight derived delta rows, candidate F1 ranges, and C2 `36`/`10`/`26` diagnostics match authoritative production evidence; `cycle18_runtime_benchmark_present=false` |
+| Cycle 18 real measured-value and comparison gate | Passed: exact carried replay/job IDs, eight metric rows, twelve F1 values, eight derived delta rows, candidate F1 ranges, and C2 `36`/`10`/`26` diagnostics match authoritative production evidence; current Cycle 18.C runtime benchmark is separately reported as `NOT_ACCEPTED` |
 | Cycle 18 production identity-candidate probe | Passed as a read-only probe: best implementable policy minimum F1 was `62.021 %` across all models and `19.978 %` on shard 1; even the baseline-label oracle upper bound reached only `73.086 %` and `49.445 %`; all child identity-evidence counters were zero |
 | Cycle 18 candidate selection | `NO_RUNTIME_CANDIDATE_SELECTED`; production summary evidence hash `db685c696989b0ec63e752a3707dc6008f4c41b68c5a14ef4041d5fa377825fa` |
 | Cycle 18 label-invariant production probe | `PROBE_ONLY`; shard-1 minimum raw-label F1 `2.917 %` became `79.876 %` after one-to-one assignment, while the residual association gap remained up to `20.124 pp`; JSON hash `689a32083b17351ccaebf7d65372c2cab9f0e44380fb933b33e217277cd7bc7f` |
@@ -288,10 +288,13 @@ Agent 19 must not:
 | 2026-06-05 local py_compile | Passed for `backend/apps/pipeline/multi_model.py`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `tools/prod/prod_validate_cycle18_boundary_packet.py`, and `tools/prod/prod_collect_benchmark_metrics.py` |
 | 2026-06-05 shard/Cycle 18 focused tests | Passed: `9` tests in `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
 | 2026-06-05 focused Cycle 18 slice | Passed: `12` tests across label-invariant probe tests and shard merge/packet tests |
-| 2026-06-05 measured-value checker | Passed and still reports `cycle18_runtime_benchmark_present=false`; no production decision exists for `appearance_packet` |
+| 2026-06-05 measured-value checker | Passed after Cycle 18.C final docs; reports `cycle18_runtime_benchmark_present=true`, `cycle18_runtime_decision=NOT_ACCEPTED`, and `production_benchmark_lock=RELEASED` |
 | 2026-06-05 Cycle 18.C py_compile | Passed for `backend/apps/video_analysis/services/offline_sharding.py`, `tools/prod/prod_generate_cycle_figures.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, and `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py` |
 | 2026-06-05 Cycle 18.C focused runtime + figure + shard-planning tests | Passed: `18` tests across `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`, `backend/tests/unit/pipeline/test_prod_generate_cycle_figures.py`, and `backend/tests/unit/pipeline/test_prod_plan_video_shards.py` |
 | 2026-06-05 Cycle 18.C wrapper syntax | Passed: `bash -n tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+| 2026-06-05 Cycle 18.C production smoke tests | Passed on production checkout: `23 passed` across shard merge, figure generator, shard planning, and measured-value checker tests; wrapper syntax and doc-date gates passed |
+| 2026-06-05 Cycle 18.C production benchmark | Completed replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; packet validity `2/2`, merge-ready `1/2`, `StudentTracks 53 -> 64`, minimum model F1 `53.730 %`, rollback verified |
+| 2026-06-05 Cycle 18.C figure evidence | Tracked figure manifest `docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/figure_manifest.json` and sibling PNGs embedded in the cycle and benchmark docs |
 
 ## First Slice Result And Next Action
 
@@ -375,7 +378,8 @@ fallback, `StudentTracks` regressed `53 -> 64`, minimum model-agreement
 F1@IoU0.5 stayed `53.730 %`, and minimum shard-1 global-assignment F1 stayed
 `79.876 %`. Rollback verified sharding defaults restored, and the generated
 figure bundle is tracked under
-`docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/`.
+`docs/figures/benchmark_artifacts/cycle18c-packet-budget-active-edge-20260605T162825Z/figure_manifest.json`
+and sibling PNGs.
 
 ## Handoff Protocol
 
