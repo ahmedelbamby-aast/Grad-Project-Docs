@@ -361,6 +361,69 @@ Two follow-ups recorded from this run:
    `.pt` model loaded purely for `.embed()`) remains the stronger option but is
    an infrastructure decision.
 
+## 2026-06-05 Region-HSV Descriptor Production Benchmark Result
+
+Replay `cycle18d-combined-cost-hsv-20260605T184307Z`, parent job
+`e1ac935c-c549-45e8-ba96-3980dd4cd20e`, deployed SHA `98ad25a8`, `4541/4541`
+frames, `rc=0`, rollback verified. The region-HSV colour descriptor was used for
+boundary appearance (the embed smoke-test correctly rejected the OpenVINO model,
+so provenance is honest). Decision: **NOT ACCEPTED — only marginal movement**.
+
+| Gate | cv2 appearance run | region-HSV run | Baseline |
+|---|---:|---:|---:|
+| Valid boundary packets | `2/2` | `2/2` | — |
+| Merge-ready packets | `1/2` | `1/2` | — |
+| Shard-1 unresolved tracks | `6/24` | `5/24` | — |
+| StudentTracks | `56` | `55` | `53` |
+| Min model-agreement F1@IoU0.5 | `53.788 %` | `53.788 %` | gate |
+| `person_detection` F1@IoU0.5 | `64.069 %` | `64.314 %` | gate |
+| Min all-model global-assignment F1 | `72.414 %` | `72.129 %` | gate |
+| Min shard-1 global-assignment F1 | `79.876 %` | `79.876 %` | gate |
+| DB FPS / Step 2 wall | `7.50 / 244.8 s` | `7.53 / 245.1 s` | `5.62 / 467.4 s` |
+| Rollback verified | `true` | `true` | — |
+
+The stronger colour signature moved only noise-level amounts: one fewer
+unresolved shard-1 track, one fewer inflated StudentTrack, `+0.245 pp`
+`person_detection` agreement. The minimum model-agreement and shard-1
+global-assignment gates are **unchanged**.
+
+### Why a better descriptor did not close the gap
+
+The label-invariant probe shows the residual gap is dominated by **intra-shard**
+fragmentation, not the boundary stitch: shard-1 `person_detection`
+global-assignment F1 is `79.876 %` with `18` baseline tracks fragmenting into
+`17` candidate tracks **across the whole authoritative segment**, while the
+`boundary_before_shard1` window is already `80.852 %`. Two independent tracker
+runs segment identity differently throughout each shard, and no amount of
+boundary appearance matching repairs mid-shard fragmentation that the
+whole-video baseline tracker never produced.
+
+This is the constitutional wall (§4.6): the acceptance gates are **single-run
+proxy metrics** against a whole-video baseline that is itself not human-labeled
+identity ground truth. The remaining gap therefore cannot be closed by more
+boundary-association code. Closing it requires one of:
+
+1. **Human-labeled identity ground truth** so acceptance uses HOTA/AssA, IDF1,
+   and ID-switches (which can credit a sharded run that is *correct but labeled
+   differently* than the proxy baseline). §4.6 already requires this for true
+   identity acceptance; proxy metrics "cannot alone authorize" it.
+2. **A learned ReID network served in production** (not the OpenVINO detector,
+   whose `model.embed()` is unavailable) — a genuine appearance model strong
+   enough to re-link fragmented intra-shard tracklets, not just boundary boxes.
+
+Both are infrastructure/scientific decisions beyond the runtime association
+code. Until one lands, sharded two-shard identity remains blocked, and the
+accepted non-sharded `best_iou` profile stays in production (rollback verified).
+
+### What Cycle 18.D did achieve
+
+Across its runs Cycle 18.D fixed every *mechanically* fixable blocker: boundary
+packet validity (`1/2 -> 2/2`), shard-0 merge-readiness (`0/2 -> 1/2`),
+StudentTrack inflation (`64 -> 55`), shard-1 mapping coverage (`10/36 -> 18/36`),
+honest appearance provenance, and a real fused geometry+motion+appearance
+one-to-one association. The residual is now a measured, well-localised
+scientific limitation rather than a code defect.
+
 ## Required Production Benchmark Gate
 
 `combined_cost` cannot be accepted until a completed native-Linux RTX 5090
