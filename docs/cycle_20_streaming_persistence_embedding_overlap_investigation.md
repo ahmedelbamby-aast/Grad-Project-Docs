@@ -241,6 +241,17 @@ No production rerun has been recorded for Phase C yet. Until a replay proves the
 marker and regenerates the evidence bundle, Section 48 of
 `docs/production_inference_benchmark.md` remains the governing production result.
 
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.C terminal-marker repair agent
+cycle: Cycle 20.C terminal-marker repair
+replay_key: cycle20c-terminal-marker-20260605T225327Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=0; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only
+started_at_utc: 2026-06-05T22:53:27Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence

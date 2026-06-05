@@ -69,6 +69,7 @@ without guessing from chat history.
 | `A20-HANDOFF-20260605` Cycle 20 readiness-only boundary superseded. | `COMPLETED` | New work may implement only the measurement timeline and governed wrapper recorded in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
 | `A20-HANDOFF-20260606` Cycle 20 production measurement recorded. | `COMPLETED` | Replay `cycle20-post-stage-timeline-20260605T212526Z` completed; next Cycle 20 behavior work must address terminal-coordinator timing before a streaming writer candidate. |
 | `A20-C20C-01` Repair Cycle 20 terminal marker race. | `STARTED` | `run_reid_pipeline` now writes `terminal_coordinator_done_at` before terminal status; fresh production replay still required. |
+| `A20-C20C-02` Hold Cycle 20.C production benchmark lock. | `STARTED` | Replay key `cycle20c-terminal-marker-20260605T225327Z`; no streaming writer or worker topology changes. |
 
 ## Owned Files And Boundaries
 
