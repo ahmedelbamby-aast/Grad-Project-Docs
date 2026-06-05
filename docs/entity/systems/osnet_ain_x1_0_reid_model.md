@@ -2,7 +2,8 @@
 
 **Last updated:** 2026-06-05
 **Entity kind:** `system`
-**Status:** `active` / `staged`
+**Status:** `active` / `engine_built` / `parity_passed` /
+`benchmark_pending`
 
 > Offline-only OSNet-AIN x1.0 person-ReID model served through Triton
 > TensorRT for Cycle 18 boundary appearance prototypes.
@@ -148,9 +149,14 @@ offline pipeline.
 | NumPy | Tensor layout and L2 normalization | Imported by `reid_triton_client.py`. |
 
 The selected source commit and checkpoint revision are pinned in the build
-scripts above. Production checkpoint digest, ONNX digest, engine digest, and
-license evidence remain open until the production build writes the governed
-manifest.
+scripts above. Production build `osnet-ain-reid-20260605T20260605T201255Z`
+recorded checkpoint digest
+`8a07e8da38946f7cee37f4561617bf8b6d2fe8f3a4027852893ea092e46d919f`,
+ONNX digest
+`7a493dde67b823d9a52173eb674da744cc2091c4184b0eaa456dcb82b80be49c`,
+and TensorRT engine digest
+`93c7b1a6562ff21d51f46129259545aa144fbdaa275ed42b73df1021c6c1cfff`
+in `backend/models/tensorrt_builds/latest_compat.json`.
 
 ## 8. Environment variables read
 
@@ -202,8 +208,8 @@ stateDiagram-v2
     not_accepted --> [*]
 ```
 
-The current repository state is `code_staged`. `engine_built`,
-`parity_passed`, and any benchmark decision require production evidence.
+The current production state is `parity_passed`. The governed benchmark
+decision still requires a fresh two-shard `combined.mp4` run.
 
 ## 11. Failure modes
 
@@ -217,8 +223,13 @@ The current repository state is `code_staged`. `engine_built`,
 
 ## 12. Performance characteristics
 
-> Not applicable yet: no completed production parity probe or two-shard
-> benchmark for `triton_reid` has been recorded in this repository state.
+Production parity probe
+`backend/logs/osnet-ain-reid-parity-20260605T201608Z/reid_triton_parity.json`
+passed before benchmarking. It reported `all_available=true`,
+`dimensions_ok=true`, minimum PyTorch-vs-Triton cosine `0.9999725818634033`,
+repeat cosine `1.0`, and mean Triton latency `19.329396076500416 ms` over
+four synthetic samples. This is parity evidence only; it is not a Cycle 18.D
+benchmark decision.
 
 ## 13. Operational notes
 
@@ -264,14 +275,15 @@ off, packet off, and appearance off.
 
 ## 16. Open questions
 
-- Owner: Agent 18. Target close date: 2026-06-06. Record the production
-  checkpoint, ONNX, engine digests and parity output after the production
-  build completes, including the exact checkpoint license evidence.
 - Owner: Agent 18. Target close date: 2026-06-06. Record the governed
   two-shard benchmark decision after the RTX 5090 production run completes.
+- Owner: Agent 18. Target close date: 2026-06-06. Record exact checkpoint
+  license evidence for the Hugging Face artifact before a final acceptance
+  claim.
 
 ## 17. Change log
 
 | Date | What changed | Commit |
 |---|---|---|
 | 2026-06-05 | First entity doc for offline OSNet-AIN Triton ReID candidate. | `docs/cycle_18d_combined_cost_boundary_association_investigation.md` |
+| 2026-06-05 | Production FP32 TensorRT engine built and PyTorch-vs-Triton parity passed; two-shard benchmark still pending. | `13d6340e` |
