@@ -289,6 +289,28 @@ Expected from the remediation alone: valid boundary packets should return to
 merge-ready; model-agreement and shard-1 association are expected to stay failing
 until the ReID model lands.
 
+## 2026-06-05 ReID Appearance Upgrade (the real lever for the association gap)
+
+The benchmark's residual association failure (model-agreement `53.788 %`,
+shard-1 F1 `79.876 %`) traces to weak appearance evidence: boundary prototypes
+were extracted with the 16x16 cv2 RGB crop descriptor (`model=None`), while the
+main offline embedding stage already uses the YOLO backbone (`model.embed`,
+`ByteSortTracker().load_model()`) for governed ReID features. Cycle 18.D now
+threads that **same backbone model** into the boundary appearance producer:
+
+| Change | File |
+|---|---|
+| Cached backbone loader reusing the embedding-stage model | `backend/apps/video_analysis/services/offline_sharding.py` (`_load_boundary_feature_model`) |
+| Boundary appearance extracted with `model.embed` (cv2 fallback if it cannot load) | `…/offline_sharding.py` (`_track_appearance_reference`) |
+| Provenance records `yolo_backbone_embed` vs `cv2_16x16_rgb_descriptor` | `…/offline_sharding.py` (`_write_boundary_appearance_feature`) |
+| Default-on toggle | `backend/config/settings/base.py` (`OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_USE_BACKBONE`), `tools/prod/prod_enable_parallel_flow.sh` |
+| Focused tests | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` (`test_cycle18d_*backbone*`) |
+
+This gives `combined_cost` real appearance evidence to fuse with geometry and
+motion, and gives merge-readiness a governed ReID feature instead of a crop
+descriptor. Whether it is sufficient to pass the identity gates is a question
+only the production benchmark can answer.
+
 ## Required Production Benchmark Gate
 
 `combined_cost` cannot be accepted until a completed native-Linux RTX 5090
