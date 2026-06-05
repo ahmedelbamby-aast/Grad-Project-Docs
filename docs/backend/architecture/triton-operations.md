@@ -1,6 +1,6 @@
 # Triton Operations Runbook
 
-**Updated**: 2026-06-03
+**Updated**: 2026-06-05
 
 ## Scope
 
@@ -156,6 +156,8 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `OFFLINE_DB_BATCH_WRITES` | `true` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_DB_BATCH_SIZE` | `1000` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_OFFLOAD_POST_STAGES` | `true` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
+| `OFFLINE_STREAM_POST_STAGES` | `false` | `apps.video_analysis.tasks._cycle20_update_post_stage_timeline` |
+| `OFFLINE_STREAM_POST_STAGE_TIMELINE` | `false` | `apps.video_analysis.tasks._cycle20_update_post_stage_timeline`, `tools/prod/prod_collect_benchmark_metrics.py` |
 | `OFFLINE_TRIM_PROCESS_MEMORY` | `true` | `apps.video_analysis.tasks._trim_process_memory_if_enabled` |
 | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `true` | `apps.video_analysis.tasks.generate_embeddings` |
 | `OFFLINE_BEHAVIOUR_REUSE` | `false` | `apps.video_analysis.tasks._run_triton_frame_level_inference` |

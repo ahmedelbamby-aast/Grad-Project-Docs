@@ -1426,20 +1426,25 @@ rejected, or used to advance sharding.
   15.B1/15.B2 remain blocked; future sharding work needs human-labeled identity
   ground truth and/or a redesigned identity-state producer that addresses
   intra-shard fragmentation.
-- **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
+- **2026-06-05 Cycle 20 post-stage timeline
+  `MEASUREMENT_ONLY_IMPLEMENTATION_STARTED / NO_DECISION`**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
-  answers the current architecture question. Current offline `crop_frame`
-  behavior writes authoritative `Frame`/`Detection`/`BoundingBox` rows in Step 3
-  after the in-memory frame inference aggregation, then queues follow-up
-  tracking confirmation and embedding generation after render/audit
-  finalization. `OFFLINE_OFFLOAD_POST_STAGES=1` offloads the follow-up chain
-  after finalization; it does not stream DB rows or embeddings while the same
-  job's inference is still running. Cycle 20 is acceptable only as a future
-  governed lifecycle cycle with a disabled-by-default rollback flag, bounded
-  queue/backpressure, idempotent PostgreSQL writes, terminal-state coordination,
-  and a full production `combined.mp4` before/after benchmark. It is sorted last
-  after Cycle 19 unless completed production evidence proves post-stage overlap
-  is the next dominant limiter.
+  now records the next non-sharding latency lane after the Cycle 18.D OSNet
+  rejection. Current offline `crop_frame` behavior writes authoritative
+  `Frame`/`Detection`/`BoundingBox` rows in Step 3 after the in-memory frame
+  inference aggregation, then queues follow-up tracking confirmation and
+  embedding generation after render/audit finalization.
+  `OFFLINE_OFFLOAD_POST_STAGES=1` offloads the follow-up chain after
+  finalization; it does not stream DB rows or embeddings while the same job's
+  inference is still running. The first Cycle 20 implementation slice adds only
+  disabled-by-default timeline evidence:
+  `OFFLINE_STREAM_POST_STAGES=0`,
+  `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`,
+  `VideoAnalysisJob.metadata.cycle20_post_stage_timeline`,
+  `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`,
+  and collector/watch support. It must not be described as streaming
+  persistence, embedding overlap, or throughput acceptance until a production
+  `combined.mp4` benchmark with figures and rollback proof is recorded.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

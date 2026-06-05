@@ -1147,7 +1147,7 @@ cycle selection; the older paragraphs remain as historical context.
 
 | Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
 |---:|---|---|---|---|
-| 1 | **Cycle 20 streaming persistence and embedding overlap** | `PHASE A STAGED / NOT IMPLEMENTED` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane, but lifecycle/idempotency gates still apply. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
+| 1 | **Cycle 20 post-stage timeline, then streaming persistence/embedding overlap** | `PHASE B MEASUREMENT-ONLY IMPLEMENTATION STARTED / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane, but the first slice only records serial lifecycle timestamps and keeps `OFFLINE_STREAM_POST_STAGES=0`. | Upper bound from the accepted pre-shard baseline is roughly the embedding created span `98.578 s`; hiding all of it would move total wall from `808.038 s` to about `709.460 s` and DB FPS from `5.620` to about `6.40` (`~+13.9 %`). |
 | 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
 | 3 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | It is lower risk than lifecycle work, but the measured dominant-child gap caps the benefit. It cannot close the SLA alone. | Bounded at about `~4 %` Step 2 wall, roughly `18 s` on a `459 s` Step 2 frame wall. |
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Phase A measured decode/output work as small after Top-K, and the pinned Triton runtime lacks the Python backend. | Decode/NMS-only savings are about `2 %` of Step 2; a larger gain requires a backend/runtime change that also reduces server wait or execution. |
@@ -1163,15 +1163,15 @@ merge-ready packets `1/2`, shard-1 existing-parent mapping `17/36`, offset
 fallbacks `19/36`, StudentTracks `53 -> 57`, minimum model-agreement
 F1@IoU0.5 `53.788 %`, and minimum shard-1 global-assignment F1 `79.876 %`.
 
-Cycle 20 is now staged in
+Cycle 20 is now started as a measurement-only implementation slice in
 `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` for a
 future streaming persistence and embedding overlap architecture. Current code
 persists `Frame`/`Detection`/`BoundingBox` rows in Step 3 after the in-memory
 frame inference aggregation, and `generate_embeddings` starts after
-finalization/follow-up handoff. Cycle 20 is intentionally last in the sorted
-roadmap because it changes lifecycle, idempotency, terminal-state, and evidence
-contracts; it may move earlier only if completed production benchmark evidence
-shows post-stage tail is the next dominant limiter after the active cycles.
+finalization/follow-up handoff. The kickoff adds
+`OFFLINE_STREAM_POST_STAGE_TIMELINE` evidence and the production wrapper
+`tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`; it does not
+enable `OFFLINE_STREAM_POST_STAGES` or any queue/worker split.
 
 Cycle 21 is staged in
 `docs/cycle_21_celery_concurrency_scaling_investigation.md` for Celery worker,

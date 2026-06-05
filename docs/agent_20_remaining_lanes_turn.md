@@ -1,11 +1,11 @@
 # Agent 20 Remaining Lanes Turn Record
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
-**Status:** TURN TAKEN / FINAL COORDINATION LANES CLAIMED. Agent 20 is the
-final agent for the unclaimed Agent C and Agent D lanes: Cycle 20 streaming
-persistence/embedding overlap readiness and Cycle 21 Celery concurrency
-governance.
+**Status:** SUPERSEDED FOR CYCLE 20 IMPLEMENTATION / CYCLE 21 GOVERNANCE
+REMAINS. Agent 20 completed the readiness/governance claim. On 2026-06-05 the
+user requested the next cycle to start, so Cycle 20 moved into a
+measurement-only implementation kickoff while Cycle 21 remains governance-only.
 
 ## Purpose
 
@@ -39,16 +39,16 @@ without guessing from chat history.
 | Turn state | `TAKEN` |
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
-| Current phase | Documentation/readiness and governance only |
+| Current phase | Cycle 20 measurement-only implementation kickoff; Cycle 21 governance only |
 | Production benchmark lock | `NOT HELD` |
-| Runtime implementation permission | None |
+| Runtime implementation permission | Cycle 20 timeline instrumentation only; no streaming behavior |
 | Production env permission | None |
 
 ## Claimed Responsibilities
 
 | Lane | Responsibility | Current boundary |
 |---|---|---|
-| Cycle 20 | Prepare the streaming persistence and embedding overlap readiness contract. | No lifecycle, persistence, embedding, queue, or terminal-state code changes. |
+| Cycle 20 | Completed readiness contract; superseded by measurement-only implementation kickoff. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
 | Cycle 21 | Prepare concurrency benchmark governance and topology-proof requirements. | No worker count, pool type, prefetch, GPU cap, or `backend/.env` changes. |
 | Coordination | Keep shared docs aligned with the turn claim. | No production benchmark decision, acceptance, rejection, skip, or closure. |
 
@@ -64,6 +64,7 @@ without guessing from chat history.
 | `A20-06` Run documentation validations and record results. | `COMPLETED` | Validation ledger below. |
 | `A20-07` Write Cycle 20 readiness contract V0. | `COMPLETED` | Measurement timestamps, idempotency checklist, terminal coordinator gate, and rollback/live exclusion in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
 | `A20-08` Write Cycle 21 governance packet V0. | `COMPLETED` | Topology capture, duplicate-worker proof, resource-budget packet, and rollback format in `docs/cycle_21_celery_concurrency_scaling_investigation.md`. |
+| `A20-HANDOFF-20260605` Cycle 20 readiness-only boundary superseded. | `COMPLETED` | New work may implement only the measurement timeline and governed wrapper recorded in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`. |
 
 ## Owned Files And Boundaries
 
@@ -89,7 +90,7 @@ Agent 20 must not:
 | Run the Cycle 17 production benchmark. | Agent 18 or an explicit benchmark-lock owner. |
 | Modify Cycle 17 runtime files, tests, or benchmark wrapper. | Cycle 17 lane. |
 | Implement Cycle 18 boundary-state cache runtime. | Agent 19 lane plus future design-proof gate. |
-| Change lifecycle, persistence, embedding, or terminal-state code. | Cycle 20 implementation gate. |
+| Enable streaming persistence, embedding windows, or terminal coordinator behavior. | Cycle 20 production benchmark gate after measurement-only proof. |
 | Change Celery worker counts, pool type, prefetch, queue topology, or GPU caps. | Cycle 21 production matrix gate. |
 | Enable sharding or start 15.B2. | New identity-state proof plus production authority required. |
 | Mark any cycle accepted, rejected, skipped, closed, or complete. | Constitution §12.5 / §12.6 production benchmark authority. |
@@ -106,17 +107,14 @@ Agent 20 must not:
 
 ## Current Summary For Next Agent
 
-Agent 20 has taken the remaining Agent C and Agent D responsibilities as
-documentation/readiness work only. The first readiness/governance slice is now
-recorded: Cycle 20 has Contract V0 for timestamps, idempotency, terminal
-coordination, and rollback/live exclusion; Cycle 21 has Governance Packet V0 for
-topology capture, duplicate-worker proof, resource budgets, and rollback
-format. No runtime implementation, worker-topology change, or production
-benchmark lock exists.
+Agent 20 completed the documentation/readiness slice. Cycle 20 is now allowed
+to proceed only as a measurement-only timeline implementation with
+`OFFLINE_STREAM_POST_STAGES=0`; Cycle 21 still has no worker-topology change or
+production benchmark lock. Any streaming writer or embedding overlap behavior
+requires a later production-evidence gate.
 
 ## Handoff Protocol
 
-Agent 20 remains `TAKEN` until `AGENTS.md` records `FREE`, `BLOCKED`, or an
-explicit user-authorized reassignment. A handoff must record files touched,
-validations run, benchmark-lock state, unresolved blockers, and the next safe
-readiness or governance action.
+This ledger remains as the historical readiness claim. A later handoff must
+record files touched, validations run, benchmark-lock state, unresolved
+blockers, and whether Cycle 20 stayed measurement-only.

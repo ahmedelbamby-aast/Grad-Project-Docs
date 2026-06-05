@@ -1,12 +1,14 @@
 # Cycle 20 Streaming Persistence and Embedding Overlap Investigation
 
-**Last updated:** 2026-06-04
+**Last updated:** 2026-06-05
 
-**Status:** Phase A readiness claimed by Agent 20. No code is implemented by
-this document. The only valid decision state is
+**Status:** Phase B measurement-only implementation started after the
+2026-06-05 Cycle 18.D OSNet-AIN rejection promoted Cycle 20 to the next
+non-sharding latency lane. The only valid decision state is
 `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` until a completed production Linux
 RTX 5090 benchmark on `combined.mp4` compares this candidate against the latest
-accepted baseline.
+accepted baseline. This kickoff does **not** implement streaming persistence,
+embedding overlap, new queues, or a terminal coordinator.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -31,9 +33,16 @@ proof that Step 3 or embedding has started.
 | Kind | Reference | Why it matters |
 |---|---|---|
 | File | `backend/apps/video_analysis/tasks.py` | Owns `process_video_upload`, Step 3 persistence, render/finalization, `run_detection_and_tracking`, and `generate_embeddings`. |
+| File | `backend/config/settings/base.py` | Defines the default-off Cycle 20 flags `OFFLINE_STREAM_POST_STAGES` and `OFFLINE_STREAM_POST_STAGE_TIMELINE`. |
 | File | `backend/apps/video_analysis/models.py` | Defines `Frame`, `Detection`, `BoundingBox`, `StudentTrack`, and `FrameEmbedding` constraints. |
 | File | `backend/apps/tracking/embeddings.py` | Defines `persist_embedding` and `persist_embeddings_bulk` write-boundary behavior. |
 | File | `tools/prod/prod_enable_parallel_flow.sh` | Current offline profile switchboard and rollback-flag authority. |
+| File | `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh` | Measurement-only production wrapper for the first Cycle 20 benchmark. |
+| File | `tools/prod/prod_collect_benchmark_metrics.py` | Collects the Cycle 20 timeline metadata into raw metrics JSON/Markdown. |
+| File | `tools/prod/prod_watch_benchmark_metrics.sh` | Exposes the Cycle 20 timeline while a benchmark is running. |
+| File | `tools/prod/prod_triton_endpoint_policy.sh` | Keeps `OFFLINE_STREAM_POST_STAGES=0` on the live profile. |
+| Test | `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py` | Verifies default-off and timestamp/unavailable metadata behavior. |
+| Test | `backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` | Verifies derived Cycle 20 timeline metrics. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -78,16 +87,19 @@ starving Triton, total wall time may fall even when individual stage wall times
 stay similar. The intended benefit is pipeline overlap, not faster model
 execution.
 
-## Why It Must Not Be Implemented Immediately
+## Why It Must Not Jump Directly To Streaming
 
 This is a lifecycle architecture change, not a small optimization. It affects
 authoritative PostgreSQL rows, idempotency, job terminal-state semantics,
 render inputs, embedding inputs, and benchmark evidence collection.
 
-The Cycle 13.C / 16.A Redis command-cost benchmark finished and promoted Cycle
-16.B Redis side-effect coalescing as the next Redis task. Cycle 20 should not
-jump ahead of Cycle 16.B or Cycle 14-19 unless a completed production decision
-table proves that post-stage overlap is now the highest-return lever.
+The Cycle 13.C / 16.A Redis command-cost benchmark already promoted and then
+completed Cycle 16.B Redis side-effect coalescing. Cycle 18.D is now complete
+and not accepted, and the sorted queue promotes Cycle 20 as the next
+non-sharding latency lane. That promotion authorizes only the first
+measurement-only implementation slice: record lifecycle timestamps and prove
+the current serial gaps before any writer, queue, worker split, or terminal
+coordinator changes production behavior.
 
 ## Proposed Cycle 20 Scope
 
@@ -121,6 +133,35 @@ separate implementation turn is explicitly opened.
 
 This contract is documentation-only. It defines what a later implementation
 must prove before streaming persistence or embedding overlap can be benchmarked.
+
+## Phase B Measurement-Only Kickoff (2026-06-05)
+
+This kickoff starts Cycle 20 without enabling the future streaming behavior.
+The code adds:
+
+| Surface | Change |
+|---|---|
+| Settings | `OFFLINE_STREAM_POST_STAGES=0` remains the future rollback flag; `OFFLINE_STREAM_POST_STAGE_TIMELINE=0` defaults the measurement probe off. |
+| Upload task | When the timeline flag is enabled, `process_video_upload` records `inference_started_at`, `frame_inference_done_at`, `first_frame_persisted_at`, `all_frames_persisted_at`, and `first_embedding_eligible_at` in `VideoAnalysisJob.metadata.cycle20_post_stage_timeline`. |
+| Embedding task | `generate_embeddings` records `first_embedding_started_at`, `embedding_done_at`, created/skipped/error counters, and the embedding stage outcome in the same metadata block. |
+| Terminal stage | `run_reid_pipeline` records `terminal_coordinator_done_at` after final status/summary handling. |
+| Missing packet fields | `first_persist_packet_ready_at` is explicitly marked unavailable with reason `serial_path_no_streaming_persistence_packet`; it is not faked as a zero timestamp. |
+| Metrics collector | `prod_collect_benchmark_metrics.py` emits `post_stage_timeline` with timestamps, unavailable reasons, missing required fields, and derived serial gaps. |
+| Production wrapper | `prod_run_cycle20_post_stage_timeline_benchmark.sh` enables only `OFFLINE_STREAM_POST_STAGE_TIMELINE=1`, forces `OFFLINE_STREAM_POST_STAGES=0`, collects metrics/model agreement, generates figures, and restores both flags to `0`. |
+
+Figure Planner: Cycle 20 kickoff agent. Required plots consume the baseline
+metrics JSON, candidate metrics JSON, model-agreement JSON, rollback JSON, and
+figure input manifest. Missing streaming-only fields render as unavailable,
+not zero.
+
+Figure Implementer: Cycle 20 kickoff agent. Role separation is unavailable in
+this single-agent kickoff; the wrapper still keeps planner intent, generator
+inputs, unavailable-metric policy, manifest, and produced images as separate
+artifacts before any benchmark decision is claimed.
+
+The Phase B benchmark remains `NO_DECISION_PENDING_REVIEW` until production
+evidence is captured and this document plus
+`docs/production_inference_benchmark.md` record the §12.6 decision table.
 
 ### Measurement-only timestamp contract
 

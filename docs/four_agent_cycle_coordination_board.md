@@ -23,8 +23,8 @@ Agent 18 completed the production benchmark and released the turn as
 observability-only accepted. The Agent 20 Cycle 18 `one_to_one` override
 candidate also completed and is not accepted. The follow-up Cycle 18 boundary
 packet producer is production-validated as evidence-only and not
-identity-merge-ready. Cycle 20 and Cycle 21 may proceed only as bounded
-readiness/governance work unless their dependency gates are satisfied.
+identity-merge-ready. Cycle 20 may proceed only as the bounded measurement-only
+timeline slice; Cycle 21 remains governance-only until independent work exists.
 
 2026-06-05 Cycle 18.D result update: Cycle 18.D completed production replay
 `cycle18d-combined-cost-20260605T174115Z` and is **NOT ACCEPTED**. It improved
@@ -38,7 +38,7 @@ latency queue is:
 
 | Sort | Cycle | Coordination state |
 |---:|---|---|
-| 1 | Cycle 20 streaming persistence/embedding overlap | Next non-sharding latency lane; implementation still requires lifecycle/idempotency gates. |
+| 1 | Cycle 20 post-stage timeline | Next non-sharding latency lane; first slice is measurement-only and keeps streaming behavior disabled. |
 | 2 | Cycle 21 Celery concurrency matrix | Governance only until independent work exists. |
 | 3 | Cycle 11.B / 9b B.3 child-kernel tuning | Low-ceiling fallback. |
 | 4 | Cycle 9b B.1 / 14.D compact postprocessing | Runtime/backend-blocked or low measured decode-cost. |
@@ -89,7 +89,7 @@ recorded.
 | Agent 18 | Cycle 18.D OSNet-AIN ReID boundary association continuation | Taken; local implementation/docs staged; benchmark lock not held; no production decision | `backend/apps/pipeline/services/reid_triton_client.py`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_build_osnet_reid_tensorrt.sh`, `tools/prod/prod_probe_reid_triton.py`, `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`, `tools/prod/prod_triton_endpoint_policy.sh`, `docs/entity/systems/osnet_ain_x1_0_reid_model.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md` | Enable sharding by default, touch live/RTSP sharding, start 15.B2, rerun failed 18.C/18.D unchanged, or claim acceptance without production §12.6 evidence. |
 | Agent 19 (Agent B) | Cycle 18.C packet-budget and association readiness | Lock released; Cycle 18.C **NOT ACCEPTED** after production replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; superseded by Cycle 18.D result | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/production_inference_benchmark.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Enable sharding by default, start 15.B2, rerun failed 18.B/18.C unchanged, or claim acceptance without passing §12.6 evidence. |
 | Agent 20 override | Cycle 18 boundary state | Free; `one_to_one` not accepted; packet producer evidence-only; benchmark lock released | `docs/agent_20_cycle_18_override_turn.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Rerun or enable `one_to_one`; claim sharding/15.B2 acceptance while packets are not identity-merge-ready. |
-| Agent 20 (Agent C) | Cycle 20 stream post-stages | Turn taken; readiness only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` | Change lifecycle or persistence code before an implementation gate. |
+| Agent 20 (Agent C) | Cycle 20 post-stage timeline | Measurement-only implementation started; benchmark lock not held | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh` | Enable `OFFLINE_STREAM_POST_STAGES`, add streaming queues/writers, or claim acceptance before production §12.6 evidence. |
 | Agent 20 (Agent D) | Cycle 21 concurrency | Turn taken; governance only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_21_celery_concurrency_scaling_investigation.md` | Increase worker counts without a full benchmark matrix. |
 
 Shared files are orchestrator-owned unless the orchestrator explicitly grants a
@@ -260,7 +260,7 @@ reassignment.
 | Agent 17 | "Read `AGENTS.md`, `docs/agent_17_cycle_17_turn.md`, and `docs/agent_18_cycle_17_turn.md`. Your Cycle 17 role is historical only; do not take Cycle 17, run benchmarks, or edit runtime files unless the user explicitly reassigns a new governed follow-up." |
 | Agent 18 | "Read `AGENTS.md`, constitution §7.1.1/§8.6/§12.5/§12.6/§17/§19, `docs/four_agent_cycle_coordination_board.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, and `docs/entity/systems/osnet_ain_x1_0_reid_model.md`. Confirm both Cycle 18.D `combined_cost` and OSNet-AIN `triton_reid` replays are `BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`. Do not rerun the same profiles, touch live sharding, enable sharding by default, start 15.B2, or claim acceptance without new production evidence and a new identity-state mechanism." |
 | Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your Cycle 18.C lane is released and **NOT ACCEPTED**; only final docs, evidence checks, and handoff cleanup are allowed unless a new identity-state design is explicitly opened. Runtime Redis writes, default-on sharding, 15.B2, reruns of failed profiles, and production benchmarks without a recorded lock are forbidden." |
-| Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Keep Cycle 20 readiness and Cycle 21 governance documentation-only; do not change lifecycle code, embeddings, workers, queues, env, or production state." |
+| Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Cycle 20 is limited to measurement-only timeline instrumentation and the governed wrapper; keep `OFFLINE_STREAM_POST_STAGES=0`, do not add streaming persistence/embedding queues, do not change worker topology, and do not claim a decision before production §12.6 evidence plus figures." |
 
 ### Agent 19 (Agent B): Cycle 18
 
@@ -301,36 +301,40 @@ label-invariant identity, DB/GPU/RTT metrics, generated figures, and rollback.
 
 ### Agent C: Cycle 20
 
-Objective: prepare the streaming persistence/embedding overlap architecture
-without changing lifecycle code prematurely.
+Objective: start the streaming persistence/embedding overlap cycle with a
+measurement-only post-stage timeline, without enabling streaming behavior.
 
 Allowed next outputs:
 
-- Subcycle split for persistence stream, embedding stream, and terminal
-  coordinator.
-- Idempotency and rollback design.
-- Metrics list for overlap proof.
+- Default-off timestamp instrumentation around the existing serial upload,
+  persistence, embedding, and terminal boundaries.
+- Production wrapper that enables only `OFFLINE_STREAM_POST_STAGE_TIMELINE=1`
+  and keeps `OFFLINE_STREAM_POST_STAGES=0`.
+- Metrics/figure artifacts proving whether persistence or embedding currently
+  overlaps inference.
 
 Agent 20 / Agent C charter:
 
 | Topic | Decision |
 |---|---|
-| Current state | `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`; readiness-only. |
-| Blocking dependency | Do not alter lifecycle or persistence code before an explicit implementation gate or metric reorder. |
+| Current state | `MEASUREMENT_ONLY_IMPLEMENTATION_STARTED / NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. |
+| Blocking dependency | Do not add streaming persistence, embedding windows, or terminal coordinator behavior before the timeline benchmark proves the serial gaps. |
 | Persistence truth | PostgreSQL only; no SQLite fallback. |
 | Current flow | DB rows are persisted after full in-memory `frame_detections`; embeddings start after follow-up handoff. |
 | First implementation profile | Treat as `offline-only` unless explicitly redesigned for live. |
 | Candidate rollback flag | `OFFLINE_STREAM_POST_STAGES=0`. |
+| Measurement flag | `OFFLINE_STREAM_POST_STAGE_TIMELINE=0` except inside the governed wrapper. |
 
 Candidate subcycle split:
 
 | Subcycle | Scope |
 |---|---|
-| 20.A | Measurement-only overlap timestamps and collector fields. |
-| 20.B | Streaming persistence writer only; no embedding overlap. |
-| 20.C | Embedding window worker after safe row watermark. |
-| 20.D | Terminal coordinator waits for all required stages. |
-| 20.E | Full production benchmark and rollback proof. |
+| 20.A | Readiness contract V0. |
+| 20.B | Measurement-only overlap timestamps, collector fields, wrapper, and figures. |
+| 20.C | Streaming persistence writer only; no embedding overlap. |
+| 20.D | Embedding window worker after safe row watermark. |
+| 20.E | Terminal coordinator waits for all required stages. |
+| 20.F | Full production benchmark and rollback proof. |
 
 Agent C must preserve bounded queues, no unbounded per-job buffers, no live
 file-seek assumptions, no orphan embeddings, and terminal-state correctness.
@@ -385,7 +389,7 @@ rollback failure, even if FPS improves.
 | 2026-06-04 | Agent 19 | 18 | User-authorized Agent B mapping recorded; Phase A contract/evidence audit turn taken. | Audit failed boundary artifacts and strengthen the identity-state contract without runtime code. |
 | 2026-06-04 | Agent 19 | 18 | First contract-only audit slice completed; no runtime or production state changed. | Review bounded packet V0, then prepare a read-only packet example and validator contract only. |
 | 2026-06-04 | Agent 19 | 18 | Read-only V0 schema, synthetic unresolved example, validator, and focused tests completed; no runtime integration added. | Review V0, then project historical Cycle 15 evidence into the packet contract without writes. |
-| 2026-06-04 | Agent 20 | 20/21 | User identified this session as the last agent; remaining Agent C and Agent D lanes claimed as readiness/governance only. | Keep Cycle 20 and Cycle 21 documentation aligned; do not change runtime code, env, workers, or production state. |
+| 2026-06-04 | Agent 20 | 20/21 | User identified this session as the last agent; remaining Agent C and Agent D lanes claimed as readiness/governance only. | Superseded on 2026-06-05 by Cycle 20 measurement-only kickoff; Cycle 21 remains governance-only. |
 | 2026-06-04 | Agent 20 | 18 | User overrode Cycle 18; one-to-one boundary track-map candidate staged locally with no benchmark lock and no production decision. | Finish local validation, then acquire a benchmark lock before any production env change or wrapper run. |
 | 2026-06-04 | Agent 20 | 18 | Replay `cycle18-one-to-one-trackmap-20260604T174231Z` completed; rollback verified; one-to-one candidate not accepted. | Do not rerun or enable `one_to_one`; packet producer follow-up is recorded in the next Agent 20 Cycle 18 row. |
 | 2026-06-04 | Agent 20 | 18 | Replay `cycle18-boundary-packet-producer-20260604T181738Z` completed; rollback verified; `2/2` packets valid and `0/2` merge-ready. | Keep packet flag default-off; next Cycle 18 work needs appearance-backed association consumer evidence. |
@@ -393,3 +397,4 @@ rollback failure, even if FPS improves.
 | 2026-06-05 | Agent 19 | 18.C | Benchmark lock held for `cycle18c-packet-budget-active-edge-20260605T162825Z` after local gates and CI passed. | Deploy reviewed SHA, run the governed production benchmark, collect metrics/figures/rollback, then release the lock with a §12.6 decision or no-decision blocker table. |
 | 2026-06-05 | Agent 19 | 18.C | Production replay `cycle18c-packet-budget-active-edge-20260605T162825Z` completed; lock released; decision **NOT ACCEPTED** because merge readiness, StudentTrack parity, model agreement, and label-invariant identity still failed. | Keep sharding blocked; next non-sharding latency lane is Cycle 20 unless a fresh identity-state design is explicitly opened. |
 | 2026-06-05 | Agent 18 | 18.D | User-authorized OSNet-AIN Triton ReID continuation taken; local implementation/docs staged; benchmark lock not held. | Run local gates, commit/push reviewed SHA, then build the production TensorRT model and run parity before any benchmark lock. |
+| 2026-06-05 | Cycle 20 kickoff | 20.B | Measurement-only timeline instrumentation and production wrapper started; benchmark lock not held. | Run focused tests, push, deploy, then acquire the production benchmark lock before executing the wrapper. |
