@@ -129,7 +129,10 @@
   constitution §7.1.1: live/cumulative/DB FPS, latency percentiles, per-model
   call rate/status/input shape, per-step and per-phase timings, resource
   metrics, DB/model correctness, and unavailable metric reasons. Component
-  probes are hypothesis-only and cannot accept/reject/skip/close/deprioritize.]
+  probes are hypothesis-only and cannot accept/reject/skip/close/deprioritize.
+  Name the Figure Planner and Figure Implementer, define the required generated
+  plots, source artifacts, figure manifest/digests, unavailable-metric handling,
+  and Markdown embed targets.]
 - **Runtime Reconciliation**: [Describe task, queue, database, artifact,
   telemetry and frontend state convergence, including mismatch handling]
 - **Evidence Lineage**: [Describe immutable evidence snapshots, artifact

@@ -1,6 +1,24 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.10.0 -> 2.11.0
+Bump rationale: MINOR - Adds explicit Figure Planner and Figure Implementer
+role separation to the benchmark-figure evidence doctrine. Every optimization
+cycle must name one planner for plot intent/artifact mapping/unavailable
+metric policy and one implementer for generator code/tests/manifests/images
+before any benchmark decision claim can carry authority. The roles should be
+different agents when multi-agent execution is active; if one agent must cover
+both, the cycle evidence must explain why and keep planning and implementation
+evidence distinct. Adds a Section 14.25 enforcement row for unowned figure
+planning or unclaimed generator implementation.
+
+Triggering observation: the Cycle 18.C kickoff requires packet-budget and
+association-readiness work plus generated evolution figures, and the user made
+role separation explicit so figure planning does not silently collapse into
+ad-hoc script edits or overlap another agent's lane.
+
+Prior MINOR (2.9.0 -> 2.10.0) text below.
+
 Version change: 2.9.0 -> 2.10.0
 Bump rationale: MINOR - Adds benchmark-figure evidence and cycle-execution
 completion gates to Sections 7.1.1 and 12.6, plus a matching Section 14.25
@@ -1073,6 +1091,17 @@ MUST render as `unavailable` with the reason; they MUST NOT be plotted as zero
 or omitted without disclosure. The figure bundle MUST contain a manifest with
 input artifact paths and digests so the plots can be reproduced.
 
+Every optimization cycle MUST name one Figure Planner and one Figure
+Implementer before a benchmark decision claim is made. The Figure Planner owns
+plot intent, required metric families, source artifact mapping,
+unavailable-metric rules, and Markdown embed targets. The Figure Implementer
+owns generator code, local tests, workflow updates when needed, manifest/digest
+generation, produced image artifacts, and Markdown link/embed application. The
+roles SHOULD be different agents when multiple agents are active. If one agent
+must cover both roles, the cycle evidence MUST explain why separation was not
+available and MUST keep the figure plan and generator implementation evidence
+distinct.
+
 #### 7.2 Benchmark Integrity Laws
 
 A benchmark run MUST be immutable and manifest-driven. At minimum it stores:
@@ -1670,6 +1699,12 @@ staged, probe-only, hypothesis-only, not accepted, or needs further iteration,
 the same figure evidence requirement applies to the evidence that exists for
 that state.
 
+The Section 12.6 decision table MUST identify the Figure Planner and Figure
+Implementer, or link to a cycle evidence block that does. A missing planner,
+missing implementer, unclaimed generator change, missing figure manifest, or
+Markdown decision table that cites figures not produced from the cited raw
+artifacts invalidates the decision package.
+
 ### 13. Cross-Wave Dependency Constitution
 
 #### 13.1 Dependency Hierarchy
@@ -2141,6 +2176,7 @@ reproduce the claimed result.
 | Raw local-ID equality used as independent-run identity proof | Identity evaluator and evidence review | Independent-run association doctrine (4.6) | source-scoped labels, observation matching, deterministic one-to-one assignment, separated detection/association metrics, and proxy-ground-truth disclosure | fail identity/scientific gate | block identity claim and rerun valid evaluation | invalidate unsupported comparison | AI validity + evidence owners |
 | Geometry-only or forced cross-shard canonical merge | Boundary contract and association audit | Identity continuity and association doctrine (4.3/4.6) | bounded tracklet state with motion, appearance, lifecycle, quality, ambiguity, one-to-one decision, and unresolved fallback | fail identity/runtime gate | leave association unresolved and disable candidate | restore prior non-sharded or unresolved profile | tracking + AI validity owners |
 | Decision without benchmark figure evidence | Benchmark artifact validator and docs review | Benchmark scientific rigor (7.1.1/12.6) | raw artifacts, figure-generation command, figure manifest/digests, generated plots, Markdown embeds, and unavailable-metric reasons | fail benchmark/figure gate | keep candidate staged or rerun evidence generation before decision | supersede incomplete decision artifact and regenerate figures | benchmark owner + evidence owner |
+| Unowned figure plan or unclaimed generator implementation | Cycle ledger and benchmark docs review | Figure role separation (7.1.1/12.6) | named Figure Planner, named Figure Implementer, plan-to-artifact mapping, generator test evidence, manifest/digest evidence, and Markdown embed targets | fail benchmark/figure gate | keep candidate staged and assign roles before decision | supersede incomplete figure bundle or rerun generator under claimed ownership | cycle owner + evidence owner |
 
 ### 15. Final Architectural Positioning
 
@@ -2770,4 +2806,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.10.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-05
+**Version**: 2.11.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-05

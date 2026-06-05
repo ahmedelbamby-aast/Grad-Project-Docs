@@ -118,7 +118,11 @@
 > precision breakdown from constitution §7.1.1: live/cumulative/DB FPS,
 > latency percentiles, per-model call rate/status/input shape, per-step and
 > per-phase timings, resource metrics, DB/model correctness, and unavailable
-> metric reasons.
+> metric reasons. Plans MUST also name the Figure Planner and Figure
+> Implementer, define the required figure bundle and manifest, identify raw
+> artifact inputs for each plot, and list the Markdown embed targets. No
+> optimization decision has authority until the generated figures, manifest,
+> digests, and unavailable-metric disclosures are linked from the cycle docs.
 
 > **Live/Offline Validation Gate**: Video or inference features MUST
 > specify both live and offline validation when their behavior spans

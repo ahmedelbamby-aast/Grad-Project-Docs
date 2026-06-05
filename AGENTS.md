@@ -46,7 +46,7 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ## ⭐ Benchmark Figure Evidence — BINDING
 
-Constitution v2.10.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
+Constitution v2.11.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
 cycle decision has authority unless generated figures are created from the same
 raw artifacts as the benchmark decision table and embedded or linked from the
 connected Markdown evidence.
@@ -81,9 +81,32 @@ plotted as zero. A cycle remains open until implementation, local tests,
 workflow validation, production Linux RTX 5090 benchmark, metric deltas, figure
 generation, documentation updates, and rollback proof are all recorded.
 
+### Figure evidence role split
+
+Every optimization cycle MUST name exactly one **Figure Planner** and exactly
+one **Figure Implementer** before any benchmark-decision claim is made.
+
+- The Figure Planner defines the plots required for the cycle, the raw
+  artifacts each plot consumes, the unavailable-metric policy, and the Markdown
+  embed targets.
+- The Figure Implementer owns the Python/Bash generator changes, tests,
+  manifests, digests, and produced images.
+- The two roles SHOULD be different agents when multiple agents are active. If
+  one agent must temporarily perform both roles, the cycle doc MUST explain why
+  separation was unavailable and must still keep the plan and implementation
+  evidence separate.
+- No benchmark, metric delta, acceptance, rejection, closure, or "needs further
+  iteration" decision has authority until the Figure Planner output and Figure
+  Implementer output are both linked from the cycle/result Markdown.
+
+For Cycle 18.C, Agent 19 owns the cycle kickoff and packet-budget /
+association-readiness plan. The Figure Implementer lane must be explicitly
+claimed in the coordination board before changing the figure generator so it
+does not overlap Agent 17 or Agent 18 work.
+
 ## ⭐ Documentation Systematization Program (DSP) — BINDING
 
-**Constitution Section 19 (added in v2.5.0; current constitution v2.10.0)
+**Constitution Section 19 (added in v2.5.0; current constitution v2.11.0)
 makes the following rules non-bypassable. Hallucinations are FORBIDDEN — a
 documentation claim without a resolvable reference is a CI-blocking
 regression, not a style nit.**

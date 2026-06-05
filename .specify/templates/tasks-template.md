@@ -123,6 +123,12 @@ Examples of foundational tasks (adjust based on your project):
       latency percentiles, per-model call rate/status/input shape, per-step and
       per-phase timings, resource metrics, DB/model correctness, unavailable
       metric reasons), and a statement that component probes are hypothesis-only
+- [ ] T019a [P] Name the cycle Figure Planner and define required generated
+      plots, raw artifact inputs, unavailable-metric policy, figure manifest
+      expectations, and Markdown embed targets before benchmark decisions
+- [ ] T019b [P] Name the cycle Figure Implementer and define generator
+      implementation/test ownership, manifest/digest generation, produced image
+      paths, and workflow updates needed for figure evidence
 - [ ] T020 [P] If concurrency changes are proposed, define the worker topology
       matrix, pool/thread/concurrency values, GPU cap, DB/Redis/CPU/RSS/VRAM
       budgets, duplicate-worker check, rollback command, and production
@@ -249,6 +255,9 @@ Examples of foundational tasks (adjust based on your project):
       windows and store evidence manifests
 - [ ] TXXX [P] Produce benchmark/statistical reports with real independent
       baseline/candidate runs, variance, confidence and failure accounting
+- [ ] TXXX [P] Generate benchmark figures from the exact cited raw artifacts,
+      write the figure manifest with input digests, and embed/link the figures
+      in the responsible cycle/result Markdown with unavailable-metric reasons
 - [ ] TXXX [P] Verify all maturity evidence is immutable, digest-addressed,
       lineage-complete, non-placeholder and free of temporary-path-only
       manifests
