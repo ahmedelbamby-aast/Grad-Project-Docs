@@ -2,11 +2,15 @@
 
 **Last updated:** 2026-06-04
 
-**Status:** `NO_RUNTIME_CANDIDATE_SELECTED` /
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` /
-`CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK`. No runtime cache, sharding
-benchmark, or production env change is allowed from this document. The final
-Phase A review found no identity candidate eligible for implementation.
+**Status:** `ONE_TO_ONE_RUNTIME_CANDIDATE_NOT_ACCEPTED` /
+`BOUNDARY_PACKET_PRODUCER_PRODUCTION_VALIDATED` /
+`BENCHMARK_LOCK_RELEASED`. The historical Agent 19 Phase A review remains
+`NO_RUNTIME_CANDIDATE_SELECTED` for Redis boundary-state identity evidence. The
+Agent 20 override production benchmark completed for the disabled-by-default
+`one_to_one` boundary track-map candidate and rejected that candidate on
+identity/model-agreement evidence. The continuation production-validated a
+default-off boundary packet producer as evidence-only; its packets are not
+identity-merge-ready. Cycle 18 as a whole is not closed or complete.
 
 **Streaming compatibility:** `offline-only` for any future sharding runtime.
 Boundary state depends on finite shard boundaries and whole-file coordination.
@@ -52,12 +56,19 @@ runtime Redis cache or changing the parent merge.
 | Structural drift checker | `tools/prod/prod_check_cycle18_schema_validator_drift.py` | Compares all V0 object shapes and manual missing/unknown-field rejection without runtime access. |
 | Structural drift test | `backend/tests/unit/pipeline/test_prod_check_cycle18_schema_validator_drift.py` | Proves the local structural drift corpus passes. |
 | Doc reference checker | `tools/prod/prod_check_cycle18_doc_references.py` | Verifies repo-relative file and optional line references in Agent 19-owned docs plus only the bounded Agent 19 `AGENTS.md` paragraph. |
-| Doc reference test | `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Proves all three bounded reference sources resolve without scanning Agent 20. |
+| Doc reference test | `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Proves all four bounded reference sources resolve without scanning Agent 20. |
 | Measured-value checker | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` | Verifies the Cycle 18 measurement table exactly matches authoritative completed production values. |
 | Measured-value test | `backend/tests/unit/pipeline/test_prod_check_cycle18_measured_benchmark_values.py` | Proves measured-value parity, drift rejection, and local-only isolation. |
 | Identity-candidate probe | `tools/prod/prod_probe_cycle18_identity_candidates.py` | Reproducible read-only production probe comparing implementable boundary mappings and the baseline-label oracle upper bound. |
 | Identity-candidate probe test | `backend/tests/unit/pipeline/test_prod_probe_cycle18_identity_candidates.py` | Proves deterministic policy maps and fail-closed candidate selection. |
 | Production probe summary | `docs/architecture/cycle18_identity_candidate_probe.production_summary.json` | Tracked summary of the production probe evidence, source jobs, evidence hash, and no-selection result. |
+| Deep root-cause investigation | `docs/cycle_18_identity_association_root_cause_investigation.md` | Separates invalid raw local-ID comparison from measured residual association loss and records adopted best practices. |
+| Label-invariant tracking probe | `tools/prod/prod_probe_cycle18_label_invariant_tracking.py` | Performs read-only maximum-weight one-to-one association across independent local-label namespaces. |
+| Label-invariant tracking tests | `backend/tests/unit/pipeline/test_prod_probe_cycle18_label_invariant_tracking.py` | Proves namespace recovery, residual fragmentation reporting, and no runtime decision authority. |
+| Label-invariant production summary | `docs/architecture/cycle18_label_invariant_tracking_probe.production_summary.json` | Preserves production metrics, evidence hashes, and the two confirmed root causes. |
+| Agent 20 override ledger | `docs/agent_20_cycle_18_override_turn.md` | Records the benchmark lock, release, production decision, rollback, and next action for the bounded override. |
+| Agent 20 production summary | `docs/architecture/cycle18_one_to_one_trackmap.production_summary.json` | Preserves production metrics, evidence hashes, rollback proof, and the `NOT_ACCEPTED` decision for `one_to_one`. |
+| Production benchmark log | `docs/production_inference_benchmark.md` | Records the completed Cycle 18 `one_to_one` production benchmark and section 12.6 decision table. |
 | Validator | `tools/prod/prod_validate_cycle18_boundary_packet.py` | Standalone read-only packet, digest, bounds, and duplicate validator. |
 | Test | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Focused fail-closed validator contract coverage. |
 | File | `.gitignore` | Explicitly exposes the four CI-read contract/projection JSON files despite the blanket `*.json` ignore rule. |
@@ -76,11 +87,11 @@ runtime Redis cache or changing the parent merge.
 
 ## Real Production Measurements Carried Into Cycle 18
 
-No Cycle 18 runtime candidate was deployed or benchmarked. These are real
-completed upstream Cycle 15 production measurements that define Cycle 18's
-identity-state entry gate. They do not create a Cycle 18 optimization decision;
-the current decision statement remains
-`NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. Exact values are
+Before the Agent 20 override, no Cycle 18 runtime candidate had been deployed
+or benchmarked. These are real completed upstream Cycle 15 production
+measurements that define Cycle 18's identity-state entry gate. They did not
+create a Cycle 18 optimization decision; the pre-override decision statement
+was `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`. Exact values are
 machine-checked against `docs/production_inference_benchmark.md:2945`,
 `docs/production_inference_benchmark.md:3089`, and
 `docs/production_inference_benchmark.md:3151` by
@@ -172,6 +183,10 @@ opportunity and a measured correctness blocker, not a runtime optimization
 decision.
 
 ### Cycle 18 closure assessment
+
+The following closure assessment is the Agent 19 pre-override state carried
+forward for historical contract evidence. The Agent 20 override decision is
+recorded separately below.
 
 | Closure gate | Evidence-backed state | Evidence or consequence |
 |---|---|---|
@@ -290,16 +305,19 @@ Django, Redis, PostgreSQL, parent merge, and sharded orchestration.
 | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` | Verifies exact upstream production replay/job IDs, performance metrics, F1 values, and retained C2 diagnostics carried into this document. |
 | `tools/prod/prod_probe_cycle18_identity_candidates.py` | Compares deterministic boundary identity policies and the baseline-label oracle upper bound without writes. |
 | `docs/architecture/cycle18_identity_candidate_probe.production_summary.json` | Preserves the production probe evidence hash, exact minimum F1 values, zero child identity-evidence counts, and no-selection result. |
+| `tools/prod/prod_probe_cycle18_label_invariant_tracking.py` | Compares independent local-label namespaces through a deterministic maximum-weight one-to-one assignment. |
+| `docs/architecture/cycle18_label_invariant_tracking_probe.production_summary.json` | Preserves the production label-invariant metrics and hashed evidence location. |
 | `tools/prod/prod_validate_cycle18_boundary_packet.py` | Reads local JSON only; validates canonical digest, packet size, completion, bounds, observations, identity gates, diagnostic consistency, and duplicate conflicts. |
 | `backend/tests/unit/pipeline/test_prod_validate_cycle18_boundary_packet.py` | Defines focused coverage for unresolved-valid separation, digest/truncation rejection, offset rejection, governed merge-ready state, and conflicting duplicates. |
 | `backend/tests/unit/pipeline/test_prod_project_cycle18_boundary_packet.py` | Covers deterministic projection, aggregate consistency, drift detection, and local-only import isolation. |
 | `backend/tests/unit/pipeline/test_prod_audit_cycle18_recovered_evidence.py` | Covers recovered-export scope, aggregate matching, fail-closed readiness, source references, and local-only import isolation. |
 | `backend/tests/unit/pipeline/test_prod_check_cycle18_boundary_contract.py` | Covers the one-command local contract gate. |
 | `backend/tests/unit/pipeline/test_prod_check_cycle18_schema_validator_drift.py` | Covers the structural schema/manual-validator drift checker. |
-| `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Covers three bounded Agent 19 reference sources and non-overlap with Agent 20. |
+| `backend/tests/unit/pipeline/test_prod_check_cycle18_doc_references.py` | Covers four bounded Agent 19 reference sources and non-overlap with Agent 20. |
 | `backend/tests/unit/pipeline/test_prod_check_cycle18_measured_benchmark_values.py` | Covers source parity, documented-value drift rejection, and local-only isolation. |
 | `backend/tests/unit/pipeline/test_prod_probe_cycle18_identity_candidates.py` | Covers deterministic policy maps and no-selection behavior when identity evidence is absent. |
-| `.gitignore` exceptions | Keep all five JSON artifacts visible to the focused CI test under constitution §18. |
+| `backend/tests/unit/pipeline/test_prod_probe_cycle18_label_invariant_tracking.py` | Covers namespace recovery, real fragmentation, and no-selection behavior. |
+| `.gitignore` exceptions | Keep all six JSON artifacts visible to the focused CI test under constitution §18. |
 
 Validator output deliberately separates two states:
 
@@ -398,12 +416,46 @@ Current entry-gate state:
 | Entry-gate item | State | Evidence |
 |---|---|---|
 | Read-only packet artifact | `AVAILABLE_FAIL_CLOSED` | Synthetic example plus retained-evidence C2 projection exist; the historical projection intentionally fails validation because raw per-track evidence is unavailable locally. |
-| Validator contract | `AVAILABLE_FOR_REVIEW` | Standalone validator and focused tests exist; no runtime integration exists. |
-| Identity experiment | `BLOCKED_BY_RETAINED_EVIDENCE_GAP` | C2 aggregate evidence projects into V0, but per-track observations, lifecycle, appearance, candidates, and collision counters are unavailable; no identity proof can be evaluated. |
+| Validator contract | `AVAILABLE_FOR_REVIEW` | Standalone validator and focused tests exist; Agent 20 later connected them to the default-off packet producer evidence run. |
+| Identity experiment | `ROOT_CAUSE_CONFIRMED_RUNTIME_CONSUMER_MISSING` | The label-invariant production probe confirms raw-label comparison error and real residual association loss; Agent 20 later production-validated packets, but they remain not identity-merge-ready. |
 | Authority model | `DECLARED` | Packet requires PostgreSQL authority and disposable coordination-only Redis role. |
 | Failure proof | `PARTIAL` | Focused tests cover digest, truncation, offset fallback, diagnostics, and duplicate conflict; runtime Redis failures are intentionally unimplemented. |
 | Live profile proof | `DECLARED_ONLY` | Contract is offline-only; no future flag implementation exists to validate. |
 | Review result | `NO_RUNTIME_CANDIDATE_SELECTED` | The production read-only candidate probe found no implementable policy capable of restoring identity agreement; runtime implementation remains blocked. |
+
+## Deep Root-Cause Continuation
+
+The user-authorized deep analysis is recorded in
+`docs/cycle_18_identity_association_root_cause_investigation.md`. Primary-source
+research led to an applied read-only label-invariant evaluator and constitution
+§4.6. The evaluator treats local tracker IDs as source-scoped opaque labels,
+matches observations by frame/model/IoU, and then uses a deterministic
+maximum-weight one-to-one assignment between the baseline and candidate label
+namespaces.
+
+Production probe authority:
+
+| Field | Value |
+|---|---|
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate job | `78388c2c-d7f5-42b7-afa4-321216d23b11` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle18-label-invariant-probe-20260604T163806Z` |
+| JSON SHA-256 | `689a32083b17351ccaebf7d65372c2cab9f0e44380fb933b33e217277cd7bc7f` |
+| Decision authority | `PROBE_ONLY` |
+| Runtime candidate selected | `false` |
+
+Measured split:
+
+| Scope | Minimum geometry F1 | Minimum raw-label F1 | Minimum global-assignment F1 | Largest residual association gap |
+|---|---:|---:|---:|---:|
+| All frames | `99.802 %` | `53.730 %` | `69.830 %` | `29.972 pp` |
+| Shard 1 authoritative | `100.000 %` | `2.917 %` | `79.876 %` | `20.124 pp` |
+
+This proves two root causes simultaneously. Raw local-label equality is an
+invalid independent-run identity gate, but removing that namespace error still
+leaves real fragmentation and merge ambiguity. The evaluation rule is fixed;
+the runtime consumer remains missing. No Redis cache, parent-row mutation,
+sharding acceptance, or merge-ready runtime candidate was introduced.
 
 ## Dependency Contract
 
@@ -438,7 +490,7 @@ No Cycle 18 implementation may be accepted without:
 | Gate | Required evidence |
 |---|---|
 | Production authority | Completed Linux RTX 5090 `combined.mp4` benchmark. |
-| Identity correctness | `StudentTracks`, model F1@IoU0.5, and shard diagnostics pass. |
+| Identity correctness | Ground-truth-backed HOTA/AssA, IDF1, ID switches, fragmentation, and shard diagnostics pass; proxy-only label-invariant metrics are reported separately and cannot alone accept identity. |
 | DB parity | Frames, detections, boxes, embeddings, and terminal state preserved. |
 | Redis bounds | Command count, wall, bytes, memory, errors, TTL, and fallback count recorded. |
 | Sharding safety | Parent merge wall, child critical path, and rollback proof recorded. |
@@ -456,12 +508,13 @@ OFFLINE_VIDEO_SHARD_BOUNDARY_REDIS_ENABLED=0
 Redis keys must be TTL-bound and disposable. Candidate jobs must reach terminal
 state without mutating accepted baseline evidence.
 
-## Final Governed Decision
+## Agent 19 Governed Decision Before Override
 
 | Decision field | Final state |
 |---|---|
 | Valid pre-benchmark decision statement | `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` |
 | Phase A candidate selection | `NO_RUNTIME_CANDIDATE_SELECTED` |
+| Root-cause result | `RAW_LABEL_CONTRACT_DEFECT_CONFIRMED` plus `RESIDUAL_ASSOCIATION_GAP_CONFIRMED` |
 | Runtime implementation | `BLOCKED` |
 | Production benchmark lock | `NOT_HELD` |
 | Cycle 18 production benchmark | `MISSING` |
@@ -470,17 +523,269 @@ state without mutating accepted baseline evidence.
 | Closure state | `CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK` |
 
 The final Phase A review does not select a Redis boundary-state runtime
-candidate. The production read-only probe proves that the best implementable
-boundary policy reaches only `62.021 %` minimum all-model F1 and `19.978 %`
-minimum shard-1 F1. Even the non-implementable baseline-label oracle reaches
-only `73.086 %` and `49.445 %`, respectively. Both child shards have zero
-embeddings, aliases, lifecycle events, canonical IDs, ReID scores, and ReID
-decisions.
+candidate. The first production read-only probe proved that the best
+implementable boundary policy reaches only `62.021 %` minimum all-model raw
+track-label F1 and `19.978 %` minimum shard-1 raw track-label F1. The deeper
+label-invariant production probe then proved that raw label equality materially
+understates independent-run agreement: shard-1 minimum F1 rose from `2.917 %`
+to `79.876 %` after one-to-one global assignment. It also proved a real
+remaining association gap of up to `20.124 pp` in shard 1. Both child shards
+still have zero embeddings, aliases, lifecycle events, canonical IDs, ReID
+scores, and ReID decisions.
 
-Therefore Cycle 18 cannot be honestly marked `CLOSED`, `COMPLETE`, `ACCEPTED`,
-`NOT ACCEPTED`, `REJECTED`, or `SKIPPED`. Constitution §12.5/§12.6 requires a
-completed Cycle 18 runtime production benchmark and decision table for those
-states, while the final design review selected no candidate eligible for such
-a benchmark. The next valid action is a separate identity-feature/state
-producer design; Redis remains disposable coordination only and sharding
-remains disabled.
+Therefore, at the Agent 19 pre-override point, Cycle 18 could not be honestly
+marked `CLOSED`, `COMPLETE`, `ACCEPTED`, `NOT ACCEPTED`, `REJECTED`, or
+`SKIPPED`. Agent 20 later created two bounded production-evidence decisions:
+the one-to-one track-map candidate is `NOT_ACCEPTED`, and the default-off
+boundary packet producer is
+`ACCEPTED_EVIDENCE_ONLY_NOT_IDENTITY_MERGE_READY`. The next valid action is a
+separate appearance-backed identity association consumer; Redis remains
+disposable coordination only and sharding remains disabled.
+
+## Agent 20 Override Production Decision
+
+The user explicitly overrode Cycle 18 after the Agent 19 handoff. Agent 20's
+override ledger is `docs/agent_20_cycle_18_override_turn.md`.
+
+The candidate is `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one` in
+`backend/apps/video_analysis/services/offline_sharding.py`. It uses existing
+child/parent boundary vote evidence and performs a deterministic maximum-vote
+one-to-one assignment so two child tracks cannot both claim the same parent
+track before offset fallback is applied. Focused coverage lives in
+`backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`.
+
+This candidate is a bounded parent merge policy only. It is not a Redis
+identity-state cache, not a new identity-feature producer, and not live-profile
+behavior.
+
+### Agent 20 benchmark release
+
+```text
+BENCHMARK_LOCK
+agent: Agent 20
+cycle: Cycle 18 one-to-one boundary track-map candidate
+replay_key: cycle18-one-to-one-trackmap-20260604T174231Z
+baseline_metrics: /home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json
+candidate_env_delta: OFFLINE_VIDEO_SHARDING_ENABLED=1, OFFLINE_VIDEO_SHARD_COUNT=2, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one, TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1, EMBEDDING_PREFETCH_TRACK_LOOKUP=1, EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1
+started_at_utc: 2026-06-04T17:42:31Z
+expected_cleanup: wrapper trap restores OFFLINE_VIDEO_SHARDING_ENABLED=0, OFFLINE_VIDEO_SHARD_COUNT=1, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou and restarts workers
+```
+
+```text
+BENCHMARK_RELEASE
+agent: Agent 20
+cycle: Cycle 18 one-to-one boundary track-map candidate
+replay_key: cycle18-one-to-one-trackmap-20260604T174231Z
+job_id: aa5f5328-ae81-49da-a44b-ae308859035b
+status: completed; 4541/4541 frames
+metrics_json: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/model_agreement_baseline_vs_one_to_one.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/model_agreement_baseline_vs_one_to_one.md
+label_invariant_json: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/label_invariant_tracking.json
+label_invariant_md: /home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/label_invariant_tracking.md
+summary_json: docs/architecture/cycle18_one_to_one_trackmap.production_summary.json
+rollback_verified: yes; OFFLINE_VIDEO_SHARDING_ENABLED=0, OFFLINE_VIDEO_SHARD_COUNT=1, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou
+released_at_utc: 2026-06-04T17:59:08Z
+```
+
+The tracked evidence summary is
+`docs/architecture/cycle18_one_to_one_trackmap.production_summary.json`.
+
+### Production result
+
+| Metric | Accepted pre-shard baseline | One-to-one candidate | Delta | Decision impact |
+|---|---:|---:|---:|---|
+| DB-completed FPS | `5.619787` | `7.913961` | `+40.82 %` | Throughput improved. |
+| DB completed elapsed | `808.038 s` | `573.796 s` | `-28.99 %` | Total wall improved. |
+| Step 2 frame wall | `467.449833 s` | `241.830808 s` | `-48.27 %` | Inference wall improved. |
+| Step 2 through pose upload | `641.154064 s` | `338.453209 s` | `-47.21 %` | End-to-end Step 2 segment improved. |
+| Behavior RTT mean | `83.530 ms` | `91.679 ms` | `+9.76 %` | Latency regressed. |
+| Behavior RTT p95 | `129.514 ms` | `149.768 ms` | `+15.64 %` | Tail latency regressed. |
+| GPU avg util | `11.846 %` | `17.825 %` | `+50.47 %` | Utilization improved. |
+| GPU peak util | `57.000 %` | `88.000 %` | `+54.39 %` | Peak utilization improved. |
+| Detection rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| BBox rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| Embedding rows | `72578` | `72650` | `+0.10 %` | Row parity within noise. |
+| StudentTracks | `53` | `53` | `0.00 %` | Count stayed stable but association quality failed. |
+| Minimum raw model F1@IoU0.5 | `100.000 %` proxy target | `53.788 %` | Failed | Signal gate failed. |
+| Minimum label-invariant all-model F1 | `100.000 %` proxy target | `71.744 %` | Failed | Association gate failed. |
+| Minimum label-invariant shard-1 F1 | `100.000 %` proxy target | `79.876 %` | Failed | Boundary association still failed. |
+| Rollback proof | Required | Verified | Pass | Sharding disabled and track-map mode restored to `best_iou`. |
+
+Track-map diagnostics:
+
+| Shard | Mode | Tracks | Mapped to existing parent | Offset fallbacks | Result |
+|---|---|---:|---:|---:|---|
+| Shard 0 | `identity` | `38` | `38` | `0` | First shard remained pass-through. |
+| Shard 1 | `one_to_one` | `36` | `21` | `15` | Coverage improved over majority vote but still left `41.67 %` fallback. |
+
+Raw model-agreement F1@IoU0.5 versus the accepted pre-shard baseline:
+
+| Model | F1 |
+|---|---:|
+| `attention_tracking` | `59.278 %` |
+| `hand_raising` | `61.223 %` |
+| `person_detection` | `64.861 %` |
+| `sitting_standing` | `53.788 %` |
+
+Label-invariant tracking probe after the candidate:
+
+| Metric | Value |
+|---|---:|
+| Minimum all-model geometry F1 | `99.802 %` |
+| Minimum all-model raw-label F1 | `53.788 %` |
+| Minimum all-model global-assignment F1 | `71.744 %` |
+| Minimum shard-1 geometry F1 | `100.000 %` |
+| Minimum shard-1 raw-label F1 | `3.581 %` |
+| Minimum shard-1 global-assignment F1 | `79.876 %` |
+| Largest all-model residual gap | `28.256 pp` |
+| Largest shard-1 residual gap | `20.124 pp` |
+
+Decision: **Cycle 18 `one_to_one` boundary track-map candidate is NOT
+ACCEPTED**. It materially improved throughput and GPU utilization and kept
+`StudentTracks` at `53`, but it failed the identity/model-agreement gates.
+The residual association gap persisted even after label-invariant matching,
+and behavior RTT regressed. Keep sharding disabled and keep production restored
+to `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`.
+
+Cycle 18 as a broader identity-state problem remains open. The next valid work
+is not another boundary-vote merge policy; it is a reviewed boundary
+tracklet-state producer carrying bounded motion, temporal, appearance,
+lifecycle, candidate-cost, and ambiguity evidence before any new runtime
+candidate or production benchmark.
+
+## Boundary Packet Producer Continuation
+
+Agent 20 staged the first bounded producer for the existing V0 packet contract.
+It is guarded by `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0` and remains
+offline-only. The producer writes no Redis keys, does not change parent merge
+decisions, and does not make a canonical identity decision. It emits
+tracklet-shaped packet evidence from the child boundary summary so the existing
+validator can distinguish contract validity from merge readiness.
+
+Local implementation references:
+
+| Artifact | State |
+|---|---|
+| Runtime producer | `backend/apps/video_analysis/services/offline_sharding.py` adds `build_cycle18_boundary_packet(...)` and attaches `cycle18_boundary_packet` when explicitly enabled. |
+| Metadata write | `backend/apps/video_analysis/tasks.py` stores `offline_video_shard_boundary_packet` on child jobs when the packet is emitted. |
+| Settings gate | `backend/config/settings/base.py` defaults `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0` and bounds max tracks, observations, bytes, and TTL. |
+| Production wrapper | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` supports `--boundary-packet-enabled` and writes `boundary_packet_validation.json/.md` when enabled. |
+| Local test | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` validates a generated runtime packet with `tools/prod/prod_validate_cycle18_boundary_packet.py`. |
+
+This producer is not a sharding acceptance decision. It is a prerequisite
+evidence path for a future identity-state candidate.
+
+```text
+BENCHMARK_LOCK
+agent: Agent 20
+cycle: Cycle 18 boundary packet producer evidence run
+replay_key: cycle18-boundary-packet-producer-20260604T181738Z
+baseline_metrics: /home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json
+candidate_env_delta: OFFLINE_VIDEO_SHARDING_ENABLED=1, OFFLINE_VIDEO_SHARD_COUNT=2, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_TRACKS=128, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_OBSERVATIONS_PER_TRACK=512, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES=1048576, TRITON_CROP_FRAME_BEHAVIOR_OVERLAP=1, EMBEDDING_PREFETCH_TRACK_LOOKUP=1, EMBEDDING_REDIS_SIDE_EFFECT_COALESCING=1
+started_at_utc: 2026-06-04T18:17:38Z
+expected_cleanup: wrapper trap restores OFFLINE_VIDEO_SHARDING_ENABLED=0, OFFLINE_VIDEO_SHARD_COUNT=1, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0 and restarts workers
+```
+
+```text
+BENCHMARK_RELEASE
+agent: Agent 20
+cycle: Cycle 18 boundary packet producer evidence run
+replay_key: cycle18-boundary-packet-producer-20260604T181738Z
+job_id: 2cf0b4b3-5e81-41c4-9eda-9e7faa97c224
+status: completed; 4541/4541 frames
+metrics_json: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/metrics.md
+boundary_packet_validation_json: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/boundary_packet_validation.json
+boundary_packet_validation_md: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/boundary_packet_validation.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/model_agreement_baseline_vs_boundary_packet.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/model_agreement_baseline_vs_boundary_packet.md
+label_invariant_json: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/label_invariant_tracking.json
+label_invariant_md: /home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/label_invariant_tracking.md
+summary_json: docs/architecture/cycle18_boundary_packet_producer.production_summary.json
+rollback_verified: yes; OFFLINE_VIDEO_SHARDING_ENABLED=0, OFFLINE_VIDEO_SHARD_COUNT=1, OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=32, OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou, OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0
+released_at_utc: 2026-06-04T18:34:32Z
+```
+
+Production packet validation:
+
+| Child job | Packet valid | Merge ready | Tracks | Observations | Unresolved tracks | Payload bytes |
+|---|---:|---:|---:|---:|---:|---:|
+| `db77789f-202b-44b6-b493-f6977f9a75e0` | `true` | `false` | `34` | `2363` | `34` | `354854` |
+| `2e9a92ec-5ea1-4891-9688-18dd3e7e9743` | `true` | `false` | `32` | `3177` | `32` | `471240` |
+
+Producer benchmark metrics:
+
+| Metric | Value |
+|---|---:|
+| DB-completed FPS | `7.902540` |
+| DB completed elapsed | `574.625 s` |
+| Step 2 frame wall | `245.410728 s` |
+| Step 2 through pose upload | `337.523178 s` |
+| Parent merge wall | `110.292038 s` |
+| GPU average utilization | `17.523 %` |
+| GPU peak utilization | `87.000 %` |
+| Detection / bbox / embedding rows | `72816 / 72816 / 72650` |
+| StudentTracks | `52` |
+| Behavior RTT mean / p95 / p99 | `91.822 / 150.355 / 164.780 ms` |
+
+Correctness remained blocked:
+
+| Gate | Result |
+|---|---|
+| Raw model-agreement minimum F1@IoU0.5 | `53.730 %` |
+| Label-invariant all-model global-assignment minimum | `69.163 %` |
+| Label-invariant shard-1 global-assignment minimum | `71.884 %` |
+| Packet identity merge readiness | `0/2` packets merge-ready |
+
+Decision: **Cycle 18 boundary packet producer is
+ACCEPTED_EVIDENCE_ONLY_NOT_IDENTITY_MERGE_READY**. It resolves the missing
+contract-valid packet producer evidence path, but it does not make the sharded
+runtime correct and does not authorize 15.B2. The next implementation must add
+governed appearance evidence plus a parent-side association consumer with
+candidate costs, lifecycle gates, ambiguity handling, and globally one-to-one
+merge-ready decisions.
+
+## 2026-06-05 Appearance-Packet Candidate Staged Locally
+
+The next blocker-resolution candidate is staged locally only. It is not a
+production decision, not a Cycle 18 closure decision, and not a sharding
+acceptance claim.
+
+| Item | State | Reference |
+|---|---|---|
+| Boundary appearance producer | `STAGED_DEFAULT_OFF` | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Preview-frame evidence carrier | `STAGED` | `backend/apps/pipeline/multi_model.py`, `backend/apps/video_analysis/tasks.py` |
+| Parent-side association consumer | `STAGED_DEFAULT_OFF` as `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet` | `backend/apps/video_analysis/services/offline_sharding.py` |
+| Runtime gates | `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0`, `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=0` by default | `backend/config/settings/base.py`, `tools/prod/prod_enable_parallel_flow.sh` |
+| Benchmark wrapper support | `STAGED`; cleanup restores appearance flags to disabled defaults | `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` |
+| Local focused validation | `PASSED` | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
+
+What changed:
+
+| Blocker | Local resolution |
+|---|---|
+| Packet `appearance_reference` was always `unavailable`. | Boundary packets can now write bounded per-track crop-descriptor feature files and store a digest-backed reference when `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1`. |
+| No parent-side packet consumer existed. | `appearance_packet` mode verifies feature-file digests, combines boundary geometry votes with appearance score/margin gates, writes candidate decisions back into the packet, and leaves missing or ambiguous matches unresolved. |
+| Prior `one_to_one` candidate forced geometry-only merges. | The new mode is separate from `one_to_one`; it requires verified appearance evidence and fails closed before offset fallback. |
+| Live-profile risk. | All new flags are offline sharding flags and remain disabled by default in profile reset paths. |
+
+Local validation run on 2026-06-05:
+
+| Validation | Result | Resolvable reference |
+|---|---|---|
+| Python compile | `PASS` | `backend/apps/pipeline/multi_model.py`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `tools/prod/prod_validate_cycle18_boundary_packet.py`, `tools/prod/prod_collect_benchmark_metrics.py` |
+| Shard/Cycle 18 unit suite | `9 passed` | `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
+| Focused Cycle 18 slice | `12 passed` | `backend/tests/unit/pipeline/test_prod_probe_cycle18_label_invariant_tracking.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` |
+| Measured-value checker | `PASS`; still reports `cycle18_runtime_benchmark_present=false` | `tools/prod/prod_check_cycle18_measured_benchmark_values.py` |
+
+Final local decision for this step:
+
+| Decision field | Value |
+|---|---|
+| Candidate state | `STAGED_LOCAL_ONLY` |
+| Production benchmark lock | `NOT_HELD` |
+| Section 12.6 optimization decision | `MISSING` |
+| Cycle 18 closure state | `OPEN_PENDING_PRODUCTION_BENCHMARK` |
+| Required next evidence | Full `combined.mp4` Linux RTX 5090 benchmark with `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet`, packet validation, model agreement, label-invariant association metrics, DB/GPU/RTT metrics, and rollback proof. |

@@ -100,6 +100,12 @@
 - **Temporal/Identity/Pose Authority**: [Describe all required timestamps,
   identity scope and ReID provenance, pose stream selection and missingness,
   behavior ontology/feature version, and invalid-window rules]
+- **Independent-Run/Sharded Identity Evaluation**: [If comparing independent
+  tracker runs, shards, reconnects, jobs, or activations, describe source-scoped
+  opaque local IDs, observation matching, deterministic one-to-one association,
+  separate detection/association metrics, fragmentation/merge/unresolved
+  diagnostics, proxy-ground-truth status, and any bounded motion/appearance/
+  lifecycle tracklet evidence. Otherwise state N/A.]
 - **Deployment Boundary**: [Describe dev/test assumptions and production
   native Linux, NVIDIA GPU, no-Docker, no-sudo, single-active-mode rules]
 - **Concurrency/Worker Scaling Boundary**: [If worker/thread/concurrency
@@ -198,7 +204,12 @@
   reconciler declared (§17.1); vector dimension/payload enforced at DB write
   boundary (§17.2); stage error-ratio fail-closed threshold declared (§17.3);
   idempotency key documented and re-run test present (§17.4)]
-- **SC-014**: [§8.1.1 compliance — for worker/thread/concurrency changes:
+- **SC-014**: [For independent-run or sharded tracking work, local labels are
+  evaluated through deterministic one-to-one association rather than raw ID
+  equality; detection/localization and association metrics, ID switches,
+  fragmentation, merges, unresolved cases, and proxy-ground-truth limitations
+  are reported.]
+- **SC-015**: [§8.1.1 compliance — for worker/thread/concurrency changes:
   production benchmark proves the extra workers improve target metrics without
   RTT, GPU, memory, DB/Redis, lifecycle, duplicate-worker, or correctness
   regression; otherwise the candidate remains hypothesis-only]

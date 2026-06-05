@@ -1,0 +1,142 @@
+{
+  "aggregate": {
+    "minimum_all_model_geometry_f1_pct": 99.802,
+    "minimum_all_model_global_assignment_f1_pct": 69.83,
+    "minimum_all_model_raw_label_f1_pct": 53.73,
+    "minimum_shard1_geometry_f1_pct": 100.0,
+    "minimum_shard1_global_assignment_f1_pct": 79.876,
+    "minimum_shard1_raw_label_f1_pct": 2.917
+  },
+  "created_at_utc": "2026-06-04T16:38:06Z",
+  "decision_authority": "PROBE_ONLY",
+  "metric_contract": {
+    "baseline_is_proxy_not_human_ground_truth": true,
+    "global_assignment_is_not_hota_or_idf1": true,
+    "local_track_ids_are_source_scoped_opaque_labels": true
+  },
+  "per_model": {
+    "all": {
+      "attention_tracking": {
+        "fragmented_baseline_tracks": 19,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 82.09,
+        "merged_candidate_tracks": 13,
+        "raw_label_f1_pct": 58.997,
+        "residual_gap_pct_points": 17.91
+      },
+      "hand_raising": {
+        "fragmented_baseline_tracks": 17,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 81.873,
+        "merged_candidate_tracks": 12,
+        "raw_label_f1_pct": 61.109,
+        "residual_gap_pct_points": 18.127
+      },
+      "person_detection": {
+        "fragmented_baseline_tracks": 23,
+        "geometry_f1_pct": 99.802,
+        "global_assignment_f1_pct": 69.83,
+        "merged_candidate_tracks": 17,
+        "raw_label_f1_pct": 60.933,
+        "residual_gap_pct_points": 29.972
+      },
+      "sitting_standing": {
+        "fragmented_baseline_tracks": 21,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 75.843,
+        "merged_candidate_tracks": 13,
+        "raw_label_f1_pct": 53.73,
+        "residual_gap_pct_points": 24.157
+      }
+    },
+    "boundary_before_shard1": {
+      "attention_tracking": {
+        "fragmented_baseline_tracks": 11,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 67.718,
+        "merged_candidate_tracks": 6,
+        "raw_label_f1_pct": 57.039,
+        "residual_gap_pct_points": 32.282
+      },
+      "hand_raising": {
+        "fragmented_baseline_tracks": 9,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 73.79,
+        "merged_candidate_tracks": 5,
+        "raw_label_f1_pct": 65.121,
+        "residual_gap_pct_points": 26.21
+      },
+      "person_detection": {
+        "fragmented_baseline_tracks": 16,
+        "geometry_f1_pct": 98.259,
+        "global_assignment_f1_pct": 73.385,
+        "merged_candidate_tracks": 6,
+        "raw_label_f1_pct": 66.743,
+        "residual_gap_pct_points": 24.874
+      },
+      "sitting_standing": {
+        "fragmented_baseline_tracks": 13,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 69.202,
+        "merged_candidate_tracks": 6,
+        "raw_label_f1_pct": 50.723,
+        "residual_gap_pct_points": 30.798
+      }
+    },
+    "shard1_authoritative": {
+      "attention_tracking": {
+        "fragmented_baseline_tracks": 7,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 90.565,
+        "merged_candidate_tracks": 7,
+        "raw_label_f1_pct": 2.917,
+        "residual_gap_pct_points": 9.435
+      },
+      "hand_raising": {
+        "fragmented_baseline_tracks": 6,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 88.103,
+        "merged_candidate_tracks": 6,
+        "raw_label_f1_pct": 3.984,
+        "residual_gap_pct_points": 11.897
+      },
+      "person_detection": {
+        "fragmented_baseline_tracks": 18,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 79.876,
+        "merged_candidate_tracks": 17,
+        "raw_label_f1_pct": 20.38,
+        "residual_gap_pct_points": 20.124
+      },
+      "sitting_standing": {
+        "fragmented_baseline_tracks": 7,
+        "geometry_f1_pct": 100.0,
+        "global_assignment_f1_pct": 91.29,
+        "merged_candidate_tracks": 7,
+        "raw_label_f1_pct": 4.692,
+        "residual_gap_pct_points": 8.71
+      }
+    }
+  },
+  "remote_evidence": {
+    "directory": "/home/bamby/grad_project/backend/logs/cycle18-label-invariant-probe-20260604T163806Z",
+    "json_path": "/home/bamby/grad_project/backend/logs/cycle18-label-invariant-probe-20260604T163806Z/label_invariant_tracking.json",
+    "json_sha256": "689a32083b17351ccaebf7d65372c2cab9f0e44380fb933b33e217277cd7bc7f",
+    "markdown_path": "/home/bamby/grad_project/backend/logs/cycle18-label-invariant-probe-20260604T163806Z/label_invariant_tracking.md",
+    "markdown_sha256": "e31baf5a07d2556b3b367638eca3cdbccd1a7fb78542e15efb71a4f2c661e771"
+  },
+  "schema_version": "cycle18.label_invariant_tracking_probe.production_summary.v0",
+  "selection": {
+    "raw_label_contract_defect_confirmed": true,
+    "reason": "Raw local-label equality understates cross-run agreement, but the label-invariant global assignment still leaves a real association gap.",
+    "residual_association_gap_confirmed": true,
+    "runtime_candidate_selected": false,
+    "state": "NO_RUNTIME_CANDIDATE_SELECTED"
+  },
+  "source_jobs": {
+    "accepted_baseline_job_id": "74561b05-105f-4ca8-aeaf-f510f4f802de",
+    "accepted_baseline_replay_key": "cycle15b-pre-shard-baseline-20260603T193531Z",
+    "majority_vote_parent_job_id": "78388c2c-d7f5-42b7-afa4-321216d23b11",
+    "majority_vote_parent_replay_key": "cycle15b1c2-majority-vote-20260603T223932Z"
+  }
+}

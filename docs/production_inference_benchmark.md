@@ -3300,4 +3300,159 @@ Benchmark decision explanation:
 
 ---
 
+## 41. Cycle 18 One-to-One Boundary Track-Map Production Benchmark
+
+Cycle 18 tested one bounded override candidate after the prior Agent 19
+contract-only handoff: `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one`. The
+candidate is offline-only and uses existing child/parent boundary votes to
+choose deterministic one-to-one parent assignments before offset fallback.
+
+| Item | Value |
+|---|---|
+| Decision | **NOT ACCEPTED** |
+| Replay key | `cycle18-one-to-one-trackmap-20260604T174231Z` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate parent job | `aa5f5328-ae81-49da-a44b-ae308859035b` |
+| Candidate child jobs | `ab6b17cf-62e0-4527-917e-6d95c6fd81d2`, `7c13ca55-b20a-45bc-997e-4ca8932fd6a6` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z` |
+| Metrics JSON/MD | `metrics.json`, `metrics.md` |
+| Model agreement JSON/MD | `model_agreement_baseline_vs_one_to_one.json`, `model_agreement_baseline_vs_one_to_one.md` |
+| Label-invariant JSON/MD | `label_invariant_tracking.json`, `label_invariant_tracking.md` |
+| Tracked evidence summary | `docs/architecture/cycle18_one_to_one_trackmap.production_summary.json` |
+| Candidate flags | `OFFLINE_VIDEO_SHARDING_ENABLED=1`, `OFFLINE_VIDEO_SHARD_COUNT=2`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | Sharding restored disabled; shard count `1`; context `32`; track-map mode `best_iou`; Django settings matched. |
+
+Section 12.6 decision table:
+
+| Metric | Baseline | Candidate | Delta | Decision impact |
+|---|---:|---:|---:|---|
+| DB-completed FPS | `5.619787` | `7.913961` | `+40.82 %` | Throughput improved. |
+| DB completed elapsed | `808.038 s` | `573.796 s` | `-28.99 %` | Total wall improved. |
+| Step 2 frame wall | `467.449833 s` | `241.830808 s` | `-48.27 %` | Inference wall improved. |
+| Step 2 through pose upload | `641.154064 s` | `338.453209 s` | `-47.21 %` | Step 2 segment improved. |
+| Behavior RTT mean | `83.530 ms` | `91.679 ms` | `+9.76 %` | Latency regressed. |
+| Behavior RTT p95 | `129.514 ms` | `149.768 ms` | `+15.64 %` | Tail latency regressed. |
+| Behavior RTT p99 | `135.533 ms` | `163.133 ms` | `+20.36 %` | Tail latency regressed. |
+| GPU avg util | `11.846 %` | `17.825 %` | `+50.47 %` | Utilization improved. |
+| GPU peak util | `57.000 %` | `88.000 %` | `+54.39 %` | Peak utilization improved. |
+| Detection rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| BBox rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| Embedding rows | `72578` | `72650` | `+0.10 %` | Row parity within noise. |
+| StudentTracks | `53` | `53` | `0.00 %` | Count stable; association still failed. |
+| Minimum raw model F1@IoU0.5 | `100.000 %` proxy target | `53.788 %` | Failed | Signal gate failed. |
+| Minimum label-invariant all-model F1 | `100.000 %` proxy target | `71.744 %` | Failed | Association gate failed. |
+| Minimum label-invariant shard-1 F1 | `100.000 %` proxy target | `79.876 %` | Failed | Boundary association failed. |
+| Rollback proof | Required | Verified | Pass | Safety gate passed. |
+
+Model-agreement gate:
+
+| Model | F1@IoU0.5 |
+|---|---:|
+| `attention_tracking` | `59.278 %` |
+| `hand_raising` | `61.223 %` |
+| `person_detection` | `64.861 %` |
+| `sitting_standing` | `53.788 %` |
+
+Track-map diagnostics:
+
+| Shard | Mode | Tracks | Mapped | Offset fallbacks | Fallback rate |
+|---|---|---:|---:|---:|---:|
+| Shard 0 | `identity` | `38` | `38` | `0` | `0.00 %` |
+| Shard 1 | `one_to_one` | `36` | `21` | `15` | `41.67 %` |
+
+Decision explanation:
+
+| Question | Evidence-backed answer |
+|---|---|
+| Did the benchmark complete on native Linux RTX 5090? | Yes: replay `cycle18-one-to-one-trackmap-20260604T174231Z`, parent job `aa5f5328-ae81-49da-a44b-ae308859035b`, status `completed`, `4541/4541` frames. |
+| Did throughput improve? | Yes: DB FPS improved `+40.82 %` and Step 2 frame wall improved `-48.27 %`. |
+| Did GPU utilization improve? | Yes: average GPU utilization improved `+50.47 %`, peak improved `+54.39 %`. |
+| Did correctness hold? | No: raw model-agreement minimum was `53.788 %`; label-invariant all-model minimum was `71.744 %`; shard-1 label-invariant minimum stayed `79.876 %` with a `20.124 pp` residual gap. |
+| Did latency hold? | No: behavior RTT mean regressed `+9.76 %`, p95 `+15.64 %`, and p99 `+20.36 %`. |
+| Did rollback complete? | Yes: sharding was disabled and track-map mode returned to `best_iou`. |
+| Decision | Do not accept or enable `one_to_one`. Keep it as a documented rejected candidate; future Cycle 18 work needs a boundary tracklet-state producer before another runtime benchmark. |
+
+---
+
+## 42. Cycle 18 Boundary Packet Producer Evidence Benchmark
+
+Cycle 18 then production-validated a default-off boundary packet producer. This
+run intentionally kept `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`; it did
+not retry the rejected `one_to_one` candidate. The goal was to prove whether
+child shards can emit contract-valid V0 boundary packets for later identity
+association work.
+
+| Item | Value |
+|---|---|
+| Decision | **ACCEPTED EVIDENCE-ONLY / NOT IDENTITY-MERGE-READY** |
+| Replay key | `cycle18-boundary-packet-producer-20260604T181738Z` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Candidate parent job | `2cf0b4b3-5e81-41c4-9eda-9e7faa97c224` |
+| Candidate child jobs | `db77789f-202b-44b6-b493-f6977f9a75e0`, `2e9a92ec-5ea1-4891-9688-18dd3e7e9743` |
+| Evidence directory | `/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z` |
+| Metrics JSON/MD | `metrics.json`, `metrics.md` |
+| Packet validation JSON/MD | `boundary_packet_validation.json`, `boundary_packet_validation.md` |
+| Model agreement JSON/MD | `model_agreement_baseline_vs_boundary_packet.json`, `model_agreement_baseline_vs_boundary_packet.md` |
+| Label-invariant JSON/MD | `label_invariant_tracking.json`, `label_invariant_tracking.md` |
+| Tracked evidence summary | `docs/architecture/cycle18_boundary_packet_producer.production_summary.json` |
+| Candidate flags | `OFFLINE_VIDEO_SHARDING_ENABLED=1`, `OFFLINE_VIDEO_SHARD_COUNT=2`, `OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES=256`, `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=best_iou`, `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1` |
+| Status | `completed`, `4541/4541` frames |
+| Rollback proof | Sharding restored disabled; shard count `1`; context `32`; track-map mode `best_iou`; boundary packet flag disabled; Django settings matched. |
+
+Section 12.6 evidence table:
+
+| Metric | Baseline | Candidate | Delta | Decision impact |
+|---|---:|---:|---:|---|
+| DB-completed FPS | `5.619787` | `7.902540` | `+40.62 %` | Sharded throughput improved, but this is not a sharding acceptance. |
+| DB completed elapsed | `808.038 s` | `574.625 s` | `-28.89 %` | Total wall improved. |
+| Step 2 frame wall | `467.449833 s` | `245.410728 s` | `-47.50 %` | Inference wall improved. |
+| Step 2 through pose upload | `641.154064 s` | `337.523178 s` | `-47.36 %` | Step 2 segment improved. |
+| Behavior RTT mean | `83.530 ms` | `91.822 ms` | `+9.93 %` | Latency regressed. |
+| Behavior RTT p95 | `129.514 ms` | `150.355 ms` | `+16.09 %` | Tail latency regressed. |
+| Behavior RTT p99 | `135.533 ms` | `164.780 ms` | `+21.58 %` | Tail latency regressed. |
+| GPU avg util | `11.846 %` | `17.523 %` | `+47.92 %` | Utilization improved. |
+| GPU peak util | `57.000 %` | `87.000 %` | `+52.63 %` | Peak utilization improved. |
+| Detection rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| BBox rows | `72744` | `72816` | `+0.10 %` | Row parity within noise. |
+| Embedding rows | `72578` | `72650` | `+0.10 %` | Row parity within noise. |
+| StudentTracks | `53` | `52` | `-1.89 %` | Identity count regressed. |
+| Boundary packets | none | `2/2` valid | Evidence added | Producer contract passed. |
+| Packet merge readiness | none | `0/2` merge-ready | Failed | Identity-state consumer still missing. |
+| Minimum raw model F1@IoU0.5 | `100.000 %` proxy target | `53.730 %` | Failed | Signal gate failed. |
+| Minimum label-invariant all-model F1 | `100.000 %` proxy target | `69.163 %` | Failed | Association gate failed. |
+| Minimum label-invariant shard-1 F1 | `100.000 %` proxy target | `71.884 %` | Failed | Boundary association failed. |
+| Rollback proof | Required | Verified | Pass | Safety gate passed. |
+
+Packet validation:
+
+| Child job | Valid | Merge ready | Tracks | Observations | Unresolved tracks | Payload bytes |
+|---|---:|---:|---:|---:|---:|---:|
+| `db77789f-202b-44b6-b493-f6977f9a75e0` | `true` | `false` | `34` | `2363` | `34` | `354854` |
+| `2e9a92ec-5ea1-4891-9688-18dd3e7e9743` | `true` | `false` | `32` | `3177` | `32` | `471240` |
+
+Model-agreement gate:
+
+| Model | F1@IoU0.5 |
+|---|---:|
+| `attention_tracking` | `58.997 %` |
+| `hand_raising` | `61.109 %` |
+| `person_detection` | `61.767 %` |
+| `sitting_standing` | `53.730 %` |
+
+Decision explanation:
+
+| Question | Evidence-backed answer |
+|---|---|
+| Did the benchmark complete on native Linux RTX 5090? | Yes: replay `cycle18-boundary-packet-producer-20260604T181738Z`, parent job `2cf0b4b3-5e81-41c4-9eda-9e7faa97c224`, status `completed`, `4541/4541` frames. |
+| Did the producer emit packets? | Yes: `2/2` child jobs emitted contract-valid packets with `5540` total observations. |
+| Are the packets identity-merge-ready? | No: `0/2` packets were merge-ready; every packet track remained unresolved because governed appearance and accepted candidate decisions are still absent. |
+| Did sharding correctness hold? | No: raw F1 minimum was `53.730 %`; label-invariant all-model minimum was `69.163 %`; shard-1 label-invariant minimum was `71.884 %`; StudentTracks dropped from `53` to `52`. |
+| Did rollback complete? | Yes: sharding was disabled, track-map mode returned to `best_iou`, and boundary packet emission returned to `0`. |
+| Decision | Keep the producer as default-off evidence infrastructure. Do not accept sharding or 15.B2. Next work needs a parent-side association consumer with appearance evidence, candidate costs, lifecycle gates, ambiguity handling, and merge-ready one-to-one decisions. |
+
+---
+
 *Updated from production run on 2026-06-04. Update this file after each major pipeline change or hardware migration.*

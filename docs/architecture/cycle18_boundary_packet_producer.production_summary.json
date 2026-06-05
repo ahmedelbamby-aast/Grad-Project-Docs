@@ -1,0 +1,130 @@
+{
+  "schema_version": "cycle18.boundary_packet_producer.production_summary.v0",
+  "decision_authority": "PRODUCTION_EVIDENCE_ONLY_NO_SHARDING_ACCEPTANCE",
+  "run_tag": "cycle18-boundary-packet-producer-20260604T181738Z",
+  "source_jobs": {
+    "accepted_baseline_replay_key": "cycle15b-pre-shard-baseline-20260603T193531Z",
+    "accepted_baseline_job_id": "74561b05-105f-4ca8-aeaf-f510f4f802de",
+    "candidate_replay_key": "cycle18-boundary-packet-producer-20260604T181738Z",
+    "candidate_parent_job_id": "2cf0b4b3-5e81-41c4-9eda-9e7faa97c224",
+    "candidate_child_job_ids": [
+      "db77789f-202b-44b6-b493-f6977f9a75e0",
+      "2e9a92ec-5ea1-4891-9688-18dd3e7e9743"
+    ]
+  },
+  "remote_evidence": {
+    "directory": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z",
+    "metrics_json": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/metrics.json",
+    "metrics_json_sha256": "cf20a699aa31f36cc0c10a5a7767c40bca18017b202a6d0245c886789bc439cc",
+    "metrics_md": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/metrics.md",
+    "metrics_md_sha256": "bc2461158e34b4751862ecce72b9f4168d636e75693841d52628d7f097c96ec9",
+    "boundary_packet_validation_json": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/boundary_packet_validation.json",
+    "boundary_packet_validation_json_sha256": "7678dd52e8c7f4fdc1a89a5a7e6a9d9cef2d8152be7c113000fefe25ebc27971",
+    "boundary_packet_validation_md": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/boundary_packet_validation.md",
+    "boundary_packet_validation_md_sha256": "bdbd7d090374b4c2e8a8b46522627542a714731bc6e2c7daadbae37168ddb019",
+    "model_agreement_json": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/model_agreement_baseline_vs_boundary_packet.json",
+    "model_agreement_json_sha256": "ee31c29763193024f06a02c12bf74fa57468f5acf4ac52977dc6f49db7625691",
+    "model_agreement_md": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/model_agreement_baseline_vs_boundary_packet.md",
+    "model_agreement_md_sha256": "715c54479724e4e715b0a66a82e6824362c7077fe82275b085f2467f735b6787",
+    "label_invariant_json": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/label_invariant_tracking.json",
+    "label_invariant_json_sha256": "20c9407b4ed3271ef05435be09ce506c52b2bd4db0479c19f4d97bb82e0364c9",
+    "label_invariant_md": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/label_invariant_tracking.md",
+    "label_invariant_md_sha256": "e8399d65a5ce011535c75fe44aafb6774030c083d58118a5ba2f7a366743a6b0",
+    "sharded_summary_json": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/sharded_summary.json",
+    "sharded_summary_json_sha256": "4fd107a71d6fcc7a612ed0667846b3fd7433595747783e9f1025565032c0e241",
+    "run_log": "/home/bamby/grad_project/backend/logs/cycle18-boundary-packet-producer-20260604T181738Z/run.log",
+    "run_log_sha256": "0980f65cc78e71a0b8fde01f829515347a89287abed4c3acfb1fa70873e84b5e"
+  },
+  "candidate_env_delta": {
+    "OFFLINE_VIDEO_SHARDING_ENABLED": "1",
+    "OFFLINE_VIDEO_SHARD_COUNT": "2",
+    "OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES": "256",
+    "OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE": "best_iou",
+    "OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED": "1",
+    "OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_TRACKS": "128",
+    "OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_OBSERVATIONS_PER_TRACK": "512",
+    "OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_MAX_BYTES": "1048576",
+    "TRITON_CROP_FRAME_BEHAVIOR_OVERLAP": "1",
+    "EMBEDDING_PREFETCH_TRACK_LOOKUP": "1",
+    "EMBEDDING_REDIS_SIDE_EFFECT_COALESCING": "1"
+  },
+  "rollback_verified": {
+    "OFFLINE_VIDEO_SHARDING_ENABLED": "0",
+    "OFFLINE_VIDEO_SHARD_COUNT": "1",
+    "OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES": "32",
+    "OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE": "best_iou",
+    "OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED": "0",
+    "django_settings_sharding_enabled": false,
+    "django_settings_shard_count": 1,
+    "django_settings_context_frames": 32,
+    "django_settings_track_map_mode": "best_iou",
+    "django_settings_boundary_packet_enabled": false
+  },
+  "metrics": {
+    "candidate": {
+      "status": "completed",
+      "processed_frames": 4541,
+      "total_frames": 4541,
+      "db_completed_fps": 7.90254,
+      "db_completed_elapsed_s": 574.625,
+      "step2_frame_wall_s": 245.410728,
+      "step2_through_pose_upload_s": 337.523178,
+      "merge_wall_s": 110.292038,
+      "gpu_avg_util_pct": 17.523,
+      "gpu_peak_util_pct": 87.0,
+      "detection_rows": 72816,
+      "bbox_rows": 72816,
+      "embedding_rows": 72650,
+      "student_tracks": 52,
+      "behavior_rtt_mean_ms": 91.822,
+      "behavior_rtt_p95_ms": 150.355,
+      "behavior_rtt_p99_ms": 164.78
+    }
+  },
+  "boundary_packet_validation": {
+    "packet_count": 2,
+    "valid_packet_count": 2,
+    "merge_ready_packet_count": 0,
+    "children": [
+      {
+        "child_job_id": "db77789f-202b-44b6-b493-f6977f9a75e0",
+        "valid": true,
+        "identity_merge_ready": false,
+        "track_count": 34,
+        "observation_count": 2363,
+        "unresolved_track_count": 34,
+        "payload_bytes": 354854
+      },
+      {
+        "child_job_id": "2e9a92ec-5ea1-4891-9688-18dd3e7e9743",
+        "valid": true,
+        "identity_merge_ready": false,
+        "track_count": 32,
+        "observation_count": 3177,
+        "unresolved_track_count": 32,
+        "payload_bytes": 471240
+      }
+    ]
+  },
+  "model_agreement_f1_iou_0_5_pct": {
+    "attention_tracking": 58.997,
+    "hand_raising": 61.109,
+    "person_detection": 61.767,
+    "sitting_standing": 53.73,
+    "minimum": 53.73
+  },
+  "label_invariant_tracking_pct": {
+    "minimum_all_model_geometry_f1": 99.802,
+    "minimum_all_model_raw_label_f1": 53.73,
+    "minimum_all_model_global_assignment_f1": 69.163,
+    "minimum_shard1_geometry_f1": 100.0,
+    "minimum_shard1_raw_label_f1": 2.917,
+    "minimum_shard1_global_assignment_f1": 71.884
+  },
+  "decision": {
+    "status": "ACCEPTED_EVIDENCE_ONLY_NOT_IDENTITY_MERGE_READY",
+    "reason": "The default-off producer emitted two contract-valid production boundary packets and rollback was verified. Both packets were identity_merge_ready=false because appearance/canonical candidate decisions remain unresolved; the sharded parent result still fails raw and label-invariant identity agreement.",
+    "remaining_bottleneck": "A governed association consumer still needs appearance evidence, candidate costs, lifecycle gates, ambiguity handling, and a merge-ready one-to-one decision before sharding can be accepted.",
+    "durable_change": "Keep OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0 by default; use it only for governed evidence runs until a merge-ready identity candidate is implemented."
+  }
+}

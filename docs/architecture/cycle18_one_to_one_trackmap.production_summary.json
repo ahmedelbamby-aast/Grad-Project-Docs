@@ -1,0 +1,147 @@
+{
+  "schema_version": "cycle18.one_to_one_trackmap.production_summary.v0",
+  "decision_authority": "PRODUCTION_BENCHMARK_SECTION_12_5",
+  "run_tag": "cycle18-one-to-one-trackmap-20260604T174231Z",
+  "source_jobs": {
+    "accepted_baseline_replay_key": "cycle15b-pre-shard-baseline-20260603T193531Z",
+    "accepted_baseline_job_id": "74561b05-105f-4ca8-aeaf-f510f4f802de",
+    "candidate_replay_key": "cycle18-one-to-one-trackmap-20260604T174231Z",
+    "candidate_parent_job_id": "aa5f5328-ae81-49da-a44b-ae308859035b",
+    "candidate_child_job_ids": [
+      "ab6b17cf-62e0-4527-917e-6d95c6fd81d2",
+      "7c13ca55-b20a-45bc-997e-4ca8932fd6a6"
+    ]
+  },
+  "remote_evidence": {
+    "directory": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z",
+    "metrics_json": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/metrics.json",
+    "metrics_json_sha256": "e128fc2a649eaf3bb32bfa69ddde165d120be22b36c7f7f3761a0b5aafe3f432",
+    "metrics_md": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/metrics.md",
+    "metrics_md_sha256": "53a6c6753c40bd3991c4f06a208fde68d00527967a065b295709f159c52ab4fd",
+    "model_agreement_json": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/model_agreement_baseline_vs_one_to_one.json",
+    "model_agreement_json_sha256": "090851c7eead6886b6bffe9fb3666ae77556aa7e89a6acac93d3d54e0ce67d90",
+    "model_agreement_md": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/model_agreement_baseline_vs_one_to_one.md",
+    "model_agreement_md_sha256": "4ca3489173f1ad01c116328d9050703309218ce991230afb58572ce4619242cc",
+    "label_invariant_json": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/label_invariant_tracking.json",
+    "label_invariant_json_sha256": "c110564bec26919562fc457198f34f08a4dbcc1eeaaf8747425c1cefac338bbe",
+    "label_invariant_md": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/label_invariant_tracking.md",
+    "label_invariant_md_sha256": "a4b21c9190cc054f40cd971732c836084e442975dd032de1a05fbd9923dc5b58",
+    "sharded_summary_json": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/sharded_summary.json",
+    "sharded_summary_json_sha256": "45671ede62ab8d22f90c23edf5648c4037ae5a787702691fe0bf2845abb3cd45",
+    "run_log": "/home/bamby/grad_project/backend/logs/cycle18-one-to-one-trackmap-20260604T174231Z/run.log",
+    "run_log_sha256": "4e3038da1034ec94ece33a466e32d7ee8cf4a6b74319c737420860a0f227b78e"
+  },
+  "candidate_env_delta": {
+    "OFFLINE_VIDEO_SHARDING_ENABLED": "1",
+    "OFFLINE_VIDEO_SHARD_COUNT": "2",
+    "OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES": "256",
+    "OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE": "one_to_one",
+    "TRITON_CROP_FRAME_BEHAVIOR_OVERLAP": "1",
+    "EMBEDDING_PREFETCH_TRACK_LOOKUP": "1",
+    "EMBEDDING_REDIS_SIDE_EFFECT_COALESCING": "1"
+  },
+  "rollback_verified": {
+    "OFFLINE_VIDEO_SHARDING_ENABLED": "0",
+    "OFFLINE_VIDEO_SHARD_COUNT": "1",
+    "OFFLINE_VIDEO_SHARD_CONTEXT_FRAMES": "32",
+    "OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE": "best_iou",
+    "django_settings_sharding_enabled": false,
+    "django_settings_shard_count": 1,
+    "django_settings_context_frames": 32,
+    "django_settings_track_map_mode": "best_iou"
+  },
+  "metrics": {
+    "baseline": {
+      "db_completed_fps": 5.619787,
+      "db_completed_elapsed_s": 808.038,
+      "step2_frame_wall_s": 467.449833,
+      "step2_through_pose_upload_s": 641.154064,
+      "gpu_avg_util_pct": 11.846,
+      "gpu_peak_util_pct": 57.0,
+      "detection_rows": 72744,
+      "bbox_rows": 72744,
+      "embedding_rows": 72578,
+      "student_tracks": 53,
+      "behavior_rtt_mean_ms": 83.53,
+      "behavior_rtt_p95_ms": 129.514,
+      "behavior_rtt_p99_ms": 135.533,
+      "behavior_rtt_max_ms": 147.148
+    },
+    "candidate": {
+      "status": "completed",
+      "processed_frames": 4541,
+      "total_frames": 4541,
+      "db_completed_fps": 7.913961,
+      "db_completed_elapsed_s": 573.796,
+      "step2_frame_wall_s": 241.830808,
+      "step2_through_pose_upload_s": 338.453209,
+      "shard_merge_wall_s": 111.220656,
+      "gpu_avg_util_pct": 17.825,
+      "gpu_peak_util_pct": 88.0,
+      "detection_rows": 72816,
+      "bbox_rows": 72816,
+      "embedding_rows": 72650,
+      "student_tracks": 53,
+      "behavior_calls_per_s": 6.63999,
+      "behavior_rtt_mean_ms": 91.679,
+      "behavior_rtt_p95_ms": 149.768,
+      "behavior_rtt_p99_ms": 163.133,
+      "behavior_rtt_max_ms": 182.936
+    },
+    "delta": {
+      "db_completed_fps_pct": 40.82,
+      "db_completed_elapsed_pct": -28.99,
+      "step2_frame_wall_pct": -48.27,
+      "step2_through_pose_upload_pct": -47.21,
+      "gpu_avg_util_pct": 50.47,
+      "gpu_peak_util_pct": 54.39,
+      "detection_rows_pct": 0.10,
+      "bbox_rows_pct": 0.10,
+      "embedding_rows_pct": 0.10,
+      "student_tracks_pct": 0.0,
+      "behavior_rtt_mean_pct": 9.76,
+      "behavior_rtt_p95_pct": 15.64,
+      "behavior_rtt_p99_pct": 20.36,
+      "behavior_rtt_max_pct": 24.32
+    }
+  },
+  "track_map_diagnostics": {
+    "shard0": {
+      "mode": "identity",
+      "track_count": 38,
+      "mapped_to_existing_parent": 38,
+      "offset_fallbacks": 0
+    },
+    "shard1": {
+      "mode": "one_to_one",
+      "track_count": 36,
+      "mapped_to_existing_parent": 21,
+      "offset_fallbacks": 15,
+      "mapping_coverage_pct": 58.33,
+      "offset_fallback_pct": 41.67
+    }
+  },
+  "model_agreement_f1_iou_0_5_pct": {
+    "attention_tracking": 59.278,
+    "hand_raising": 61.223,
+    "person_detection": 64.861,
+    "sitting_standing": 53.788,
+    "minimum": 53.788
+  },
+  "label_invariant_tracking_pct": {
+    "minimum_all_model_geometry_f1": 99.802,
+    "minimum_all_model_raw_label_f1": 53.788,
+    "minimum_all_model_global_assignment_f1": 71.744,
+    "minimum_shard1_geometry_f1": 100.0,
+    "minimum_shard1_raw_label_f1": 3.581,
+    "minimum_shard1_global_assignment_f1": 79.876,
+    "largest_all_model_residual_gap_pp": 28.256,
+    "largest_shard1_residual_gap_pp": 20.124
+  },
+  "decision": {
+    "status": "NOT_ACCEPTED",
+    "reason": "The candidate improved DB FPS, Step 2 wall, and GPU utilization while keeping StudentTrack count unchanged, but it failed the identity/model-agreement gate: raw F1@IoU0.5 minimum was 53.788%, label-invariant all-model minimum was 71.744%, shard-1 label-invariant minimum remained 79.876%, and residual association gap remained up to 20.124 percentage points on shard 1. Behavior RTT also regressed.",
+    "remaining_bottleneck": "A reviewed boundary tracklet-state producer with motion, temporal, appearance, lifecycle, and ambiguity evidence is still required before sharding can advance.",
+    "durable_change": "Keep OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one available only as a documented rejected candidate; keep production rollback state at best_iou with sharding disabled."
+  }
+}

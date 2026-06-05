@@ -183,6 +183,54 @@ Per § 8.6.2:
 7. No reliance on file-system seekability
 8. Reconnection MUST NOT fabricate continuity (report the temporal gap)
 
+## ⭐ Identity Association And Cross-Run Evaluation — BINDING
+
+**Constitution Section 4.6 (added in v2.9.0) makes local tracker labels
+source-scoped opaque values. Raw local-ID equality is not identity proof across
+independent tracker runs, shards, jobs, reconnects, replays, or runtime
+activations.**
+
+### Required evaluation contract
+
+1. Match observations with a documented localization rule before comparing
+   identity association.
+2. Map independent label namespaces with a deterministic globally one-to-one
+   assignment. Do not use raw string or numeric local-ID equality as the
+   identity correctness gate.
+3. Report detection/localization quality separately from association quality,
+   fragmentation, merge collisions, unresolved associations, and eligible /
+   matched / unmatched boundary tracklets.
+4. Label a single-run baseline as a reproducibility proxy, not human-labeled
+   identity ground truth.
+5. Ground-truth-backed acceptance reports HOTA/AssA, IDF1, ID switches, and
+   fragmentation. Proxy-only metrics may guide investigation but cannot alone
+   accept or close identity work.
+
+### Required cross-shard association contract
+
+- Operate on bounded source-scoped tracklets, not one boundary box or a local
+  label number.
+- Carry documented temporal/motion, governed appearance, lifecycle, quality,
+  feature/model provenance, candidate cost, threshold, and ambiguity evidence.
+- Make globally one-to-one decisions and keep ambiguous, conflicting, missing,
+  stale, or below-threshold cases `unresolved`; never force a canonical merge.
+- Keep sharding and boundary-state transport offline-only. The live profile
+  explicitly disables them.
+
+Cycle 18 applies this doctrine through
+`docs/cycle_18_identity_association_root_cause_investigation.md`,
+`tools/prod/prod_probe_cycle18_label_invariant_tracking.py`, and
+`docs/architecture/cycle18_label_invariant_tracking_probe.production_summary.json`.
+The production read-only probe confirmed that raw-label comparison understated
+agreement, but it also measured a real residual association gap. The later
+Agent 20 override production benchmark rejected the bounded
+`OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one` candidate. The follow-up
+default-off boundary packet producer is production-validated as evidence-only;
+Agent 19 then staged governed appearance evidence plus a parent-side
+`appearance_packet` association consumer locally. That candidate still needs a
+full production benchmark and rollback proof before it can be accepted,
+rejected, or used to advance sharding.
+
 ## ⭐ Highest-Priority Plan — Inference Pipeline Parallelization
 - **This remains the top-priority runtime/performance plan, but the repo-side
   implementation is now signed complete as of 2026-05-31.**
@@ -900,17 +948,27 @@ Per § 8.6.2:
   handoff only (`FREE`), Agent 18 = Cycle 17 Redis Streams (`FREE`, accepted
   observability-only), Agent 19 = Cycle 18 measured contract/evidence audit
   (`BLOCKED`, no runtime authority; recovered per-track evidence remains
-  blocked), and Agent 20 = Cycle 20 streaming persistence/embedding overlap
-  readiness plus Cycle 21 concurrency/benchmark governance (`TAKEN`,
-  docs/readiness only). Shared
+  blocked), Agent 20 override = Cycle 18 one-to-one candidate plus boundary
+  packet producer (`FREE`, `ACCEPTED_EVIDENCE_ONLY_NOT_IDENTITY_MERGE_READY`,
+  benchmark lock released), and Agent 20 = Cycle 20 streaming
+  persistence/embedding overlap readiness plus Cycle 21 concurrency/benchmark
+  governance (`TAKEN`, docs/readiness only). Shared
   roadmap files (`AGENTS.md`,
   `README.md`, `docs/INDEX.md`, `docs/inference_parallelization_plan.md`,
   `docs/production_inference_benchmark.md`,
   `docs/crop_frame_optimization_execution.md`, and
   `docs/cycle_9_and_10_improvements_todo.md`) are orchestrator-owned unless an
-  explicit edit window is granted. Only one production benchmark may hold the
-  benchmark lock at a time, and every decision still requires constitution
-  §12.5/§12.6 evidence.
+  explicit edit window is granted. 2026-06-04 override update: the user
+  reassigned Cycle 18 to Agent 20 for a bounded runtime-candidate attempt.
+  Agent 20 benchmarked `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one` on
+  production replay `cycle18-one-to-one-trackmap-20260604T174231Z`; the
+  candidate is `NOT_ACCEPTED`. Agent 20 then production-validated
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=1` on replay
+  `cycle18-boundary-packet-producer-20260604T181738Z`; the producer is accepted
+  only as default-off evidence infrastructure, rollback is verified, and the
+  lock is released.
+  Only one production benchmark may hold the benchmark lock at a time, and
+  every future decision still requires constitution §12.5/§12.6 evidence.
 - **2026-06-04 Agent turn ledger rule ACTIVE**:
   every cycle turn must be explicitly claimed and released in this file. A turn
   claim must include the agent name, cycle, state (`TAKEN`, `FREE`, `BLOCKED`,
@@ -935,7 +993,10 @@ Per § 8.6.2:
   `ACCEPTED_OBSERVABILITY_ONLY_NOT_THROUGHPUT`: DB/model parity was exact and
   Redis Stream evidence was bounded, but DB FPS was neutral (`5.620 -> 5.611`),
   so no throughput gain is claimed. Next action: open a new governed turn before
-  advancing another cycle.
+  advancing another cycle. Later on 2026-06-04, Agent 20's Cycle 18 override
+  benchmark also released its lock and rejected the `one_to_one` candidate; see
+  the dedicated Agent 20 paragraph below for the current Cycle 18 runtime
+  decision.
 
   BENCHMARK_RELEASE
   agent: Agent 18
@@ -954,12 +1015,13 @@ Per § 8.6.2:
   the user explicitly re-opened Cycle 18 and requested real measured benchmark
   values and comparisons. Agent 19 owns only Cycle 18 contract/evidence work.
   The requested comparisons and production read-only identity-candidate probe
-  are complete. The final governed decision is
+  are complete. The final Agent 19 pre-override governed state is
   `NO_RUNTIME_CANDIDATE_SELECTED` /
-  `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`; constitutional closure remains
-  blocked because no Cycle 18 runtime optimization or §12.6 production
-  decision table exists. The benchmark lock is not held, no Cycle 18 runtime
-  candidate was deployed, and the shared coordination board remains unchanged.
+  `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED`; constitutional closure remained
+  blocked at that point because no Cycle 18 runtime optimization or §12.6
+  production decision table existed. The Agent 19 benchmark lock was not held,
+  no Agent 19 Cycle 18 runtime candidate was deployed, and the shared
+  coordination board later recorded the user-authorized Agent 20 override.
   Responsibility file: `docs/agent_19_cycle_18_turn.md`. Owned files are that
   ledger, `docs/cycle_18_redis_boundary_state_cache_investigation.md`,
   `docs/architecture/cycle18_boundary_packet_v0.schema.json`,
@@ -996,13 +1058,13 @@ Per § 8.6.2:
   Cycle 15 boundary audit, bounded V0 schema, synthetic unresolved example,
   standalone read-only validator, reproducible historical projector,
   recovered-evidence intake auditor, and one-command local contract gate are
-  recorded without runtime changes. The focused Cycle 18 suites passed `32`
+  recorded without runtime changes. The focused Cycle 18/19 suites passed `39`
   tests. The optional external JSON Schema validator is unavailable in the
   current Python environments; manual validation and the structural drift gate
   pass. The
   example is contract-valid and correctly not identity-merge-ready. Constitution
   §18 CI visibility is preserved by explicit `.gitignore` exceptions for all
-  five JSON contract/projection/evidence files. The retained-evidence Cycle 15.B1.C2 projection
+  six JSON contract/projection/evidence files. The retained-evidence Cycle 15.B1.C2 projection
   is now recorded and fails closed because raw per-track observations,
   lifecycle, appearance, candidates, collision counters, and the historical
   tracker fingerprint are unavailable locally; it also preserves the documented
@@ -1016,12 +1078,12 @@ Per § 8.6.2:
   and rejects all `92` deterministic missing/unknown-field mutations. The
   recovered-evidence CLI now supports `--require-full-projection`, which fails
   the aggregate-only historical path without implying identity-merge
-  readiness. The one-command gate verifies all `24` Agent 19 inventory entries
-  resolve and all five Cycle 18 JSON visibility exceptions are present. The
+  readiness. The one-command gate verifies all `28` Agent 19 inventory entries
+  resolve and all six Cycle 18 JSON visibility exceptions are present. The
   historical audit emits machine-readable recovery requirements and currently
   has exactly two unmet projection checks: `packet_contract_valid` and
-  `packet_track_count_match`. The reference checker verifies `128` references
-  across the two owned docs plus only Agent 19's bounded `AGENTS.md` paragraph,
+  `packet_track_count_match`. The reference checker verifies `157` references
+  across the three owned docs plus only Agent 19's bounded `AGENTS.md` paragraph,
   and all `25` line citations resolve. Cycle 19's conditional audit is backed
   by `docs/cycle_16b_redis_side_effect_coalescing_results.md` and
   `docs/redis_broader_optimization_opportunities.md`: Redis server command wall
@@ -1032,8 +1094,8 @@ Per § 8.6.2:
   Lua/EVAL/EVALSHA, Redis runtime changes, production mutation, benchmark-lock
   acquisition, and optimization decision claims remain forbidden. The local
   eligibility audit passed all `11` source/evidence checks, the combined Cycle
-  18/19 focused suite passed `36` tests, the Cycle 18 contract gate still
-  passed, and the bounded reference checker resolved `128` references plus
+  18/19 focused suite passed `39` tests, the Cycle 18 contract gate still
+  passed, and the bounded reference checker resolved `157` references plus
   `25` line citations. Next action is to wait for later production evidence
   proving a measured read/compute/write hotspot that pipelining cannot remove.
   The re-opened Cycle 18 evidence slice now carries real completed upstream
@@ -1058,8 +1120,28 @@ Per § 8.6.2:
   reached only `73.086 %` and `49.445 %`. The hashed evidence summary is
   `docs/architecture/cycle18_identity_candidate_probe.production_summary.json`.
   Next action requires a separately reviewed identity-feature/state producer
-  before any runtime candidate, implementation, production benchmark, or
-  constitutional Cycle 18 decision can exist.
+  before any further runtime candidate, implementation, production benchmark,
+  or constitutional Cycle 18 closure decision can exist.
+  The user-authorized deep root-cause continuation is complete in
+  `docs/cycle_18_identity_association_root_cause_investigation.md`. Primary
+  sources were applied through constitution §4.6, the binding identity
+  association guidance above, and
+  `tools/prod/prod_probe_cycle18_label_invariant_tracking.py`. The read-only
+  production probe reused completed jobs and wrote hashed evidence summarized
+  in
+  `docs/architecture/cycle18_label_invariant_tracking_probe.production_summary.json`.
+  It confirmed two separate root causes: shard-1 minimum raw-label F1 was
+  `2.917 %`, while deterministic one-to-one global assignment recovered it to
+  `79.876 %`; geometry remained `100.000 %`, but a real residual association
+  gap of up to `20.124 pp` remained. The one-command Cycle 18 gate now resolves
+  `28` artifacts and `6` visible JSON files, all `39` focused Cycle 18/19
+  tests pass, the documentation reading-order gate passes, and `5/5` Mermaid
+  blocks across the changed governed docs render. Agent 19's final state
+  remains
+  `NO_RUNTIME_CANDIDATE_SELECTED` /
+  `NO_DECISION_PRODUCTION_BENCHMARK_REQUIRED` /
+  `CLOSURE_BLOCKED_NO_CYCLE18_RUNTIME_BENCHMARK`; Agent 19 made no runtime
+  mutation or production benchmark decision.
 - **2026-06-04 Agent 20 remaining lanes `TAKEN`**:
   the user identified this session as the last agent and requested a ledger plus
   remaining task ownership. Agent 20 maps to the coordination board's Agent C
@@ -1075,6 +1157,75 @@ Per § 8.6.2:
   state is recorded in the Agent 20 ledger. Next action: keep Cycle 20/21 as
   readiness/governance-only until a separate implementation or benchmark-lock
   turn is explicitly opened under constitution §12.5/§12.6.
+- **2026-06-04 Agent 20 Cycle 18 override `FREE / NOT_ACCEPTED`**:
+  the user explicitly overrode the prior Cycle 18 blocked handoff and assigned
+  this session to take Cycle 18 forward. Responsibility file:
+  `docs/agent_20_cycle_18_override_turn.md`. Agent 20 staged and production
+  benchmarked a bounded, disabled-by-default runtime candidate in
+  `backend/apps/video_analysis/services/offline_sharding.py`:
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=one_to_one`. The candidate uses existing
+  child/parent boundary votes and a deterministic maximum-vote one-to-one
+  assignment before offset fallback; focused coverage is in
+  `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`. This is
+  not Redis identity authority and not live-profile behavior. Production
+  replay `cycle18-one-to-one-trackmap-20260604T174231Z`, parent job
+  `aa5f5328-ae81-49da-a44b-ae308859035b`, completed `4541/4541` frames. The
+  candidate improved DB FPS `5.619787 -> 7.913961` and Step 2 frame wall
+  `467.449833 s -> 241.830808 s`, but failed identity/model agreement:
+  minimum raw F1 was `53.788 %`, minimum label-invariant all-model F1 was
+  `71.744 %`, shard-1 global-assignment F1 stayed `79.876 %`, and behavior RTT
+  regressed. Decision: `NOT_ACCEPTED`. Production rollback is verified with
+  sharding disabled and track-map mode restored to `best_iou`; benchmark lock
+  is `NOT_HELD`. Evidence is summarized in
+  `docs/architecture/cycle18_one_to_one_trackmap.production_summary.json` and
+  `docs/production_inference_benchmark.md` section 41. Next action: do not
+  rerun or enable `one_to_one`; future Cycle 18 work needs governed appearance
+  evidence and a parent-side association consumer before another merge-ready
+  runtime candidate.
+- **2026-06-04 Agent 20 Cycle 18 boundary packet producer
+  `FREE / ACCEPTED_EVIDENCE_ONLY_NOT_IDENTITY_MERGE_READY`**: continuation
+  after the `one_to_one` rejection stages
+  a default-off boundary packet producer behind
+  `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_ENABLED=0`. Owned implementation files
+  are `backend/apps/video_analysis/services/offline_sharding.py`,
+  `backend/apps/video_analysis/tasks.py`,
+  `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py`,
+  `backend/config/settings/base.py`, and
+  `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`. Production
+  replay `cycle18-boundary-packet-producer-20260604T181738Z`, parent job
+  `2cf0b4b3-5e81-41c4-9eda-9e7faa97c224`, completed `4541/4541` frames with
+  rollback verified. The producer emitted `2/2` contract-valid packets, but
+  `0/2` were identity-merge-ready; raw F1 minimum was `53.730 %`, label-
+  invariant all-model minimum was `69.163 %`, and shard-1 label-invariant
+  minimum was `71.884 %`. This accepts only the default-off packet evidence
+  producer, not sharding, not 15.B2, and not identity merge. Benchmark lock is
+  `NOT_HELD`. Evidence is summarized in
+  `docs/architecture/cycle18_boundary_packet_producer.production_summary.json`
+  and `docs/production_inference_benchmark.md` section 42.
+- **2026-06-05 Agent 19 Cycle 18 appearance-packet continuation
+  `STAGED_LOCAL_ONLY / NO_PRODUCTION_DECISION`**: after the Agent 20 packet
+  producer left `appearance_reference=unavailable` and `0/2` packets
+  merge-ready, Agent 19 staged a default-off blocker-resolution candidate.
+  `backend/apps/pipeline/multi_model.py` carries the preview frame path,
+  `backend/apps/video_analysis/tasks.py` passes an appearance artifact root
+  only when `OFFLINE_VIDEO_SHARD_BOUNDARY_PACKET_APPEARANCE_ENABLED=1`, and
+  `backend/apps/video_analysis/services/offline_sharding.py` writes
+  digest-backed crop-descriptor references plus a separate
+  `OFFLINE_VIDEO_SHARD_TRACK_MAP_MODE=appearance_packet` consumer. The
+  consumer verifies referenced feature files, combines boundary geometry with
+  appearance score/margin gates, writes candidate decisions back into the
+  packet, and leaves missing or ambiguous evidence unresolved. Defaults remain
+  disabled in `backend/config/settings/base.py` and
+  `tools/prod/prod_enable_parallel_flow.sh`; the benchmark wrapper
+  `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh` now exposes
+  explicit appearance flags and cleanup restores them to disabled defaults.
+  Local validation passed: shard/Cycle 18 suite `9 passed`, focused Cycle 18
+  slice `12 passed`, and the measured-value checker still reports
+  `cycle18_runtime_benchmark_present=false`. This is not a §12.6 decision,
+  not sharding acceptance, and not Cycle 18 closure. Next action is a governed
+  full `combined.mp4` Linux RTX 5090 benchmark with packet validation,
+  model-agreement and label-invariant association metrics, DB/GPU/RTT metrics,
+  and rollback proof before any acceptance or rejection claim.
 - **2026-06-03 Cycle 20 streaming persistence and embedding overlap STAGED**:
   `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
   answers the current architecture question. Current offline `crop_frame`

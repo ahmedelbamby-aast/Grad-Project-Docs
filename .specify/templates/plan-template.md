@@ -29,7 +29,7 @@
 **Runtime Scenarios**: [Live stream scenario and offline video processing scenario; state N/A rationale for either if not applicable]
 **Inference/Tracking Reference**: [Triton/RTMPose/model contract and tracking/ReID decisions, or N/A]
 **Runtime Authority**: [Production Triton-only route; active `live` or `offline` endpoint profile; inactive-profile rejection evidence]
-**Temporal/Identity Authority**: [Timestamp envelope, canonical identity scope, lifecycle/ReID and invalidation rules]
+**Temporal/Identity Authority**: [Timestamp envelope, canonical identity scope, local-ID namespace, lifecycle/ReID, independent-run association evaluation, and invalidation rules]
 **Evidence/Schema Authority**: [Telemetry, benchmark, API/WS/artifact/sequence schema versions and evidence outputs]
 **Deployment Topology**: [Dev/test services and production native Linux services; production MUST NOT assume Docker or sudo]
 **Runtime Reconciliation**: [Task/DB/artifact/queue/frontend convergence checks and failure handling]
@@ -60,6 +60,16 @@
 > source/ingest/queue/inference/persistence timestamps, gap and drift
 > handling, session/camera/canonical/local identity scope, ReID
 > provenance, lifecycle rules, and invalidation behavior.
+
+> **Independent-Run and Sharded Identity Gate (§4.6)**: Any plan comparing
+> independent tracker runs, shards, reconnects, jobs, or activations MUST treat
+> local IDs as source-scoped opaque labels. It MUST define observation matching,
+> deterministic globally one-to-one label association, separated
+> detection/localization and association metrics, fragmentation/merge/unresolved
+> diagnostics, and proxy-ground-truth disclosure. Any cross-shard canonical
+> association candidate MUST use bounded tracklets with temporal/motion,
+> governed appearance, lifecycle, quality, provenance, and ambiguity evidence;
+> geometry-only or forced merges are forbidden.
 
 > **Pose and Behavior Semantics Gate**: Any pose or behavioral plan
 > MUST distinguish `raw_keypoints`, `smoothed_keypoints`, and

@@ -47,6 +47,28 @@ Notes:
 - Legacy posture models in `standing_sitting` remain valid for detection-pipeline behavior and are not removed by RTMPose integration.
 - RTMPose path is an additional pose-estimation branch that feeds downstream behavior fusion.
 
+## Human Pose Kinematics Services
+
+Feature 013 adds deterministic post-RTMPose services under
+`backend/apps/pipeline/services/`:
+
+- `pose_kinematics.py`: pure keypoint-to-evidence functions for quality,
+  anchors, geometry, joint angles, orientation, posture, gesture,
+  physical-validity, temporal motion fields, and fusion signals.
+- `pose_kinematics_config.py`: `.env`/Django-settings backed configuration
+  loader and override-gate evaluator. Override thresholds must enter through
+  `POSE_KINEMATICS_*` settings.
+- `pose_kinematics_history.py`: bounded per-source, per-track history capped
+  by `POSE_KINEMATICS_HISTORY_SECONDS` and
+  `POSE_KINEMATICS_HISTORY_MAX_SAMPLES`.
+- `logical_path_matrix.py`: exposes `with_pose_kinematics_context(...)` so
+  pose fusion context can be carried beside LPM inputs without mutating the
+  original behavior/gaze probabilities.
+
+The kinematics layer does not add a model and does not replace RTMPose. It
+consumes RTMPose keypoints and emits evidence for downstream persistence,
+telemetry, API/export, and review.
+
 ## Runtime Contract (Hybrid Validation)
 
 - Runtime routing is model-identity based, not runtime-backend-only:

@@ -20,9 +20,11 @@ Final decision from the latest completed cycle:
 
 Cycle 17 Redis Streams progress sampling is closed for this coordination round:
 Agent 18 completed the production benchmark and released the turn as
-observability-only accepted. Cycle 18, Cycle 20, and Cycle 21 may proceed only
-as bounded investigation or readiness work unless their dependency gates are
-satisfied.
+observability-only accepted. The Agent 20 Cycle 18 `one_to_one` override
+candidate also completed and is not accepted. The follow-up Cycle 18 boundary
+packet producer is production-validated as evidence-only and not
+identity-merge-ready. Cycle 20 and Cycle 21 may proceed only as bounded
+readiness/governance work unless their dependency gates are satisfied.
 
 ## Source-of-Truth References
 
@@ -41,13 +43,15 @@ satisfied.
 | Prior turn ledger | `docs/agent_17_cycle_17_turn.md` | Historical Cycle 17 handoff; superseded by Agent 18 continuation. |
 | Turn ledger | `docs/agent_19_cycle_18_turn.md` | Maps Agent 19 to the Agent B Cycle 18 contract-only lane. |
 | Turn ledger | `docs/agent_20_remaining_lanes_turn.md` | Maps Agent 20 to the remaining Agent C and Agent D lanes. |
+| Turn ledger | `docs/agent_20_cycle_18_override_turn.md` | Maps the user-authorized Agent 20 Cycle 18 override, rejected one-to-one candidate, and evidence-only boundary packet producer. |
 
 ## Agent Lanes
 
 | Agent | Lane | Status | Primary owned files | Must not do |
 |---|---|---|---|---|
 | Agent 18 | Cycle 17 Redis Streams | Free; accepted observability-only | `docs/agent_18_cycle_17_turn.md`, `docs/cycle_17_redis_streams_progress_sampling_investigation.md`, Cycle 17 scripts/tests and wrapper | Claim inference-wall gain or leave stream flag enabled outside governed benchmark evidence. |
-| Agent 19 (Agent B) | Cycle 18 boundary state | Blocked; contract/evidence only | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md` | Enable sharding or start 15.B2. |
+| Agent 19 (Agent B) | Cycle 18 boundary state | Historical blocked handoff; superseded for active work by Agent 20 override | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md` | Enable sharding or start 15.B2. |
+| Agent 20 override | Cycle 18 boundary state | Free; `one_to_one` not accepted; packet producer evidence-only; benchmark lock released | `docs/agent_20_cycle_18_override_turn.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Rerun or enable `one_to_one`; claim sharding/15.B2 acceptance while packets are not identity-merge-ready. |
 | Agent 20 (Agent C) | Cycle 20 stream post-stages | Turn taken; readiness only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` | Change lifecycle or persistence code before an implementation gate. |
 | Agent 20 (Agent D) | Cycle 21 concurrency | Turn taken; governance only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_21_celery_concurrency_scaling_investigation.md` | Increase worker counts without a full benchmark matrix. |
 
@@ -70,7 +74,7 @@ short edit window:
 %%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#7C3AED', 'primaryTextColor': '#EDE9FE', 'primaryBorderColor': '#A78BFA', 'lineColor': '#A78BFA', 'secondaryColor': '#1E3A8A', 'tertiaryColor': '#5B21B6', 'fontSize': '14px'}}}%%
 flowchart LR
     C15["Cycle 15<br/>not accepted"] --> C17["Cycle 17<br/>obs-only accepted"]
-    C15 --> C18["Cycle 18<br/>design only"]
+    C15 --> C18["Cycle 18<br/>packet evidence only"]
     C17 --> C19["Cycle 19<br/>conditional"]
     C17 --> C20["Cycle 20<br/>late staged"]
     C20 --> C21["Cycle 21<br/>matrix later"]
@@ -89,8 +93,9 @@ Read the diagram as a lock graph:
 
 - Cycle 17 is closed for this coordination round and must not be rerun without a
   new governed user request.
-- Cycle 18 may design a new identity-state proof, but it cannot unblock 15.B2
-  without production evidence.
+- Cycle 18 rejected the one-to-one track-map override and validated packets as
+  evidence-only; 15.B2 remains blocked until packets become identity-merge-ready
+  and production evidence proves correctness.
 - Cycle 20 and Cycle 21 are intentionally late unless metrics reorder them.
 
 ## Coordination Protocol
@@ -335,3 +340,6 @@ rollback failure, even if FPS improves.
 | 2026-06-04 | Agent 19 | 18 | First contract-only audit slice completed; no runtime or production state changed. | Review bounded packet V0, then prepare a read-only packet example and validator contract only. |
 | 2026-06-04 | Agent 19 | 18 | Read-only V0 schema, synthetic unresolved example, validator, and focused tests completed; no runtime integration added. | Review V0, then project historical Cycle 15 evidence into the packet contract without writes. |
 | 2026-06-04 | Agent 20 | 20/21 | User identified this session as the last agent; remaining Agent C and Agent D lanes claimed as readiness/governance only. | Keep Cycle 20 and Cycle 21 documentation aligned; do not change runtime code, env, workers, or production state. |
+| 2026-06-04 | Agent 20 | 18 | User overrode Cycle 18; one-to-one boundary track-map candidate staged locally with no benchmark lock and no production decision. | Finish local validation, then acquire a benchmark lock before any production env change or wrapper run. |
+| 2026-06-04 | Agent 20 | 18 | Replay `cycle18-one-to-one-trackmap-20260604T174231Z` completed; rollback verified; one-to-one candidate not accepted. | Do not rerun or enable `one_to_one`; packet producer follow-up is recorded in the next Agent 20 Cycle 18 row. |
+| 2026-06-04 | Agent 20 | 18 | Replay `cycle18-boundary-packet-producer-20260604T181738Z` completed; rollback verified; `2/2` packets valid and `0/2` merge-ready. | Keep packet flag default-off; next Cycle 18 work needs appearance-backed association consumer evidence. |

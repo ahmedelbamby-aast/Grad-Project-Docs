@@ -28,7 +28,7 @@ through `.env`/Django settings.
 **Testing**: `pytest` against PostgreSQL semantics; unit tests for geometry/quality/correction/override gates; integration tests for offline replay artifacts and API/export contract; production benchmark validation on the Linux RTX 5090 workflow before any maturity claim.  
 **Target Platform**: Native Linux production server with RTX 5090 for production validation; Windows/local validation is contract-only and cannot close production gates.  
 **Project Type**: Django web-service plus Celery video inference pipeline and artifact/export surface.  
-**Performance Goals**: Kinematics computation must be cheaper than the measured RTMPose tail and must be reported separately as `pose_kinematics_ms`, `pose_kinematics_ms_per_subject`, and per-phase latency. Acceptance requires no material regression in Step 2 through-pose wall, DB FPS, model agreement, or completion status on `combined.mp4`.  
+**Performance Goals**: Kinematics computation must be cheaper than the measured RTMPose tail and must be reported separately as `pose_kinematics_ms`, `pose_kinematics_ms_per_subject`, and per-phase latency. Offline acceptance requires a production Linux RTX 5090 baseline-disabled versus candidate-enabled matrix on `combined.mp4`, with no material regression in Step 2 through-pose wall, DB FPS, model agreement, or completion status. Live acceptance requires a real-media live-profile run or governed live-capture manifest through the active production inference path.
 **Constraints**: Stream-safe bounded state only; per-track history is capped at `POSE_KINEMATICS_HISTORY_SECONDS` with default `5`; no whole-video dependency; no backward seek; no unbounded frame buffering; no retroactive live mutation; failures produce `unavailable`/`degraded` evidence instead of blocking the camera or fabricating pose mechanics.  
 **Scale/Scope**: One pose mechanics record per pose-eligible `(job/session, camera, frame, tracking_id)` pair. Full keypoint arrays remain artifact-backed to avoid large DB JSON write amplification.  
 **Runtime Scenarios**: Offline file replay and live RTSP/RTSPS/WHEP/WebRTC bridge scenarios both apply. Offline may replay deterministically but still uses at most the configured bounded history. Live uses current frame plus bounded same-track history and must expose drop/gap/degraded states.  
@@ -165,6 +165,19 @@ Design artifacts:
 7. Extend telemetry and benchmark collection with kinematics latency,
    counts, states, contradiction categories, override counts, history sizes,
    and unavailable/degraded reasons.
+8. Add reviewer-labeled validation manifest support for at least 500
+   person-frame samples and enforce posture, hand-raise, torso/head
+   orientation, and attention-support agreement thresholds in a durable report.
+9. Add production validation wrappers for both the offline baseline/candidate
+   matrix and a real-media live-profile run, each recording replay/session IDs,
+   source media or stream manifest, env/config delta, deployed SHA, telemetry,
+   artifact paths, and terminal status.
+10. Add runtime reconciliation evidence that joins task state, queue state,
+    PostgreSQL rows, artifact manifests, telemetry counters, and API/export
+    payloads before the feature can be accepted.
+11. Add rollback and disabled-feature verification proving existing pose and
+    behavior flows continue with explicit `unavailable` kinematics evidence
+    rather than false success.
 
 ## Validation Plan
 
@@ -173,8 +186,11 @@ Design artifacts:
 | Unit | Keypoint quality labels, anchors, geometry, joint angles, orientation, posture, hand raising, missing-joint estimation, physical-validity rules, smoothing, spike detection, override gate config. |
 | Contract | `pose_kinematics.v1` payload examples validate required states and no hardcoded thresholds. |
 | Integration | Offline replay produces one state per pose-eligible track/frame and preserves raw/corrected/smoothed separation in artifact/export evidence. |
-| Live compatibility | Simulated RTSP/live payload uses current frame plus bounded history only; overflow/gap/degraded states are emitted. |
-| Benchmark | Production Linux RTX 5090 run on `Raw Data/Diverse Classroom Enviroments/combined.mp4`; compare baseline vs candidate for FPS, Step 2 through-pose wall, kinematics latency, GPU, memory, DB parity, model agreement, and artifact completeness. |
+| Live compatibility | Simulated RTSP/live payload uses current frame plus bounded history only; overflow/gap/degraded states are emitted. Acceptance also requires a production live-profile real-media run or governed live-capture manifest that records session identity, latency budget compliance, frame/drop/gap counts, unavailable/degraded reasons, and artifact paths. |
+| Reviewer labels | A manifest-backed validation report covers at least 500 person-frame samples and records posture, hand-raise, torso/head orientation, and attention-support agreement against the configured thresholds. |
+| Offline benchmark | Production Linux RTX 5090 baseline-disabled and candidate-enabled runs on `Raw Data/Diverse Classroom Enviroments/combined.mp4`; compare replay/job IDs, FPS, Step 2 through-pose wall, kinematics latency, GPU, memory, DB parity, model agreement, and artifact completeness. |
+| Runtime reconciliation | Production evidence joins task state, queue state, PostgreSQL rows, artifact manifests, telemetry counters, and API/export payloads; acceptance is blocked if any state is unreconciled. |
+| Rollback/disabled behavior | Production or production-equivalent evidence proves disabling the layer preserves existing pose/behavior flows and emits explicit `unavailable` kinematics state. |
 
 ## Benchmark Decision Table Template
 
@@ -199,6 +215,9 @@ benchmark.
 | Pose labeled accuracy | pending benchmark | pending benchmark | pending benchmark | Reviewer-label gate for posture, hand raising, torso/head orientation, and attention support. |
 | Override count / categories | N/A | pending benchmark | pending benchmark | Monitoring gate. |
 | Artifact completeness | pending benchmark | pending benchmark | pending benchmark | Evidence gate. |
+| Runtime reconciliation | pending benchmark | pending benchmark | pending benchmark | Task, queue, DB, telemetry, artifact, and API/export convergence gate. |
+| Rollback / disabled behavior | pending benchmark | pending benchmark | pending benchmark | Existing flows must continue with explicit unavailable state. |
+| Live production validation | pending live run | pending live run | pending live run | Real-media live-profile or governed live-capture-manifest gate. |
 
 ## Complexity Tracking
 

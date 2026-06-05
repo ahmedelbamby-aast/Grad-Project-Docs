@@ -26,6 +26,26 @@ flowchart TD
 
 The flow keeps offline orchestration behind job and pipeline contracts.
 
+## Pose Kinematics Persistence, Artifacts, and API
+
+Feature 013 wires the Human Pose Kinematics Layer into the existing
+video-analysis boundary:
+
+- `models.py` stores compact `PoseKinematicsRecord` rows and append-only
+  `PoseKinematicsOverrideEvent` rows in PostgreSQL.
+- `services/pose_kinematics_persistence.py` provides idempotent compact
+  summary writes and event writes keyed by event identity.
+- `services/pose_kinematics_artifacts.py` writes full keypoint evidence arrays
+  to digest-addressed JSON artifacts.
+- `tasks.py` enriches offline pose records after RTMPose quality enrichment and
+  enriches live pose records with per-frame artifacts disabled.
+- `serializers.py` and `views.py` expose `pose_kinematics` and
+  `pose_kinematics_overrides` in frame and playback payloads.
+
+The feature is disabled by default. When disabled, existing pose and behavior
+flows continue and the validation scripts expect explicit unavailable/disabled
+evidence rather than silent success.
+
 ## Telemetry REST Contract
 
 Job-scoped telemetry endpoints project normalized persisted evidence:

@@ -127,6 +127,12 @@ Examples of foundational tasks (adjust based on your project):
       matrix, pool/thread/concurrency values, GPU cap, DB/Redis/CPU/RSS/VRAM
       budgets, duplicate-worker check, rollback command, and production
       benchmark acceptance gate required by constitution §8.1.1
+- [ ] T021 [P] If independent tracker runs, shards, reconnects, jobs, or
+      activations are compared or associated, define source-scoped opaque local
+      IDs, observation matching, deterministic global one-to-one assignment,
+      separated detection/association metrics, fragmentation/merge/unresolved
+      diagnostics, proxy-ground-truth limits, and bounded temporal/motion/
+      appearance/lifecycle tracklet evidence required by constitution §4.6
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

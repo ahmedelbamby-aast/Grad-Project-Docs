@@ -1,6 +1,34 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.8.0 -> 2.9.0
+Bump rationale: MINOR - Adds Section 4.6 (Independent-Run and Sharded
+Tracklet Association Doctrine) and two matching Section 14.25 enforcement
+rows. The amendment separates source-scoped local tracker labels from
+canonical identity, prohibits raw local-ID equality as cross-run or
+cross-shard identity proof, requires deterministic one-to-one association
+when comparing independent label namespaces, and requires future shard
+association candidates to combine governed temporal/motion, appearance,
+lifecycle, quality, and ambiguity evidence.
+
+Governing problem: Cycle 18 production analysis proved that raw
+`tracking_id_text` equality materially understated cross-run agreement while
+a label-invariant maximum-weight one-to-one assignment still exposed real
+fragmentation and merge ambiguity. Treating those two conditions as one
+failure concealed the evaluation defect and the remaining runtime defect.
+
+Affected laws and consequences: Sections 4.1-4.5 remain binding and are
+extended by Section 4.6. Section 14.25 now blocks raw local-ID equality as an
+independent-run correctness gate and blocks geometry-only or forced canonical
+merges. Spec Kit plan/spec/tasks templates and AGENTS.md now carry the same
+gate. Existing Cycle 15/Cycle 18 raw-label results remain valid as historical
+measurements but are not sufficient scientific identity evidence. The
+implementation gap remains explicit: no governed boundary tracklet-state
+producer or Cycle 18 runtime candidate exists, so no dependent sharding
+capability may be accepted.
+
+Prior MINOR (2.7.0 -> 2.8.0) text below.
+
 Version change: 2.7.0 -> 2.8.0
 Bump rationale: MINOR - Adds Section 8.6 (Video Streaming Source Support and
 Collapse-Prevention Doctrine) and a matching Section 14.25 enforcement row.
@@ -753,6 +781,47 @@ Identity trust scoring MUST report at least:
 
 Thresholds for behavioral eligibility MUST be stated in a feature plan and
 validated on representative multi-person, occlusion, and crossing evidence.
+
+#### 4.6 Independent-Run and Sharded Tracklet Association Doctrine
+
+Local tracker IDs are source-scoped opaque labels. Equal local IDs from
+independent tracker instances, shards, jobs, reconnects, replays, or runtime
+activations MUST NOT be treated as canonical identity proof. Different local
+IDs across those scopes MUST NOT be treated as identity failure without an
+explicit association evaluation.
+
+Any independent-run or cross-shard identity comparison MUST:
+
+1. preserve source/job/shard/camera scope for every local track label;
+2. match observations using a documented localization rule before comparing
+   association;
+3. use a deterministic globally one-to-one assignment between independent
+   label namespaces;
+4. report detection/localization quality separately from association quality;
+5. report fragmentation, merge collisions, unresolved associations, and
+   eligible/matched/unmatched boundary tracklets;
+6. label single-run baseline agreement as a proxy, not human-labeled identity
+   ground truth.
+
+A governed cross-shard canonical association candidate MUST operate on bounded
+tracklets, not raw label equality or one boundary box. Its decision evidence
+MUST include source scope, temporal range, motion state/history, governed
+appearance features and model/version lineage, lifecycle state, observation
+quality, candidate cost components, thresholds, and ambiguity margin.
+Geometry or proximity alone MUST NOT authorize a canonical merge in crowded,
+crossing, occluded, entering, or exiting scenes.
+
+Association decisions MUST be globally one-to-one within the declared
+association problem. Ambiguous, conflicting, missing, stale, or below-threshold
+evidence MUST remain `unresolved`; the implementation MUST NOT force a merge.
+Allocating a new or offset local label is namespace management and cannot by
+itself be counted as proof of a new person or an identity failure.
+
+Ground-truth-backed tracking acceptance MUST report HOTA/AssA, IDF1, ID
+switches, fragmentation, detection/localization metrics, and the required
+boundary diagnostics. When human-labeled identity ground truth is unavailable,
+label-invariant proxy metrics MAY support investigation but MUST NOT alone
+authorize scientific identity acceptance or optimization closure.
 
 ### 5. Pose Runtime Constitution
 
@@ -2030,6 +2099,8 @@ reproduce the claimed result.
 | CI-required file gitignored | .gitignore audit vs CI paths | CI file visibility (18.1) | explicit tracked exception + CI path verification | fail CI validation gate | add exception + commit file | restore file from prior commit | release owner |
 | Unbenchmarked concurrency increase | Worker topology + production benchmark audit | Concurrency scaling authority (8.1.1) | baseline/candidate queue topology, resource budgets, duplicate-worker check and Section 12.5/12.6 benchmark | fail performance gate | revert env and restart workers | restore accepted worker profile | ops + AI infra owners |
 | Offline-only optimization shipped to live | Profile-block + cycle-doc `Streaming compatibility:` audit | Streaming source doctrine (8.6) | offline-only env knob present in `tools/prod/prod_enable_parallel_flow.sh` live block, OR cycle entity doc missing the `Streaming compatibility:` field, OR live profile inheriting offline knob implicitly | fail streaming-safety gate | disable knob in live block + add explicit `0` assignment | restart live workers with the corrected profile | live runtime + AI infra owners |
+| Raw local-ID equality used as independent-run identity proof | Identity evaluator and evidence review | Independent-run association doctrine (4.6) | source-scoped labels, observation matching, deterministic one-to-one assignment, separated detection/association metrics, and proxy-ground-truth disclosure | fail identity/scientific gate | block identity claim and rerun valid evaluation | invalidate unsupported comparison | AI validity + evidence owners |
+| Geometry-only or forced cross-shard canonical merge | Boundary contract and association audit | Identity continuity and association doctrine (4.3/4.6) | bounded tracklet state with motion, appearance, lifecycle, quality, ambiguity, one-to-one decision, and unresolved fallback | fail identity/runtime gate | leave association unresolved and disable candidate | restore prior non-sharded or unresolved profile | tracking + AI validity owners |
 
 ### 15. Final Architectural Positioning
 
@@ -2659,4 +2730,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.8.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-03
+**Version**: 2.9.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-04
