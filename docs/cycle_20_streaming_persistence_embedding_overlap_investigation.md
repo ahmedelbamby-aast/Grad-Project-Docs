@@ -482,6 +482,33 @@ started_at_utc: 2026-06-06T00:50:32Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
 ```
 
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer r2
+replay_key: cycle20d-streaming-persistence-r2-20260606T005032Z
+job_id: b44945e1-b6a1-48b1-99cd-3af74e7f817d
+status: NEEDS_ITERATION_NO_DECISION
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r2-20260606T005032Z/post_stage_timeline_metrics.json
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r2-20260606T005032Z/model_agreement_baseline_vs_post_stage_timeline.json
+wait_snapshot_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r2-20260606T005032Z/post_stage_wait_snapshot.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r2-20260606T005032Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r2-20260606T005032Z/figures/figure_manifest.json
+released_at_utc: 2026-06-06T01:10:56Z
+notes: Replay completed and rollback restored both Cycle 20 flags to 0. r2 fixed stale unavailable metadata and reached step3_reconciled_packet_count=0, but it is not decision-valid because person_detection model-agreement F1 fell to 4.383676% after stream-time track IDs diverged from the final global tracking assignment.
+```
+
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer r3
+replay_key: cycle20d-streaming-persistence-r3-20260606T011056Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=1; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only; Step 3 compares packet signatures and rewrites pre-embedding packets whose final tracking IDs/boxes differ; no embedding-overlap queue; live profile remains disabled
+started_at_utc: 2026-06-06T01:10:56Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence

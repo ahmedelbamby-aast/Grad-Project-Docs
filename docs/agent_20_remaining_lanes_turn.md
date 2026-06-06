@@ -44,7 +44,7 @@ without guessing from chat history.
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
 | Current phase | Cycle 20.D streaming persistence writer implemented locally; Cycle 21 governance only |
-| Production benchmark lock | `HELD` for `cycle20d-streaming-persistence-r2-20260606T005032Z` |
+| Production benchmark lock | `HELD` for `cycle20d-streaming-persistence-r3-20260606T011056Z` |
 | Runtime implementation permission | Cycle 20.D default-off streaming persistence writer only; no embedding window worker or live behavior |
 | Production env permission | May run one governed Phase D replay after commit/push/hash parity; rollback must restore both Cycle 20 flags to `0` |
 
@@ -78,7 +78,8 @@ without guessing from chat history.
 | `A20-C20D-01` Implement default-off streaming persistence writer. | `COMPLETED_LOCAL` | `backend/apps/video_analysis/tasks.py` writes per-frame packets from the Step 2 callback when `OFFLINE_STREAM_POST_STAGES=1`, excludes live metadata, and reconciles missing packets in Step 3. |
 | `A20-C20D-02` Add Phase D metrics, wrapper option, tests, and CI gate. | `COMPLETED_LOCAL` | `tools/prod/prod_collect_benchmark_metrics.py`, `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`, `.github/workflows/inference-parallelization.yml`, and focused unit tests updated. |
 | `A20-C20D-03` Run Phase D production benchmark. | `NEEDS_ITERATION_NO_DECISION` | Replay key `cycle20d-streaming-persistence-20260606T002816Z`; job completed and rollback passed, but stale unavailable metadata and `3633/4541` Step 3 reconciled packets made it non-decision evidence. |
-| `A20-C20D-04` Run Phase D r2 production benchmark. | `LOCK_HELD` | Replay key `cycle20d-streaming-persistence-r2-20260606T005032Z`; revision callback fix is locally validated and requires wrapper replay with `--stream-post-stages 1`, rollback JSON, wait snapshot, metrics/model-agreement evidence, and figures. |
+| `A20-C20D-04` Run Phase D r2 production benchmark. | `NEEDS_ITERATION_NO_DECISION` | Replay key `cycle20d-streaming-persistence-r2-20260606T005032Z`; job completed and rollback passed, but person-detection model agreement fell to `4.383676%` from stream-time track-ID drift. |
+| `A20-C20D-05` Run Phase D r3 production benchmark. | `LOCK_HELD` | Replay key `cycle20d-streaming-persistence-r3-20260606T011056Z`; packet-signature reconciliation is locally validated and requires wrapper replay with `--stream-post-stages 1`, rollback JSON, wait snapshot, metrics/model-agreement evidence, and figures. |
 
 ## Owned Files And Boundaries
 
