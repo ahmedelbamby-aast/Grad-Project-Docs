@@ -89,7 +89,7 @@ recorded.
 | Agent 18 | Cycle 18.D OSNet-AIN ReID boundary association continuation | Taken; local implementation/docs staged; benchmark lock not held; no production decision | `backend/apps/pipeline/services/reid_triton_client.py`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/scripts/build_tensorrt_engines.py`, `tools/prod/prod_build_osnet_reid_tensorrt.sh`, `tools/prod/prod_probe_reid_triton.py`, `tools/prod/prod_run_cycle15b1_two_shard_runtime_benchmark.sh`, `tools/prod/prod_triton_endpoint_policy.sh`, `docs/entity/systems/osnet_ain_x1_0_reid_model.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md` | Enable sharding by default, touch live/RTSP sharding, start 15.B2, rerun failed 18.C/18.D unchanged, or claim acceptance without production §12.6 evidence. |
 | Agent 19 (Agent B) | Cycle 18.C packet-budget and association readiness | Lock released; Cycle 18.C **NOT ACCEPTED** after production replay `cycle18c-packet-budget-active-edge-20260605T162825Z`; superseded by Cycle 18.D result | `docs/agent_19_cycle_18_turn.md`, `docs/cycle_18_redis_boundary_state_cache_investigation.md`, `docs/production_inference_benchmark.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Enable sharding by default, start 15.B2, rerun failed 18.B/18.C unchanged, or claim acceptance without passing §12.6 evidence. |
 | Agent 20 override | Cycle 18 boundary state | Free; `one_to_one` not accepted; packet producer evidence-only; benchmark lock released | `docs/agent_20_cycle_18_override_turn.md`, `backend/apps/video_analysis/services/offline_sharding.py`, `backend/apps/video_analysis/tasks.py`, `backend/tests/unit/video_analysis/test_cycle15b1_shard_merge.py` | Rerun or enable `one_to_one`; claim sharding/15.B2 acceptance while packets are not identity-merge-ready. |
-| Agent 20 (Agent C) | Cycle 20 post-stage timeline / streaming persistence writer | Phase D writer implemented locally; benchmark lock not held; no decision | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`, `backend/apps/video_analysis/tasks.py` | Claim acceptance, leave `OFFLINE_STREAM_POST_STAGES=1` after rollback, add embedding overlap queues, or change live behavior before a default-off streaming-writer candidate passes production §12.6 review. |
+| Agent 20 (Agent C) | Cycle 20 post-stage timeline / streaming persistence writer | Lock released; Cycle 20.D **NOT ACCEPTED** after production replay `cycle20d-streaming-persistence-r3-20260606T011056Z` | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`, `backend/apps/video_analysis/tasks.py` | Enable `OFFLINE_STREAM_POST_STAGES=1`, rerun the same writer profile unchanged, add embedding overlap queues, or change live behavior before a new design and production §12.6 benchmark lock. |
 | Agent 20 (Agent D) | Cycle 21 concurrency | Turn taken; governance only | `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_21_celery_concurrency_scaling_investigation.md` | Increase worker counts without a full benchmark matrix. |
 
 Shared files are orchestrator-owned unless the orchestrator explicitly grants a
@@ -114,7 +114,7 @@ flowchart LR
     C15 --> C18["Cycle 18<br/>packet evidence only"]
     C17 --> C19["Cycle 19<br/>conditional"]
     C17 --> C20["Cycle 20<br/>late staged"]
-    C20 --> C21["Cycle 21<br/>matrix later"]
+C20 --> C21["Cycle 21<br/>blocked by 20.D"]
     C18 --> B15["15.B2<br/>blocked"]
     classDef prod fill:#5B21B6,stroke:#A78BFA,color:#EDE9FE;
     classDef store fill:#1E3A8A,stroke:#60A5FA,color:#DBEAFE;
@@ -260,7 +260,7 @@ reassignment.
 | Agent 17 | "Read `AGENTS.md`, `docs/agent_17_cycle_17_turn.md`, and `docs/agent_18_cycle_17_turn.md`. Your Cycle 17 role is historical only; do not take Cycle 17, run benchmarks, or edit runtime files unless the user explicitly reassigns a new governed follow-up." |
 | Agent 18 | "Read `AGENTS.md`, constitution §7.1.1/§8.6/§12.5/§12.6/§17/§19, `docs/four_agent_cycle_coordination_board.md`, `docs/cycle_18d_combined_cost_boundary_association_investigation.md`, and `docs/entity/systems/osnet_ain_x1_0_reid_model.md`. Confirm both Cycle 18.D `combined_cost` and OSNet-AIN `triton_reid` replays are `BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`. Do not rerun the same profiles, touch live sharding, enable sharding by default, start 15.B2, or claim acceptance without new production evidence and a new identity-state mechanism." |
 | Agent 19 | "Read `AGENTS.md`, constitution §8.6/§12.5/§12.6/§19, the coordination board, `docs/agent_19_cycle_18_turn.md`, and `docs/cycle_18_redis_boundary_state_cache_investigation.md`. Your Cycle 18.C lane is released and **NOT ACCEPTED**; only final docs, evidence checks, and handoff cleanup are allowed unless a new identity-state design is explicitly opened. Runtime Redis writes, default-on sharding, 15.B2, reruns of failed profiles, and production benchmarks without a recorded lock are forbidden." |
-| Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Cycle 20 is limited to measurement-only timeline instrumentation and the governed wrapper; keep `OFFLINE_STREAM_POST_STAGES=0`, do not add streaming persistence/embedding queues, do not change worker topology, and do not claim a decision before production §12.6 evidence plus figures." |
+| Agent 20 | "Read `AGENTS.md`, constitution §8.1.1/§8.6/§12.5/§12.6, the coordination board, `docs/agent_20_remaining_lanes_turn.md`, `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`, `docs/production_inference_benchmark.md` §50, and `docs/cycle_21_celery_concurrency_scaling_investigation.md`. Cycle 20.D is **NOT ACCEPTED**; keep `OFFLINE_STREAM_POST_STAGES=0`, do not rerun the same streaming writer unchanged, do not add embedding overlap queues, and do not change worker topology without a new design plus production §12.6 evidence and figures." |
 
 ### Agent 19 (Agent B): Cycle 18
 
@@ -301,28 +301,24 @@ label-invariant identity, DB/GPU/RTT metrics, generated figures, and rollback.
 
 ### Agent C: Cycle 20
 
-Objective: advance Cycle 20 from the production-recorded measurement timeline
-to a default-off streaming persistence writer benchmark, without enabling
-embedding overlap or live-profile behavior.
+Objective: keep Cycle 20.D closed as **NOT ACCEPTED** after the default-off
+streaming persistence writer benchmark, without enabling embedding overlap or
+live-profile behavior from the rejected profile.
 
 Allowed next outputs:
 
-- Default-off timestamp instrumentation around the existing serial upload,
-  persistence, embedding, and terminal boundaries.
-- Production wrapper that defaults to timeline-only mode and can enable
-  `OFFLINE_STREAM_POST_STAGES=1` for one governed Phase D replay.
-- Metrics/figure artifacts proving whether persistence or embedding currently
-  overlaps inference.
-- Default-off streaming persistence writer evidence proving whether per-frame
-  DB packets can overlap inference without duplicate rows or embedding
-  orphaning.
+- Final documentation/evidence cleanup for the released r3 benchmark.
+- Follow-up design notes only if they address the r3 finding that final
+  tracking assignment forced Step 3 to rewrite `4449/4541` packets.
+- A fresh benchmark-lock proposal only for a materially different post-stage
+  design, not the same streaming writer profile.
 
 Agent 20 / Agent C charter:
 
 | Topic | Decision |
 |---|---|
-| Current state | `PHASE D WRITER IMPLEMENTED LOCALLY / BENCHMARK PENDING / NO_DECISION`. |
-| Blocking dependency | Do not add embedding windows or new worker topology before the streaming writer benchmark proves row correctness, overlap, rollback, and inference protection. |
+| Current state | `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED`. |
+| Blocking dependency | Do not add embedding windows or new worker topology from this candidate; r3 restored correctness but failed throughput, inference protection, GPU utilization, and Step 3 elimination gates. |
 | Persistence truth | PostgreSQL only; no SQLite fallback. |
 | Current flow | DB rows are persisted after full in-memory `frame_detections`; embeddings start after follow-up handoff. |
 | First implementation profile | Treat as `offline-only` unless explicitly redesigned for live. |
@@ -336,10 +332,10 @@ Candidate subcycle split:
 | 20.A | Readiness contract V0. |
 | 20.B | Measurement-only overlap timestamps, collector fields, wrapper, and figures. |
 | 20.C | Terminal-marker measurement repair. |
-| 20.D | Streaming persistence writer only; no embedding overlap. |
-| 20.E | Embedding window worker after safe row watermark. |
-| 20.F | Terminal coordinator waits for all required stages. |
-| 20.G | Full production benchmark and rollback proof. |
+| 20.D | Streaming persistence writer only; no embedding overlap; **NOT ACCEPTED**. |
+| 20.E | Embedding window worker after safe row watermark; blocked by 20.D rejection. |
+| 20.F | Terminal coordinator waits for all required stages; blocked unless a new post-stage design starts. |
+| 20.G | Full production benchmark and rollback proof; blocked unless a new post-stage design starts. |
 
 Agent C must preserve bounded queues, no unbounded per-job buffers, no live
 file-seek assumptions, no orphan embeddings, and terminal-state correctness.
@@ -410,3 +406,4 @@ rollback failure, even if FPS improves.
 | 2026-06-06 | Cycle 20.D streaming persistence writer | 20.D | Benchmark lock held for `cycle20d-streaming-persistence-20260606T002816Z` after local gates and production hash parity passed. | Run the governed wrapper with `--stream-post-stages 1`, collect metrics/model agreement/figures/rollback, release the lock with a §12.6 decision or blocker table. |
 | 2026-06-06 | Cycle 20.D streaming persistence writer | 20.D | Replay `cycle20d-streaming-persistence-20260606T002816Z` completed and rolled back, but is `NEEDS_ITERATION_NO_DECISION`: stale unavailable metadata remained and Step 3 reconciled `3633/4541` packets. Fresh lock held for `cycle20d-streaming-persistence-r2-20260606T005032Z`. | Deploy the revision-callback fix, rerun the governed wrapper, and release r2 with evidence-backed decision or blocker table. |
 | 2026-06-06 | Cycle 20.D streaming persistence writer | 20.D | Replay `cycle20d-streaming-persistence-r2-20260606T005032Z` completed and rolled back, but is `NEEDS_ITERATION_NO_DECISION`: Step 3 reconciliation was `0`, but person-detection model agreement fell to `4.383676%` from stream-time track-ID drift. Fresh lock held for `cycle20d-streaming-persistence-r3-20260606T011056Z`. | Deploy packet-signature reconciliation, rerun the governed wrapper, and release r3 with evidence-backed decision or blocker table. |
+| 2026-06-06 | Cycle 20.D streaming persistence writer | 20.D | Replay `cycle20d-streaming-persistence-r3-20260606T011056Z` / job `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` completed and rolled back; decision **NOT ACCEPTED**. Correctness recovered to `100.000%` per-model F1 and row parity, but DB FPS regressed `14.30%`, Step 2 frame wall regressed `16.18%`, GPU average utilization regressed `14.93%`, embedding stayed serial, and Step 3 reconciled `4449/4541` packets. | Keep `OFFLINE_STREAM_POST_STAGES=0`; do not rerun the same writer profile or advance Cycle 21 worker scaling from this failed candidate. |

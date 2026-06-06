@@ -1482,6 +1482,31 @@ rejected, or used to advance sharding.
   `docs/figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/`.
   Next gate is a default-off streaming-writer candidate with bounded
   idempotent persistence evidence, regenerated figures, and rollback proof.
+- **2026-06-06 Cycle 20.D streaming persistence writer
+  PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED**:
+  the default-off writer was implemented behind `OFFLINE_STREAM_POST_STAGES=1`
+  and replayed under the governed wrapper with
+  `cycle20d-streaming-persistence-r3-20260606T011056Z`, job
+  `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b`, at SHA `4e294f52`.
+  r1 and r2 are retained as `NEEDS_ITERATION_NO_DECISION` attempts in
+  `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`.
+  r3 restored row parity and all four model-agreement F1 values to
+  `100.000 %`, but DB-completed FPS regressed `5.619787 -> 4.816369`
+  (`-14.30 %`), Step 2 frame wall regressed `467.449833 s -> 543.095716 s`
+  (`+16.18 %`), Step 2 through-pose wall regressed
+  `641.154064 s -> 776.076979 s` (`+21.04 %`), behavior RTT mean regressed
+  `83.530 ms -> 87.057 ms` (`+4.22 %`), average GPU utilization regressed
+  `11.846 % -> 10.077 %` (`-14.93 %`), embedding still did not start before
+  inference finished, and Step 3 reconciled `4449/4541` packets before
+  embeddings. Rollback restored `OFFLINE_STREAM_POST_STAGES=0` and
+  `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, Triton/backend health was `200/200`,
+  and production hash parity passed before/after the run. Evidence is in
+  `docs/production_inference_benchmark.md` §50 and
+  `docs/figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/`.
+  Do not enable `OFFLINE_STREAM_POST_STAGES=1`, rerun the same writer profile
+  unchanged, or start a Cycle 21 worker-count matrix from this failed candidate;
+  future post-stage overlap needs a final-tracking-aware design or a newly
+  measured bottleneck.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

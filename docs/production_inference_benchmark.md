@@ -4203,6 +4203,117 @@ kept the serial post-stage path, and the next authoritative gate is a
 default-off streaming writer candidate with bounded persistence packets,
 idempotent detection/box writes, regenerated figures, and rollback proof.
 
+## 50. Cycle 20.D Streaming Persistence Writer
+
+Cycle 20.D enabled the default-off offline streaming persistence writer during
+one governed production replay. Earlier r1/r2 attempts are retained in
+`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` as
+`NEEDS_ITERATION_NO_DECISION` evidence. The r3 replay below is the
+authoritative Phase D decision record: packet-signature reconciliation restored
+model agreement, but the candidate regressed throughput and still required
+large Step 3 packet rewrites before embeddings.
+
+| Item | Value |
+|---|---|
+| Status | `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED` |
+| Runtime commit | `4e294f52` |
+| Replay key | `cycle20d-streaming-persistence-r3-20260606T011056Z` |
+| Job ID | `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/post_stage_timeline_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/model_agreement_baseline_vs_post_stage_timeline.json` / `.md` |
+| Wait snapshot | `/home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/post_stage_wait_snapshot.json` |
+| Rollback JSON | `/home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/rollback_status.json` |
+| Runtime probe | `/home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/runtime_probe_snapshot.json` |
+| Bench summary | `/home/bamby/grad_project/backend/logs/bench_summary_20260606T041321.json` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T041321.csv` |
+| Inference audit | `/home/bamby/grad_project/backend/data/videos/24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b/inference_audit.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/figure_manifest.json` |
+| Figure roles | Planner `Cycle 20.D streaming persistence writer agent`; implementer `Cycle 20.D streaming persistence writer agent`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance and lifecycle measurements:
+
+| Metric | Baseline | Candidate | Delta / result |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `4.816369` | `-14.30 %` |
+| DB completed elapsed | `808.038 s` | `942.826 s` | `+16.68 %` |
+| Step 2 frame wall | `467.449833 s` | `543.095716 s` | `+16.18 %` |
+| Step 2 through-pose wall | `641.154064 s` | `776.076979 s` | `+21.04 %` |
+| GPU avg util | `11.846 %` | `10.077 %` | `-14.93 %` |
+| GPU peak util | `57.000 %` | `53.000 %` | `-7.02 %` |
+| Behavior RTT mean | `83.530 ms` | `87.057 ms` | `+4.22 %` |
+| Behavior RTT p95 | `129.514 ms` | `133.759 ms` | `+3.28 %` |
+| Behavior RTT p99 | `135.533 ms` | `139.824 ms` | `+3.17 %` |
+| First packet ready before inference done | `unavailable` | `true` | overlap marker recorded |
+| Persistence starts before inference done | `unavailable` | `true` | overlap marker recorded |
+| Embedding starts before inference done | `unavailable` | `false` | embedding remained serial |
+| Persistence wall | `unavailable` | `814.368411 s` | writer contended with inference |
+| Embedding start lag after inference done | `unavailable` | `66.132647 s` | still post-inference |
+| Embedding wall | `unavailable` | `99.173889 s` | unchanged post-stage shape |
+| Terminal lag after embedding | `unavailable` | `0.233082 s` | terminal marker recorded |
+
+Timeline marker gate:
+
+| Marker | Result |
+|---|---|
+| `first_persist_packet_ready_at` | `2026-06-06T01:13:27.635961+00:00` |
+| `first_frame_persisted_at` | `2026-06-06T01:13:27.681840+00:00` |
+| `frame_inference_done_at` | `2026-06-06T01:26:23.306683+00:00` |
+| `all_frames_persisted_at` | `2026-06-06T01:27:02.050251+00:00` |
+| `first_embedding_started_at` | `2026-06-06T01:27:29.439330+00:00` |
+| `embedding_done_at` | `2026-06-06T01:29:08.613219+00:00` |
+| `terminal_coordinator_done_at` | `2026-06-06T01:29:08.846301+00:00` |
+| Wait snapshot | `missing_required=[]`, `unavailable={}` |
+| Packet ready to inference done | `775.670722 s` before inference drain |
+
+Correctness, packet, and rollback gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72744` | Matches baseline row parity |
+| BBox rows | `72744` | Matches baseline row parity |
+| Embedding rows | `72578` | Matches baseline row parity |
+| StudentTracks | `53` | Matches baseline |
+| Per-model agreement F1@IoU0.5 | `100.000 %` for all four behavior models | Pass model-agreement proxy |
+| Streaming attempted packets | `8174` | Shows initial writes plus revised packets |
+| Streaming persisted packets | `8174` | No streaming write failure recorded |
+| Streaming replaced pre-embedding packets | `3633` | Required by revised packets before embeddings |
+| Step 3 already-complete packets | `92` | Only `2.03 %` of frames avoided Step 3 rewrite |
+| Step 3 reconciled packets | `4449` | Fails intended Step 3 elimination/overlap gate |
+| Rollback verified | `true` | `OFFLINE_STREAM_POST_STAGES=0` and `OFFLINE_STREAM_POST_STAGE_TIMELINE=0` restored |
+| Production health after rollback | Triton `200`, backend `200` | Pass service-readiness check |
+
+### 50.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__decision_delta.png)
+
+![Relative Delta](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__relative_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__wall_breakdown.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__packet_readiness.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__packet_budget.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__gpu_profile.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__evidence_completeness.png)
+
+Decision: **NOT ACCEPTED**. Cycle 20.D proved that per-frame persistence can
+start while frame inference is still running, and r3 restored DB/model parity
+after packet-signature reconciliation. It still fails the optimization gate:
+DB-completed FPS regressed `14.30 %`, Step 2 frame wall regressed `16.18 %`,
+average GPU utilization regressed `14.93 %`, embedding did not overlap
+inference, and Step 3 still reconciled `4449/4541` packets before embeddings.
+Do not enable `OFFLINE_STREAM_POST_STAGES=1` by default and do not advance to a
+Cycle 21 worker-count matrix from this candidate. Any future post-stage overlap
+work needs a different final-tracking-aware persistence design or another
+measured bottleneck before a fresh benchmark lock.
+
 ---
 
 *Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*

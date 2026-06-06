@@ -1139,7 +1139,7 @@ Cycle 18 is now documented as Phase A contract-only in
 boundary-state caching remains blocked until a new identity-state design proof
 addresses the Cycle 15 sharding correctness failures.
 
-### 2026-06-05 Open Latency-Cycle Sort
+### 2026-06-06 Open Latency-Cycle Sort
 
 The next optimization work is sorted by measured upside, dependency order, and
 readiness. This replaces the older "Cycle 20 last" wording below for active
@@ -1147,15 +1147,24 @@ cycle selection; the older paragraphs remain as historical context.
 
 | Sort | Cycle | Current state | Why this order | Expected gain if gates pass |
 |---:|---|---|---|---|
-| 1 | **Cycle 20 post-stage timeline, then streaming persistence/embedding overlap** | `PHASE D WRITER IMPLEMENTED LOCALLY / BENCHMARK PENDING / NO DECISION` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 is now the next non-sharding latency lane. Production replay `cycle20-post-stage-timeline-20260605T212526Z` proved the current lifecycle is still serial while keeping `OFFLINE_STREAM_POST_STAGES=0`; terminal-marker replay `cycle20c-terminal-marker-r3-20260605T233053Z` then proved `terminal_coordinator_done_at`; Phase D now has a default-off streaming persistence writer awaiting production replay. | Latest measured serial gaps are persistence wall `43.184512 s`, embedding start lag after inference done `69.173672 s`, embedding wall `99.369505 s`, and terminal lag after embedding `0.244864 s`; next gate is the governed `--stream-post-stages 1` production benchmark with rollback, figures, and correctness evidence. |
-| 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY` | Extra workers are credible only after sharding or streamed post-stages create independent work. Running it before then mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, and rollback proof exist. |
+| 1 | **Cycle 20 post-stage timeline, then streaming persistence/embedding overlap** | `20.D NOT ACCEPTED / LOCK RELEASED` | Cycle 18.D is complete and **NOT ACCEPTED**; sharding remains blocked by packet-schema and identity correctness. Cycle 20 became the next non-sharding latency lane and produced three production records: serial timeline replay `cycle20-post-stage-timeline-20260605T212526Z`, terminal-marker replay `cycle20c-terminal-marker-r3-20260605T233053Z`, and streaming-writer r3 replay `cycle20d-streaming-persistence-r3-20260606T011056Z`. | r3 restored row parity and `100.000%` per-model F1, but DB FPS regressed `14.30%`, Step 2 frame wall regressed `16.18%`, GPU average utilization regressed `14.93%`, embedding stayed serial, and Step 3 reconciled `4449/4541` packets. Do not rerun the same writer profile; a future post-stage attempt needs a new final-tracking-aware design. |
+| 2 | **Cycle 21 Celery worker/thread/concurrency matrix** | `GOVERNANCE ONLY / BLOCKED BY 20.D RESULT` | Extra workers are credible only after sharding, streamed post-stages, multiple jobs, or another measured queue bottleneck creates independent work. Cycle 20.D did not create beneficial independent work, so running the matrix now mostly measures contention or idle workers. | Unknown until a matrix runs; no expected gain may be claimed before baseline/candidate worker topology, duplicate-worker checks, DB/Redis/GPU budgets, correctness, and rollback proof exist. |
 | 3 | **Cycle 11.B / Cycle 9b B.3 child-kernel tuning at 320** | `PLANNED / LOW CEILING` | It is lower risk than lifecycle work, but the measured dominant-child gap caps the benefit. It cannot close the SLA alone. | Bounded at about `~4 %` Step 2 wall, roughly `18 s` on a `459 s` Step 2 frame wall. |
 | 4 | **Cycle 9b B.1 / Cycle 14.D compact postprocessing** | `OPEN / NO IMPLEMENTATION SELECTED` | Phase A measured decode/output work as small after Top-K, and the pinned Triton runtime lacks the Python backend. | Decode/NMS-only savings are about `2 %` of Step 2; a larger gain requires a backend/runtime change that also reduces server wait or execution. |
 | 5 | **Cycle 19 Redis server-side scripts** | `CONDITIONAL` | Cycle 16.B already coalesced the measured Redis side-effect bottleneck; scripts require a new measured Redis read/compute/write hotspot. | No current gain estimate; start only if new production profiling exposes a Redis script-shaped hotspot. |
 | 6 | **Cycle 10 LPM redesign** | `STAGED AFTER REJECTION` | Important for fusion quality, but not a latency-first cycle. It should not preempt higher-throughput blockers unless the user explicitly changes priority to behavior correctness. | No latency gain expected; acceptance would be correctness/contradiction-signal quality, not throughput. |
 | Blocked | **Cycle 15.B1 identity-fixed sharding rerun, then 15.B2 only after B1 passes** | `B1 NOT ACCEPTED / B2 BLOCKED` | Cycle 18.D fixed packet validity and then tested a real OSNet-AIN `triton_reid` descriptor, but the latest replay still failed merge readiness (`1/2`), StudentTrack parity (`53 -> 57`), model agreement, and label-invariant identity. | Same measured two-shard envelope exists, but no sharding gain is accepted. A new identity-state producer, human-labeled ground-truth evaluation, or association redesign must pass a two-shard benchmark before 15.B1/15.B2 can resume. |
 
-**Most recent cycle decision:** Cycle 18.D OSNet-AIN Triton ReID replay
+**Most recent cycle decision:** Cycle 20.D streaming persistence writer replay
+`cycle20d-streaming-persistence-r3-20260606T011056Z` is **NOT ACCEPTED**.
+Correctness recovered to row parity and `100.000 %` per-model F1, but DB FPS
+regressed `5.619787 -> 4.816369`, Step 2 frame wall regressed
+`467.449833 s -> 543.095716 s`, GPU average utilization regressed
+`11.846 % -> 10.077 %`, embedding did not start before inference finished, and
+Step 3 still reconciled `4449/4541` packets. The same writer profile must not
+be rerun as a new decision and must not justify Cycle 21 worker-count scaling.
+
+Prior sharding decision: Cycle 18.D OSNet-AIN Triton ReID replay
 `cycle18d-osnet-reid-20260605T202019Z` is **NOT ACCEPTED**. The model build and
 parity gates passed, DB FPS improved `5.619787 -> 7.584265`, and Step 2 wall
 improved `467.449833 s -> 245.762854 s`, but identity gates still failed:
@@ -1163,19 +1172,21 @@ merge-ready packets `1/2`, shard-1 existing-parent mapping `17/36`, offset
 fallbacks `19/36`, StudentTracks `53 -> 57`, minimum model-agreement
 F1@IoU0.5 `53.788 %`, and minimum shard-1 global-assignment F1 `79.876 %`.
 
-Cycle 20 has production measurement-only runs in
-`docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` and
-`docs/production_inference_benchmark.md` §48-§49. Replay
+Cycle 20 has production measurement-only, terminal-marker, and Phase D writer
+runs in `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md`
+and `docs/production_inference_benchmark.md` §48-§50. Replay
 `cycle20-post-stage-timeline-20260605T212526Z` / job
 `58d53985-1c86-46fd-944c-771ea3afce1a` completed `4541/4541` frames and
 confirmed that persistence and embedding still start after frame inference is
 done. Terminal-marker replay `cycle20c-terminal-marker-r3-20260605T233053Z` /
 job `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` then recorded
 `terminal_coordinator_done_at` with wait snapshot `missing_required=[]`. The
-wrapper added timeline evidence only; it did not enable
-`OFFLINE_STREAM_POST_STAGES` or any queue/worker split. The sorted queue can now
-advance only to a default-off streaming-writer candidate with bounded
-idempotent persistence evidence, not to an acceptance claim.
+Phase D r3 writer replay `cycle20d-streaming-persistence-r3-20260606T011056Z` /
+job `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` enabled
+`OFFLINE_STREAM_POST_STAGES=1` only inside the governed wrapper and rolled back
+to both Cycle 20 flags at `0`. It is not accepted; the sorted queue can now
+advance only to a different post-stage design or another measured bottleneck,
+not to this writer profile or a worker-count matrix based on it.
 
 Cycle 21 is staged in
 `docs/cycle_21_celery_concurrency_scaling_investigation.md` for Celery worker,

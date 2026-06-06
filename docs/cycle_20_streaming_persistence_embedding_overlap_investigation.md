@@ -2,12 +2,13 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** Phase D default-off streaming persistence writer is implemented
-repo-side and locally validated; production benchmark is pending. Phase C
-terminal-coordinator timestamp repair is production-recorded with replay
-`cycle20c-terminal-marker-r3-20260605T233053Z`. The only valid benchmark
-decision state remains `NO_DECISION_PENDING_REVIEW` until the Phase D replay
-completes on production with rollback proof, figures, and correctness evidence.
+**Status:** Phase D default-off streaming persistence writer is production
+benchmarked and **NOT ACCEPTED**. Replay
+`cycle20d-streaming-persistence-r3-20260606T011056Z` restored correctness after
+packet-signature reconciliation, but throughput, Step 2 wall, behavior RTT, GPU
+utilization, and Step 3 packet reconciliation all regressed against the
+accepted baseline. The benchmark lock is released and rollback restored both
+Cycle 20 flags to `0`.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -46,8 +47,10 @@ proof that Step 3 or embedding has started.
 | Commit | `70aebb99` | Wrapper evidence-manifest fix deployed before strict figure regeneration. |
 | Commit | `a6bf10a3` | Wrapper wait gate that keeps the timeline flag enabled until required post-stage markers are recorded. |
 | Commit | `7bf66e97` | Backend-context wait fix used for the final Cycle 20.C terminal-marker production replay. |
+| Commit | `4e294f52` | Packet-signature reconciliation deployed for the final Cycle 20.D r3 production replay. |
 | Job | `58d53985-1c86-46fd-944c-771ea3afce1a` | Production Cycle 20 measurement job for replay `cycle20-post-stage-timeline-20260605T212526Z`. |
 | Job | `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` | Production Cycle 20.C terminal-marker replay job for `cycle20c-terminal-marker-r3-20260605T233053Z`. |
+| Job | `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` | Production Cycle 20.D r3 job for replay `cycle20d-streaming-persistence-r3-20260606T011056Z`. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -99,12 +102,12 @@ authoritative PostgreSQL rows, idempotency, job terminal-state semantics,
 render inputs, embedding inputs, and benchmark evidence collection.
 
 The Cycle 13.C / 16.A Redis command-cost benchmark already promoted and then
-completed Cycle 16.B Redis side-effect coalescing. Cycle 18.D is now complete
-and not accepted, and the sorted queue promotes Cycle 20 as the next
-non-sharding latency lane. That promotion authorizes only the first
-measurement-only implementation slice: record lifecycle timestamps and prove
-the current serial gaps before any writer, queue, worker split, or terminal
-coordinator changes production behavior.
+completed Cycle 16.B Redis side-effect coalescing. Cycle 18.D is complete and
+not accepted, and Cycle 20 has now produced measurement-only, terminal-marker,
+and Phase D streaming-writer production records. The Phase D writer is not
+accepted, so future work must not assume that early packet persistence creates
+useful overlap; it needs a new design that is stable after final tracking
+assignment.
 
 ## Proposed Cycle 20 Scope
 
@@ -439,10 +442,11 @@ bash tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh \
   --figure-implementer "Cycle 20.D streaming persistence writer agent"
 ```
 
-The Phase D decision remains pending. Acceptance or rejection requires the
-completed production replay, rollback JSON, wait snapshot, raw metrics,
-model-agreement evidence, generated figures, and documentation updates in
-`docs/production_inference_benchmark.md`.
+The Phase D decision is now recorded in
+`docs/production_inference_benchmark.md` §50 as **NOT ACCEPTED**. The r3 replay
+completed with rollback proof, raw metrics, model-agreement evidence, and
+generated figures, but the candidate failed the throughput, inference
+protection, GPU-utilization, and Step 3 elimination gates.
 
 ```text
 BENCHMARK_LOCK
@@ -508,6 +512,69 @@ candidate_env_delta: OFFLINE_STREAM_POST_STAGES=1; OFFLINE_STREAM_POST_STAGE_TIM
 started_at_utc: 2026-06-06T01:10:56Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
 ```
+
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer r3
+replay_key: cycle20d-streaming-persistence-r3-20260606T011056Z
+job_id: 24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b
+status: NOT_ACCEPTED
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/post_stage_timeline_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/post_stage_timeline_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/model_agreement_baseline_vs_post_stage_timeline.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/model_agreement_baseline_vs_post_stage_timeline.md
+wait_snapshot_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/post_stage_wait_snapshot.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-r3-20260606T011056Z/figures/figure_manifest.json
+released_at_utc: 2026-06-06T01:29:31Z
+notes: Replay completed and rollback restored both Cycle 20 flags to 0. r3 restored row parity and all four model-agreement F1 values to 100.000%, but DB-completed FPS regressed 14.30%, Step 2 frame wall regressed 16.18%, GPU average utilization regressed 14.93%, embedding still did not overlap inference, and Step 3 reconciled 4449/4541 packets before embeddings.
+```
+
+### Phase D production result (2026-06-06)
+
+Cycle 20.D is **NOT ACCEPTED**. The r3 candidate proved that per-frame
+persistence packets can be written before frame inference drains, but those
+writes did not become useful overlap: final tracking assignment and revised
+packet signatures forced Step 3 to rewrite nearly every frame packet before
+embedding generation.
+
+| Metric | Baseline | Candidate r3 | Result |
+|---|---:|---:|---|
+| DB-completed FPS | `5.619787` | `4.816369` | `-14.30 %`; fails throughput gate |
+| DB completed elapsed | `808.038 s` | `942.826 s` | `+16.68 %`; fails total-wall gate |
+| Step 2 frame wall | `467.449833 s` | `543.095716 s` | `+16.18 %`; fails inference-protection gate |
+| Step 2 through-pose wall | `641.154064 s` | `776.076979 s` | `+21.04 %`; fails inference-protection gate |
+| Behavior RTT mean | `83.530 ms` | `87.057 ms` | `+4.22 %`; regressed |
+| GPU avg util | `11.846 %` | `10.077 %` | `-14.93 %`; fails utilization gate |
+| GPU peak util | `57.000 %` | `53.000 %` | `-7.02 %` |
+| Detection/BBox rows | `72744` / `72744` | `72744` / `72744` | row parity restored |
+| Embedding rows | `72578` | `72578` | row parity restored |
+| StudentTracks | `53` | `53` | parity restored |
+| Per-model F1@IoU0.5 | `100.000 %` | `100.000 %` | correctness proxy passed |
+| First packet before inference done | `unavailable` | `true` | overlap marker recorded |
+| Embedding starts before inference done | `unavailable` | `false` | embedding stayed serial |
+| Streaming persisted packets | `unavailable` | `8174` | initial plus revised packets |
+| Step 3 reconciled packets | `unavailable` | `4449` | fails Step 3 elimination gate |
+| Rollback verified | required | `true` | both Cycle 20 flags restored to `0` |
+
+Figure manifest:
+`docs/figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/figure_manifest.json`.
+
+![Cycle 20.D decision delta](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__decision_delta.png)
+
+![Cycle 20.D packet readiness](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__packet_readiness.png)
+
+![Cycle 20.D packet budget](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__packet_budget.png)
+
+![Cycle 20.D correctness gate](figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/cycle20d_streaming_persistence__correctness_gate.png)
+
+The decision consequence is to keep `OFFLINE_STREAM_POST_STAGES=0` and stop
+this writer profile. Cycle 21 worker-count scaling should not start from this
+candidate because the run did not create beneficial independent post-stage
+work. A future Cycle 20 follow-up needs a different design that persists only
+final-tracking-stable packets, or a separate measured bottleneck that justifies
+a fresh benchmark lock.
 
 ### Measurement-only timestamp contract
 
@@ -617,10 +684,9 @@ future implementation explicitly documents a schema migration.
 
 ## Ordering Decision
 
-Stage this as **Cycle 20** after Cycle 16.B and the planned Cycle 14-19
-roadmap. It is late by default because it is a broader lifecycle contract
-change. It may be moved earlier only after a completed production benchmark
-decision table proves that post-stage tail, not inference wall or Redis
-side-effect coalescing, is the next dominant limiter. If Cycle 20 creates
-independent streaming persistence or embedding tasks, run the Cycle 21
-concurrency matrix afterward rather than raising worker counts blindly.
+Cycle 20.D is now closed as **NOT ACCEPTED** for this writer profile. It did
+not create beneficial independent streaming persistence or embedding work, so
+Cycle 21 concurrency scaling must not be promoted from this result. Any future
+Cycle 20 follow-up needs a fresh design and benchmark lock that address the r3
+finding: final tracking assignment forced Step 3 to reconcile `4449/4541`
+packets before embeddings.
