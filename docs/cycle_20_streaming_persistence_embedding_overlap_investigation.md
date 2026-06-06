@@ -455,6 +455,33 @@ started_at_utc: 2026-06-06T00:28:16Z
 expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
 ```
 
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer
+replay_key: cycle20d-streaming-persistence-20260606T002816Z
+job_id: 40b9ee20-1179-4363-990f-621ea9d78a8d
+status: NEEDS_ITERATION_NO_DECISION
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-20260606T002816Z/post_stage_timeline_metrics.json
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-20260606T002816Z/model_agreement_baseline_vs_post_stage_timeline.json
+wait_snapshot_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-20260606T002816Z/post_stage_wait_snapshot.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-20260606T002816Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20d-streaming-persistence-20260606T002816Z/figures/figure_manifest.json
+released_at_utc: 2026-06-06T00:50:32Z
+notes: Replay completed and rollback restored both Cycle 20 flags to 0, but the candidate is not decision-valid: metadata still carried a stale unavailable reason for first_persist_packet_ready_at, and Step 3 reconciled 3633/4541 packets because interpolation mutated prior frame packets after the first callback.
+```
+
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer r2
+replay_key: cycle20d-streaming-persistence-r2-20260606T005032Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=1; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only; revision callback re-persists interpolation-mutated packets; no embedding-overlap queue; live profile remains disabled
+started_at_utc: 2026-06-06T00:50:32Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence
