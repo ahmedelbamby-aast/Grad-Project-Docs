@@ -4314,6 +4314,16 @@ Cycle 21 worker-count matrix from this candidate. Any future post-stage overlap
 work needs a different final-tracking-aware persistence design or another
 measured bottleneck before a fresh benchmark lock.
 
+Repo-side follow-up staged on 2026-06-06: `backend/apps/video_analysis/tasks.py`
+adds `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the same
+default-off `OFFLINE_STREAM_POST_STAGES=1` gate. This repaired candidate records
+readiness in Step 2 callbacks but defers authoritative PostgreSQL writes until
+after final tracking assignment and shard filtering, using a bounded
+background writer. The wrapper now rolls the new mode back to `inline_db`. This
+is **not** a benchmark result and does not change the Cycle 20.D decision; it
+must receive a new production replay, figures, deltas, and rollback proof
+before any acceptance or rejection claim.
+
 ---
 
 *Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*

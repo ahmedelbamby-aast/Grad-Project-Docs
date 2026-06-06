@@ -576,6 +576,38 @@ work. A future Cycle 20 follow-up needs a different design that persists only
 final-tracking-stable packets, or a separate measured bottleneck that justifies
 a fresh benchmark lock.
 
+### 2026-06-06 Cycle 20.E Root-Cause Repair Candidate
+
+Status: `STAGED_LOCAL`; no production benchmark and no acceptance claim exists.
+
+The repo-side repair addresses the two Cycle 20.D r3 root causes without
+rerunning the rejected writer profile. `backend/apps/video_analysis/tasks.py`
+now supports `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the
+existing default-off `OFFLINE_STREAM_POST_STAGES=1` gate. In that mode, Step 2
+callbacks record packet readiness only; they do not issue authoritative
+PostgreSQL writes. After final `_assign_tracking_ids(...)` and any shard
+authoritative-frame filter complete, a bounded one-thread background writer
+persists cloned final-stable packets while the pose tail can continue. Step 3
+then verifies packet signatures and should report already-complete packets
+instead of rewriting pre-final tracking rows.
+
+The old `inline_db` mode is retained only for evidence replay of Cycle 20.D.
+The production wrapper
+`tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh` now accepts
+`--stream-post-stage-mode final_stable_overlap`, records the mode in the figure
+input manifest, and rolls `OFFLINE_STREAM_POST_STAGE_MODE` back to `inline_db`.
+`tools/prod/prod_enable_parallel_flow.sh`,
+`tools/prod/prod_triton_endpoint_policy.sh`, `backend/config/settings/base.py`,
+and `backend/.env.example` keep live/default behavior disabled.
+
+The repaired candidate must still pass a fresh production RTX 5090 replay with
+figures before any decision. The required proof is: no Step 2 wall/RTT/GPU
+regression, `final_stable_persistence_failed_packet_count=0`,
+`step3_reconciled_packet_count=0` or a documented unavailable reason, DB/model
+parity, rollback restoring `OFFLINE_STREAM_POST_STAGES=0`,
+`OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, and
+`OFFLINE_STREAM_POST_STAGE_MODE=inline_db`.
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence

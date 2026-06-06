@@ -42,19 +42,19 @@ without guessing from chat history.
 | Agent name | Agent 20 |
 | Board lanes | Agent C and Agent D |
 | Cycles | Cycle 20 and Cycle 21 |
-| Turn state | `RELEASED_AFTER_CYCLE20D_NOT_ACCEPTED` |
+| Turn state | `STAGED_AFTER_CYCLE20E_ROOT_CAUSE_REPAIR` |
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
-| Current phase | Cycle 20.D streaming persistence writer not accepted; Cycle 21 governance only |
+| Current phase | Cycle 20.D not accepted; Cycle 20.E final-stable persistence candidate staged locally; Cycle 21 governance only |
 | Production benchmark lock | `RELEASED` for `cycle20d-streaming-persistence-r3-20260606T011056Z` |
-| Runtime implementation permission | No further Cycle 20.D runtime change without a new design; no embedding window worker or live behavior |
-| Production env permission | No active env-change permission from this ledger; both Cycle 20 flags must remain `0` |
+| Runtime implementation permission | Cycle 20.E root-cause repair implemented default-off; no embedding window worker or live behavior |
+| Production env permission | No active env-change permission from this ledger; both Cycle 20 flags must remain `0` and `OFFLINE_STREAM_POST_STAGE_MODE=inline_db` |
 
 ## Claimed Responsibilities
 
 | Lane | Responsibility | Current boundary |
 |---|---|---|
-| Cycle 20 | Measurement-only replay, terminal-marker replay, and Phase D r3 replay recorded; Phase D is **NOT ACCEPTED**. | Keep `OFFLINE_STREAM_POST_STAGES=0`; no same-profile rerun, embedding window worker, or live behavior without a new design and benchmark lock. |
+| Cycle 20 | Measurement-only replay, terminal-marker replay, and Phase D r3 replay recorded; Phase D is **NOT ACCEPTED**. Cycle 20.E is staged locally as a new final-stable design. | Keep `OFFLINE_STREAM_POST_STAGES=0`; no production enablement, same-profile rerun, embedding window worker, or live behavior without a fresh benchmark lock. |
 | Cycle 21 | Prepare concurrency benchmark governance and topology-proof requirements. | No worker count, pool type, prefetch, GPU cap, or `backend/.env` changes. |
 | Coordination | Keep shared docs aligned with the turn claim and released benchmark lock. | No new acceptance, skip, or closure claim without fresh production evidence. |
 
@@ -82,6 +82,7 @@ without guessing from chat history.
 | `A20-C20D-03` Run Phase D production benchmark. | `NEEDS_ITERATION_NO_DECISION` | Replay key `cycle20d-streaming-persistence-20260606T002816Z`; job completed and rollback passed, but stale unavailable metadata and `3633/4541` Step 3 reconciled packets made it non-decision evidence. |
 | `A20-C20D-04` Run Phase D r2 production benchmark. | `NEEDS_ITERATION_NO_DECISION` | Replay key `cycle20d-streaming-persistence-r2-20260606T005032Z`; job completed and rollback passed, but person-detection model agreement fell to `4.383676%` from stream-time track-ID drift. |
 | `A20-C20D-05` Run Phase D r3 production benchmark. | `NOT_ACCEPTED` | Replay key `cycle20d-streaming-persistence-r3-20260606T011056Z`; job `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` completed with rollback, figures, row parity, and `100.000%` per-model F1, but DB FPS regressed `14.30%`, Step 2 wall regressed `16.18%`, GPU average utilization regressed `14.93%`, embedding stayed serial, and Step 3 reconciled `4449/4541` packets. |
+| `A20-C20E-01` Stage Cycle 20 root-cause repair candidate. | `STAGED_LOCAL` | `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` records callback readiness without callback DB writes, then persists cloned final-stable packets after final tracking assignment and shard filtering. Wrapper rollback resets the mode to `inline_db`; live policy rejects non-default mode selection. No production decision exists. |
 
 ## Owned Files And Boundaries
 
@@ -107,7 +108,7 @@ Agent 20 must not:
 | Run the Cycle 17 production benchmark. | Agent 18 or an explicit benchmark-lock owner. |
 | Modify Cycle 17 runtime files, tests, or benchmark wrapper. | Cycle 17 lane. |
 | Implement Cycle 18 boundary-state cache runtime. | Agent 19 lane plus future design-proof gate. |
-| Leave streaming persistence enabled, rerun the same rejected writer profile unchanged, add embedding windows, or change terminal coordinator behavior. | New Cycle 20 design plus production benchmark gate after the Phase D rejection. |
+| Leave streaming persistence enabled, rerun the same rejected writer profile unchanged, add embedding windows, or change terminal coordinator behavior. | Cycle 20.E needs a fresh production benchmark gate before any decision or production enablement. |
 | Change Celery worker counts, pool type, prefetch, queue topology, or GPU caps. | Cycle 21 production matrix gate. |
 | Enable sharding or start 15.B2. | New identity-state proof plus production authority required. |
 | Mark any cycle accepted, rejected, skipped, closed, or complete. | Constitution §12.5 / §12.6 production benchmark authority. |
@@ -126,16 +127,19 @@ Agent 20 must not:
 | 2026-06-06 Phase D local gates | Passed: `python -m py_compile backend/apps/video_analysis/tasks.py tools/prod/prod_collect_benchmark_metrics.py`; `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`; `..\\.venv\\Scripts\\python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py tests/unit/pipeline/test_prod_collect_benchmark_metrics.py -q` (`16 passed`); `git diff --check`; wrapper dry run with `--stream-post-stages 1`. |
 | 2026-06-06 Phase D r3 production replay | Completed but **NOT ACCEPTED**: `cycle20d-streaming-persistence-r3-20260606T011056Z` / job `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b`; rollback restored both Cycle 20 flags to `0`, production hash parity passed at `4e294f52`, and figures were generated under `docs/figures/benchmark_artifacts/cycle20d-streaming-persistence-r3-20260606T011056Z/`. |
 | 2026-06-06 Phase D r3 evidence-finalization gates | Passed: `python scripts/ci/verify_doc_dates_and_reading_order.py` (`262` docs); `python scripts/ci/verify_mermaid_diagrams.py --paths AGENTS.md docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md docs/production_inference_benchmark.md docs/agent_20_remaining_lanes_turn.md docs/four_agent_cycle_coordination_board.md docs/inference_parallelization_plan.md docs/cycle_9_and_10_improvements_todo.md --jobs 2`; `python -m py_compile backend/apps/video_analysis/tasks.py tools/prod/prod_collect_benchmark_metrics.py`; `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`; `..\\.venv\\Scripts\\python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py tests/unit/pipeline/test_prod_collect_benchmark_metrics.py -q` (`17 passed`); `git diff --check` returned only CRLF warnings. |
+| 2026-06-06 Cycle 20.E local gates | Passed: `python -m py_compile backend/apps/video_analysis/tasks.py tools/prod/prod_collect_benchmark_metrics.py`; `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh tools/prod/prod_enable_parallel_flow.sh tools/prod/prod_triton_endpoint_policy.sh`; `backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests\\unit\\video_analysis\\test_cycle20_post_stage_timeline.py backend\\tests\\unit\\pipeline\\test_prod_collect_benchmark_metrics.py -q` (`20 passed`); `backend\\.venv\\Scripts\\python.exe -m pytest backend\\tests\\unit\\scripts\\test_prod_triton_endpoint_policy_script.py backend\\tests\\unit\\docs\\test_triton_phase_knob_docs_consistency.py -q` (`4 passed`); wrapper dry run with `--stream-post-stage-mode final_stable_overlap`; `python scripts/ci/verify_doc_dates_and_reading_order.py`; `python scripts/ci/verify_mermaid_diagrams.py --paths AGENTS.md docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md docs/production_inference_benchmark.md docs/agent_20_remaining_lanes_turn.md docs/four_agent_cycle_coordination_board.md docs/inference_parallelization_plan.md docs/cycle_9_and_10_improvements_todo.md docs/backend/architecture/triton-operations.md --jobs 2`; `git diff --check` returned only CRLF warnings. |
 
 ## Current Summary For Next Agent
 
 Agent 20 completed the documentation/readiness slice, and Cycle 20 now has a
 measurement-only production replay, a terminal-marker rerun, and a Phase D r3
-streaming-writer benchmark recorded. Cycle 20.D is **NOT ACCEPTED** and the
-benchmark lock is released; keep `OFFLINE_STREAM_POST_STAGES=0`. Cycle 21 still
-has no worker-topology change or production benchmark lock, and it should not
-advance from this failed writer candidate because no beneficial independent
-post-stage work was created.
+streaming-writer benchmark recorded. Cycle 20.D is **NOT ACCEPTED**. Cycle 20.E
+is staged locally as a final-tracking-stable persistence candidate, but the
+benchmark lock is released and production defaults remain
+`OFFLINE_STREAM_POST_STAGES=0`, `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, and
+`OFFLINE_STREAM_POST_STAGE_MODE=inline_db`. Cycle 21 still has no
+worker-topology change or production benchmark lock, and it should not advance
+from the failed Cycle 20.D writer candidate.
 
 ## Handoff Protocol
 

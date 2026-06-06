@@ -1507,6 +1507,19 @@ rejected, or used to advance sharding.
   unchanged, or start a Cycle 21 worker-count matrix from this failed candidate;
   future post-stage overlap needs a final-tracking-aware design or a newly
   measured bottleneck.
+- **2026-06-06 Cycle 20.E root-cause repair STAGED_LOCAL / NO_DECISION**:
+  repo-side code now adds `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap`
+  behind the existing default-off `OFFLINE_STREAM_POST_STAGES=1` gate. In this
+  mode callbacks record readiness only; authoritative PostgreSQL packets are
+  written by a bounded background worker after final tracking assignment and
+  shard filtering. The old `inline_db` mode remains only for Cycle 20.D evidence
+  replay. The wrapper resets `OFFLINE_STREAM_POST_STAGE_MODE=inline_db` during
+  rollback, and the live profile policy rejects non-default mode selection.
+  This is not accepted, rejected, or production-enabled until a fresh RTX 5090
+  benchmark, figures, DB/model parity, Step 3 reconciliation proof, and
+  rollback evidence are recorded in
+  `docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md` and
+  `docs/production_inference_benchmark.md`.
 - **2026-06-03 Cycle 21 Celery worker/thread/concurrency scaling STAGED**:
   `docs/cycle_21_celery_concurrency_scaling_investigation.md` records the
   operator permission to increase Celery workers/threads only as a governed

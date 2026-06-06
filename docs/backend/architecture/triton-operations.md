@@ -157,6 +157,7 @@ The following knobs are read by backend runtime configuration and task orchestra
 | `OFFLINE_DB_BATCH_SIZE` | `1000` | `apps.video_analysis.tasks.process_video_upload` |
 | `OFFLINE_OFFLOAD_POST_STAGES` | `true` | `apps.video_analysis.tasks._run_followup_inline_for_job` |
 | `OFFLINE_STREAM_POST_STAGES` | `false` | `apps.video_analysis.tasks._cycle20_update_post_stage_timeline` |
+| `OFFLINE_STREAM_POST_STAGE_MODE` | `inline_db` | `apps.video_analysis.tasks._cycle20_stream_post_stage_mode` |
 | `OFFLINE_STREAM_POST_STAGE_TIMELINE` | `false` | `apps.video_analysis.tasks._cycle20_update_post_stage_timeline`, `tools/prod/prod_collect_benchmark_metrics.py` |
 | `OFFLINE_TRIM_PROCESS_MEMORY` | `true` | `apps.video_analysis.tasks._trim_process_memory_if_enabled` |
 | `OFFLINE_EMBEDDING_REUSE_BY_TRACK` | `true` | `apps.video_analysis.tasks.generate_embeddings` |

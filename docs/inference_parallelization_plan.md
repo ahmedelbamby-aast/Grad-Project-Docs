@@ -1187,6 +1187,12 @@ job `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` enabled
 to both Cycle 20 flags at `0`. It is not accepted; the sorted queue can now
 advance only to a different post-stage design or another measured bottleneck,
 not to this writer profile or a worker-count matrix based on it.
+Repo-side Cycle 20.E now stages that different design locally:
+`OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` records callback
+readiness without callback DB writes, then persists cloned final-stable packets
+after final tracking assignment and shard filtering. This remains default-off
+and has no production decision until a fresh benchmark with figures and
+rollback proof is recorded.
 
 Cycle 21 is staged in
 `docs/cycle_21_celery_concurrency_scaling_investigation.md` for Celery worker,
