@@ -4314,15 +4314,135 @@ Cycle 21 worker-count matrix from this candidate. Any future post-stage overlap
 work needs a different final-tracking-aware persistence design or another
 measured bottleneck before a fresh benchmark lock.
 
-Repo-side follow-up staged on 2026-06-06: `backend/apps/video_analysis/tasks.py`
-adds `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the same
-default-off `OFFLINE_STREAM_POST_STAGES=1` gate. This repaired candidate records
-readiness in Step 2 callbacks but defers authoritative PostgreSQL writes until
-after final tracking assignment and shard filtering, using a bounded
-background writer. The wrapper now rolls the new mode back to `inline_db`. This
-is **not** a benchmark result and does not change the Cycle 20.D decision; it
-must receive a new production replay, figures, deltas, and rollback proof
-before any acceptance or rejection claim.
+Repo-side follow-up on 2026-06-06 added
+`OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the same
+default-off `OFFLINE_STREAM_POST_STAGES=1` gate. That follow-up has now been
+production benchmarked in §51.
+
+## 51. Cycle 20.E Final-Stable Persistence Overlap
+
+Cycle 20.E reran the Cycle 20 post-stage overlap candidate after repairing the
+Cycle 20.D r3 root causes. Step 2 callbacks now record packet readiness only;
+the authoritative PostgreSQL writes use cloned final-tracking-stable packets
+after final tracking assignment and shard filtering. Production drift in the
+generated Triton behavior configs was repaired first by rebuilding the accepted
+320 Top-K route and binding generated `configs/offline.pbtxt` files to the
+same 320 config text.
+
+| Item | Value |
+|---|---|
+| Status | `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED / NOT_ACCEPTED` |
+| Runtime commit | `a9831c90` |
+| Replay key | `cycle20e-final-stable-overlap-20260606T092512Z` |
+| Job ID | `211f96fa-7cfc-4d57-812e-9573906f41c5` |
+| Baseline replay | `cycle15b-pre-shard-baseline-20260603T193531Z` |
+| Baseline job | `74561b05-105f-4ca8-aeaf-f510f4f802de` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/post_stage_timeline_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/model_agreement_baseline_vs_post_stage_timeline.json` / `.md` |
+| Wait snapshot | `/home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/post_stage_wait_snapshot.json` |
+| Rollback JSON | `/home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/rollback_status.json` |
+| Runtime probe | `/home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/runtime_probe_snapshot.json` |
+| Bench summary | `/home/bamby/grad_project/backend/logs/bench_summary_20260606T122535.json` |
+| GPU CSV | `/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260606T122535.csv` |
+| Inference audit | `/home/bamby/grad_project/backend/data/videos/211f96fa-7cfc-4d57-812e-9573906f41c5/inference_audit.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/figure_manifest.json` |
+| Figure roles | Planner `Cycle 20.E final-stable persistence planner`; implementer `Cycle 20.E final-stable persistence implementer`; generator `tools/prod/prod_generate_cycle_figures.py` |
+
+Performance and lifecycle measurements:
+
+| Metric | Best comparable accepted baseline | Candidate | Delta / result |
+|---|---:|---:|---:|
+| DB-completed FPS | `5.619787` | `5.290508` | `-5.86 %` |
+| DB completed elapsed | `808.038 s` | `858.330 s` | `+6.22 %` |
+| Step 2 frame wall | `467.449833 s` | `460.132193 s` | `-1.57 %` |
+| Step 2 through-pose wall | `641.154064 s` | `719.937697 s` | `+12.29 %` |
+| GPU avg util | `11.846 %` | `12.224 %` | `+3.19 %` |
+| GPU peak util | `57.000 %` | `70.000 %` | `+22.81 %` |
+| Peak VRAM | `15725 MiB` | `15725 MiB` | no change |
+| Behavior call rate | `4.451525 calls/s` | `4.190697 calls/s` | `-5.86 %` |
+| Behavior RTT mean | `83.530 ms` | `84.019 ms` | `+0.59 %` |
+| Behavior RTT p95 | `129.514 ms` | `130.723 ms` | `+0.93 %` |
+| Behavior RTT p99 | `135.533 ms` | `138.155 ms` | `+1.93 %` |
+| Embedding created span | `98.578 s` | `99.347 s` | `+0.78 %` |
+| First packet ready before inference done | `unavailable` | `true` | readiness marker recorded |
+| Persistence starts before inference done | `unavailable` | `true` | final-stable writer overlaps inference |
+| Embedding starts before inference done | `unavailable` | `false` | embedding stayed serial |
+| Persistence lag after inference done | `unavailable` | `0.000 s` | persistence was already drained |
+| Embedding start lag after inference done | `unavailable` | `37.279 s` | still post-inference |
+| Embedding wall | `unavailable` | `99.642 s` | unchanged post-stage shape |
+| Terminal lag after embedding | `unavailable` | `0.242 s` | terminal marker recorded |
+
+Timeline marker gate:
+
+| Marker | Result |
+|---|---|
+| `first_persist_packet_ready_at` | `2026-06-06T09:25:41.832829+00:00` |
+| `frame_inference_done_at` | `2026-06-06T09:37:41.382230+00:00` |
+| `first_frame_persisted_at` | `2026-06-06T09:33:45.935507+00:00` |
+| `all_frames_persisted_at` | `2026-06-06T09:36:51.149415+00:00` |
+| `first_embedding_eligible_at` | `2026-06-06T09:37:52.909611+00:00` |
+| `first_embedding_started_at` | `2026-06-06T09:38:18.661717+00:00` |
+| `embedding_done_at` | `2026-06-06T09:39:58.304208+00:00` |
+| `terminal_coordinator_done_at` | `2026-06-06T09:39:58.545969+00:00` |
+| Wait snapshot | `missing_required=[]`, `unavailable={}` |
+
+Correctness, packet, and rollback gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72750` | `+0.01 %` versus baseline; within row-parity tolerance |
+| BBox rows | `72750` | `+0.01 %` versus baseline; within row-parity tolerance |
+| Embedding rows | `72584` | `+0.01 %` versus baseline; within row-parity tolerance |
+| StudentTracks | `53` | Matches baseline |
+| Pose kinematics rows | `19129` | Available; no acceptance gate change |
+| Pose override rows | `0` | Available; no override drift |
+| Minimum per-model F1@IoU0.5 | `99.766 %` | Pass model-agreement proxy |
+| `attention_tracking` boxes | `11770 -> 11775` | `+0.04 %`; within tolerance |
+| `hand_raising` boxes | `8799 -> 8801` | `+0.02 %`; within tolerance |
+| `person_detection` boxes | `19162 -> 19162` | Exact parity |
+| `sitting_standing` boxes | `33013 -> 33012` | Within tolerance |
+| Final-stable attempted packets | `4541` | One authoritative final packet per frame |
+| Final-stable persisted packets | `4541` | Root-cause repair passed |
+| Final-stable failed packets | `0` | Root-cause repair passed |
+| Step 3 already-complete packets | `4541` | Step 3 rewrite root cause eliminated |
+| Step 3 reconciled packets | `0` | Step 3 rewrite root cause eliminated |
+| Streaming skipped existing packets | `4541` | Idempotency guard observed final-stable rows |
+| Redis detailed counters | `unavailable` | Reason in manifest: metric not found in supplied artifacts |
+| Worker RSS p95/p99 | `unavailable` | Reason in manifest: metric not found in supplied artifacts |
+| Tensor parity | `unavailable` | Not a tensor-route candidate; DB/model agreement are the correctness gates |
+| Rollback verified | `true` | `OFFLINE_STREAM_POST_STAGES=0`, `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, and `OFFLINE_STREAM_POST_STAGE_MODE=inline_db` restored |
+
+### 51.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__decision_delta.png)
+
+![Relative Delta](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__relative_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__wall_breakdown.png)
+
+![Packet Readiness](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__packet_readiness.png)
+
+![Packet Budget](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__packet_budget.png)
+
+![Correctness Gate](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__correctness_gate.png)
+
+![GPU Profile](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__gpu_profile.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__evidence_completeness.png)
+
+Decision: **NOT ACCEPTED**. Cycle 20.E repaired the Cycle 20.D root causes:
+final-stable authoritative packets persisted once per frame, Step 3
+reconciliation fell to `0`, no final-stable write failed, DB/model parity
+remained within tolerance, and rollback restored the default serial profile.
+It still fails the optimization gate. DB-completed FPS regressed `5.86 %`,
+total DB elapsed regressed `6.22 %`, Step 2 through-pose wall regressed
+`12.29 %`, behavior call rate fell `5.86 %`, and embedding still started
+`37.279 s` after frame inference finished. Keep
+`OFFLINE_STREAM_POST_STAGES=0`, `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, and
+`OFFLINE_STREAM_POST_STAGE_MODE=inline_db` as the production default. Cycle 21
+worker-count scaling remains blocked until a separate benchmark proves
+independent work that extra workers can consume.
 
 ---
 

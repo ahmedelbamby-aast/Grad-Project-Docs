@@ -1,0 +1,555 @@
+{
+  "cycle_slug": "cycle18b_appearance_packet",
+  "evidence_families": {
+    "bench_summary": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/sharded_summary.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "gpu": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/gpu_monitor.csv"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "inference_audit": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "metrics": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "model_agreement": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "parity": {
+      "paths": [],
+      "reason": "Cycle 18.B is an identity/runtime benchmark; tensor parity is not the target gate.",
+      "status": "unavailable"
+    },
+    "probe": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "readiness": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "rollback": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/rollback_status.json"
+      ],
+      "reason": null,
+      "status": "available"
+    }
+  },
+  "generated_at": "2026-06-05T15:24:03.775619+00:00",
+  "input_digests": [
+    {
+      "bytes": 6943,
+      "path": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+      "sha256": "8d7c497221f1a946d2955119a9ebe0d7abcf902e39d235c54fdea32576e85849"
+    },
+    {
+      "bytes": 1726,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.json",
+      "sha256": "39e2b65dc7ed44eb1dfcb3bbff7e06bb1bcf0a65d81473333a4affd77b3b207b"
+    },
+    {
+      "bytes": 31919,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/gpu_monitor.csv",
+      "sha256": "c82b78cef48cb70e6693afa8027a41e0af6294b9b8862d40051e59f45b569f45"
+    },
+    {
+      "bytes": 99958,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.json",
+      "sha256": "6a3ddc97fb1832ae886e549cabe5e4dc474a70c57f159bb7a5283816bf2446f4"
+    },
+    {
+      "bytes": 113414,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+      "sha256": "535be6c5e0796a9e1bc609107b45935fbf52f2251596b60437ca50a3c144ae3d"
+    },
+    {
+      "bytes": 3156,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json",
+      "sha256": "c47a367f4ea4a32d116bf52c4a975e6495dc816e2815469bbba1af5809f1c23c"
+    },
+    {
+      "bytes": 941,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/rollback_status.json",
+      "sha256": "37db465dbf59d294e09ab2b75cf4ed4bc97557a6264a529f3a2da7978072d1ff"
+    },
+    {
+      "bytes": 48433,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/sharded_summary.json",
+      "sha256": "67157b54a43b6e0fe0440aa3ef859370a3b594bcad8f7bb0cf467bcea77b66bb"
+    }
+  ],
+  "missing_metrics": {
+    "baseline": {
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts"
+    },
+    "best": {
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts"
+    },
+    "candidate": {
+      "parity_failed_count": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "run_complete_wall_s": "metric not found in supplied artifacts"
+    }
+  },
+  "outputs": {
+    "correctness_gate": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__correctness_gate.png",
+    "decision_delta": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__decision_delta.png",
+    "evidence_completeness": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__evidence_completeness.png",
+    "figure_manifest": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/figure_manifest.json",
+    "gpu_profile": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__gpu_profile.png",
+    "markdown": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures.md",
+    "model_rtt": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__model_rtt.png",
+    "sidecar_metadata": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__figure_metadata.json",
+    "wall_breakdown": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/figures/cycle18b_appearance_packet__wall_breakdown.png"
+  },
+  "parsed_metrics": {
+    "baseline": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      }
+    },
+    "best": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      }
+    },
+    "candidate": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 90.765
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 7.409522
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72650.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 16.325
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 91.0
+      },
+      "model_agreement_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json",
+        "status": "available",
+        "unit": "%",
+        "value": 58.997451146983856
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/sharded_summary.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.B uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/rollback_status.json",
+        "status": "available",
+        "unit": "bool",
+        "value": true
+      },
+      "run_complete_wall_s": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "s",
+        "value": null
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 236.317316
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 366.77034
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/sharded_summary.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 36.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      }
+    }
+  },
+  "sources": {
+    "baseline": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "best": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "candidate": [
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/sharded_summary.json",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/metrics.json",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/gpu_monitor.csv",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/model_agreement.json",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/label_invariant_tracking.json",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/boundary_packet_validation.json",
+      "/home/bamby/grad_project/backend/logs/cycle18b-appearance-packet-20260605T151057Z/rollback_status.json"
+    ]
+  },
+  "status": "NO_DECISION_PENDING_REVIEW",
+  "target_gate": {
+    "db_completed_fps": "increase while preserving correctness",
+    "label_invariant_tracking": "global assignment and residual association gates must pass",
+    "model_agreement": "no material regression",
+    "rollback": "must restore sharding and packet flags to disabled defaults",
+    "step2_frame_wall_s": "decrease while preserving identity/model agreement"
+  }
+}

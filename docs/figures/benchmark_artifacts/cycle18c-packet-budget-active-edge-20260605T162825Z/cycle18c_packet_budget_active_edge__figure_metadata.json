@@ -1,0 +1,1382 @@
+{
+  "cycle_slug": "cycle18c_packet_budget_active_edge",
+  "evidence_families": {
+    "bench_summary": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "gpu": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "inference_audit": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "metrics": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "model_agreement": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "parity": {
+      "paths": [],
+      "reason": "Cycle 18.C packet-budget active-edge benchmark is an identity/runtime benchmark; tensor parity is not the target gate.",
+      "status": "unavailable"
+    },
+    "probe": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "readiness": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "rollback": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json"
+      ],
+      "reason": null,
+      "status": "available"
+    }
+  },
+  "figure_roles": {
+    "generator_scope": "tools/prod/prod_generate_cycle_figures.py",
+    "implementer": "Archimedes",
+    "planner": "Huygens"
+  },
+  "generated_at": "2026-06-05T16:49:16.898345+00:00",
+  "input_digests": [
+    {
+      "bytes": 6943,
+      "path": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+      "sha256": "8d7c497221f1a946d2955119a9ebe0d7abcf902e39d235c54fdea32576e85849"
+    },
+    {
+      "bytes": 1447,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+      "sha256": "4b9370c6c4ccd9d33055d4639132a615d5d3faabbeaa5a5a6877ba7163799352"
+    },
+    {
+      "bytes": 31699,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv",
+      "sha256": "4df220db6d91e788256f0e5602a7f25f7bcdd0e6e09e766630f4d23ae19aacca"
+    },
+    {
+      "bytes": 99948,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json",
+      "sha256": "7d50b8f32931763297f794bee81b347dec6ee9d710e0e5a404ace5d0df294b85"
+    },
+    {
+      "bytes": 113467,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+      "sha256": "ef646cd6fd46e3181940b0c8da9caa130bfd8a9d2a1a235ba93ff45f25eb3dc3"
+    },
+    {
+      "bytes": 3162,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json",
+      "sha256": "6d1f034fc780369ba379a37f7d74d16579746fb7f8e615fb18e3a3a2e74d2709"
+    },
+    {
+      "bytes": 941,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json",
+      "sha256": "091c3061096a92f3c0ce473a0e742a3a8972a9d6ca432c476499c9230e0a6be5"
+    },
+    {
+      "bytes": 48441,
+      "path": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json",
+      "sha256": "a10f7f2e33cdc3841845c7771d3f7841b5301f06fb1154fcdfc44ed5ba71a844"
+    }
+  ],
+  "missing_metrics": {
+    "baseline": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "best": {
+      "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+      "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+      "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "overall_fps": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_merge_ready_count": "metric not found in supplied artifacts",
+      "packet_observation_count": "metric not found in supplied artifacts",
+      "packet_payload_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "packet_valid_count": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    },
+    "candidate": {
+      "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+      "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+      "packet_max_bytes": "metric not found in supplied artifacts",
+      "packet_total_count": "metric not found in supplied artifacts",
+      "packet_track_count": "metric not found in supplied artifacts",
+      "packet_truncated_count": "metric not found in supplied artifacts",
+      "packet_unresolved_tracks": "metric not found in supplied artifacts",
+      "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "metric not found in supplied artifacts",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "metric not found in supplied artifacts",
+      "redis_p99_ms": "metric not found in supplied artifacts",
+      "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+      "run_complete_wall_s": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "metric not found in supplied artifacts",
+      "worker_rss_p99_mib": "metric not found in supplied artifacts"
+    }
+  },
+  "outputs": {
+    "correctness_gate": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__correctness_gate.png",
+    "decision_delta": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__decision_delta.png",
+    "evidence_completeness": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__evidence_completeness.png",
+    "figure_manifest": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/figure_manifest.json",
+    "gpu_profile": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__gpu_profile.png",
+    "identity_label_invariant": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__identity_label_invariant.png",
+    "markdown": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures.md",
+    "model_rtt": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__model_rtt.png",
+    "packet_budget": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__packet_budget.png",
+    "packet_readiness": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__packet_readiness.png",
+    "redis_profile": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__redis_profile.png",
+    "resource_tail": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__resource_tail.png",
+    "sidecar_metadata": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__figure_metadata.json",
+    "unavailable_summary": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__unavailable_summary.png",
+    "wall_breakdown": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/figures/cycle18c_packet_budget_active_edge__wall_breakdown.png"
+  },
+  "parsed_metrics": {
+    "baseline": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "best": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 83.53
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 129.514
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 135.533
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.619787
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.846
+      },
+      "gpu_mem_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_mem_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 57.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "fps",
+        "value": null
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 707.716357
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 467.449833
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 641.154064
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "candidate": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 92.289
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 152.13
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 165.405
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 7.4774
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72816.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72650.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 19.177
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15725.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15981.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 93.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json",
+        "status": "available",
+        "unit": "%",
+        "value": 69.83
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json",
+        "status": "available",
+        "unit": "%",
+        "value": 79.876
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json",
+        "status": "available",
+        "unit": "%",
+        "value": 58.997451146983856
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "packet_max_bytes": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "count",
+        "value": 1.0
+      },
+      "packet_observation_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "observations",
+        "value": 1128.0
+      },
+      "packet_payload_bytes": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "bytes",
+        "value": 185391.0
+      },
+      "packet_total_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+        "status": "available",
+        "unit": "count",
+        "value": 2.0
+      },
+      "parity_failed_count": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json",
+        "status": "available",
+        "unit": "bool",
+        "value": true
+      },
+      "run_complete_wall_s": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "s",
+        "value": null
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 233.40576
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 364.308155
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 38.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    }
+  },
+  "run_metadata": {
+    "baseline": {
+      "label": "accepted_pre_shard_baseline",
+      "role": "baseline"
+    },
+    "best": {
+      "label": "best_comparable_baseline",
+      "role": "best"
+    },
+    "candidate": {
+      "label": "cycle18c-packet-budget-active-edge-20260605T162825Z",
+      "role": "candidate"
+    }
+  },
+  "sources": {
+    "baseline": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "best": [
+      "/home/bamby/grad_project/backend/logs/cycle15b-pre-shard-baseline-20260603T193531Z/metrics.json"
+    ],
+    "candidate": [
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/sharded_summary.json",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/metrics.json",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/gpu_monitor.csv",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/model_agreement.json",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/label_invariant_tracking.json",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/boundary_packet_validation.json",
+      "/home/bamby/grad_project/backend/logs/cycle18c-packet-budget-active-edge-20260605T162825Z/rollback_status.json"
+    ]
+  },
+  "status": "NO_DECISION_PENDING_REVIEW",
+  "target_gate": {
+    "db_completed_fps": "increase while preserving correctness",
+    "label_invariant_tracking": "global assignment and residual association gates must pass",
+    "model_agreement": "no material regression",
+    "rollback": "must restore sharding and packet flags to disabled defaults",
+    "step2_frame_wall_s": "decrease while preserving identity/model agreement"
+  },
+  "unavailable_summary": {
+    "by_metric": {
+      "gpu_mem_p95_mib": [
+        "baseline",
+        "best"
+      ],
+      "gpu_mem_p99_mib": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_all_model_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "label_invariant_shard1_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "model_agreement_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "overall_fps": [
+        "baseline",
+        "best"
+      ],
+      "packet_max_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_merge_ready_count": [
+        "baseline",
+        "best"
+      ],
+      "packet_observation_count": [
+        "baseline",
+        "best"
+      ],
+      "packet_payload_bytes": [
+        "baseline",
+        "best"
+      ],
+      "packet_total_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_track_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_truncated_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_unresolved_tracks": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_valid_count": [
+        "baseline",
+        "best"
+      ],
+      "parity_failed_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_max_abs_diff": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "readiness_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_command_wall_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_memory_used_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p95_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p99_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_pipeline_execute_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "rollback_passed": [
+        "baseline",
+        "best"
+      ],
+      "run_complete_wall_s": [
+        "candidate"
+      ],
+      "worker_rss_p95_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "worker_rss_p99_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ]
+    },
+    "by_run": {
+      "baseline": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "best": {
+        "gpu_mem_p95_mib": "metric not found in supplied artifacts",
+        "gpu_mem_p99_mib": "metric not found in supplied artifacts",
+        "label_invariant_all_model_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_f1_pct": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "overall_fps": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_merge_ready_count": "metric not found in supplied artifacts",
+        "packet_observation_count": "metric not found in supplied artifacts",
+        "packet_payload_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "packet_valid_count": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      },
+      "candidate": {
+        "label_invariant_residual_gap_pp": "metric not found in supplied artifacts",
+        "label_invariant_shard1_residual_gap_pp": "metric not found in supplied artifacts",
+        "packet_max_bytes": "metric not found in supplied artifacts",
+        "packet_total_count": "metric not found in supplied artifacts",
+        "packet_track_count": "metric not found in supplied artifacts",
+        "packet_truncated_count": "metric not found in supplied artifacts",
+        "packet_unresolved_tracks": "metric not found in supplied artifacts",
+        "parity_failed_count": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "parity_max_abs_diff": "Cycle 18.C packet-budget active-edge benchmark uses model/identity agreement instead of tensor parity.",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "metric not found in supplied artifacts",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "metric not found in supplied artifacts",
+        "redis_p99_ms": "metric not found in supplied artifacts",
+        "redis_pipeline_execute_count": "metric not found in supplied artifacts",
+        "run_complete_wall_s": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "metric not found in supplied artifacts",
+        "worker_rss_p99_mib": "metric not found in supplied artifacts"
+      }
+    },
+    "total_unavailable": 74
+  }
+}

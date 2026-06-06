@@ -2,13 +2,14 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** Phase D default-off streaming persistence writer is production
-benchmarked and **NOT ACCEPTED**. Replay
-`cycle20d-streaming-persistence-r3-20260606T011056Z` restored correctness after
-packet-signature reconciliation, but throughput, Step 2 wall, behavior RTT, GPU
-utilization, and Step 3 packet reconciliation all regressed against the
-accepted baseline. The benchmark lock is released and rollback restored both
-Cycle 20 flags to `0`.
+**Status:** Phase E final-stable persistence overlap is production benchmarked
+and **NOT ACCEPTED**. Replay
+`cycle20e-final-stable-overlap-20260606T092512Z` repaired the Cycle 20.D root
+causes: final-stable packets persisted once per frame, Step 3 reconciliation
+fell to `0`, and rollback restored all Cycle 20 flags to defaults. It still
+failed the optimization gate because DB-completed FPS regressed, total elapsed
+regressed, Step 2 through-pose wall regressed, and embedding stayed serial. The
+benchmark lock is released.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -48,9 +49,12 @@ proof that Step 3 or embedding has started.
 | Commit | `a6bf10a3` | Wrapper wait gate that keeps the timeline flag enabled until required post-stage markers are recorded. |
 | Commit | `7bf66e97` | Backend-context wait fix used for the final Cycle 20.C terminal-marker production replay. |
 | Commit | `4e294f52` | Packet-signature reconciliation deployed for the final Cycle 20.D r3 production replay. |
+| Commit | `a9831c90` | Generated Triton offline profile binding fix and runtime commit used for the Cycle 20.E production replay. |
 | Job | `58d53985-1c86-46fd-944c-771ea3afce1a` | Production Cycle 20 measurement job for replay `cycle20-post-stage-timeline-20260605T212526Z`. |
 | Job | `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` | Production Cycle 20.C terminal-marker replay job for `cycle20c-terminal-marker-r3-20260605T233053Z`. |
 | Job | `24e9970f-b3bc-451d-ab50-b0bcbb1e8d8b` | Production Cycle 20.D r3 job for replay `cycle20d-streaming-persistence-r3-20260606T011056Z`. |
+| Job | `211f96fa-7cfc-4d57-812e-9573906f41c5` | Production Cycle 20.E final-stable persistence replay job for `cycle20e-final-stable-overlap-20260606T092512Z`. |
+| Figure manifest | `docs/figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/figure_manifest.json` | Generated figure manifest, input digests, unavailable-metric reasons, and status `NOT_ACCEPTED` for Cycle 20.E. |
 | Doc | `docs/inference_parallelization_plan.md` | Current stage-concurrency table and accepted Cycle 12/13 roadmap. |
 | Doc | `docs/production_inference_benchmark.md` | Production benchmark authority and post-stage timing history. |
 | Doc | `docs/cycle_13_persistence_render_investigation.md` | First Cycle 13 decomposition of persistence/render/embedding tail. |
@@ -104,10 +108,10 @@ render inputs, embedding inputs, and benchmark evidence collection.
 The Cycle 13.C / 16.A Redis command-cost benchmark already promoted and then
 completed Cycle 16.B Redis side-effect coalescing. Cycle 18.D is complete and
 not accepted, and Cycle 20 has now produced measurement-only, terminal-marker,
-and Phase D streaming-writer production records. The Phase D writer is not
-accepted, so future work must not assume that early packet persistence creates
-useful overlap; it needs a new design that is stable after final tracking
-assignment.
+Phase D streaming-writer, and Phase E final-stable production records. Phase E
+repaired the Step 3 reconciliation root causes, but still did not improve total
+throughput or embedding overlap, so future work must not assume that
+final-stable persistence alone creates useful post-stage parallelism.
 
 ## Proposed Cycle 20 Scope
 
@@ -576,37 +580,99 @@ work. A future Cycle 20 follow-up needs a different design that persists only
 final-tracking-stable packets, or a separate measured bottleneck that justifies
 a fresh benchmark lock.
 
-### 2026-06-06 Cycle 20.E Root-Cause Repair Candidate
+### 2026-06-06 Cycle 20.E Root-Cause Repair Benchmark
 
-Status: `STAGED_LOCAL`; no production benchmark and no acceptance claim exists.
+Status: `PRODUCTION_BENCHMARK_COMPLETE / BENCHMARK_LOCK_RELEASED /
+NOT_ACCEPTED`.
 
-The repo-side repair addresses the two Cycle 20.D r3 root causes without
-rerunning the rejected writer profile. `backend/apps/video_analysis/tasks.py`
-now supports `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the
+Cycle 20.E addressed the two Cycle 20.D r3 root causes without rerunning the
+rejected callback writer profile. `backend/apps/video_analysis/tasks.py`
+supports `OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap` behind the
 existing default-off `OFFLINE_STREAM_POST_STAGES=1` gate. In that mode, Step 2
 callbacks record packet readiness only; they do not issue authoritative
 PostgreSQL writes. After final `_assign_tracking_ids(...)` and any shard
 authoritative-frame filter complete, a bounded one-thread background writer
 persists cloned final-stable packets while the pose tail can continue. Step 3
-then verifies packet signatures and should report already-complete packets
-instead of rewriting pre-final tracking rows.
+then verifies packet signatures against those final-stable rows.
 
-The old `inline_db` mode is retained only for evidence replay of Cycle 20.D.
-The production wrapper
-`tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh` now accepts
-`--stream-post-stage-mode final_stable_overlap`, records the mode in the figure
-input manifest, and rolls `OFFLINE_STREAM_POST_STAGE_MODE` back to `inline_db`.
-`tools/prod/prod_enable_parallel_flow.sh`,
-`tools/prod/prod_triton_endpoint_policy.sh`, `backend/config/settings/base.py`,
-and `backend/.env.example` keep live/default behavior disabled.
+The production drift blocking the fresh benchmark was fixed before replay:
+generated base behavior model configs were rebuilt for the accepted
+`TRITON_CROP_BEHAVIOR_INPUT_SIZE=320` Top-K route, and
+`backend/scripts/build_tensorrt_engines.py` now writes matching
+`configs/offline.pbtxt` files so `prod_triton_endpoint_policy.sh --profile
+offline` validates the same 320 configs that Triton serves.
 
-The repaired candidate must still pass a fresh production RTX 5090 replay with
-figures before any decision. The required proof is: no Step 2 wall/RTT/GPU
-regression, `final_stable_persistence_failed_packet_count=0`,
-`step3_reconciled_packet_count=0` or a documented unavailable reason, DB/model
-parity, rollback restoring `OFFLINE_STREAM_POST_STAGES=0`,
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.E final-stable persistence agent
+cycle: Cycle 20.E final-stable persistence overlap
+replay_key: cycle20e-final-stable-overlap-20260606T092512Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=1; OFFLINE_STREAM_POST_STAGE_TIMELINE=1; OFFLINE_STREAM_POST_STAGE_MODE=final_stable_overlap during wrapper only; live profile remains disabled
+started_at_utc: 2026-06-06T09:25:12Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0, OFFLINE_STREAM_POST_STAGE_TIMELINE=0, and OFFLINE_STREAM_POST_STAGE_MODE=inline_db; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
+```
+
+```text
+BENCHMARK_RELEASE
+agent: Cycle 20.E final-stable persistence agent
+cycle: Cycle 20.E final-stable persistence overlap
+replay_key: cycle20e-final-stable-overlap-20260606T092512Z
+job_id: 211f96fa-7cfc-4d57-812e-9573906f41c5
+status: NOT_ACCEPTED
+metrics_json: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/post_stage_timeline_metrics.json
+metrics_md: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/post_stage_timeline_metrics.md
+model_agreement_json: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/model_agreement_baseline_vs_post_stage_timeline.json
+model_agreement_md: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/model_agreement_baseline_vs_post_stage_timeline.md
+wait_snapshot_json: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/post_stage_wait_snapshot.json
+rollback_json: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/rollback_status.json
+figure_manifest: /home/bamby/grad_project/backend/logs/cycle20e-final-stable-overlap-20260606T092512Z/figures/figure_manifest.json
+released_at_utc: 2026-06-06T09:42:41Z
+notes: Replay completed and rollback restored all Cycle 20 flags to defaults. Final-stable packet persistence and Step 3 reconciliation root causes were repaired, but DB-completed FPS, total elapsed, Step 2 through-pose wall, behavior call rate, and embedding overlap still failed the optimization gate.
+```
+
+Cycle 20.E is **NOT ACCEPTED**. It proves the root-cause repair, not a
+production optimization:
+
+| Metric | Baseline | Candidate | Result |
+|---|---:|---:|---|
+| DB-completed FPS | `5.619787` | `5.290508` | `-5.86 %`; fails throughput gate |
+| DB completed elapsed | `808.038 s` | `858.330 s` | `+6.22 %`; fails total-wall gate |
+| Step 2 frame wall | `467.449833 s` | `460.132193 s` | `-1.57 %`; small improvement |
+| Step 2 through-pose wall | `641.154064 s` | `719.937697 s` | `+12.29 %`; fails lifecycle wall gate |
+| Behavior RTT mean | `83.530 ms` | `84.019 ms` | `+0.59 %`; slight regression |
+| Behavior call rate | `4.451525 calls/s` | `4.190697 calls/s` | `-5.86 %`; regressed |
+| GPU avg util | `11.846 %` | `12.224 %` | `+3.19 %`; improved but not decisive |
+| GPU peak util | `57.000 %` | `70.000 %` | `+22.81 %` |
+| Peak VRAM | `15725 MiB` | `15725 MiB` | unchanged |
+| Detection/BBox rows | `72744` / `72744` | `72750` / `72750` | within row-parity tolerance |
+| Embedding rows | `72578` | `72584` | within row-parity tolerance |
+| StudentTracks | `53` | `53` | parity restored |
+| Minimum F1@IoU0.5 | required proxy | `99.766 %` | model-agreement proxy passed |
+| Persistence starts before inference done | `unavailable` | `true` | final-stable writer overlapped inference |
+| Embedding starts before inference done | `unavailable` | `false` | embedding stayed serial |
+| Embedding start lag after inference done | `unavailable` | `37.279 s` | fails embedding-overlap intent |
+| Final-stable persisted packets | `unavailable` | `4541/4541` | root-cause repair passed |
+| Final-stable failed packets | `unavailable` | `0` | root-cause repair passed |
+| Step 3 reconciled packets | `4449/4541` in 20.D r3 | `0/4541` | root-cause repair passed |
+| Rollback verified | required | `true` | all Cycle 20 flags restored to defaults |
+
+Figure manifest:
+`docs/figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/figure_manifest.json`.
+
+![Cycle 20.E decision delta](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__decision_delta.png)
+
+![Cycle 20.E packet readiness](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__packet_readiness.png)
+
+![Cycle 20.E packet budget](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__packet_budget.png)
+
+![Cycle 20.E correctness gate](figures/benchmark_artifacts/cycle20e-final-stable-overlap-20260606T092512Z/cycle20e_final_stable_overlap__correctness_gate.png)
+
+The production consequence is to keep `OFFLINE_STREAM_POST_STAGES=0`,
 `OFFLINE_STREAM_POST_STAGE_TIMELINE=0`, and
-`OFFLINE_STREAM_POST_STAGE_MODE=inline_db`.
+`OFFLINE_STREAM_POST_STAGE_MODE=inline_db`. Do not promote Cycle 21 from this
+result; the benchmark still did not create useful independent embedding work
+for extra workers to consume.
 
 ### Measurement-only timestamp contract
 
@@ -716,9 +782,9 @@ future implementation explicitly documents a schema migration.
 
 ## Ordering Decision
 
-Cycle 20.D is now closed as **NOT ACCEPTED** for this writer profile. It did
-not create beneficial independent streaming persistence or embedding work, so
+Cycle 20.E is now closed as **NOT ACCEPTED**. It fixed the Cycle 20.D packet
+signature and Step 3 reconciliation root causes, but it did not create
+beneficial independent embedding work and did not improve total throughput.
 Cycle 21 concurrency scaling must not be promoted from this result. Any future
-Cycle 20 follow-up needs a fresh design and benchmark lock that address the r3
-finding: final tracking assignment forced Step 3 to reconcile `4449/4541`
-packets before embeddings.
+post-stage overlap work needs a fresh benchmark lock and a different mechanism
+that starts embedding earlier or exposes a separately measured queue bottleneck.
