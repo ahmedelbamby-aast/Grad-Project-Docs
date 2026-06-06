@@ -444,6 +444,17 @@ completed production replay, rollback JSON, wait snapshot, raw metrics,
 model-agreement evidence, generated figures, and documentation updates in
 `docs/production_inference_benchmark.md`.
 
+```text
+BENCHMARK_LOCK
+agent: Cycle 20.D streaming persistence writer agent
+cycle: Cycle 20.D streaming persistence writer
+replay_key: cycle20d-streaming-persistence-20260606T002816Z
+baseline_metrics: cycle15b-pre-shard-baseline-20260603T193531Z
+candidate_env_delta: OFFLINE_STREAM_POST_STAGES=1; OFFLINE_STREAM_POST_STAGE_TIMELINE=1 during wrapper only; no embedding-overlap queue; live profile remains disabled
+started_at_utc: 2026-06-06T00:28:16Z
+expected_cleanup: restore OFFLINE_STREAM_POST_STAGES=0 and OFFLINE_STREAM_POST_STAGE_TIMELINE=0; restart Celery workers; record rollback_status.json, post_stage_wait_snapshot.json, metrics, model agreement, runtime probe, and figures
+```
+
 ### Measurement-only timestamp contract
 
 Every future implementation must emit these fields into the benchmark evidence
