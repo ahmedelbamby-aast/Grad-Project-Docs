@@ -2,12 +2,12 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** Phase C terminal-coordinator timestamp repair is production-recorded
-with replay `cycle20c-terminal-marker-r3-20260605T233053Z`. The only valid
-benchmark decision state remains `NO_DECISION_PENDING_REVIEW`: the replay proves
-the terminal marker is now captured, but this work still does **not** implement
-streaming persistence, embedding overlap, new queues, or terminal-coordinator
-behavior.
+**Status:** Phase D default-off streaming persistence writer is implemented
+repo-side and locally validated; production benchmark is pending. Phase C
+terminal-coordinator timestamp repair is production-recorded with replay
+`cycle20c-terminal-marker-r3-20260605T233053Z`. The only valid benchmark
+decision state remains `NO_DECISION_PENDING_REVIEW` until the Phase D replay
+completes on production with rollback proof, figures, and correctness evidence.
 
 **Streaming compatibility:** `offline-only` for the first implementation
 profile. The candidate relies on offline job lifecycle coordination and must not
@@ -152,7 +152,7 @@ The code adds:
 | Terminal stage | Phase B attempted `terminal_coordinator_done_at`; Phase C moves the measurement marker before the ReID task reports terminal `COMPLETED` status so the benchmark collector cannot observe completion before the marker is present. |
 | Missing packet fields | `first_persist_packet_ready_at` is explicitly marked unavailable with reason `serial_path_no_streaming_persistence_packet`; it is not faked as a zero timestamp. |
 | Metrics collector | `prod_collect_benchmark_metrics.py` emits `post_stage_timeline` with timestamps, unavailable reasons, missing required fields, and derived serial gaps. |
-| Production wrapper | `prod_run_cycle20_post_stage_timeline_benchmark.sh` enables only `OFFLINE_STREAM_POST_STAGE_TIMELINE=1`, forces `OFFLINE_STREAM_POST_STAGES=0`, collects metrics/model agreement, generates figures, and restores both flags to `0`. |
+| Production wrapper | `prod_run_cycle20_post_stage_timeline_benchmark.sh` defaults to the measurement-only profile with `OFFLINE_STREAM_POST_STAGES=0`; Phase D passes `--stream-post-stages 1` to enable the default-off writer for one governed replay. The wrapper collects metrics/model agreement, generates figures, and restores both flags to `0`. |
 
 Figure Planner: Cycle 20 kickoff agent. Required plots consume the baseline
 metrics JSON, candidate metrics JSON, model-agreement JSON, rollback JSON, and
@@ -380,6 +380,69 @@ streaming writer or embedding-overlap candidate has been benchmarked.
 ![Cycle 20.C correctness gate](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__correctness_gate.png)
 
 ![Cycle 20.C evidence completeness](figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/cycle20_post_stage_timeline__evidence_completeness.png)
+
+### Phase D streaming persistence writer implementation (2026-06-06)
+
+Phase D opens the first default-off behavior candidate after the Phase C
+terminal-marker replay. The implementation still does not add embedding window
+workers or new Celery queues. It moves only the authoritative
+`Frame`/`Detection`/`BoundingBox`/`StudentTrack` persistence packet into the
+per-frame inference callback when `OFFLINE_STREAM_POST_STAGES=1` and the job is
+not live-source metadata.
+
+| Surface | Phase D repo-side change |
+|---|---|
+| Upload task | `backend/apps/video_analysis/tasks.py` adds `_cycle20_stream_post_stages_enabled`, a live-source exclusion guard, `_persist_offline_detection_frame_packet`, and a Step 2 callback that writes one completed frame packet before Step 3. |
+| Idempotency policy | Existing pre-embedding frame packets are replaced before retry; packets with existing `FrameEmbedding` rows are skipped so embedding evidence is never orphaned or deleted. |
+| Step 3 | Step 3 becomes reconciliation when the flag is enabled: it skips frame packets whose detection count already matches, repairs missing or mismatched packets before embeddings start, and records reconciliation counters. |
+| Timeline metadata | The candidate records `first_persist_packet_ready_at`, `first_frame_persisted_at`, stream packet counters, Step 3 reconciliation counters, and `embedding_watermark=streaming_persistence_all_frames`. |
+| Metrics collector | `tools/prod/prod_collect_benchmark_metrics.py` exposes stream packet counters and derived `first_packet_ready_before_inference_done` evidence. |
+| Production wrapper | `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh --stream-post-stages 1` enables the writer for a single replay and requires `first_persist_packet_ready_at` before rollback. |
+| CI gate | `.github/workflows/inference-parallelization.yml` now syntax-checks the Cycle 20 wrapper and runs `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py`. |
+| Focused tests | `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py` verifies streaming profile metadata, live exclusion, duplicate-free packet replacement, and existing-embedding protection; `backend/tests/unit/pipeline/test_prod_collect_benchmark_metrics.py` verifies Phase D metric extraction. |
+
+Figure Planner: Cycle 20.D streaming persistence writer agent. Required plots
+consume the accepted baseline metrics JSON, Phase D candidate metrics JSON,
+model-agreement JSON, rollback JSON, runtime probe, post-stage wait snapshot,
+and the figure input manifest. `first_persist_packet_ready_at` is required for
+Phase D. `persist_queue_wait_ms` remains unavailable because this candidate
+uses an inline callback writer rather than a separate persistence queue.
+`embedding_queue_wait_ms` remains unavailable because embedding overlap is not
+implemented in this phase. These unavailable metrics must render with reasons,
+not zeros.
+
+Figure Implementer: Cycle 20.D streaming persistence writer agent. Role
+separation is unavailable in this single-agent implementation turn; the planner
+policy above and the generator/wrapper implementation are still kept as separate
+evidence: wrapper option, figure input manifest, generated figures, and final
+Markdown embeds after the production replay.
+
+Local validation before the production lock:
+
+| Gate | Result |
+|---|---|
+| Python compile | `python -m py_compile backend/apps/video_analysis/tasks.py tools/prod/prod_collect_benchmark_metrics.py` passed. |
+| Wrapper syntax | `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh` passed. |
+| Focused pytest | `..\\.venv\\Scripts\\python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py tests/unit/pipeline/test_prod_collect_benchmark_metrics.py -q` passed with `16 passed`. |
+| Dry-run wrapper | `bash tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh --stream-post-stages 1 --tag cycle20d-dry-run --figure-cycle-slug cycle20d_streaming_persistence --figure-cycle-label 'Cycle 20.D streaming persistence writer' --dry-run` passed and showed rollback to both flags `0`. |
+| Git whitespace | `git diff --check` passed with line-ending warnings only. |
+
+Planned production command after commit/push and production hash parity:
+
+```bash
+bash tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh \
+  --stream-post-stages 1 \
+  --tag cycle20d-streaming-persistence-<UTC> \
+  --figure-cycle-slug cycle20d_streaming_persistence \
+  --figure-cycle-label "Cycle 20.D streaming persistence writer" \
+  --figure-planner "Cycle 20.D streaming persistence writer agent" \
+  --figure-implementer "Cycle 20.D streaming persistence writer agent"
+```
+
+The Phase D decision remains pending. Acceptance or rejection requires the
+completed production replay, rollback JSON, wait snapshot, raw metrics,
+model-agreement evidence, generated figures, and documentation updates in
+`docs/production_inference_benchmark.md`.
 
 ### Measurement-only timestamp contract
 

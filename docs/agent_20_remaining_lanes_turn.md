@@ -2,13 +2,14 @@
 
 **Last updated:** 2026-06-06
 
-**Status:** CYCLE 20.C TERMINAL-MARKER REPLAY RECORDED / CYCLE 21 GOVERNANCE
-REMAINS. Agent 20 completed the readiness/governance claim. On 2026-06-05 the
-user requested the next cycle to start, so Cycle 20 moved into a
-measurement-only implementation kickoff; production replays
+**Status:** CYCLE 20.D STREAMING WRITER IMPLEMENTED LOCALLY / PRODUCTION
+BENCHMARK PENDING / CYCLE 21 GOVERNANCE REMAINS. Agent 20 completed the
+readiness/governance claim. On 2026-06-05 the user requested the next cycle to
+start, so Cycle 20 moved into measurement-only implementation and then Phase D
+streaming persistence. Production replays
 `cycle20-post-stage-timeline-20260605T212526Z` and
-`cycle20c-terminal-marker-r3-20260605T233053Z` are now recorded while Cycle 21
-remains governance-only.
+`cycle20c-terminal-marker-r3-20260605T233053Z` are recorded; Phase D has local
+validation only until the governed production replay completes.
 
 ## Purpose
 
@@ -42,16 +43,16 @@ without guessing from chat history.
 | Turn state | `TAKEN` |
 | Claimed at | 2026-06-04 |
 | User authority | User explicitly described this session as the last agent and requested a ledger plus remaining task ownership. |
-| Current phase | Cycle 20.C terminal-marker replay recorded; Cycle 21 governance only |
+| Current phase | Cycle 20.D streaming persistence writer implemented locally; Cycle 21 governance only |
 | Production benchmark lock | `NOT HELD` |
-| Runtime implementation permission | Cycle 20 timeline instrumentation only; no streaming behavior |
-| Production env permission | Cycle 20 timeline-only replays completed; no persistent behavior change |
+| Runtime implementation permission | Cycle 20.D default-off streaming persistence writer only; no embedding window worker or live behavior |
+| Production env permission | May run one governed Phase D replay after commit/push/hash parity; rollback must restore both Cycle 20 flags to `0` |
 
 ## Claimed Responsibilities
 
 | Lane | Responsibility | Current boundary |
 |---|---|---|
-| Cycle 20 | Measurement-only replay and terminal-marker replay recorded. | `OFFLINE_STREAM_POST_STAGES` must remain `0`; no streaming writer, embedding window worker, or terminal coordinator behavior yet. |
+| Cycle 20 | Measurement-only replay and terminal-marker replay recorded; Phase D writer locally implemented. | `OFFLINE_STREAM_POST_STAGES` may be `1` only inside the governed Phase D wrapper replay; no embedding window worker or live behavior yet. |
 | Cycle 21 | Prepare concurrency benchmark governance and topology-proof requirements. | No worker count, pool type, prefetch, GPU cap, or `backend/.env` changes. |
 | Coordination | Keep shared docs aligned with the turn claim. | No production benchmark decision, acceptance, rejection, skip, or closure. |
 
@@ -74,6 +75,9 @@ without guessing from chat history.
 | `A20-C20C-03` Add wrapper wait and hold corrected benchmark lock. | `RELEASED_NEEDS_REVIEW` | Replay key `cycle20c-terminal-marker-r2-20260605T231222Z`; job recorded terminal markers, but wrapper wait subprocess ran from repo root and failed Django import. |
 | `A20-C20C-04` Run backend-root corrected wrapper wait. | `COMPLETED_NO_DECISION` | Replay key `cycle20c-terminal-marker-r3-20260605T233053Z`; job `7ff0dfd4-890e-4210-92c7-f0f3b069c65e` completed, wait snapshot was ready with no missing required markers, and rollback restored both Cycle 20 flags to `0`. |
 | `A20-C20C-05` Record r3 evidence and figures. | `COMPLETED` | `docs/production_inference_benchmark.md` §49, this ledger, the coordination board, queue docs, and `docs/figures/benchmark_artifacts/cycle20c-terminal-marker-r3-20260605T233053Z/`. |
+| `A20-C20D-01` Implement default-off streaming persistence writer. | `COMPLETED_LOCAL` | `backend/apps/video_analysis/tasks.py` writes per-frame packets from the Step 2 callback when `OFFLINE_STREAM_POST_STAGES=1`, excludes live metadata, and reconciles missing packets in Step 3. |
+| `A20-C20D-02` Add Phase D metrics, wrapper option, tests, and CI gate. | `COMPLETED_LOCAL` | `tools/prod/prod_collect_benchmark_metrics.py`, `tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`, `.github/workflows/inference-parallelization.yml`, and focused unit tests updated. |
+| `A20-C20D-03` Run Phase D production benchmark. | `PENDING` | Requires commit/push, production hash parity, wrapper replay with `--stream-post-stages 1`, rollback JSON, wait snapshot, metrics/model-agreement evidence, and figures. |
 
 ## Owned Files And Boundaries
 
@@ -99,7 +103,7 @@ Agent 20 must not:
 | Run the Cycle 17 production benchmark. | Agent 18 or an explicit benchmark-lock owner. |
 | Modify Cycle 17 runtime files, tests, or benchmark wrapper. | Cycle 17 lane. |
 | Implement Cycle 18 boundary-state cache runtime. | Agent 19 lane plus future design-proof gate. |
-| Enable streaming persistence, embedding windows, or terminal coordinator behavior. | Cycle 20 production benchmark gate after measurement-only proof. |
+| Leave streaming persistence enabled after a wrapper run, add embedding windows, or change terminal coordinator behavior. | Cycle 20 production benchmark gate after Phase D proof. |
 | Change Celery worker counts, pool type, prefetch, queue topology, or GPU caps. | Cycle 21 production matrix gate. |
 | Enable sharding or start 15.B2. | New identity-state proof plus production authority required. |
 | Mark any cycle accepted, rejected, skipped, closed, or complete. | Constitution §12.5 / §12.6 production benchmark authority. |
@@ -115,16 +119,17 @@ Agent 20 must not:
 | Runtime tests | Passed: `backend/.venv/Scripts/python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py -q` (`3 passed`). |
 | Production replay | Passed: `cycle20c-terminal-marker-r3-20260605T233053Z` completed `4541/4541` frames with wait snapshot `status=ready`, `missing_required=[]`, and rollback verified. |
 | 2026-06-06 evidence update gates | Passed: `python scripts/ci/verify_doc_dates_and_reading_order.py`; `python scripts/ci/verify_mermaid_diagrams.py --paths AGENTS.md docs/cycle_20_streaming_persistence_embedding_overlap_investigation.md docs/production_inference_benchmark.md docs/agent_20_remaining_lanes_turn.md docs/four_agent_cycle_coordination_board.md docs/inference_parallelization_plan.md docs/cycle_9_and_10_improvements_todo.md --jobs 2`; `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`; `git diff --check`; `..\\.venv\\Scripts\\python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py -q` (`3 passed`). |
+| 2026-06-06 Phase D local gates | Passed: `python -m py_compile backend/apps/video_analysis/tasks.py tools/prod/prod_collect_benchmark_metrics.py`; `bash -n tools/prod/prod_run_cycle20_post_stage_timeline_benchmark.sh`; `..\\.venv\\Scripts\\python.exe -m pytest tests/unit/video_analysis/test_cycle20_post_stage_timeline.py tests/unit/pipeline/test_prod_collect_benchmark_metrics.py -q` (`16 passed`); `git diff --check`; wrapper dry run with `--stream-post-stages 1`. |
 
 ## Current Summary For Next Agent
 
 Agent 20 completed the documentation/readiness slice, and Cycle 20 now has a
 measurement-only production replay plus a terminal-marker rerun recorded with
-`OFFLINE_STREAM_POST_STAGES=0`. Cycle 20.C closes only the missing
-`terminal_coordinator_done_at` measurement gap; it does not accept streaming
-persistence or embedding overlap. Cycle 21 still has no worker-topology change
-or production benchmark lock. Any streaming writer or embedding overlap behavior
-requires a later default-off production candidate with fresh evidence first.
+`OFFLINE_STREAM_POST_STAGES=0`. Cycle 20.D has a locally validated,
+default-off streaming persistence writer, but it has no production decision yet.
+Cycle 21 still has no worker-topology change or production benchmark lock. The
+next required action is the governed Phase D production replay and rollback
+proof before any acceptance or rejection claim.
 
 ## Handoff Protocol
 
