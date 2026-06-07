@@ -121,11 +121,12 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 ### 017.7 Always-on wiring (every mode)
 | Sub-cycle (atomic) | Status | Notes |
 |---|---|---|
-| 017.7.1 open `frame_scope` in offline/all-models frame loop (`tasks.py`) | ☐ PLANNED | |
-| 017.7.2 open `frame_scope` in benchmark command | ☐ PLANNED | |
+| 017.7.0 `setup_spine`/`flush_spine` bootstrap (idempotent sink registration) | ✔ TESTED | `core/telemetry/bootstrap.py`, 6 tests |
+| 017.7.1 open `frame_scope` in offline/all-models frame loop (`tasks.py`) | ☐ PLANNED | `_on_scene_frame` + setup/flush |
+| 017.7.2 open `frame_scope` in benchmark command | ✔ TESTED | VERIFIED: 3-frame run wrote 12 SpanRecord rows (scene_normalize/persistence/person_embedding/frame) + box throughput |
 | 017.7.3 open `frame_scope` in upload pipeline | ☐ PLANNED | |
 | 017.7.4 open `frame_scope` in live consumer | ☐ PLANNED | |
-| 017.7.5 `TELEMETRY_SPINE_ENABLED` + `…_SAMPLE_RATE` flags | ☐ PLANNED | bounded live cost |
+| 017.7.5 `TELEMETRY_SPINE_ENABLED` + `…_SAMPLE_RATE` flags | ✔ TESTED | settings + deterministic `should_sample` (replay-safe) |
 | 017.7.6 acceptance: identical span tree in all 4 modes; `postprocess` never a leaf | ☐ PLANNED | |
 
 ### 017.8 Generated bounding-box throughput (per frame/ms/second/call/call_ms)
