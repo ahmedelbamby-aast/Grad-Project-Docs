@@ -128,7 +128,16 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 | 017.7.5 `TELEMETRY_SPINE_ENABLED` + `…_SAMPLE_RATE` flags | ☐ PLANNED | bounded live cost |
 | 017.7.6 acceptance: identical span tree in all 4 modes; `postprocess` never a leaf | ☐ PLANNED | |
 
-**Cycle 017 acceptance (★):** all modes emit the full sub-stage tree; live WS/WebGPU view shows per-sub-stage latency realtime; figures render per-sub-stage p50/p95; no bespoke timing at call sites.
+### 017.8 Generated bounding-box throughput (per frame/ms/second/call/call_ms)
+| Sub-cycle (atomic) | Status | Notes |
+|---|---|---|
+| 017.8.1 `compute_box_throughput` (5 dims, None≠0 §1.6) | ✔ TESTED | per frame/ms/second/call/call_ms |
+| 017.8.2 `box_throughput_from_spans` (boxes attr) | ✔ TESTED | sums boxes/calls/call_ms, distinct frames |
+| 017.8.3 scene_normalize span carries `boxes` count | ✔ TESTED | tagged in run_scene_frame_lane |
+| 017.8.4 REST endpoint emits `box_throughput` | ✔ TESTED | in `/api/telemetry/spans` |
+| 017.8.5 tag infer.* (person_detector/gaze/posture) box counts | ☐ PLANNED | all-models decode spans (with 017.3.1-5) |
+
+**Cycle 017 acceptance (★):** all modes emit the full sub-stage tree; live WS/WebGPU view shows per-sub-stage latency realtime; figures render per-sub-stage p50/p95 + box throughput (per frame/ms/second/call/call_ms); no bespoke timing at call sites.
 
 ---
 
