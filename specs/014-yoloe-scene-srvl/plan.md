@@ -17,7 +17,7 @@ distance, angle, vector, heatmap, direction, and correlation artifacts.
 The implementation is evidence-first. Production acceptance cannot come from
 local runs, mocks, templates, or component probes. It requires native Linux RTX
 5090 production evidence on `combined.mp4`, PostgreSQL-backed relational state,
-Redis-backed fast embedding checks where recovery is enabled, generated figures
+Redis-backed embedding checks where recovery is enabled, generated figures
 from the same raw benchmark artifacts, and rollback proof showing that disabling
 `YOLOE_SCENE_ENABLED` and `SRVL_ENABLED` restores the current offline pipeline.
 
@@ -53,8 +53,8 @@ frontend, Bash and PowerShell production helpers.
 5.4, Redis, PostgreSQL via `psycopg`, Ultralytics 8.4.56, PyTorch 2.7.1,
 TensorRT 10.16 on Linux, Triton client, NumPy, OpenCV/ImageIO/Pillow,
 React/Vite, Playwright/Vitest, and a planned PixiJS WebGL renderer candidate.  
-**Storage**: PostgreSQL for compact indexed summaries/events; Redis for fast
-track embedding lookup; job-scoped artifact files for masks, matrices, figures,
+**Storage**: PostgreSQL for compact indexed summaries/events; Redis for
+latency-recorded track embedding lookup; job-scoped artifact files for masks, matrices, figures,
 snapshots, MP4 outputs, manifests, and traces. V1 masks use RLE-Zstd; V1 dense
 matrices use compressed NPZ with JSON manifests and digests. SQLite is not an
 accepted runtime, test, migration, benchmark, or acceptance backend.  
@@ -62,7 +62,7 @@ accepted runtime, test, migration, benchmark, or acceptance backend.
 Django integration tests, contract tests, frontend Vitest/Playwright,
 Mermaid/docs verifiers, shell/PowerShell syntax checks, production benchmark
 helpers, and artifact digest validation.  
-**Target Platform**: Local Windows checks are fast contract validation only.
+**Target Platform**: Local Windows checks are contract validation only.
 Production authority is native Linux on the RTX 5090 server, no Docker and no
 `sudo`.  
 **Project Type**: Django API/Celery backend, Triton GPU inference integration,
@@ -141,7 +141,7 @@ error ratios for scene stages, and rollback with `YOLOE_SCENE_ENABLED=0` plus
 | Temporal and Identity Truth | PASS | Defines frame/timestamp/prompt/export/track/provisional identity fields and append-only recovery evidence. |
 | Independent-Run Identity | PASS | Mismatch recovery uses observation matching and deterministic one-to-one assignment; raw local IDs are opaque. |
 | Pose and Behavior Semantics | NOT APPLICABLE | V1 does not change pose/behavior ontology or claim behavioral truth from SRVL correlation maps. |
-| Queue and Failure | PASS | Visualization is bounded and best effort; analytics artifacts are reliable; failures become unavailable/degraded evidence. |
+| Queue and Failure | PASS | Visualization is bounded and best effort; analytics artifacts persist independently of rendering; failures become unavailable/degraded evidence. |
 | Concurrency Scaling Authority | PASS | V1 does not increase worker/pool/concurrency topology. Future changes need a separate benchmark gate. |
 | Contract and Storage | PASS | Versioned API/WS/artifact/frontend contracts, explicit serializers, PostgreSQL summaries, artifact sidecars, digests, and retention rules. |
 | Observability and Evidence | PASS | Requires probe-backed telemetry, raw JSON/CSV/log evidence, missing metric reasons, and immutable manifests. |
@@ -238,10 +238,27 @@ backend/
 |   |   `-- embeddings_batch.py
 |   `-- video_analysis/
 |       |-- models.py
+|       |-- serializers_scene.py
+|       |-- urls_scene.py
 |       |-- serializers.py
 |       |-- tasks.py
 |       |-- views.py
-|       `-- ws_broadcast.py
+|       |-- views_scene.py
+|       |-- ws_broadcast.py
+|       `-- scene/
+|           |-- access.py
+|           |-- artifacts.py
+|           |-- config.py
+|           |-- contradictions.py
+|           |-- export_manifest.py
+|           |-- live_guard.py
+|           |-- masks.py
+|           |-- normalizer.py
+|           |-- prompts.py
+|           |-- recovery_*.py
+|           |-- srvl*.py
+|           |-- telemetry.py
+|           `-- visualization_queue.py
 |-- config/settings/base.py
 `-- tests/
     |-- unit/
@@ -271,6 +288,11 @@ docs/
 |-- yoloe_scene_segmentation_plan.md
 |-- production_inference_benchmark.md
 `-- entity/
+
+.github/workflows/
+`-- yoloe-scene-srvl.yml
+
+.env.example
 ```
 
 **Structure Decision**: Use the existing Django backend, Triton route service,
@@ -278,6 +300,18 @@ Redis embedding helpers, React/Vite frontend, and `tools/prod` helper-script
 layout. Add modules only where the existing app boundaries require them; do not
 create a separate service or worker topology for V1 unless production evidence
 proves the simpler integration cannot meet latency/throughput gates.
+
+**Task path authority**: Generated tasks may target
+`backend/apps/video_analysis/scene/`,
+`backend/apps/video_analysis/models.py`,
+`backend/apps/video_analysis/serializers_scene.py`,
+`backend/apps/video_analysis/urls_scene.py`,
+`backend/apps/video_analysis/views_scene.py`,
+`backend/apps/pipeline/model_registry.py`,
+`backend/apps/pipeline/services/model_route_service.py`,
+`backend/config/settings/base.py`, `backend/tests/`, `frontend/src/`,
+`frontend/tests/`, `tools/prod/`, `.github/workflows/`, `.env.example`,
+and the feature/evidence docs listed above.
 
 ## Complexity Tracking
 

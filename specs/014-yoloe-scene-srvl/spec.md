@@ -36,7 +36,7 @@ As an instructor, analyst, or reviewer, I need each eligible offline video frame
 
 ### User Story 2 - Reconcile Missing People (Priority: P2)
 
-As a system reviewer, I need the system to quickly investigate cases where YOLOE sees a different number of people than the current student-plus-teacher count so missed people can be located and false alarms can be separated from real detector misses.
+As a system reviewer, I need the system to investigate cases where YOLOE sees a different number of people than the current student-plus-teacher count with recorded lookup latency so missed people can be located and false alarms can be separated from real detector misses.
 
 **Why this priority**: People count mismatches directly affect downstream classroom reasoning. The feature must distinguish missed detections, duplicates, and false alarms before recovery evidence is trusted.
 
@@ -45,7 +45,7 @@ As a system reviewer, I need the system to quickly investigate cases where YOLOE
 **Acceptance Scenarios**:
 
 1. **Given** YOLOE detects more people than the current student-plus-teacher count, **When** mismatch recovery runs, **Then** each YOLOE person is classified as matched existing person, false alarm or duplicate, missing candidate, or unresolved with traceable scores and reasons.
-2. **Given** a YOLOE person remains unmatched after fast appearance and geometry checks, **When** the candidate passes configured confidence, area, non-ROI, and temporal gates, **Then** the system creates append-only recovery evidence and may re-pass that candidate through the existing inference timeline when recovery re-pass is enabled.
+2. **Given** a YOLOE person remains unmatched after Redis-first appearance and geometry checks, **When** the candidate passes configured confidence, area, non-ROI, and temporal gates, **Then** the system creates append-only recovery evidence and may re-pass that candidate through the existing inference timeline when recovery re-pass is enabled.
 3. **Given** the mismatch evidence is ambiguous, **When** recovery scoring cannot make a confident one-to-one decision, **Then** the candidate remains unresolved and is not force-merged into an existing identity.
 
 ---
@@ -54,9 +54,9 @@ As a system reviewer, I need the system to quickly investigate cases where YOLOE
 
 As a frontend user or analyst, I need a smooth 2D scene map, distance matrix, vector matrix, and heatmap/correlation view so object relationships in the classroom can be inspected without freezing playback or blocking inference.
 
-**Why this priority**: Spatial relationships are useful only if they stay responsive and traceable. The visualization must support human review while analytics artifacts remain reliable.
+**Why this priority**: Spatial relationships are useful only if visualization stays non-blocking and traceable. The visualization must support human review while analytics artifacts remain complete and digest-addressed.
 
-**Independent Test**: Can be tested by running the spatial layer on representative object counts and verifying matrix correctness, map artifacts, frontend frame rate, dropped visualization counters, and unchanged backend progress when rendering is slow.
+**Independent Test**: Can be tested by running the spatial layer on representative object counts and verifying matrix correctness, map artifacts, frontend frame rate, dropped visualization counters, and unchanged backend progress when rendering exceeds the configured late-frame threshold.
 
 **Acceptance Scenarios**:
 
@@ -87,7 +87,7 @@ As a maintainer, I need every implementation phase to produce real tests, real p
 - A YOLOE person mask overlaps a non-ROI region.
 - A downstream person detector fires on a table, chair, wall, mirror, floor, ceiling, board, screen, door, or window.
 - Redis appearance evidence is missing, expired, unavailable, malformed, or stale.
-- A YOLOE recovery candidate has no reliable appearance vector.
+- A YOLOE recovery candidate has no appearance vector meeting the configured validity checks.
 - Multiple candidates compete for one existing track or one candidate competes for multiple tracks.
 - A recovery candidate is plausible in one frame but disappears in adjacent frames.
 - A frame has more objects than the dense matrix threshold.
@@ -111,7 +111,7 @@ As a maintainer, I need every implementation phase to produce real tests, real p
 - **Backend-Inference Wiring**: The scene model route must be prompt-locked before export and must reject stale prompt digests. Production inference authority remains the active native model-serving route; local, mock, or prompt-free exports cannot be accepted as production evidence. Model failures emit unavailable/degraded scene evidence and must not fabricate successful masks. The route must normalize and preserve every YOLOE output it receives, including boxes, class IDs/names, confidence scores, segmentation masks, shape metadata, raw-output references when exposed, and unavailable reasons for outputs that a deployed export cannot provide.
 - **Temporal/Identity/Pose Authority**: Every scene object, mismatch event, recovery candidate, and spatial relation output must carry job identity, video identity, frame number, timestamp, prompt profile, model artifact digest, object identity or frame-local relation index, coordinate source, and track/ReID provenance where available. Recovery candidates use source-scoped provisional IDs until governed assignment resolves them.
 - **Independent-Run/Sharded Identity Evaluation**: Raw local tracker labels are not identity proof. Mismatch recovery must use documented observation matching and deterministic one-to-one assignment when comparing YOLOE persons to existing student/teacher tracks. Detection/localization quality, association quality, false alarms, missing candidates, unresolved cases, duplicate matches, and proxy-ground-truth limitations must be reported separately. Sharded identity transport is out of scope for V1.
-- **Deployment Boundary**: Local and Windows checks are contract and fast-feedback evidence only. Production acceptance requires native Linux RTX 5090 execution, PostgreSQL, Redis when recovery is enabled, active worker state, active model route, no Docker, no `sudo`, environment fingerprint, and durable evidence root. User-space tooling is allowed when recorded and reproducible.
+- **Deployment Boundary**: Local and Windows checks are contract evidence only. Production acceptance requires native Linux RTX 5090 execution, PostgreSQL, Redis when recovery is enabled, active worker state, active model route, no Docker, no `sudo`, environment fingerprint, and durable evidence root. User-space tooling is allowed when recorded and reproducible.
 - **Concurrency/Worker Scaling Boundary**: V1 does not request worker, pool, or Celery topology changes. The feature may use bounded internal queues for scene compute and visualization. Any future worker/thread/concurrency change must define baseline/candidate topology, resource budgets, duplicate-worker detection, rollback, and production benchmark proof before acceptance.
 - **Heterogeneous Authority Boundary**: Local tests may validate schemas, prompt-digest checks, object normalization, matrix math, recovery scoring, API compatibility, and frontend behavior. Claims about throughput, latency, GPU utilization, model readiness, renderer smoothness, or production acceptance require native Linux RTX 5090 evidence tied to Git SHA, `backend/.env`, PostgreSQL, Redis, worker state, model route, and artifacts.
 - **Replay Policy**: Acceptance runs use `new-attempt` replay policy on the canonical production video. Failed runs, partial runs, smoke tests, reduced clips, dry-runs, or component probes cannot count as acceptance evidence, although they may be recorded as hypothesis or debugging evidence.
@@ -131,19 +131,19 @@ As a maintainer, I need every implementation phase to produce real tests, real p
 - **FR-006**: System MUST treat YOLOE boxes, labels/class IDs, class names, confidence scores, masks, shape metadata, and any raw-output references exposed by the runtime route as one unified scene output and MUST preserve them or record explicit unavailable reasons for scene frames where YOLOE runs.
 - **FR-007**: System MUST store compact scene summaries in durable indexed records and store large masks, matrices, heatmaps, snapshots, videos, and traces as artifact files with digests; V1 mask artifacts use RLE-Zstd and V1 dense matrix artifacts use compressed NPZ.
 - **FR-008**: System MUST segment people and the configured non-ROI classroom classes, including tables/desks, chairs, walls, floors, ceilings, doors, windows, mirrors, boards, and screens.
-- **FR-009**: System MUST build a non-ROI union mask and record append-only contradiction events when downstream detections or recovery candidates strongly overlap non-ROI regions.
+- **FR-009**: System MUST build a non-ROI union mask and record append-only contradiction events when downstream detections or recovery candidates overlap non-ROI regions at or above the configured overlap threshold.
 - **FR-010**: System MUST compare YOLOE person count with the current student-plus-teacher count and record match, mismatch, unavailable, and unresolved states.
-- **FR-011**: System MUST use existing fast appearance evidence first for mismatch recovery and MUST fall back to slower lookup only when configured and recorded.
+- **FR-011**: System MUST use existing Redis-first appearance evidence first for mismatch recovery and MUST fall back to configured DB or geometry lookup only when configured and recorded.
 - **FR-012**: System MUST classify each YOLOE person during mismatch recovery as matched existing person, false alarm or duplicate, missing candidate, or unresolved.
 - **FR-013**: System MUST use deterministic one-to-one assignment for recovery matching and MUST keep ambiguous candidates unresolved rather than forcing identity merges.
 - **FR-014**: System MUST create append-only missing-person recovery candidates with frame identity, timestamp, source mask, source bbox, prompt profile, export digest, score details, and reason codes.
 - **FR-015**: System MUST keep recovery re-pass disabled by default; eligible missing-person candidates are candidate-only evidence unless a separate measured candidate enables downstream re-pass.
 - **FR-016**: System MUST synchronize recovery candidates to the original frame time and track lineage without retroactively mutating prior persisted detections.
-- **FR-017**: System MUST provide bounded detector-assist evidence for missed regions in following frames when enabled, and MUST record whether recurrence is reduced or unresolved.
+- **FR-017**: System MUST provide detector-assist evidence for missed regions in following frames bounded by configured TTL/lookahead frame settings, and MUST record whether recurrence is reduced or unresolved.
 - **FR-018**: System MUST compute pairwise distance, angle, magnitude-angle vector, optional Cartesian vector, heatmap, direction map, and correlation map outputs for ordered scene objects.
 - **FR-019**: System MUST produce correct zero-object, one-object, invalid-coordinate, duplicate-identifier, large-object-count, top-k, thresholded, and heatmap-only spatial outputs; dense full matrices are allowed only up to 128 objects per frame.
-- **FR-020**: System MUST keep analytics reliable and visualization non-blocking, with bounded queues, latest-frame-wins rendering, and recorded dropped/delayed/rendered counters.
-- **FR-021**: System MUST render a 2D classroom scene map, high-quality snapshots, and MP4 review artifact while preserving source video frame count.
+- **FR-020**: System MUST persist analytics artifacts independently of visualization and keep visualization non-blocking, with bounded queues, latest-frame-wins rendering, and recorded dropped/delayed/rendered counters.
+- **FR-021**: System MUST render a 2D classroom scene map, configured-resolution snapshots, and MP4 review artifact while preserving source video frame count.
 - **FR-022**: System MUST benchmark renderer candidates using representative scene payloads and MUST evaluate PixiJS WebGL as the first production candidate before adding more complex renderers.
 - **FR-023**: System MUST expose backward-compatible API, WebSocket, artifact, and frontend contracts so older clients/jobs remain valid when scene fields are absent.
 - **FR-024**: System MUST emit trace data for frame, object, coordinate, prompt, backend, timing, matrix mode, downsampling, recovery state, non-ROI state, visualization state, artifact references, and unavailable reasons.
