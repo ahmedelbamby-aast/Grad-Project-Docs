@@ -2,7 +2,8 @@
 
 **Created:** 2026-06-07 · **Branch:** `014-yoloe-scene-srvl`
 **Goal:** Cut the full all-models `combined.mp4` (4541 frames) run from **~23–35 min → ≤ 10 min** (≥ 2.5×) with no accuracy regression.
-**Authority:** every cycle below is a governed optimization cycle — accepted only by a completed native-Linux RTX 5090 benchmark with the §7.1.1 precision metrics + §12.6 figure bundle. Each carries a `streaming_compatibility` declaration (§8.6).
+**Authority:** every cycle below is a governed optimization cycle — accepted only by a completed full end-to-end native-Linux RTX 5090 benchmark **at frame stride = 1** (inference on every decoded frame; stride > 1 is profiling-only, no authority — §7.1.1 v2.12.0) with the §7.1.1 precision metrics + §12.6 figure bundle. Every run is recorded in [`docs/BENCHMARK_RESULTS_LEDGER.md`](BENCHMARK_RESULTS_LEDGER.md) with its decision + reason. Each carries a `streaming_compatibility` declaration (§8.6).
+**Frozen baseline (B003):** full all-models run = **1912 s / 2.37 FPS** at stride=1; exit target **≤600 s** with correctness parity.
 
 ---
 

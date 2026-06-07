@@ -95,8 +95,12 @@ Replace the single `postprocess_ms` with explicit spans (one `with span(...)` ea
 ## Part B — Optimization cycles, recursively decomposed to atomic sub-cycles
 
 Each leaf is **atomic = a single change + a single spine-measured before/after**.
-None is accepted without the §12.5 full RTX-5090 benchmark + §7.1.1 figure
-bundle (now per-sub-stage, courtesy of Cycle 017).
+None is accepted without the §12.5 full RTX-5090 benchmark **at frame stride = 1**
+(every decoded frame inferred; stride > 1 = profiling-only, no authority —
+§7.1.1 v2.12.0) + §7.1.1 figure bundle (now per-sub-stage, courtesy of Cycle
+017). Every run is recorded in
+[`docs/BENCHMARK_RESULTS_LEDGER.md`](BENCHMARK_RESULTS_LEDGER.md) with decision +
+reason.
 
 ### Cycle 018 — Async / overlapped Triton dispatch (feed the idle GPU)
 - 018.1 Enable `async_dispatch`.

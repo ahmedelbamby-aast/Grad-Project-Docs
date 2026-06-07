@@ -15,9 +15,11 @@ is authoritative for **status**.
 | ★ ACCEPTED | passes the §12.5 full RTX-5090 benchmark + §7.1.1 figure bundle (decision authority) |
 | ✘ REFUSED | rejected — reason recorded |
 
-> **ACCEPTED requires a completed native-Linux RTX-5090 end-to-end benchmark.**
-> TESTED ≠ ACCEPTED. Optimization sub-cycles can only reach ★ after a full run
-> proves the per-sub-stage gain with correctness parity.
+> **ACCEPTED requires a completed full end-to-end native-Linux RTX-5090
+> benchmark at frame stride = 1** (inference on every decoded frame; stride > 1
+> is profiling-only, no authority — Constitution §7.1.1 v2.12.0). TESTED ≠
+> ACCEPTED. Every benchmark run (accepted or refused) is recorded with metrics +
+> reason in the single ledger **[`docs/BENCHMARK_RESULTS_LEDGER.md`](BENCHMARK_RESULTS_LEDGER.md)**.
 
 ---
 

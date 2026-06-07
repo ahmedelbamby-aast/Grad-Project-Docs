@@ -1,6 +1,21 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.11.0 -> 2.12.0
+Bump rationale: MINOR - Adds the Benchmark Frame-Stride Mandate to Section 7.1.1:
+every acceptance benchmark MUST run at frame stride = 1 (inference on every
+decoded frame); stride > 1 is profiling-only and carries no decision authority.
+Also establishes a single consolidated benchmark results ledger
+(docs/BENCHMARK_RESULTS_LEDGER.md) that records every run's config (incl.
+stride=1), metrics, and the accept/refuse decision + reason. Propagated to
+AGENTS.md, docs/MASTER_CYCLE_TRACKER.md, and the optimization plan docs.
+
+Triggering observation: the user mandated that all benchmarks infer on every
+frame (no sampling) and that all benchmark results live in one auditable place
+with explicit acceptance/refusal reasons.
+
+Prior MINOR (2.10.0 -> 2.11.0) text below.
+
 Version change: 2.10.0 -> 2.11.0
 Bump rationale: MINOR - Adds explicit Figure Planner and Figure Implementer
 role separation to the benchmark-figure evidence doctrine. Every optimization
@@ -1057,6 +1072,16 @@ default-success branches, silently masked KPI failures, and dashboard
 replacement of unavailable values with zeros are constitutional violations.
 
 #### 7.1.1 Precision Benchmark Measurement Contract
+
+**Frame-stride mandate (v2.12.0).** Every acceptance benchmark MUST run at
+frame stride = 1 — inference executes on **every** decoded frame. Frame
+sampling / stride > 1 (skipping frames) is FORBIDDEN for any run used to accept,
+refuse, or compare an optimization, because it understates per-frame cost and
+hides postprocess, identity, and persistence load. A stride > 1 run is
+profiling-only and carries no decision authority. The benchmark evidence MUST
+record the stride value; a recorded stride ≠ 1 invalidates acceptance. All
+benchmark decision tables and the consolidated results ledger
+(`docs/BENCHMARK_RESULTS_LEDGER.md`) MUST state `stride=1`.
 
 Production benchmark evidence MUST be precise enough to localize bottlenecks,
 not merely rank candidates by coarse total FPS. Every benchmark watcher,
@@ -2806,4 +2831,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.11.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-05
+**Version**: 2.12.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-08

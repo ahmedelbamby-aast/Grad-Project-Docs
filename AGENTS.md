@@ -77,10 +77,19 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ## ⭐ Benchmark Figure Evidence — BINDING
 
-Constitution v2.11.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
+Constitution v2.12.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
 cycle decision has authority unless generated figures are created from the same
 raw artifacts as the benchmark decision table and embedded or linked from the
 connected Markdown evidence.
+
+**Frame-stride mandate (BINDING, v2.12.0).** Every acceptance benchmark MUST run
+at **frame stride = 1** — inference on every decoded frame. Stride > 1 (frame
+sampling) is profiling-only and has NO decision authority; a recorded stride ≠ 1
+invalidates acceptance. **ACCEPTED requires a completed full end-to-end
+native-Linux RTX 5090 benchmark** with the §7.1.1 precision metrics captured and
+saved. Every benchmark run — accepted or refused — MUST be recorded with its
+config (stride=1, video, frames, hardware), metrics, and the decision + reason in
+the single consolidated ledger [`docs/BENCHMARK_RESULTS_LEDGER.md`](docs/BENCHMARK_RESULTS_LEDGER.md).
 
 Before implementation or benchmark work on any optimization cycle, the agent
 MUST read:
