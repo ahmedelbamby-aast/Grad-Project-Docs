@@ -1,6 +1,6 @@
 # CLAUDE.md — Long-Term Memory for 014-yoloe-scene-srvl
 
-**Last updated:** 2026-06-07
+**Last updated:** 2026-06-07 (session 3)
 **Branch**: `014-yoloe-scene-srvl`
 **Production server**: `0.tcp.eu.ngrok.io:27681`, user `bamby`, `/home/bamby/grad_project`
 **GPU**: RTX 5090, CUDA 12.8, TRT 10.16.1.11
@@ -96,6 +96,55 @@ Polish & cross-cutting:
 - `tools/prod/` — all production helper scripts
 - `specs/014-yoloe-scene-srvl/evidence_manifest.md`
 - `.github/workflows/yoloe-scene-srvl.yml`
+
+## Figure-Generation Pipeline (post-120 enhancement) ✅ DONE
+
+### Overview
+All production benchmark scripts now gate on figure generation — the job cannot
+be marked complete until all 5 figures + MANIFEST.json are written.
+
+### Files modified / created
+- `tools/prod/prod_generate_yoloe_scene_figures.py` (rewritten, ~505 lines)
+  - Always emits every figure — data-driven or placeholder PNG if unavailable
+  - `_placeholder_chart(title, reason, out)` — red "UNAVAILABLE" PNG
+  - `generate_db_summary_chart`, `generate_artifact_sizes_chart`, `generate_gpu_chart`
+  - `generate_box_throughput_chart` — grouped bars (5 models × 4 metrics)
+  - `generate_throughput_summary_chart` — horizontal bar
+  - `_write_figure_manifest(out_dir, metrics)` — MANIFEST.json with SHA-256
+  - `_generate_all(metrics, out_dir)` → True when job terminal
+  - `--poll-interval N` + `--collect-command CMD` real-time polling loop
+  - `--max-polls N` safety cap; partial figures watermarked "IN PROGRESS"
+- `tools/prod/prod_collect_yoloe_scene_metrics.py` (~387 lines)
+  - `collect_box_throughput_metrics(processed_frames, elapsed_s)` added
+  - `_collect_job_elapsed(job_id)` helper
+  - `--generate-figures` + `--figures-dir` flags
+- `tools/prod/prod_collect_benchmark_metrics.py` (~1871 lines)
+  - `_generate_figures_from_metrics(metrics, figures_dir)` — non-fatal subprocess
+  - `--figures-dir DIR` wired to end of `main()`
+- `tools/prod/prod_run_yoloe_scene_benchmark.sh` (rewritten, 5-step pipeline)
+  - Step 1: validate scene model export
+  - Step 2: run management command
+  - Step 3: collect metrics (`prod_collect_benchmark_metrics.py --figures-dir`)
+  - Step 4: generate scene figures (direct + scene-metrics pass)
+  - Step 5: verify MANIFEST.json exists and has ≥1 figure — exits 1 if missing
+  - `--figures-dir DIR`, `--replay-key KEY`, `--dry-run` CLI args
+- `backend/tests/unit/pipeline/test_prod_generate_yoloe_scene_figures.py` (updated)
+  - 3 tests updated to match "always-emit placeholder" contract
+
+### Key design decisions
+- **Always emit**: every chart function always writes a PNG (placeholder if unavailable).
+- **Real-time**: poll loop via `--poll-interval` regenerates figures on every tick.
+- **Non-fatal**: figure failures print WARNING but never abort metrics collection.
+- **MANIFEST.json gate**: `prod_run_yoloe_scene_benchmark.sh` refuses exit 0
+  unless MANIFEST.json exists with ≥1 figure.
+
+### CI fix (commit 51f095f failure)
+- Root cause: `test_prod_generate_yoloe_scene_figures.py` expected NO png for
+  unavailable data, but rewritten script always writes placeholder png.
+- Fix: updated 3 test assertions to `assert (path).exists()`.
+- All 27 backend CI tests pass locally (shell syntax × 12, figures × 7, collect × 8).
+
+---
 
 ## Box Throughput Metrics Feature (post-120 enhancement) ✅ DONE
 
