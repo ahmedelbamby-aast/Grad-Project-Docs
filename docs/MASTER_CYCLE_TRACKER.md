@@ -103,7 +103,7 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 | Sub-cycle (atomic) | Status | Notes |
 |---|---|---|
 | 017.5.1 REST `GET /api/telemetry/spans` (windowed aggregates) | ✔ TESTED | `TelemetrySpanRollupView` (DRF, IsAuthenticated); filters job/mode/camera/name/since/limit; rollup_spans over SpanRecord; unavailable when empty; 4 tests |
-| 017.5.2 SSE `GET /api/telemetry/stream` | ☐ PLANNED | |
+| 017.5.2 SSE `GET /api/telemetry/stream` | ✔ TESTED | `TelemetrySpanStreamView` + `span_stream_events` (Redis XREAD→rollup SSE, heartbeat, idle-break, error-clean); 5 tests, decoupled generator |
 | 017.5.3 WS `ws://…/ws/telemetry/{scope}` | ☐ PLANNED | channels consumer |
 | 017.5.4 binary metric-frame schema (ArrayBuffer/Float32, column-major) | ☐ PLANNED | GPU-upload-ready |
 | 017.5.5 OpenAPI contract version for schema | ☐ PLANNED | |
