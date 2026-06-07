@@ -4561,6 +4561,134 @@ an instrumentation/reproducibility result, not a replacement accepted baseline.
 The active production profile remains the last accepted throughput profile, and
 evidence-only profiling flags were rolled back after capture.
 
+## 53. No-Sudo Instrumented Accepted-Baseline Reproducibility Benchmark
+
+This run re-executed the last accepted offline throughput profile after the
+instrumentation toolchain was installed without `sudo`. Production host CLIs
+that were missing from the system package set were extracted under
+`backend/.tools` from downloaded `.deb` packages, and the benchmark wrapper
+prepended `backend/.tools/bin` to `PATH`. This is a reproducibility and
+observability benchmark, not a new optimization-candidate decision.
+
+| Item | Value |
+|---|---|
+| Status | `REPRODUCIBILITY_BENCHMARK_COMPLETE / NO_NEW_OPTIMIZATION_DECISION` |
+| Runtime commit | `aef117a5` |
+| Replay key | `instrumented-accepted-nosudo-20260607T0752Z` |
+| Job ID | `f6238d53-e86f-4bdf-b7c9-c5545f711911` |
+| Baseline replay | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` |
+| Baseline job | `6b42a557-b954-4954-a2f8-de54634229eb` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json` / `.md` |
+| Baseline metrics JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/model_agreement_accepted_vs_instrumented.json` / `.md` |
+| Tool install/check evidence | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_tools_20260607T075039Z.json` / `.md` |
+| Pre/post tool checks | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_precheck.json` and `instrumentation_postcheck.json` |
+| Rollback JSON | `/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/rollback_status.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/figure_manifest.json` |
+| Figure roles | Planner `Instrumented accepted-baseline reproducibility planner`; implementer `Instrumented accepted-baseline reproducibility implementer`; generator `tools/prod/prod_generate_cycle_figures.py`; one agent performed both lanes because this was a single-agent reproducibility run. |
+
+No-sudo tool readiness:
+
+| Tool | Production result |
+|---|---|
+| `uv` | `uv 0.11.19`; path `/home/bamby/.local/bin/uv` |
+| `python` | `Python 3.12.3`; path `/home/bamby/grad_project/backend/.venv/bin/python3` |
+| `psutil` | `7.2.2` |
+| `py-spy` | `py-spy 0.4.2` |
+| `pyinstrument` | `pyinstrument 5.1.2` |
+| `nvidia-smi` | RTX 5090, driver `570.211.01`, VRAM `32607 MiB` |
+| `nsys` | Nsight Systems `2024.6.2.225`; path `/usr/local/bin/nsys` |
+| `psql` | `PostgreSQL 16.14`; path `/home/bamby/grad_project/backend/.tools/bin/psql` |
+| `pg_isready` | `PostgreSQL 16.14`; path `/home/bamby/grad_project/backend/.tools/bin/pg_isready` |
+| `redis-cli` | `redis-cli 7.0.15`; path `/home/bamby/grad_project/backend/.tools/bin/redis-cli` |
+| `curl` | `curl 8.5.0`; path `/usr/bin/curl` |
+
+Performance and instrumentation measurements:
+
+| Metric | Last accepted baseline | No-sudo instrumented rerun | Delta / result |
+|---|---:|---:|---:|
+| Source video nominal FPS | `30.000` | `30.000` | input media rate, not processing throughput |
+| DB-completed FPS | `5.680314` | `5.255214` | `-7.48 %` |
+| DB completed elapsed | `799.428 s` | `864.094 s` | `+8.09 %` |
+| Step 2 frame wall | `462.188348 s` | `462.996777 s` | `+0.17 %` |
+| Step 2 through-pose wall | `633.939294 s` | `705.429605 s` | `+11.28 %` |
+| Step 2 pose-tail-only wall | `unavailable` | `242.432828 s` | new layer-throughput measurement |
+| Step 3 persistence wall | `40.601407 s` | `32.096389 s` | `-20.95 %` |
+| Step 4 render wall | `unavailable` | `25.817729 s` | audit marker available |
+| Run-complete wall | `700.368401 s` | `763.407460 s` | `+9.00 %` |
+| Behavior call rate | `4.499469 calls/s` | `4.162740 calls/s` | `-7.48 %` |
+| Behavior RTT mean | `84.171 ms` | `84.273 ms` | `+0.12 %` |
+| Behavior RTT p95 | `130.802 ms` | `130.547 ms` | `-0.19 %` |
+| Behavior RTT p99 | `137.384 ms` | `136.547 ms` | `-0.61 %` |
+| GPU avg util | `12.168 %` | `11.276 %` | `-7.33 %` |
+| GPU peak util | `51.000 %` | `53.000 %` | `+3.92 %` |
+| Peak VRAM | `15731 MiB` | `15731 MiB` | no change |
+
+Layer-throughput measurements from the no-sudo instrumented run:
+
+| Layer | Throughput | Count | Wall | Unavailable reason |
+|---|---:|---:|---:|---|
+| Source video nominal | `30.000 frames/s` | `4541` | `151.366667 s` |  |
+| Job DB completed | `5.255215 frames/s` | `4541` | `864.094 s` |  |
+| Step 1 primary tracking | `unavailable` | `4541` | `unavailable` | `step1_audit_timestamps_missing_or_skipped` |
+| Step 2 frame inference loop | `9.807844 frames/s` | `4541` | `462.996777 s` |  |
+| Step 2 through pose tail | `6.437212 frames/s` | `4541` | `705.429605 s` |  |
+| Step 2 pose tail only | `18.730962 frames/s` | `4541` | `242.432828 s` |  |
+| Step 3 persistence | `141.480090 frames/s` | `4541` | `32.096389 s` |  |
+| Embedding stage frame equivalent | `45.755693 frames/s` | `4541` | `99.244480 s` |  |
+| Embedding stage work items | `1462.197192 embedding-items/s` | `145115` | `99.244480 s` |  |
+| Step 4 render | `175.886888 frames/s` | `4541` | `25.817729 s` |  |
+| Telemetry model calls | `6.606920 calls/s` | `5709` | `864.094 s` |  |
+| DB detection rows | `84.192229 rows/s` | `72750` | `864.094 s` |  |
+| DB bbox rows | `84.192229 rows/s` | `72750` | `864.094 s` |  |
+| DB embedding rows | `84.000120 rows/s` | `72584` | `864.094 s` |  |
+| DB pose-kinematics rows | `22.137638 rows/s` | `19129` | `864.094 s` |  |
+
+Correctness and instrumentation gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72744 -> 72750` | `+0.01 %`; within row-parity tolerance |
+| BBox rows | `72744 -> 72750` | `+0.01 %`; within row-parity tolerance |
+| Embedding rows | `72578 -> 72584` | `+0.01 %`; within row-parity tolerance |
+| StudentTracks | `53 -> 53` | Exact parity |
+| Minimum per-model F1@IoU0.5 | `99.766 %` | Pass model-agreement proxy |
+| `attention_tracking` boxes | `11770 -> 11775` | `+0.04 %`; within tolerance |
+| `hand_raising` boxes | `8799 -> 8801` | `+0.02 %`; within tolerance |
+| `person_detection` boxes | `19162 -> 19162` | Exact parity |
+| `sitting_standing` boxes | `33013 -> 33012` | Within tolerance |
+| Redis Stream evidence | `enabled=true`, `written=4729`, `xlen=1013`, `errors=0`, `fallbacks=0` | Pass stream-evidence capture |
+| py-spy Celery attach | `unavailable` | Linux ptrace permission denied without elevated privileges; collector py-spy profile succeeded |
+| pyinstrument collector profile | `available` | `pyinstrument_collect_metrics.json` produced |
+| Nsight Systems collector profile | `available` | `nsys_collect_metrics.nsys-rep` produced; CPU context switch tracing unsupported by host kernel |
+| Rollback verified | `true` | `BENCHMARK_REDIS_STREAM_EVENTS=0`, `POSE_TAIL_PROFILING=0`, and `EMBEDDING_STAGE_PROFILING=0` restored |
+
+### 53.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__decision_delta.png)
+
+![Relative Delta](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__relative_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__wall_breakdown.png)
+
+![Model RTT](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__model_rtt.png)
+
+![GPU Profile](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__gpu_profile.png)
+
+![Resource Tail](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__resource_tail.png)
+
+![Unavailable Summary](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__unavailable_summary.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_baseline__evidence_completeness.png)
+
+Decision: **NO NEW OPTIMIZATION DECISION**. The no-sudo instrumentation
+toolchain is installed and verified locally and on production, and the last
+accepted throughput profile completed under the instrumented wrapper with
+DB/model parity preserved. End-to-end DB-completed FPS was lower than the
+accepted baseline (`-7.48 %`), so this run must remain an observability and
+reproducibility result rather than a replacement baseline.
+
 ---
 
-*Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*
+*Updated from production run on 2026-06-07. Update this file after each major pipeline change or hardware migration.*

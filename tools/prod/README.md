@@ -312,6 +312,41 @@ counts, inference-audit stage values, model RTT telemetry, model-agreement
 correctness evidence, Cycle 13 embedding-stage profile values when available,
 and run summaries from PostgreSQL/Django.
 
+## 2.3) No-sudo instrumentation toolchain
+
+Install/check the benchmark instrumentation tools without `sudo`:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_install_instrumentation_tools.sh \
+  --all-tools \
+  --warn-only \
+  --evidence-dir backend/logs/instrumentation/no_sudo_prod_all
+```
+
+`--all-tools` uses the locked UV `instrumentation` dependency group and
+extracts supported host CLIs into `backend/.tools`. It does not call `sudo`
+unless the operator explicitly also passes `--system-tools`. The production
+no-sudo evidence from 2026-06-07 is:
+
+- `backend/logs/instrumentation/no_sudo_prod_all_r3/instrumentation_tools_20260607T074924Z.json`
+- `backend/logs/instrumentation/no_sudo_prod_all_r3/instrumentation_tools_20260607T074924Z.md`
+
+Run the last accepted throughput profile with the same no-sudo toolchain and
+the existing benchmark metrics/model-agreement/figure workflow:
+
+```bash
+cd /home/bamby/grad_project
+bash tools/prod/prod_run_instrumented_accepted_benchmark.sh \
+  --tag instrumented-accepted-nosudo-$(date -u +%Y%m%dT%H%MZ)
+```
+
+The 2026-06-07 proof run was
+`instrumented-accepted-nosudo-20260607T0752Z`, job
+`f6238d53-e86f-4bdf-b7c9-c5545f711911`. Its metrics, agreement, rollback,
+instrumentation profiles, and generated figures are recorded in
+`docs/production_inference_benchmark.md` §53.
+
 ## 3) Stop all queue workers started by this repo
 
 ```bash

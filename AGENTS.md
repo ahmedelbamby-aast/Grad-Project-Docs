@@ -1,6 +1,6 @@
 # Agents Execution Guide
 
-**Last updated:** 2026-06-06
+**Last updated:** 2026-06-07
 
 ## Purpose
 This file defines how agents should execute tests quickly and safely in this repository.
@@ -25,9 +25,40 @@ This file defines how agents should execute tests quickly and safely in this rep
 - The credential file MUST remain untracked and MUST contain a rotated token, never a token exposed in chat, logs, evidence, or Markdown.
 - Agents MUST NOT write raw CI tokens into tracked files, command transcripts, or production evidence packages.
 
+## No-Sudo Instrumentation Toolchain
+- Benchmark instrumentation tools MUST be installed and checked without `sudo`
+  unless the user explicitly grants a system-package install window.
+- Use `tools/prod/prod_install_instrumentation_tools.sh --all-tools
+  --warn-only` on production. This syncs the locked UV `instrumentation` group
+  and extracts supported host CLIs into `backend/.tools`; it does not use
+  `sudo` unless `--system-tools` is also passed.
+- Use `tools/prod/prod_install_instrumentation_tools.ps1 -AllTools
+  -WarnOnly` locally. The local helper installs PostgreSQL and Nsight Systems
+  from user-space ZIP archives under `backend/.tools`.
+- The checker authority is `tools/prod/prod_check_instrumentation_tools.py`.
+  A ready toolchain means `status=ok`, `core_missing=[]`, and
+  `optional_missing=[]` in the JSON evidence.
+- Latest no-sudo readiness evidence:
+  - local:
+    `backend/logs/instrumentation/no_sudo_local_final.json` /
+    `backend/logs/instrumentation/no_sudo_local_final.md`;
+  - production:
+    `backend/logs/instrumentation/no_sudo_prod_all_r3/instrumentation_tools_20260607T074924Z.json`
+    / `.md`.
+- Latest no-sudo accepted-profile benchmark:
+  `instrumented-accepted-nosudo-20260607T0752Z`, job
+  `f6238d53-e86f-4bdf-b7c9-c5545f711911`, recorded in
+  `docs/production_inference_benchmark.md` §53 and
+  `docs/figures/benchmark_artifacts/instrumented-accepted-nosudo-20260607T0752Z/`.
+  This is a reproducibility/observability run, not a new accepted baseline.
+  `py-spy` live Celery attach remains unavailable without elevated ptrace
+  privileges; the collector flamegraph, pyinstrument JSON, and Nsight report
+  were produced.
+
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
-- Active feature plan: [specs/013-human-pose-kinematics/plan.md](specs/013-human-pose-kinematics/plan.md)
+- Active feature plan: [specs/014-yoloe-scene-srvl/plan.md](specs/014-yoloe-scene-srvl/plan.md)
+- Previous feature reminder: [specs/013-human-pose-kinematics/plan.md](specs/013-human-pose-kinematics/plan.md)
 - 2026-06-05 Cycle 013 Human Pose Kinematics decision: **INITIAL PRODUCTION
   ENABLEMENT EXCEPTION for the offline-proven path only**. Offline
   `combined.mp4` matrix evidence, enabled retry evidence, and disabled-layer

@@ -1,0 +1,1914 @@
+{
+  "cycle_slug": "instrumented_accepted_baseline",
+  "evidence_families": {
+    "bench_summary": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/bench_summary_20260603T180000.json",
+        "/home/bamby/grad_project/backend/logs/bench_summary_20260607T105102.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "gpu": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+        "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260607T105102.csv"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "inference_audit": {
+      "paths": [
+        "/home/bamby/grad_project/backend/data/videos/6b42a557-b954-4954-a2f8-de54634229eb/inference_audit.json",
+        "/home/bamby/grad_project/backend/data/videos/f6238d53-e86f-4bdf-b7c9-c5545f711911/inference_audit.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "metrics": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "model_agreement": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/model_agreement_accepted_vs_instrumented.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "parity": {
+      "paths": [],
+      "reason": "not a tensor-route candidate; DB/model agreement and accepted-route configuration are the correctness gates",
+      "status": "unavailable"
+    },
+    "probe": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_precheck.json",
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_postcheck.json",
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/py_spy_collect_metrics_probe.json",
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/nsys_collect_metrics_probe.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "readiness": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_precheck.json",
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_postcheck.json"
+      ],
+      "reason": null,
+      "status": "available"
+    },
+    "rollback": {
+      "paths": [
+        "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/rollback_status.json"
+      ],
+      "reason": null,
+      "status": "available"
+    }
+  },
+  "figure_roles": {
+    "generator_scope": "tools/prod/prod_generate_cycle_figures.py",
+    "implementer": "Instrumented accepted-baseline reproducibility implementer",
+    "planner": "Instrumented accepted-baseline reproducibility planner"
+  },
+  "generated_at": "2026-06-07T08:05:49.129853+00:00",
+  "input_digests": [
+    {
+      "bytes": 7037,
+      "path": "/home/bamby/grad_project/backend/data/videos/6b42a557-b954-4954-a2f8-de54634229eb/inference_audit.json",
+      "sha256": "1a642299a56e65544a358dd74bff59f2f519e648424fe87d5dfa0032e9b8e8a0"
+    },
+    {
+      "bytes": 9850,
+      "path": "/home/bamby/grad_project/backend/data/videos/f6238d53-e86f-4bdf-b7c9-c5545f711911/inference_audit.json",
+      "sha256": "8b03f24fae224699c6f5f7e65fdb29fcb12efcf7e5d30d9da2c5e093b3028241"
+    },
+    {
+      "bytes": 1918,
+      "path": "/home/bamby/grad_project/backend/logs/bench_summary_20260603T180000.json",
+      "sha256": "7c6ce29cb5afeadf5e7edf43a0037a95cf51e554d9c3c9684fe8d9c77f78b89c"
+    },
+    {
+      "bytes": 1908,
+      "path": "/home/bamby/grad_project/backend/logs/bench_summary_20260607T105102.json",
+      "sha256": "108d521cf62788abfb3df03cc7dce3ec5f74f8df8ed1c33286d124aee9eb15ee"
+    },
+    {
+      "bytes": 41672,
+      "path": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+      "sha256": "8cc3c620d7ba0c13f18b4008798328f77f0ce37c739af874ea0bbb6f4c2a7970"
+    },
+    {
+      "bytes": 44884,
+      "path": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260607T105102.csv",
+      "sha256": "6fb33fa9c07c55841bee6252db1058ed57640f3fa3186f6ed05630bbac6eac65"
+    },
+    {
+      "bytes": 19864,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+      "sha256": "c8a07a85cf83e02413762ac3c146a8169fd5d3c199d2b85b73d4abed84f2ce22"
+    },
+    {
+      "bytes": 6615,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_postcheck.json",
+      "sha256": "47b854089542bc150271c7794c773e12fde63818b0f8edbcc78ea28571c8aed7"
+    },
+    {
+      "bytes": 6615,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_precheck.json",
+      "sha256": "ac8a8448f9e115309970d04dad3da2cf419bfd451eaddf7105b7a9a9e766137c"
+    },
+    {
+      "bytes": 20952,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/nsys_collect_metrics_probe.json",
+      "sha256": "01d262703fd470997090a3028554a1617d3892126fadd7780139d90de6384f7c"
+    },
+    {
+      "bytes": 20951,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/py_spy_collect_metrics_probe.json",
+      "sha256": "d1e012f30b7e2aeb3de42055296b5a259559890fa3a8187e4b17539a304df12b"
+    },
+    {
+      "bytes": 20951,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+      "sha256": "6d1db198ff9be136d5d17c62bf79b5f2c4d4ae31f4373d7894bc85a97fdab3f4"
+    },
+    {
+      "bytes": 3237,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/model_agreement_accepted_vs_instrumented.json",
+      "sha256": "8dfe7f31035db67b40984942172e04dbbcdde5ca72ce46ab2e4b0b93ad94ab47"
+    },
+    {
+      "bytes": 739,
+      "path": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/rollback_status.json",
+      "sha256": "9ed1d8c7caf0ef7ebef42965e4b3cad89b463dbdf8bb6f9863c10c76bb4d79b1"
+    }
+  ],
+  "missing_metrics": {
+    "baseline": {
+      "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+      "label_invariant_residual_gap_pp": "not an identity-association candidate",
+      "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+      "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "packet_max_bytes": "not a boundary-packet candidate",
+      "packet_merge_ready_count": "not a boundary-packet candidate",
+      "packet_observation_count": "not a boundary-packet candidate",
+      "packet_payload_bytes": "not a boundary-packet candidate",
+      "packet_total_count": "not a boundary-packet candidate",
+      "packet_track_count": "not a boundary-packet candidate",
+      "packet_truncated_count": "not a boundary-packet candidate",
+      "packet_unresolved_tracks": "not a boundary-packet candidate",
+      "packet_valid_count": "not a boundary-packet candidate",
+      "parity_failed_count": "not a tensor-route candidate",
+      "parity_max_abs_diff": "not a tensor-route candidate",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+      "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+    },
+    "best": {
+      "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+      "label_invariant_residual_gap_pp": "not an identity-association candidate",
+      "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+      "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+      "model_agreement_f1_pct": "metric not found in supplied artifacts",
+      "packet_max_bytes": "not a boundary-packet candidate",
+      "packet_merge_ready_count": "not a boundary-packet candidate",
+      "packet_observation_count": "not a boundary-packet candidate",
+      "packet_payload_bytes": "not a boundary-packet candidate",
+      "packet_total_count": "not a boundary-packet candidate",
+      "packet_track_count": "not a boundary-packet candidate",
+      "packet_truncated_count": "not a boundary-packet candidate",
+      "packet_unresolved_tracks": "not a boundary-packet candidate",
+      "packet_valid_count": "not a boundary-packet candidate",
+      "parity_failed_count": "not a tensor-route candidate",
+      "parity_max_abs_diff": "not a tensor-route candidate",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+      "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+    },
+    "candidate": {
+      "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+      "label_invariant_residual_gap_pp": "not an identity-association candidate",
+      "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+      "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+      "packet_max_bytes": "not a boundary-packet candidate",
+      "packet_merge_ready_count": "not a boundary-packet candidate",
+      "packet_observation_count": "not a boundary-packet candidate",
+      "packet_payload_bytes": "not a boundary-packet candidate",
+      "packet_total_count": "not a boundary-packet candidate",
+      "packet_track_count": "not a boundary-packet candidate",
+      "packet_truncated_count": "not a boundary-packet candidate",
+      "packet_unresolved_tracks": "not a boundary-packet candidate",
+      "packet_valid_count": "not a boundary-packet candidate",
+      "parity_failed_count": "not a tensor-route candidate",
+      "parity_max_abs_diff": "not a tensor-route candidate",
+      "readiness_ready_count": "metric not found in supplied artifacts",
+      "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_memory_used_mib": "metric not found in supplied artifacts",
+      "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+      "rollback_passed": "metric not found in supplied artifacts",
+      "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+      "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+    }
+  },
+  "outputs": {
+    "correctness_gate": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__correctness_gate.png",
+    "decision_delta": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__decision_delta.png",
+    "evidence_completeness": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__evidence_completeness.png",
+    "figure_manifest": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/figure_manifest.json",
+    "gate_matrix": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__gate_matrix.png",
+    "gpu_distribution": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__gpu_distribution.png",
+    "gpu_profile": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__gpu_profile.png",
+    "identity_label_invariant": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__identity_label_invariant.png",
+    "markdown": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures.md",
+    "model_rtt": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__model_rtt.png",
+    "packet_budget": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__packet_budget.png",
+    "packet_readiness": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__packet_readiness.png",
+    "redis_profile": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__redis_profile.png",
+    "relative_delta": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__relative_delta.png",
+    "resource_tail": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__resource_tail.png",
+    "sidecar_metadata": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__figure_metadata.json",
+    "statistical_table": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__statistical_table.png",
+    "unavailable_summary": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__unavailable_summary.png",
+    "wall_breakdown": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/figures/instrumented_accepted_baseline__wall_breakdown.png"
+  },
+  "parsed_metrics": {
+    "baseline": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 84.171
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 130.802
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 137.384
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.680314
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 12.168
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 51.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "packet_max_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 700.368401
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 462.188348
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 633.939294
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "best": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 84.171
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 130.802
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 137.384
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.680314
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72744.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72578.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 12.168
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 51.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "packet_max_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 700.368401
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 462.188348
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 633.939294
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    },
+    "candidate": {
+      "bbox_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72750.0
+      },
+      "behavior_rtt_mean_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 84.273
+      },
+      "behavior_rtt_p95_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 130.547
+      },
+      "behavior_rtt_p99_ms": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "ms",
+        "value": 136.547
+      },
+      "db_completed_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 5.255214
+      },
+      "detection_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72750.0
+      },
+      "embedding_rows": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "rows",
+        "value": 72584.0
+      },
+      "gpu_avg_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 11.276
+      },
+      "gpu_mem_p95_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260607T105102.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_mem_p99_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260607T105102.csv",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_mem_used_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 15731.0
+      },
+      "gpu_peak_util_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "%",
+        "value": 53.0
+      },
+      "label_invariant_all_model_f1_pct": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_residual_gap_pp": {
+        "reason": "not an identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "label_invariant_shard1_f1_pct": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "%",
+        "value": null
+      },
+      "label_invariant_shard1_residual_gap_pp": {
+        "reason": "not a sharding or identity-association candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "pp",
+        "value": null
+      },
+      "model_agreement_f1_pct": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/model_agreement_accepted_vs_instrumented.json",
+        "status": "available",
+        "unit": "%",
+        "value": 99.76640475684859
+      },
+      "overall_fps": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "fps",
+        "value": 30.0
+      },
+      "packet_max_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_merge_ready_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_observation_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "observations",
+        "value": null
+      },
+      "packet_payload_bytes": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bytes",
+        "value": null
+      },
+      "packet_total_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_track_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_truncated_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "packet_unresolved_tracks": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "tracks",
+        "value": null
+      },
+      "packet_valid_count": {
+        "reason": "not a boundary-packet candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_failed_count": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "parity_max_abs_diff": {
+        "reason": "not a tensor-route candidate",
+        "source": null,
+        "status": "unavailable",
+        "unit": "abs diff",
+        "value": null
+      },
+      "readiness_ready_count": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "redis_command_wall_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_memory_used_mib": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "redis_p95_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_p99_ms": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "ms",
+        "value": null
+      },
+      "redis_pipeline_execute_count": {
+        "reason": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "source": null,
+        "status": "unavailable",
+        "unit": "count",
+        "value": null
+      },
+      "rollback_passed": {
+        "reason": "metric not found in supplied artifacts",
+        "source": null,
+        "status": "unavailable",
+        "unit": "bool",
+        "value": null
+      },
+      "run_complete_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 763.40746
+      },
+      "step2_frame_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 462.996777
+      },
+      "step2_through_pose_wall_s": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "s",
+        "value": 705.429605
+      },
+      "track_count": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "tracks",
+        "value": 53.0
+      },
+      "worker_peak_rss_mib": {
+        "reason": null,
+        "source": "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+        "status": "available",
+        "unit": "MiB",
+        "value": 0.0
+      },
+      "worker_rss_p95_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      },
+      "worker_rss_p99_mib": {
+        "reason": "worker RSS sampler was not enabled for this reproducibility run",
+        "source": null,
+        "status": "unavailable",
+        "unit": "MiB",
+        "value": null
+      }
+    }
+  },
+  "run_metadata": {
+    "baseline": {
+      "job_id": "6b42a557-b954-4954-a2f8-de54634229eb",
+      "label": "last accepted throughput baseline",
+      "replay_key": "cycle14b-cross-frame-batch16-r2-20260603T150000Z",
+      "role": "baseline"
+    },
+    "best": {
+      "job_id": "6b42a557-b954-4954-a2f8-de54634229eb",
+      "label": "best comparable accepted baseline",
+      "replay_key": "cycle14b-cross-frame-batch16-r2-20260603T150000Z",
+      "role": "best"
+    },
+    "candidate": {
+      "job_id": "f6238d53-e86f-4bdf-b7c9-c5545f711911",
+      "label": "instrumented accepted-profile rerun",
+      "replay_key": "instrumented-accepted-nosudo-20260607T0752Z",
+      "role": "candidate"
+    }
+  },
+  "sources": {
+    "baseline": [
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+      "/home/bamby/grad_project/backend/logs/bench_summary_20260603T180000.json",
+      "/home/bamby/grad_project/backend/data/videos/6b42a557-b954-4954-a2f8-de54634229eb/inference_audit.json",
+      "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv"
+    ],
+    "best": [
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/baseline_accepted_metrics.json",
+      "/home/bamby/grad_project/backend/logs/bench_summary_20260603T180000.json",
+      "/home/bamby/grad_project/backend/data/videos/6b42a557-b954-4954-a2f8-de54634229eb/inference_audit.json",
+      "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260603T180000.csv"
+    ],
+    "candidate": [
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumented_accepted_metrics.json",
+      "/home/bamby/grad_project/backend/logs/bench_summary_20260607T105102.json",
+      "/home/bamby/grad_project/backend/data/videos/f6238d53-e86f-4bdf-b7c9-c5545f711911/inference_audit.json",
+      "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260607T105102.csv",
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/model_agreement_accepted_vs_instrumented.json",
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_precheck.json",
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/instrumentation_postcheck.json",
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/py_spy_collect_metrics_probe.json",
+      "/home/bamby/grad_project/backend/logs/instrumented-accepted-nosudo-20260607T0752Z/instrumentation/nsys_collect_metrics_probe.json"
+    ]
+  },
+  "statistics": {
+    "distribution_tests": {
+      "gpu_mem_sample_mib": {
+        "cliffs_delta": 0.271956,
+        "cohens_d": 0.580425,
+        "effect_magnitude": "small",
+        "n_baseline": 786,
+        "n_candidate": 848,
+        "welch_dof": 1624.2142,
+        "welch_p_normal_approx": 0.0,
+        "welch_t": 11.787244
+      },
+      "gpu_power_sample_w": {
+        "cliffs_delta": 0.011383,
+        "cohens_d": 0.087939,
+        "effect_magnitude": "negligible",
+        "n_baseline": 786,
+        "n_candidate": 848,
+        "welch_dof": 1628.873,
+        "welch_p_normal_approx": 0.07536,
+        "welch_t": 1.778269
+      },
+      "gpu_util_sample_pct": {
+        "cliffs_delta": 0.053632,
+        "cohens_d": 0.055648,
+        "effect_magnitude": "negligible",
+        "n_baseline": 786,
+        "n_candidate": 848,
+        "welch_dof": 1620.6582,
+        "welch_p_normal_approx": 0.261188,
+        "welch_t": 1.123588
+      }
+    },
+    "methods": [
+      "relative_change_pct_vs_baseline",
+      "descriptive_summary (mean/median/std/cv/percentiles/iqr)",
+      "bootstrap_mean_ci_95 (2000 resamples, seed=0)",
+      "welch_t_unequal_variance (normal-approx p)",
+      "cohens_d_effect_size",
+      "cliffs_delta_nonparametric_effect_size"
+    ],
+    "relative_change": {
+      "bbox_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.0082,
+            "improved": null,
+            "value": 72750.0
+          }
+        }
+      },
+      "behavior_rtt_mean_ms": {
+        "baseline": 84.171,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 84.171
+          },
+          "candidate": {
+            "delta_pct": 0.1212,
+            "improved": false,
+            "value": 84.273
+          }
+        }
+      },
+      "behavior_rtt_p95_ms": {
+        "baseline": 130.802,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 130.802
+          },
+          "candidate": {
+            "delta_pct": -0.195,
+            "improved": true,
+            "value": 130.547
+          }
+        }
+      },
+      "behavior_rtt_p99_ms": {
+        "baseline": 137.384,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 137.384
+          },
+          "candidate": {
+            "delta_pct": -0.6092,
+            "improved": true,
+            "value": 136.547
+          }
+        }
+      },
+      "db_completed_fps": {
+        "baseline": 5.680314,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 5.680314
+          },
+          "candidate": {
+            "delta_pct": -7.4837,
+            "improved": false,
+            "value": 5.255214
+          }
+        }
+      },
+      "detection_rows": {
+        "baseline": 72744.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72744.0
+          },
+          "candidate": {
+            "delta_pct": 0.0082,
+            "improved": null,
+            "value": 72750.0
+          }
+        }
+      },
+      "embedding_rows": {
+        "baseline": 72578.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 72578.0
+          },
+          "candidate": {
+            "delta_pct": 0.0083,
+            "improved": null,
+            "value": 72584.0
+          }
+        }
+      },
+      "gpu_avg_util_pct": {
+        "baseline": 12.168,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 12.168
+          },
+          "candidate": {
+            "delta_pct": -7.3307,
+            "improved": false,
+            "value": 11.276
+          }
+        }
+      },
+      "gpu_mem_p95_mib": {
+        "baseline": 15731.0,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          }
+        }
+      },
+      "gpu_mem_p99_mib": {
+        "baseline": 15731.0,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          }
+        }
+      },
+      "gpu_peak_mem_used_mib": {
+        "baseline": 15731.0,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 15731.0
+          }
+        }
+      },
+      "gpu_peak_util_pct": {
+        "baseline": 51.0,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 51.0
+          },
+          "candidate": {
+            "delta_pct": 3.9216,
+            "improved": true,
+            "value": 53.0
+          }
+        }
+      },
+      "overall_fps": {
+        "baseline": 30.0,
+        "direction": "up",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 30.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 30.0
+          }
+        }
+      },
+      "run_complete_wall_s": {
+        "baseline": 700.368401,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 700.368401
+          },
+          "candidate": {
+            "delta_pct": 9.0008,
+            "improved": false,
+            "value": 763.40746
+          }
+        }
+      },
+      "step2_frame_wall_s": {
+        "baseline": 462.188348,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 462.188348
+          },
+          "candidate": {
+            "delta_pct": 0.1749,
+            "improved": false,
+            "value": 462.996777
+          }
+        }
+      },
+      "step2_through_pose_wall_s": {
+        "baseline": 633.939294,
+        "direction": "down",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": false,
+            "value": 633.939294
+          },
+          "candidate": {
+            "delta_pct": 11.2772,
+            "improved": false,
+            "value": 705.429605
+          }
+        }
+      },
+      "track_count": {
+        "baseline": 53.0,
+        "direction": "neutral",
+        "runs": {
+          "best": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 53.0
+          },
+          "candidate": {
+            "delta_pct": 0.0,
+            "improved": null,
+            "value": 53.0
+          }
+        }
+      }
+    },
+    "sampled_series_descriptive": {
+      "baseline": {
+        "gpu_mem_sample_mib": {
+          "cv_pct": 0.0165,
+          "iqr": 0.0,
+          "max": 15731.0,
+          "mean": 15729.51145,
+          "mean_ci95": [
+            15729.335878,
+            15729.694656
+          ],
+          "median": 15731.0,
+          "min": 15725.0,
+          "n": 786,
+          "p05": 15725.0,
+          "p50": 15731.0,
+          "p95": 15731.0,
+          "p99": 15731.0,
+          "std": 2.593082
+        },
+        "gpu_power_sample_w": {
+          "cv_pct": 51.8035,
+          "iqr": 74.605,
+          "max": 174.32,
+          "mean": 99.435992,
+          "mean_ci95": [
+            95.82324,
+            102.929016
+          ],
+          "median": 126.68,
+          "min": 14.06,
+          "n": 786,
+          "p05": 15.0125,
+          "p50": 126.68,
+          "p95": 156.8925,
+          "p99": 165.63,
+          "std": 51.51137
+        },
+        "gpu_util_sample_pct": {
+          "cv_pct": 132.257,
+          "iqr": 24.0,
+          "max": 51.0,
+          "mean": 12.167939,
+          "mean_ci95": [
+            11.036864,
+            13.348791
+          ],
+          "median": 2.0,
+          "min": 0.0,
+          "n": 786,
+          "p05": 0.0,
+          "p50": 2.0,
+          "p95": 45.0,
+          "p99": 48.15,
+          "std": 16.092956
+        }
+      },
+      "best": {
+        "gpu_mem_sample_mib": {
+          "cv_pct": 0.0165,
+          "iqr": 0.0,
+          "max": 15731.0,
+          "mean": 15729.51145,
+          "mean_ci95": [
+            15729.335878,
+            15729.694656
+          ],
+          "median": 15731.0,
+          "min": 15725.0,
+          "n": 786,
+          "p05": 15725.0,
+          "p50": 15731.0,
+          "p95": 15731.0,
+          "p99": 15731.0,
+          "std": 2.593082
+        },
+        "gpu_power_sample_w": {
+          "cv_pct": 51.8035,
+          "iqr": 74.605,
+          "max": 174.32,
+          "mean": 99.435992,
+          "mean_ci95": [
+            95.82324,
+            102.929016
+          ],
+          "median": 126.68,
+          "min": 14.06,
+          "n": 786,
+          "p05": 15.0125,
+          "p50": 126.68,
+          "p95": 156.8925,
+          "p99": 165.63,
+          "std": 51.51137
+        },
+        "gpu_util_sample_pct": {
+          "cv_pct": 132.257,
+          "iqr": 24.0,
+          "max": 51.0,
+          "mean": 12.167939,
+          "mean_ci95": [
+            11.036864,
+            13.348791
+          ],
+          "median": 2.0,
+          "min": 0.0,
+          "n": 786,
+          "p05": 0.0,
+          "p50": 2.0,
+          "p95": 45.0,
+          "p99": 48.15,
+          "std": 16.092956
+        }
+      },
+      "candidate": {
+        "gpu_mem_sample_mib": {
+          "cv_pct": 0.0191,
+          "iqr": 6.0,
+          "max": 15731.0,
+          "mean": 15727.879717,
+          "mean_ci95": [
+            15727.681604,
+            15728.084906
+          ],
+          "median": 15725.0,
+          "min": 15725.0,
+          "n": 848,
+          "p05": 15725.0,
+          "p50": 15725.0,
+          "p95": 15731.0,
+          "p99": 15731.0,
+          "std": 2.999357
+        },
+        "gpu_power_sample_w": {
+          "cv_pct": 56.0963,
+          "iqr": 76.05,
+          "max": 168.82,
+          "mean": 94.828656,
+          "mean_ci95": [
+            91.270187,
+            98.499517
+          ],
+          "median": 123.14,
+          "min": 14.54,
+          "n": 848,
+          "p05": 15.67,
+          "p50": 123.14,
+          "p95": 157.867,
+          "p99": 165.8324,
+          "std": 53.195386
+        },
+        "gpu_util_sample_pct": {
+          "cv_pct": 141.6282,
+          "iqr": 22.0,
+          "max": 53.0,
+          "mean": 11.275943,
+          "mean_ci95": [
+            10.1898,
+            12.392777
+          ],
+          "median": 2.0,
+          "min": 0.0,
+          "n": 848,
+          "p05": 0.0,
+          "p50": 2.0,
+          "p95": 44.0,
+          "p99": 48.0,
+          "std": 15.969918
+        }
+      }
+    }
+  },
+  "status": "REPRODUCIBILITY_BENCHMARK_COMPLETE_NO_NEW_DECISION",
+  "target_gate": {
+    "correctness": "no material model-agreement or DB-row regression versus last accepted throughput baseline",
+    "decision": "informational reproducibility benchmark; no new optimization acceptance decision",
+    "instrumentation": "core instrumentation tools installed and evidence artifacts produced"
+  },
+  "unavailable_summary": {
+    "by_metric": {
+      "label_invariant_all_model_f1_pct": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_f1_pct": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "label_invariant_shard1_residual_gap_pp": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "model_agreement_f1_pct": [
+        "baseline",
+        "best"
+      ],
+      "packet_max_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_merge_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_observation_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_payload_bytes": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_total_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_track_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_truncated_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_unresolved_tracks": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "packet_valid_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_failed_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "parity_max_abs_diff": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "readiness_ready_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_command_wall_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_memory_used_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p95_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_p99_ms": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "redis_pipeline_execute_count": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "rollback_passed": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "worker_rss_p95_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ],
+      "worker_rss_p99_mib": [
+        "baseline",
+        "candidate",
+        "best"
+      ]
+    },
+    "by_run": {
+      "baseline": {
+        "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+        "label_invariant_residual_gap_pp": "not an identity-association candidate",
+        "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+        "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "packet_max_bytes": "not a boundary-packet candidate",
+        "packet_merge_ready_count": "not a boundary-packet candidate",
+        "packet_observation_count": "not a boundary-packet candidate",
+        "packet_payload_bytes": "not a boundary-packet candidate",
+        "packet_total_count": "not a boundary-packet candidate",
+        "packet_track_count": "not a boundary-packet candidate",
+        "packet_truncated_count": "not a boundary-packet candidate",
+        "packet_unresolved_tracks": "not a boundary-packet candidate",
+        "packet_valid_count": "not a boundary-packet candidate",
+        "parity_failed_count": "not a tensor-route candidate",
+        "parity_max_abs_diff": "not a tensor-route candidate",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+        "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+      },
+      "best": {
+        "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+        "label_invariant_residual_gap_pp": "not an identity-association candidate",
+        "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+        "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+        "model_agreement_f1_pct": "metric not found in supplied artifacts",
+        "packet_max_bytes": "not a boundary-packet candidate",
+        "packet_merge_ready_count": "not a boundary-packet candidate",
+        "packet_observation_count": "not a boundary-packet candidate",
+        "packet_payload_bytes": "not a boundary-packet candidate",
+        "packet_total_count": "not a boundary-packet candidate",
+        "packet_track_count": "not a boundary-packet candidate",
+        "packet_truncated_count": "not a boundary-packet candidate",
+        "packet_unresolved_tracks": "not a boundary-packet candidate",
+        "packet_valid_count": "not a boundary-packet candidate",
+        "parity_failed_count": "not a tensor-route candidate",
+        "parity_max_abs_diff": "not a tensor-route candidate",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+        "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+      },
+      "candidate": {
+        "label_invariant_all_model_f1_pct": "not an identity-association candidate",
+        "label_invariant_residual_gap_pp": "not an identity-association candidate",
+        "label_invariant_shard1_f1_pct": "not a sharding or identity-association candidate",
+        "label_invariant_shard1_residual_gap_pp": "not a sharding or identity-association candidate",
+        "packet_max_bytes": "not a boundary-packet candidate",
+        "packet_merge_ready_count": "not a boundary-packet candidate",
+        "packet_observation_count": "not a boundary-packet candidate",
+        "packet_payload_bytes": "not a boundary-packet candidate",
+        "packet_total_count": "not a boundary-packet candidate",
+        "packet_track_count": "not a boundary-packet candidate",
+        "packet_truncated_count": "not a boundary-packet candidate",
+        "packet_unresolved_tracks": "not a boundary-packet candidate",
+        "packet_valid_count": "not a boundary-packet candidate",
+        "parity_failed_count": "not a tensor-route candidate",
+        "parity_max_abs_diff": "not a tensor-route candidate",
+        "readiness_ready_count": "metric not found in supplied artifacts",
+        "redis_command_wall_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_memory_used_mib": "metric not found in supplied artifacts",
+        "redis_p95_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_p99_ms": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "redis_pipeline_execute_count": "Redis Stream evidence is collected, not Redis command-wall profiling",
+        "rollback_passed": "metric not found in supplied artifacts",
+        "worker_rss_p95_mib": "worker RSS sampler was not enabled for this reproducibility run",
+        "worker_rss_p99_mib": "worker RSS sampler was not enabled for this reproducibility run"
+      }
+    },
+    "total_unavailable": 74
+  }
+}
