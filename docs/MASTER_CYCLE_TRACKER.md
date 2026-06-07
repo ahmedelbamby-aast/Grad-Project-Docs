@@ -122,7 +122,7 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 | Sub-cycle (atomic) | Status | Notes |
 |---|---|---|
 | 017.7.0 `setup_spine`/`flush_spine` bootstrap (idempotent sink registration) | ✔ TESTED | `core/telemetry/bootstrap.py`, 6 tests |
-| 017.7.1 open `frame_scope` in offline/all-models frame loop (`tasks.py`) | ☐ PLANNED | `_on_scene_frame` + setup/flush |
+| 017.7.1 open `frame_scope` in offline/all-models frame loop (`tasks.py`) | ■ IMPLEMENTED | `_on_scene_frame` wraps lane in frame_scope(offline_job) + setup_spine + last-frame flush; py_compile+check+46 tests pass; live verify needs worker-restart full run |
 | 017.7.2 open `frame_scope` in benchmark command | ✔ TESTED | VERIFIED: 3-frame run wrote 12 SpanRecord rows (scene_normalize/persistence/person_embedding/frame) + box throughput |
 | 017.7.3 open `frame_scope` in upload pipeline | ☐ PLANNED | |
 | 017.7.4 open `frame_scope` in live consumer | ☐ PLANNED | |
