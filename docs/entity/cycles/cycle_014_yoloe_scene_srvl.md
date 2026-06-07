@@ -281,3 +281,43 @@ See `specs/014-yoloe-scene-srvl/evidence_manifest.md §8` for full table.
 Rollback scripts implemented: `prod_rollback_yoloe_scene.sh` and `.ps1`.
 System test `test_yoloe_scene_rollback.py` verifies the disabled path.
 Production rollback command output: **PENDING** — must be run and linked here.
+
+---
+
+## Cycle 015 — YOLOE-26L-seg Model Upgrade (2026-06-07)
+
+**Decision:** Replace `yoloe-26s-seg` with `yoloe-26l-seg` (Large) as the scene
+segmentation authority. Export path unchanged: prompt-lock 12 classes → ONNX →
+**TensorRT FP16** engine → Triton `yoloe_scene_seg` (I/O contract identical:
+`images[1,3,640,640]` → `output0[1,300,38]`, `output1[1,32,160,160]`).
+
+**Artifacts (prod RTX 5090, CUDA 12.8, TRT 10.16.1.11):**
+- Checkpoint `yoloe-26l-seg.pt` sha256 `a612d2d505f24e14d87ec82d688b823b6cb600646664f16125ce6c84ce360da9` (79,417,413 B)
+- Deployed `model.plan` sha256 `a4357103c62f76948596a7c6210c5ddd658a3e431b30ed5917900845004cfb39` (59 MB)
+- DB export manifest `7f93fd08-154b-4a40-aa02-99b664ed8506`
+- 26s engine/config/checkpoint backed up at `/home/bamby/yoloe_26s_backup_20260607_185625/` (rollback)
+
+**Full benchmark — combined.mp4 (4541 frames):**
+
+| Metric | 26s baseline | 26L (FP16) | Δ |
+|---|---|---|---|
+| Objects detected | 88,363 | 111,792 | **+26.5%** |
+| YOLOE inference p50 | 7.16 ms | 8.13 ms | +0.97 ms |
+| YOLOE inference p95 | 11.66 ms | 9.93 ms | −1.73 ms |
+| YOLOE inference p99 | 16.43 ms | 10.80 ms | −5.63 ms |
+| End-to-end FPS | 15.29 | 8.51 | −44% |
+| Frame latency p50 | 65.9 ms | 120.0 ms | +54 ms |
+
+**Interpretation:** On the RTX 5090 the Large model's FP16 engine has inference
+latency on par with 26s (p50 +1 ms; p95/p99 tails are *tighter*), while
+detecting 26.5 % more objects. The end-to-end FPS drop is **postprocess**
+scaling with object count + per-frame mask rendering — NOT model inference —
+consistent with the latency analysis (postprocess = 66 % of compute).
+
+**FP16 vs INT8 decision:** **Stay FP16.** Inference is not the bottleneck
+(p95 already 9.93 ms); INT8 would risk the recall gain that motivated the Large
+model for negligible latency benefit. INT8 is not warranted for this cycle.
+
+**Follow-up (later phases):** postprocess GPU offload + batching + async dispatch
+(latency-attack phase); real person/teacher embeddings → Redis + contradiction
+arbitration (embedding cycle). Tracked in [[cycle014-arch-state-and-program]].
