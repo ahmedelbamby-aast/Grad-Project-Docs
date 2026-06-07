@@ -94,7 +94,7 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 | Sub-cycle (atomic) | Status | Notes |
 |---|---|---|
 | 017.4.1 RingBufferSink (bounded in-proc) | ✔ TESTED | `148ab788` |
-| 017.4.2 Redis live sink (`XADD telemetry:{mode}:{job}:{cam}`, capped) | ☐ PLANNED | |
+| 017.4.2 Redis live sink (`XADD telemetry:{mode}:{job}:{cam}`, capped) | ✔ TESTED | `RedisSpanSink`, lazy redis, fail-isolated, 5 tests |
 | 017.4.3 Postgres durable sink (`SpanRecord`, batched flush off critical path) | ☐ PLANNED | migration + model |
 | 017.4.4 Rollup (count, p50/p95/p99 per span/scope/window; measured-zero vs unavailable) | ☐ PLANNED | |
 | 017.4.5 sink unit/integration tests | ☐ PLANNED | |
