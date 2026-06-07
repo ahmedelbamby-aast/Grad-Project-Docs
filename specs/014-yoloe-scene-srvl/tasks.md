@@ -26,13 +26,13 @@ implementable and testable after the shared foundation is complete.
 **Purpose**: Prepare feature scaffolding, dependency declarations, configuration
 contract locations, and baseline documentation before shared model/runtime work.
 
-- [ ] T001 Create scene package scaffold in `backend/apps/video_analysis/scene/__init__.py` for YOLOE/SRVL modules. (FR-001)
-- [ ] T002 [P] Add scene env contract placeholders and default disabled flags in `.env.example`. (FR-001, FR-032, FR-033, SC-018, SC-022)
-- [ ] T003 [P] Add backend dependency declarations for YOLOE export, RLE-Zstd masks, and NPZ artifact handling in `backend/pyproject.toml`. (FR-002, FR-007)
-- [ ] T004 [P] Add frontend renderer dependency candidate entry for PixiJS benchmarking in `frontend/package.json`. (FR-022, SC-010)
-- [ ] T005 [P] Add feature evidence root and generated-artifact ignore exceptions in `.gitignore` for CI-required manifests under `specs/014-yoloe-scene-srvl/` and `docs/figures/`. (FR-027, FR-028, SC-017, SC-018)
-- [ ] T006 [P] Create implementation evidence stub in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md` with `Streaming compatibility: offline-only`. (FR-028, SC-012, SC-013, SC-018)
-- [ ] T007 [P] Add scene module documentation stub in `docs/entity/modules/apps.video_analysis.scene.md`. (FR-027, FR-028)
+- [x] T001 Create scene package scaffold in `backend/apps/video_analysis/scene/__init__.py` for YOLOE/SRVL modules. (FR-001)
+- [x] T002 [P] Add scene env contract placeholders and default disabled flags in `.env.example`. (FR-001, FR-032, FR-033, SC-018, SC-022)
+- [x] T003 [P] Add backend dependency declarations for YOLOE export, RLE-Zstd masks, and NPZ artifact handling in `backend/pyproject.toml`. (FR-002, FR-007)
+- [x] T004 [P] Add frontend renderer dependency candidate entry for PixiJS benchmarking in `frontend/package.json`. (FR-022, SC-010)
+- [x] T005 [P] Add feature evidence root and generated-artifact ignore exceptions in `.gitignore` for CI-required manifests under `specs/014-yoloe-scene-srvl/` and `docs/figures/`. (FR-027, FR-028, SC-017, SC-018)
+- [x] T006 [P] Create implementation evidence stub in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md` with `Streaming compatibility: offline-only`. (FR-028, SC-012, SC-013, SC-018)
+- [x] T007 [P] Add scene module documentation stub in `docs/entity/modules/apps.video_analysis.scene.md`. (FR-027, FR-028)
 
 ---
 
@@ -43,31 +43,31 @@ and governance foundations that must exist before any user story can close.
 
 **Critical**: No user-story completion claim is valid until this phase is done.
 
-- [ ] T008 Define typed scene configuration in `backend/apps/video_analysis/scene/config.py` and parse all YOLOE/SRVL/recovery/render/artifact keys through settings. (FR-001, FR-031, FR-032, FR-033, SC-022)
-- [ ] T009 [P] Add configuration tests for declared scene env keys and forbidden hardcoded operational values in `backend/tests/unit/video_analysis/test_scene_config.py`. (FR-032, FR-033, SC-018, SC-022)
-- [ ] T010 Add scene runtime settings wiring in `backend/config/settings/base.py`. (FR-032, FR-033, SC-022)
-- [ ] T011 Define Django models for prompt profiles, export manifests, frame summaries, object observations, non-ROI masks, contradiction events, mismatch events, recovery candidates, SRVL frames, visualization artifacts, artifact manifests, access grants, and runtime configuration in `backend/apps/video_analysis/models.py`. (FR-004, FR-007, FR-009, FR-010, FR-014, FR-018, FR-021, FR-024, FR-030, FR-031, SC-003, SC-004, SC-005, SC-017)
-- [ ] T012 Add PostgreSQL migration for scene models and indexes in `backend/apps/video_analysis/migrations/00XX_scene_segmentation_srvl.py`. (FR-007, FR-028, SC-017, SC-018)
-- [ ] T013 [P] Add model and migration tests for PostgreSQL constraints, idempotency keys, and append-only evidence in `backend/tests/unit/video_analysis/test_scene_models.py`. (FR-007, FR-009, FR-014, FR-016, FR-028, SC-007, SC-017, SC-019)
-- [ ] T014 Implement scene artifact manifest and digest helpers in `backend/apps/video_analysis/scene/artifacts.py`. (FR-004, FR-007, FR-024, FR-026, SC-003, SC-004, SC-013, SC-017)
-- [ ] T015 [P] Add artifact manifest schema tests in `backend/tests/unit/video_analysis/test_scene_artifacts.py`. (FR-007, FR-024, SC-004, SC-013, SC-017)
-- [ ] T016 Implement scene access-control policy helpers in `backend/apps/video_analysis/scene/access.py`. (FR-030, SC-015)
-- [ ] T017 [P] Add scene artifact authorization tests in `backend/tests/contract/video_analysis/test_scene_artifact_access.py`. (FR-030, SC-015)
-- [ ] T018 Implement live-profile rejection and disabled-for-live status helpers in `backend/apps/video_analysis/scene/live_guard.py`. (FR-001, FR-028, SC-018)
-- [ ] T019 [P] Add live-disabled contract tests in `backend/tests/integration/video_analysis/test_scene_live_disabled.py`. (FR-001, FR-028, SC-018)
-- [ ] T020 Register scene route metadata and prompt manifest validation hooks in `backend/apps/pipeline/model_registry.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
-- [ ] T021 Wire scene model-route validation into `backend/apps/pipeline/services/model_route_service.py`. (FR-003, FR-004, FR-005, SC-002)
-- [ ] T022 [P] Add model-route and manifest compatibility tests in `backend/tests/unit/pipeline/test_yoloe_scene_model_route.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
-- [ ] T023 Define API serializers with explicit fields in `backend/apps/video_analysis/serializers_scene.py`. (FR-006, FR-007, FR-023, FR-030, FR-031, SC-014, SC-015, SC-021)
-- [ ] T024 Define API routes for scene summary, frame scene data, scene artifacts, and scene-map video in `backend/apps/video_analysis/urls_scene.py`. (FR-023, FR-030, SC-014, SC-015)
-- [ ] T025 [P] Add API schema contract tests from `contracts/api-scene-artifacts.md` in `backend/tests/contract/video_analysis/test_scene_api_contract.py`. (FR-023, FR-030, SC-014, SC-015)
-- [ ] T026 Define WebSocket payload builders for scene events in `backend/apps/video_analysis/scene/ws_events.py`. (FR-020, FR-023, FR-024, FR-031, SC-011, SC-014)
-- [ ] T027 [P] Add WebSocket contract tests from `contracts/websocket-scene-events.md` in `backend/tests/contract/video_analysis/test_scene_ws_contract.py`. (FR-020, FR-023, FR-024, SC-011, SC-014)
-- [ ] T028 Define scene telemetry and reconciliation record helpers in `backend/apps/video_analysis/scene/telemetry.py`. (FR-024, FR-026, FR-028, SC-012, SC-016, SC-017)
-- [ ] T029 [P] Add telemetry/unavailable metric tests in `backend/tests/unit/video_analysis/test_scene_telemetry.py`. (FR-024, FR-026, SC-012, SC-016, SC-017)
-- [ ] T030 Document Figure Planner ownership, required plots, raw inputs, unavailable metric policy, and Markdown embed targets in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-028, SC-012, SC-013)
-- [ ] T031 Document Figure Implementer ownership, generator changes, tests, manifest/digest output paths, and workflow updates in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-025, FR-027, FR-028, SC-013)
-- [ ] T032 Add no-sudo production preflight assertions for scene helpers in `tools/prod/README.md`. (FR-025, FR-028, SC-018)
+- [x] T008 Define typed scene configuration in `backend/apps/video_analysis/scene/config.py` and parse all YOLOE/SRVL/recovery/render/artifact keys through settings. (FR-001, FR-031, FR-032, FR-033, SC-022)
+- [x] T009 [P] Add configuration tests for declared scene env keys and forbidden hardcoded operational values in `backend/tests/unit/video_analysis/test_scene_config.py`. (FR-032, FR-033, SC-018, SC-022)
+- [x] T010 Add scene runtime settings wiring in `backend/config/settings/base.py`. (FR-032, FR-033, SC-022)
+- [x] T011 Define Django models for prompt profiles, export manifests, frame summaries, object observations, non-ROI masks, contradiction events, mismatch events, recovery candidates, SRVL frames, visualization artifacts, artifact manifests, access grants, and runtime configuration in `backend/apps/video_analysis/models.py`. (FR-004, FR-007, FR-009, FR-010, FR-014, FR-018, FR-021, FR-024, FR-030, FR-031, SC-003, SC-004, SC-005, SC-017)
+- [x] T012 Add PostgreSQL migration for scene models and indexes in `backend/apps/video_analysis/migrations/00XX_scene_segmentation_srvl.py`. (FR-007, FR-028, SC-017, SC-018)
+- [x] T013 [P] Add model and migration tests for PostgreSQL constraints, idempotency keys, and append-only evidence in `backend/tests/unit/video_analysis/test_scene_models.py`. (FR-007, FR-009, FR-014, FR-016, FR-028, SC-007, SC-017, SC-019)
+- [x] T014 Implement scene artifact manifest and digest helpers in `backend/apps/video_analysis/scene/artifacts.py`. (FR-004, FR-007, FR-024, FR-026, SC-003, SC-004, SC-013, SC-017)
+- [x] T015 [P] Add artifact manifest schema tests in `backend/tests/unit/video_analysis/test_scene_artifacts.py`. (FR-007, FR-024, SC-004, SC-013, SC-017)
+- [x] T016 Implement scene access-control policy helpers in `backend/apps/video_analysis/scene/access.py`. (FR-030, SC-015)
+- [x] T017 [P] Add scene artifact authorization tests in `backend/tests/contract/video_analysis/test_scene_artifact_access.py`. (FR-030, SC-015)
+- [x] T018 Implement live-profile rejection and disabled-for-live status helpers in `backend/apps/video_analysis/scene/live_guard.py`. (FR-001, FR-028, SC-018)
+- [x] T019 [P] Add live-disabled contract tests in `backend/tests/integration/video_analysis/test_scene_live_disabled.py`. (FR-001, FR-028, SC-018)
+- [x] T020 Register scene route metadata and prompt manifest validation hooks in `backend/apps/pipeline/model_registry.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
+- [x] T021 Wire scene model-route validation into `backend/apps/pipeline/services/model_route_service.py`. (FR-003, FR-004, FR-005, SC-002)
+- [x] T022 [P] Add model-route and manifest compatibility tests in `backend/tests/unit/pipeline/test_yoloe_scene_model_route.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
+- [x] T023 Define API serializers with explicit fields in `backend/apps/video_analysis/serializers_scene.py`. (FR-006, FR-007, FR-023, FR-030, FR-031, SC-014, SC-015, SC-021)
+- [x] T024 Define API routes for scene summary, frame scene data, scene artifacts, and scene-map video in `backend/apps/video_analysis/urls_scene.py`. (FR-023, FR-030, SC-014, SC-015)
+- [x] T025 [P] Add API schema contract tests from `contracts/api-scene-artifacts.md` in `backend/tests/contract/video_analysis/test_scene_api_contract.py`. (FR-023, FR-030, SC-014, SC-015)
+- [x] T026 Define WebSocket payload builders for scene events in `backend/apps/video_analysis/scene/ws_events.py`. (FR-020, FR-023, FR-024, FR-031, SC-011, SC-014)
+- [x] T027 [P] Add WebSocket contract tests from `contracts/websocket-scene-events.md` in `backend/tests/contract/video_analysis/test_scene_ws_contract.py`. (FR-020, FR-023, FR-024, SC-011, SC-014)
+- [x] T028 Define scene telemetry and reconciliation record helpers in `backend/apps/video_analysis/scene/telemetry.py`. (FR-024, FR-026, FR-028, SC-012, SC-016, SC-017)
+- [x] T029 [P] Add telemetry/unavailable metric tests in `backend/tests/unit/video_analysis/test_scene_telemetry.py`. (FR-024, FR-026, SC-012, SC-016, SC-017)
+- [x] T030 Document Figure Planner ownership, required plots, raw inputs, unavailable metric policy, and Markdown embed targets in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-028, SC-012, SC-013)
+- [x] T031 Document Figure Implementer ownership, generator changes, tests, manifest/digest output paths, and workflow updates in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-025, FR-027, FR-028, SC-013)
+- [x] T032 Add no-sudo production preflight assertions for scene helpers in `tools/prod/README.md`. (FR-025, FR-028, SC-018)
 
 **Checkpoint**: Foundation ready. User stories can proceed without changing the
 shared schema and contract rules.
@@ -87,31 +87,31 @@ events, artifact lineage, and disabled-path parity.
 
 ### Validation and Evidence for User Story 1
 
-- [ ] T033 [P] [US1] Add prompt-locked export unit tests for `model.set_classes(...)` before export in `backend/tests/unit/video_analysis/test_yoloe_scene_export.py`. (FR-002, FR-003, FR-004, SC-002)
-- [ ] T034 [P] [US1] Add stale prompt, missing manifest, wrong checkpoint, and prompt-after-export rejection tests in `backend/tests/unit/video_analysis/test_yoloe_scene_export_validation.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
-- [ ] T035 [P] [US1] Add YOLOE normalizer tests preserving boxes, class IDs, names, confidences, masks, shape metadata, raw refs, and unavailable reasons in `backend/tests/unit/video_analysis/test_yoloe_scene_normalizer.py`. (FR-006, FR-031, SC-004, SC-021)
-- [ ] T036 [P] [US1] Add RLE-Zstd mask and raw-output artifact round-trip tests in `backend/tests/unit/video_analysis/test_scene_mask_artifacts.py`. (FR-006, FR-007, SC-004, SC-021)
-- [ ] T037 [P] [US1] Add offline disabled-path parity tests in `backend/tests/integration/video_analysis/test_scene_disabled_offline_parity.py`. (FR-001, FR-029, SC-001)
-- [ ] T038 [P] [US1] Add selected-frame scene lane integration tests in `backend/tests/integration/video_analysis/test_scene_lane_offline.py`. (FR-001, FR-006, FR-007, FR-008, FR-024, SC-003, SC-004)
-- [ ] T039 [P] [US1] Add non-ROI append-only contradiction tests in `backend/tests/integration/video_analysis/test_scene_non_roi_guard.py`. (FR-008, FR-009, FR-016, FR-031, SC-007)
-- [ ] T040 [P] [US1] Add artifact authenticity tests for scene summaries, masks, traces, and manifest digests in `backend/tests/integration/video_analysis/test_scene_evidence_lineage.py`. (FR-004, FR-007, FR-024, FR-028, SC-003, SC-004, SC-017)
+- [x] T033 [P] [US1] Add prompt-locked export unit tests for `model.set_classes(...)` before export in `backend/tests/unit/video_analysis/test_yoloe_scene_export.py`. (FR-002, FR-003, FR-004, SC-002)
+- [x] T034 [P] [US1] Add stale prompt, missing manifest, wrong checkpoint, and prompt-after-export rejection tests in `backend/tests/unit/video_analysis/test_yoloe_scene_export_validation.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
+- [x] T035 [P] [US1] Add YOLOE normalizer tests preserving boxes, class IDs, names, confidences, masks, shape metadata, raw refs, and unavailable reasons in `backend/tests/unit/video_analysis/test_yoloe_scene_normalizer.py`. (FR-006, FR-031, SC-004, SC-021)
+- [x] T036 [P] [US1] Add RLE-Zstd mask and raw-output artifact round-trip tests in `backend/tests/unit/video_analysis/test_scene_mask_artifacts.py`. (FR-006, FR-007, SC-004, SC-021)
+- [x] T037 [P] [US1] Add offline disabled-path parity tests in `backend/tests/integration/video_analysis/test_scene_disabled_offline_parity.py`. (FR-001, FR-029, SC-001)
+- [x] T038 [P] [US1] Add selected-frame scene lane integration tests in `backend/tests/integration/video_analysis/test_scene_lane_offline.py`. (FR-001, FR-006, FR-007, FR-008, FR-024, SC-003, SC-004)
+- [x] T039 [P] [US1] Add non-ROI append-only contradiction tests in `backend/tests/integration/video_analysis/test_scene_non_roi_guard.py`. (FR-008, FR-009, FR-016, FR-031, SC-007)
+- [x] T040 [P] [US1] Add artifact authenticity tests for scene summaries, masks, traces, and manifest digests in `backend/tests/integration/video_analysis/test_scene_evidence_lineage.py`. (FR-004, FR-007, FR-024, FR-028, SC-003, SC-004, SC-017)
 
 ### Implementation for User Story 1
 
-- [ ] T041 [US1] Implement prompt profile resolution and digesting in `backend/apps/video_analysis/scene/prompts.py`. (FR-003, FR-004, FR-008, FR-032, FR-033, SC-002, SC-022)
-- [ ] T042 [US1] Implement YOLOE export manifest writer and validator in `backend/apps/video_analysis/scene/export_manifest.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
-- [ ] T043 [US1] Implement YOLOE runtime result normalizer in `backend/apps/video_analysis/scene/normalizer.py`. (FR-006, FR-031, SC-004, SC-021)
-- [ ] T044 [US1] Implement mask encoding and unavailable-output recording in `backend/apps/video_analysis/scene/masks.py`. (FR-006, FR-007, FR-024, FR-031, SC-004, SC-021)
-- [ ] T045 [US1] Implement scene frame persistence service with idempotency keys in `backend/apps/video_analysis/scene/persistence.py`. (FR-007, FR-024, FR-028, SC-003, SC-004, SC-017, SC-019)
-- [ ] T046 [US1] Implement non-ROI union mask builder in `backend/apps/video_analysis/scene/non_roi.py`. (FR-008, FR-009, FR-031, SC-007)
-- [ ] T047 [US1] Implement append-only contradiction event service in `backend/apps/video_analysis/scene/contradictions.py`. (FR-009, FR-016, FR-031, SC-007)
-- [ ] T048 [US1] Wire gated scene lane into offline frame processing in `backend/apps/video_analysis/tasks.py`. (FR-001, FR-006, FR-007, FR-008, FR-024, SC-001, SC-003, SC-004)
-- [ ] T049 [US1] Wire scene summary and frame-scene API views in `backend/apps/video_analysis/views_scene.py`. (FR-023, FR-030, FR-031, SC-014, SC-015)
-- [ ] T050 [US1] Wire compact scene WebSocket broadcasts in `backend/apps/video_analysis/ws_broadcast.py`. (FR-020, FR-023, FR-024, SC-011, SC-014)
-- [ ] T051 [US1] Create prompt-locked export helper shell script in `tools/prod/prod_export_yoloe_scene_model.sh`. (FR-002, FR-003, FR-004, FR-025, SC-002)
-- [ ] T052 [US1] Create prompt-locked export helper PowerShell contract script in `tools/prod/prod_export_yoloe_scene_model.ps1`. (FR-002, FR-003, FR-004, FR-025, SC-002)
-- [ ] T053 [US1] Create export verification helper in `tools/prod/prod_verify_yoloe_scene_export.sh`. (FR-004, FR-005, FR-025, SC-002)
-- [ ] T054 [US1] Create export verification PowerShell contract helper in `tools/prod/prod_verify_yoloe_scene_export.ps1`. (FR-004, FR-005, FR-025, SC-002)
+- [x] T041 [US1] Implement prompt profile resolution and digesting in `backend/apps/video_analysis/scene/prompts.py`. (FR-003, FR-004, FR-008, FR-032, FR-033, SC-002, SC-022)
+- [x] T042 [US1] Implement YOLOE export manifest writer and validator in `backend/apps/video_analysis/scene/export_manifest.py`. (FR-002, FR-003, FR-004, FR-005, SC-002)
+- [x] T043 [US1] Implement YOLOE runtime result normalizer in `backend/apps/video_analysis/scene/normalizer.py`. (FR-006, FR-031, SC-004, SC-021)
+- [x] T044 [US1] Implement mask encoding and unavailable-output recording in `backend/apps/video_analysis/scene/masks.py`. (FR-006, FR-007, FR-024, FR-031, SC-004, SC-021)
+- [x] T045 [US1] Implement scene frame persistence service with idempotency keys in `backend/apps/video_analysis/scene/persistence.py`. (FR-007, FR-024, FR-028, SC-003, SC-004, SC-017, SC-019)
+- [x] T046 [US1] Implement non-ROI union mask builder in `backend/apps/video_analysis/scene/non_roi.py`. (FR-008, FR-009, FR-031, SC-007)
+- [x] T047 [US1] Implement append-only contradiction event service in `backend/apps/video_analysis/scene/contradictions.py`. (FR-009, FR-016, FR-031, SC-007)
+- [x] T048 [US1] Wire gated scene lane into offline frame processing in `backend/apps/video_analysis/tasks.py`. (FR-001, FR-006, FR-007, FR-008, FR-024, SC-001, SC-003, SC-004)
+- [x] T049 [US1] Wire scene summary and frame-scene API views in `backend/apps/video_analysis/views_scene.py`. (FR-023, FR-030, FR-031, SC-014, SC-015)
+- [x] T050 [US1] Wire compact scene WebSocket broadcasts in `backend/apps/video_analysis/ws_broadcast.py`. (FR-020, FR-023, FR-024, SC-011, SC-014)
+- [x] T051 [US1] Create prompt-locked export helper shell script in `tools/prod/prod_export_yoloe_scene_model.sh`. (FR-002, FR-003, FR-004, FR-025, SC-002)
+- [x] T052 [US1] Create prompt-locked export helper PowerShell contract script in `tools/prod/prod_export_yoloe_scene_model.ps1`. (FR-002, FR-003, FR-004, FR-025, SC-002)
+- [x] T053 [US1] Create export verification helper in `tools/prod/prod_verify_yoloe_scene_export.sh`. (FR-004, FR-005, FR-025, SC-002)
+- [x] T054 [US1] Create export verification PowerShell contract helper in `tools/prod/prod_verify_yoloe_scene_export.ps1`. (FR-004, FR-005, FR-025, SC-002)
 
 **Checkpoint**: US1 can be validated independently with scene segmentation
 enabled and disabled on the offline profile.
@@ -134,8 +134,8 @@ and append-only recovery evidence.
 - [ ] T056 [P] [US2] Add Redis-first and DB-fallback lookup tests in `backend/tests/unit/video_analysis/test_scene_recovery_lookup.py`. (FR-011, FR-026, SC-005)
 - [ ] T057 [P] [US2] Add deterministic one-to-one assignment and unresolved ambiguity tests in `backend/tests/unit/video_analysis/test_scene_recovery_assignment.py`. (FR-012, FR-013, SC-006)
 - [ ] T058 [P] [US2] Add append-only missing-candidate persistence tests in `backend/tests/integration/video_analysis/test_scene_recovery_candidates.py`. (FR-014, FR-015, FR-016, SC-005, SC-006, SC-019)
-- [ ] T059 [P] [US2] Add detector-assist recurrence tests in `backend/tests/integration/video_analysis/test_scene_detector_assist.py`. (FR-017, SC-005)
-- [ ] T060 [P] [US2] Add recovery no-retroactive-mutation tests in `backend/tests/integration/video_analysis/test_scene_recovery_append_only.py`. (FR-014, FR-015, FR-016, SC-006, SC-007, SC-019)
+- [x] T059 [P] [US2] Add detector-assist recurrence tests in `backend/tests/integration/video_analysis/test_scene_detector_assist.py`. (FR-017, SC-005)
+- [x] T060 [P] [US2] Add recovery no-retroactive-mutation tests in `backend/tests/integration/video_analysis/test_scene_recovery_append_only.py`. (FR-014, FR-015, FR-016, SC-006, SC-007, SC-019)
 
 ### Implementation for User Story 2
 
@@ -145,8 +145,8 @@ and append-only recovery evidence.
 - [ ] T064 [US2] Implement recovery candidate scoring, thresholds, reason codes, and candidate-only default in `backend/apps/video_analysis/scene/recovery_candidates.py`. (FR-012, FR-014, FR-015, FR-031, FR-032, SC-005, SC-006, SC-022)
 - [ ] T065 [US2] Implement original-frame-time synchronization and append-only lineage for recovery candidates in `backend/apps/video_analysis/scene/recovery_timeline.py`. (FR-014, FR-016, SC-005, SC-019)
 - [ ] T066 [US2] Implement bounded detector-assist evidence for following frames in `backend/apps/video_analysis/scene/detector_assist.py`. (FR-017, SC-005)
-- [ ] T067 [US2] Wire mismatch event emission into offline scene lane in `backend/apps/video_analysis/tasks.py`. (FR-010, FR-011, FR-012, FR-014, FR-024, SC-005)
-- [ ] T068 [US2] Extend scene API and WebSocket payloads with mismatch/recovery state in `backend/apps/video_analysis/views_scene.py`. (FR-023, FR-024, SC-005, SC-014)
+- [x] T067 [US2] Wire mismatch event emission into offline scene lane in `backend/apps/video_analysis/tasks.py`. (FR-010, FR-011, FR-012, FR-014, FR-024, SC-005)
+- [x] T068 [US2] Extend scene API and WebSocket payloads with mismatch/recovery state in `backend/apps/video_analysis/views_scene.py`. (FR-023, FR-024, SC-005, SC-014)
 
 **Checkpoint**: US2 can be validated independently with fixture mismatch frames
 and candidate-only recovery enabled.
@@ -164,29 +164,29 @@ counters, and source frame-count preservation.
 
 ### Validation and Evidence for User Story 3
 
-- [ ] T069 [P] [US3] Add SRVL CPU-reference parity tests for zero, one, normal, invalid-coordinate, duplicate-ID, 128-object, and above-128-object cases in `backend/tests/unit/video_analysis/test_srvl_math.py`. (FR-018, FR-019, SC-008)
-- [ ] T070 [P] [US3] Add SRVL GPU vectorization and no Python pair-loop regression tests in `backend/tests/unit/video_analysis/test_srvl_vectorized_backend.py`. (FR-018, FR-019, SC-008, SC-009)
-- [ ] T071 [P] [US3] Add SRVL artifact manifest and NPZ digest tests in `backend/tests/unit/video_analysis/test_srvl_artifacts.py`. (FR-007, FR-018, FR-019, FR-024, SC-008, SC-017)
-- [ ] T072 [P] [US3] Add visualization queue and latest-frame-wins tests in `backend/tests/unit/video_analysis/test_scene_visualization_queue.py`. (FR-020, SC-011)
-- [ ] T073 [P] [US3] Add rendered MP4 source-frame-count preservation tests in `backend/tests/integration/video_analysis/test_scene_map_video.py`. (FR-021, SC-010, SC-011)
-- [ ] T074 [P] [US3] Add frontend optional-scene-field type and compatibility tests in `frontend/tests/sceneTypes.test.ts`. (FR-023, SC-014)
-- [ ] T075 [P] [US3] Add PixiJS renderer benchmark harness tests in `frontend/tests/sceneRendererBenchmark.test.ts`. (FR-020, FR-021, FR-022, SC-010, SC-011)
-- [ ] T076 [P] [US3] Add frontend Playwright scene-map fallback and absent-field checks in `frontend/tests/e2e/scene-map.spec.ts`. (FR-020, FR-021, FR-023, SC-010, SC-014)
+- [x] T069 [P] [US3] Add SRVL CPU-reference parity tests for zero, one, normal, invalid-coordinate, duplicate-ID, 128-object, and above-128-object cases in `backend/tests/unit/video_analysis/test_srvl_math.py`. (FR-018, FR-019, SC-008)
+- [x] T070 [P] [US3] Add SRVL GPU vectorization and no Python pair-loop regression tests in `backend/tests/unit/video_analysis/test_srvl_vectorized_backend.py`. (FR-018, FR-019, SC-008, SC-009)
+- [x] T071 [P] [US3] Add SRVL artifact manifest and NPZ digest tests in `backend/tests/unit/video_analysis/test_srvl_artifacts.py`. (FR-007, FR-018, FR-019, FR-024, SC-008, SC-017)
+- [x] T072 [P] [US3] Add visualization queue and latest-frame-wins tests in `backend/tests/unit/video_analysis/test_scene_visualization_queue.py`. (FR-020, SC-011)
+- [x] T073 [P] [US3] Add rendered MP4 source-frame-count preservation tests in `backend/tests/integration/video_analysis/test_scene_map_video.py`. (FR-021, SC-010, SC-011)
+- [x] T074 [P] [US3] Add frontend optional-scene-field type and compatibility tests in `frontend/tests/sceneTypes.test.ts`. (FR-023, SC-014)
+- [x] T075 [P] [US3] Add PixiJS renderer benchmark harness tests in `frontend/tests/sceneRendererBenchmark.test.ts`. (FR-020, FR-021, FR-022, SC-010, SC-011)
+- [x] T076 [P] [US3] Add frontend Playwright scene-map fallback and absent-field checks in `frontend/tests/e2e/scene-map.spec.ts`. (FR-020, FR-021, FR-023, SC-010, SC-014)
 
 ### Implementation for User Story 3
 
-- [ ] T077 [US3] Implement SRVL coordinate normalization and object ordering in `backend/apps/video_analysis/scene/srvl_inputs.py`. (FR-018, FR-019, FR-024, SC-008)
-- [ ] T078 [US3] Implement vectorized SRVL pairwise distance, angle, magnitude-angle vector, and optional Cartesian outputs in `backend/apps/video_analysis/scene/srvl.py`. (FR-018, FR-019, SC-008, SC-009)
-- [ ] T079 [US3] Implement SRVL mode selection for full, top-k, thresholded, and heatmap-only outputs in `backend/apps/video_analysis/scene/srvl_modes.py`. (FR-019, FR-032, SC-008, SC-022)
-- [ ] T080 [US3] Implement SRVL heatmap, direction map, and correlation map artifacts in `backend/apps/video_analysis/scene/srvl_maps.py`. (FR-018, FR-019, FR-024, SC-008)
-- [ ] T081 [US3] Implement non-blocking visualization queue and latest-frame-wins counters in `backend/apps/video_analysis/scene/visualization_queue.py`. (FR-020, FR-024, SC-011)
-- [ ] T082 [US3] Implement scene-map MP4 and snapshot artifact writer in `backend/apps/video_analysis/scene/render_artifacts.py`. (FR-021, FR-024, SC-010, SC-011)
-- [ ] T083 [US3] Wire SRVL and visualization artifacts into offline scene lane in `backend/apps/video_analysis/tasks.py`. (FR-018, FR-019, FR-020, FR-021, FR-024, SC-008, SC-009, SC-011)
-- [ ] T084 [US3] Add frontend scene payload types in `frontend/src/types/videoAnalysis.ts`. (FR-023, SC-014)
-- [ ] T085 [US3] Add scene overlay controls and optional absent-field handling in `frontend/src/components/VideoPlayer/OverlayCanvas.tsx`. (FR-020, FR-021, FR-023, SC-010, SC-014)
-- [ ] T086 [US3] Add camera bounding-box scene truth-state overlays in `frontend/src/components/camera/BoundingBoxCanvas.tsx`. (FR-020, FR-021, FR-023, FR-031, SC-010, SC-014)
-- [ ] T087 [US3] Implement PixiJS scene-map renderer candidate in `frontend/src/components/scene/SceneMapRenderer.tsx`. (FR-020, FR-021, FR-022, SC-010, SC-011)
-- [ ] T088 [US3] Implement frontend renderer metrics collection in `frontend/src/services/sceneMetrics.ts`. (FR-020, FR-022, FR-026, SC-010, SC-011, SC-012)
+- [x] T077 [US3] Implement SRVL coordinate normalization and object ordering in `backend/apps/video_analysis/scene/srvl_inputs.py`. (FR-018, FR-019, FR-024, SC-008)
+- [x] T078 [US3] Implement vectorized SRVL pairwise distance, angle, magnitude-angle vector, and optional Cartesian outputs in `backend/apps/video_analysis/scene/srvl.py`. (FR-018, FR-019, SC-008, SC-009)
+- [x] T079 [US3] Implement SRVL mode selection for full, top-k, thresholded, and heatmap-only outputs in `backend/apps/video_analysis/scene/srvl_modes.py`. (FR-019, FR-032, SC-008, SC-022)
+- [x] T080 [US3] Implement SRVL heatmap, direction map, and correlation map artifacts in `backend/apps/video_analysis/scene/srvl_maps.py`. (FR-018, FR-019, FR-024, SC-008)
+- [x] T081 [US3] Implement non-blocking visualization queue and latest-frame-wins counters in `backend/apps/video_analysis/scene/visualization_queue.py`. (FR-020, FR-024, SC-011)
+- [x] T082 [US3] Implement scene-map MP4 and snapshot artifact writer in `backend/apps/video_analysis/scene/render_artifacts.py`. (FR-021, FR-024, SC-010, SC-011)
+- [x] T083 [US3] Wire SRVL and visualization artifacts into offline scene lane in `backend/apps/video_analysis/tasks.py`. (FR-018, FR-019, FR-020, FR-021, FR-024, SC-008, SC-009, SC-011)
+- [x] T084 [US3] Add frontend scene payload types in `frontend/src/types/videoAnalysis.ts`. (FR-023, SC-014)
+- [x] T085 [US3] Add scene overlay controls and optional absent-field handling in `frontend/src/components/VideoPlayer/OverlayCanvas.tsx`. (FR-020, FR-021, FR-023, SC-010, SC-014)
+- [x] T086 [US3] Add camera bounding-box scene truth-state overlays in `frontend/src/components/camera/BoundingBoxCanvas.tsx`. (FR-020, FR-021, FR-023, FR-031, SC-010, SC-014)
+- [x] T087 [US3] Implement PixiJS scene-map renderer candidate in `frontend/src/components/scene/SceneMapRenderer.tsx`. (FR-020, FR-021, FR-022, SC-010, SC-011)
+- [x] T088 [US3] Implement frontend renderer metrics collection in `frontend/src/services/sceneMetrics.ts`. (FR-020, FR-022, FR-026, SC-010, SC-011, SC-012)
 
 **Checkpoint**: US3 can be validated independently with synthetic scene payloads
 and representative object-count fixtures.

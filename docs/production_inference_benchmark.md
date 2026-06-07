@@ -4692,3 +4692,43 @@ reproducibility result rather than a replacement baseline.
 ---
 
 *Updated from production run on 2026-06-07. Update this file after each major pipeline change or hardware migration.*
+
+---
+
+## Cycle 014 YOLOE-Scene-SRVL — Production Readiness Notes
+
+**Branch:** `014-yoloe-scene-srvl`  
+**Status:** `staged_local_only` — disabled-by-default (`YOLOE_SCENE_ENABLED=0`, `SRVL_ENABLED=0`)  
+**Date:** 2026-06-07
+
+### Acceptance gates pending on production
+
+| Gate | ID | Requirement | Status |
+|---|---|---|---|
+| PixiJS renderer FPS | SC-010 | ≥30 FPS, no freeze >500 ms | Pending production run |
+| SRVL 128-object CPU | SC-011 | <200 ms wall time | Unit test guard in place |
+| Metrics completeness | SC-012 | All required fields present or marked unavailable | Tool: `prod_collect_yoloe_scene_metrics.py` |
+
+### Production tools
+
+| Script | Purpose |
+|---|---|
+| `tools/prod/prod_run_yoloe_scene_benchmark.sh` | Run YOLOE-scene benchmark |
+| `tools/prod/prod_collect_yoloe_scene_metrics.py` | Collect DB/GPU/CPU/Redis/artifact metrics |
+| `tools/prod/prod_generate_yoloe_scene_figures.py` | Generate benchmark figures from JSON |
+| `tools/prod/prod_benchmark_scene_renderers.sh` | Run frontend renderer benchmark (SC-010) |
+| `tools/prod/prod_rollback_yoloe_scene.sh` | Rollback: set both flags to 0 |
+
+### Missing metric reasons (FR-026)
+
+Metrics that may be unavailable and their expected reasons:
+
+| Metric | Unavailable reason |
+|---|---|
+| GPU utilisation | `nvidia-smi not found` or not applicable |
+| CPU/RSS | `psutil not installed` |
+| Redis RTT | Django settings missing REDIS_URL |
+| Artifact sizes | `--artifact-dir not provided` or path not found |
+| Frontend FPS | SC-010 benchmark not yet run on production |
+
+*Updated: 2026-06-07 (cycle 014 production readiness pass)*

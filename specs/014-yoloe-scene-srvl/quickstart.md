@@ -186,3 +186,40 @@ The feature remains not accepted until all required tests, helper scripts,
 workflow/checklist updates, real `combined.mp4` production benchmark artifacts,
 generated figures, manifests, issue resolutions, and rollback proof are linked
 from the implementation evidence docs.
+
+---
+
+## 8. Implementation Status (T109 update — 2026-06-07)
+
+All 120 tasks implemented. The following reproduction commands are available:
+
+```bash
+# Collect metrics (run after a benchmark job)
+python tools/prod/prod_collect_yoloe_scene_metrics.py \
+  --artifact-dir /home/bamby/grad_project/scene_artifacts \
+  --output /tmp/scene_metrics.json
+
+# Generate figures
+python tools/prod/prod_generate_yoloe_scene_figures.py \
+  --metrics /tmp/scene_metrics.json \
+  --output-dir /tmp/scene_figures
+
+# Run renderer benchmark (SC-010)
+bash tools/prod/prod_benchmark_scene_renderers.sh --frames 300
+
+# Rollback (dry-run first)
+bash tools/prod/prod_rollback_yoloe_scene.sh --dry-run
+bash tools/prod/prod_rollback_yoloe_scene.sh --restart-workers
+```
+
+Evidence expectations:
+
+| Evidence item | Expected output |
+|---|---|
+| `scene_metrics.json` | JSON with cycle, db, gpu, cpu, redis, artifacts keys |
+| `db_counts.png` | Bar chart of DB record counts |
+| `artifact_sizes.png` | Bar chart of NPZ/PNG artifact sizes |
+| `renderer_benchmark.json` | Vitest JSON with avgFps, p95RenderMs |
+| Rollback proof | `.env` shows YOLOE_SCENE_ENABLED=0 and SRVL_ENABLED=0 |
+
+**Mermaid diagram status**: Verified — all diagrams in §2 of `cycle_014_yoloe_scene_srvl.md` use valid Mermaid flowchart syntax (T111).

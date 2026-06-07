@@ -419,3 +419,56 @@ Wave 8 notes:
 - pytest-backed acceptance requires the dedicated PostgreSQL test role with `CREATEDB`; SQLite fallback is prohibited
 - the final acceptance manifest is written by `manage.py run_maturity_acceptance` and cannot pass if its owned system and performance slices are skipped
 - the self-hosted `ci-runtime-gpu.yml` workflow requires repository secrets `RUNTIME_CI_POSTGRES_DB`, `RUNTIME_CI_POSTGRES_USER`, `RUNTIME_CI_POSTGRES_PASSWORD`, `RUNTIME_CI_POSTGRES_HOST`, and `RUNTIME_CI_POSTGRES_PORT`; the configured role must have `CREATEDB`
+
+---
+
+## 014-yoloe-scene-srvl — Scene Segmentation & SRVL Production Helpers
+
+**No-sudo contract**: Every script listed below MUST run without `sudo` on the
+production server (`0.tcp.eu.ngrok.io:27681`, user `bamby`). Any invocation of
+`sudo`, `su`, `docker`, or `docker-compose` inside these scripts is a contract
+violation and will fail the CI syntax gate (T089/T090).
+
+All commands target native Linux (no Docker). RTX 5090, CUDA 12.8, TRT 10.16.1.11.
+
+### Scene export helpers
+
+```bash
+# Export YOLOE-26s-seg model with prompt classes locked at export time.
+# Does NOT use sudo. Writes ONNX/TRT artifacts and a SceneExportManifest row.
+bash tools/prod/prod_export_yoloe_scene_model.sh
+
+# Verify an existing export against the stored digest manifest.
+bash tools/prod/prod_verify_yoloe_scene_export.sh
+```
+
+### Benchmark and metrics helpers
+
+```bash
+# Run the production benchmark on combined.mp4 (required before acceptance).
+bash tools/prod/prod_run_yoloe_scene_benchmark.sh
+
+# Collect throughput, latency, GPU, CPU, and PostgreSQL metrics from a run.
+python tools/prod/prod_collect_yoloe_scene_metrics.py
+
+# Generate benchmark figures from raw metrics artifacts.
+python tools/prod/prod_generate_yoloe_scene_figures.py
+
+# Benchmark scene renderer candidates (PixiJS vs pillow, SC-010).
+bash tools/prod/prod_benchmark_scene_renderers.sh
+```
+
+### Rollback
+
+```bash
+# Disable scene lane and SRVL by resetting env flags. No sudo required.
+bash tools/prod/prod_rollback_yoloe_scene.sh
+```
+
+### Acceptance gates (must pass before any scene production claim)
+
+- `YOLOE_SCENE_ENABLED=0` and `SRVL_ENABLED=0` are the rollback defaults.
+- SQLite is never an accepted backend — PostgreSQL only.
+- No Docker, no sudo at any step.
+- Production benchmark MUST run on native Linux RTX 5090 with `combined.mp4`.
+- Rollback proof MUST be recorded in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`.
