@@ -20,8 +20,10 @@ The first version is evidence-first and non-destructive:
 - Offline uploaded-video jobs only.
 - Pixel-normalized image-space distances, not real-world meters.
 - Flag-only contradiction handling.
-- Fixed `classroom_roi_guard_v1` prompt profile.
-- Small/fast YOLOE segmentation model by default.
+- Fixed `classroom_roi_guard_v1` prompt profile for production-server
+  benchmarking and tests, with an explicit `.env` override path for users and
+  developers.
+- `yoloe-26s-seg.pt` as the default small YOLOE-26 segmentation checkpoint.
 - Full masks persisted for YOLOE inference frames through compressed sidecar
   artifacts, not raw PostgreSQL JSON.
 - Adaptive inference/render cadence controlled by environment and config.
@@ -55,6 +57,7 @@ The first version is evidence-first and non-destructive:
 | File | `frontend/src/components/VideoPlayer/OverlayCanvas.tsx` |
 | File | `frontend/src/components/camera/BoundingBoxCanvas.tsx` |
 | External | <https://docs.ultralytics.com/models/yoloe/> |
+| External | <https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26s-seg.pt> |
 | External | <https://arxiv.org/abs/2503.07465> |
 
 ## V1 Feature Decisions
@@ -64,15 +67,94 @@ The first version is evidence-first and non-destructive:
 | Runtime target | Offline-first | Avoids live latency regressions while the model cost is measured. |
 | Distance basis | Pixel-normalized | Fast, calibration-free, and honest about not being metric distance. |
 | Downstream guard action | Flag-only | Preserves existing detections and stores contradiction evidence. |
-| Prompt mode | Fixed profile | Keeps benchmarks reproducible and avoids dynamic prompt drift. |
+| Prompt mode | Fixed benchmark profile, `.env` overrideable | Keeps production-server benchmarks reproducible while allowing controlled prompt experiments. |
 | Object profile | Classroom ROI guard | Targets people and common non-ROI surfaces/objects. |
-| Model scale | Small/fast | Protects throughput while proving the feature. |
+| Model checkpoint | `yoloe-26s-seg.pt` | Uses the YOLOE-26 segmentation small variant for the first benchmark path. |
+| Export order | Prompts before export | YOLOE exports are prompt-bound; do not export ONNX/TensorRT before `set_classes()`. |
 | Mask scope | YOLOE frames | Stores full masks for frames where YOLOE actually runs. |
 | Visualization cadence | Adaptive stride | Keeps MP4 frame count while avoiding per-frame YOLOE cost. |
 | Spatial layer name | `Spatial Relationship Vectorization Layer` / `SRVL` | Names the coordinate-to-matrix/map module. |
 | SRVL compute backend | `torch_cuda` first | GPU vectorization is required for production acceptance. |
 | SRVL render backend | `frontend_webgl` first | Avoids backend image rendering on the critical path. |
 | SRVL fallback | `numpy_cpu` for tests/degraded only | CPU fallback cannot be the accepted production path unless benchmarked. |
+
+## YOLOE Model And Export Contract
+
+V1 uses the YOLOE-26 segmentation small checkpoint:
+
+```text
+yoloe-26s-seg.pt
+https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26s-seg.pt
+```
+
+The export path is prompt-bound. The implementation must configure the complete
+class prompt list before any export step. This applies whether the pipeline
+exports directly to TensorRT or exports ONNX first and then builds a TensorRT
+engine. Exporting the base checkpoint first and trying to add prompts later is
+not valid for the deployment path.
+
+For the first production-server benchmark and test cycle, the active prompt
+profile is fixed to `classroom_roi_guard_v1` so benchmark results are
+comparable and reproducible. Users or developers may change the prompt profile
+or ordered class list through `.env`, but any prompt change creates a different
+model artifact and requires a fresh ONNX/TensorRT export before runtime use.
+The runtime must not silently reuse an old TensorRT engine after `.env` prompt
+values change.
+
+Required build order:
+
+1. Load `yoloe-26s-seg.pt` with `YOLOE`.
+2. Resolve the `.env` prompt config. The production benchmark default resolves
+   to `classroom_roi_guard_v1`.
+3. Call `model.set_classes(prompt_classes)`.
+4. Export the prompt-configured model to ONNX and/or TensorRT.
+5. Load the exported artifact for validation and runtime inference.
+6. Write an export manifest containing checkpoint URL, prompt profile,
+   ordered classes, class count, export format, artifact digests, and exporter
+   package versions, and the resolved `.env` prompt values.
+
+Reference export shape:
+
+```python
+from ultralytics import YOLOE
+
+prompt_classes = [
+    "person",
+    "table",
+    "desk",
+    "chair",
+    "wall",
+    "floor",
+    "ceiling",
+    "door",
+    "window",
+    "mirror",
+    "board",
+    "screen",
+]
+
+model = YOLOE("yoloe-26s-seg.pt")
+model.set_classes(prompt_classes)
+
+onnx_model = model.export(format="onnx")
+exported_model = YOLOE(onnx_model)
+```
+
+TensorRT export must follow the same ordering. If TensorRT is produced from an
+ONNX intermediate, the ONNX file must already be generated after
+`set_classes()`. If Ultralytics direct TensorRT export is used, `set_classes()`
+must still happen before `model.export(format="engine")`.
+
+Build validation must fail closed when:
+
+- the export manifest has no prompt profile;
+- the exported artifact class list does not match `classroom_roi_guard_v1`;
+- the artifact digest does not match the manifest;
+- a runtime tries to override prompts on a prompt-locked exported model;
+- `.env` prompt values changed but the ONNX/TensorRT export manifest still
+  points at the previous prompt digest;
+- the checkpoint is not `yoloe-26s-seg.pt` unless an explicit benchmark cycle
+  changes the model.
 
 ## Supported Features
 
@@ -130,30 +212,33 @@ flowchart LR
 3. If `YOLOE_SCENE_ENABLED=1`, the scene-segmentation lane observes the same
    decoded frames but only runs YOLOE on frames selected by
    `YOLOE_SCENE_INFER_STRIDE`.
-4. For each YOLOE frame, the lane sends a full-frame segmentation request to
-   Triton using the fixed `classroom_roi_guard_v1` prompt profile.
-5. YOLOE outputs are normalized into scene objects:
+4. Before runtime use, the build path has already loaded `yoloe-26s-seg.pt`,
+   applied `classroom_roi_guard_v1` with `set_classes()`, and exported the
+   prompt-locked ONNX/TensorRT artifact.
+5. For each YOLOE frame, the lane sends a full-frame segmentation request to
+   Triton using the prompt-locked `classroom_roi_guard_v1` engine.
+6. YOLOE outputs are normalized into scene objects:
    class, confidence, bbox, mask reference, mask area, centroid, anchor point,
    and source profile.
-6. The system builds a union mask for non-ROI classes. This mask is the
+7. The system builds a union mask for non-ROI classes. This mask is the
    "do not trust downstream predictions here without evidence" region.
-7. The system compares existing detections with YOLOE:
+8. The system compares existing detections with YOLOE:
    YOLOE person count vs current student/teacher count, and downstream boxes
    vs non-ROI masks.
-8. V1 records contradiction events only. It does not delete, rewrite, suppress,
+9. V1 records contradiction events only. It does not delete, rewrite, suppress,
    or lower the confidence of existing detections.
-9. The scene objects become points for spatial reasoning. People use
+10. The scene objects become points for spatial reasoning. People use
    bottom-center anchors when possible; other objects use mask centroids.
-10. SRVL receives the ordered object coordinates and optional frame metadata.
-11. SRVL uploads or reuses a compact `[N, 2]` coordinate tensor on GPU.
-12. SRVL computes all pairwise `dx`, `dy`, distance, angle, vector, proximity,
+11. SRVL receives the ordered object coordinates and optional frame metadata.
+12. SRVL uploads or reuses a compact `[N, 2]` coordinate tensor on GPU.
+13. SRVL computes all pairwise `dx`, `dy`, distance, angle, vector, proximity,
    and map tensors through batched tensor operations.
-13. SRVL writes analytics outputs to artifact buffers and enqueues the latest
+14. SRVL writes analytics outputs to artifact buffers and enqueues the latest
    visualization state without blocking the inference path.
-14. The renderer creates the human-facing scene map. On non-YOLOE frames, it
+15. The renderer creates the human-facing scene map. On non-YOLOE frames, it
    reuses the latest scene state so the output MP4 still has the same frame
    count as the source video.
-15. The job saves the scene-map MP4, snapshots, mask artifacts, matrix artifacts,
+16. The job saves the scene-map MP4, snapshots, mask artifacts, matrix artifacts,
    trace artifacts, and an artifact manifest with digests.
 
 ## Data And Artifact Contract
@@ -653,7 +738,13 @@ Initial proposed defaults:
 | Variable | Default | Effect |
 |---|---:|---|
 | `YOLOE_SCENE_ENABLED` | `0` | Master kill switch. |
-| `YOLOE_SCENE_PROFILE` | `classroom_roi_guard_v1` | Fixed prompt/profile identifier. |
+| `YOLOE_SCENE_PROFILE` | `classroom_roi_guard_v1` | Benchmark/test default prompt profile on the production server. |
+| `YOLOE_SCENE_PROMPT_CLASSES` | profile default | Optional `.env` ordered class list override; changing it requires re-export. |
+| `YOLOE_SCENE_CHECKPOINT` | `yoloe-26s-seg.pt` | Required YOLOE-26 segmentation small checkpoint. |
+| `YOLOE_SCENE_CHECKPOINT_URL` | `https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26s-seg.pt` | Download/source URL for the required checkpoint. |
+| `YOLOE_SCENE_PROMPT_LOCK_REQUIRED` | `1` | Refuse export/runtime if prompts were not applied before export. |
+| `YOLOE_SCENE_PROMPT_CLASSES_SHA256` | manifest value | Digest of the resolved `.env` ordered `set_classes()` prompt list. |
+| `YOLOE_SCENE_EXPORT_FORMAT` | `onnx_then_tensorrt` | Export prompt-locked ONNX first, then build TensorRT unless a direct engine path is benchmarked. |
 | `YOLOE_SCENE_MODEL_NAME` | `yoloe_scene_segmentation` | Triton model route target. |
 | `YOLOE_SCENE_MODEL_VERSION` | `v1` | Triton model version. |
 | `YOLOE_SCENE_INFER_STRIDE` | `4` | Run YOLOE every N frames in offline v1. |
@@ -739,6 +830,9 @@ Unit tests:
 
 - Mask encode/decode round trip.
 - Scene object normalization from YOLOE outputs.
+- YOLOE export helper applies `set_classes()` before ONNX/TensorRT export.
+- Export manifest prompt list matches `classroom_roi_guard_v1`.
+- `.env` prompt override changes the prompt digest and forces a new export.
 - Anchor selection for people and non-person objects.
 - Non-ROI union mask construction.
 - Person-count gap detection.
@@ -753,6 +847,7 @@ Unit tests:
 Integration tests:
 
 - `YOLOE_SCENE_ENABLED=0` preserves existing offline output behavior.
+- Prompt-locked `yoloe-26s-seg.pt` export loads through the runtime route.
 - `YOLOE_SCENE_ENABLED=1` writes scene summaries, mask artifacts, matrix
   artifacts, and scene-map media.
 - API endpoints return summaries without loading full masks by default.
@@ -789,8 +884,10 @@ Benchmark and acceptance:
 ## Rollout Path
 
 1. Add schema, artifact writers, config, and disabled route registration.
-2. Export and validate the small YOLOE segmentation model with the fixed
-   prompt profile.
+2. Download `yoloe-26s-seg.pt`, resolve the `.env` prompt config
+   (`classroom_roi_guard_v1` for production benchmarking/testing by default),
+   call `set_classes()`, then export ONNX/TensorRT from that prompt-configured
+   model.
 3. Add offline YOLOE lane behind `YOLOE_SCENE_ENABLED=0`.
 4. Add SRVL behind `SRVL_ENABLED=0` with `torch_cuda` vectorized compute and
    CPU reference tests.
@@ -815,17 +912,20 @@ The feature is accepted only if all of the following are true:
 
 1. YOLOE scene segmentation writes correct summary rows and recoverable full-mask
    artifacts for YOLOE frames.
-2. SRVL distance matrix is numerically correct against a CPU reference.
-3. SRVL angle matrix uses the documented `atan2(dy, dx)` convention.
-4. SRVL vector matrix contains valid magnitude-angle pairs.
-5. Optional Cartesian vectors contain valid `dx,dy` pairs.
-6. Heatmap, angle map, and correlation map artifacts are generated and traceable.
-7. Production SRVL pairwise computation avoids Python pair loops.
-8. Frontend visualization does not freeze under representative object count.
-9. Backend inference and analytics do not stall waiting for visualization.
-10. Benchmarking covers object count, GPU backend, render backend, serialization,
+2. The deployed YOLOE artifact is exported from `yoloe-26s-seg.pt` only after
+   resolving `.env` prompts, calling `set_classes(resolved_classes)`, and
+   writing a matching prompt digest in the manifest.
+3. SRVL distance matrix is numerically correct against a CPU reference.
+4. SRVL angle matrix uses the documented `atan2(dy, dx)` convention.
+5. SRVL vector matrix contains valid magnitude-angle pairs.
+6. Optional Cartesian vectors contain valid `dx,dy` pairs.
+7. Heatmap, angle map, and correlation map artifacts are generated and traceable.
+8. Production SRVL pairwise computation avoids Python pair loops.
+9. Frontend visualization does not freeze under representative object count.
+10. Backend inference and analytics do not stall waiting for visualization.
+11. Benchmarking covers object count, GPU backend, render backend, serialization,
     frontend FPS, CPU/GPU utilization, memory, and dropped frames.
-11. Trace output identifies frame, objects, coordinates, backend, timings,
+12. Trace output identifies frame, objects, coordinates, backend, timings,
     downsampling, mode switches, dropped frames, and artifact refs.
-12. Rollback with `YOLOE_SCENE_ENABLED=0` and `SRVL_ENABLED=0` restores the
+13. Rollback with `YOLOE_SCENE_ENABLED=0` and `SRVL_ENABLED=0` restores the
     existing offline pipeline behavior.
