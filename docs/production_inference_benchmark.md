@@ -4444,6 +4444,123 @@ total DB elapsed regressed `6.22 %`, Step 2 through-pose wall regressed
 worker-count scaling remains blocked until a separate benchmark proves
 independent work that extra workers can consume.
 
+## 52. Instrumented Accepted-Baseline Reproducibility Benchmark
+
+This run re-executed the last accepted offline throughput profile with
+repo-side instrumentation enabled. It is a reproducibility and bottleneck
+observability run, not a new optimization-candidate decision. The accepted
+throughput baseline remains Cycle 14.B2
+`cycle14b-cross-frame-batch16-r2-20260603T150000Z`.
+
+| Item | Value |
+|---|---|
+| Status | `REPRODUCIBILITY_BENCHMARK_COMPLETE / NO_NEW_OPTIMIZATION_DECISION` |
+| Runtime commit | `aef117a5` |
+| Replay key | `instrumented-accepted-baseline-20260606T1352Z` |
+| Job ID | `dc535a15-de11-4b20-9454-080ab325af82` |
+| Baseline replay | `cycle14b-cross-frame-batch16-r2-20260603T150000Z` |
+| Baseline job | `6b42a557-b954-4954-a2f8-de54634229eb` |
+| Metrics JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_metrics.json` / `.md` |
+| Baseline metrics JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-baseline-20260606T1352Z/baseline_accepted_metrics.json` / `.md` |
+| Model agreement JSON/MD | `/home/bamby/grad_project/backend/logs/instrumented-accepted-baseline-20260606T1352Z/model_agreement_accepted_vs_instrumented.json` / `.md` |
+| Instrumentation dir | `/home/bamby/grad_project/backend/logs/instrumented-accepted-baseline-20260606T1352Z/instrumentation` |
+| Rollback JSON | `/home/bamby/grad_project/backend/logs/instrumented-accepted-baseline-20260606T1352Z/rollback_status.json` |
+| Figure manifest | `docs/figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/figure_manifest.json` |
+| Figure roles | Planner `Instrumented accepted-baseline reproducibility planner`; implementer `Instrumented accepted-baseline reproducibility implementer`; generator `tools/prod/prod_generate_cycle_figures.py`; one agent performed both lanes because this was a single-agent reproducibility run. |
+
+Performance and instrumentation measurements:
+
+| Metric | Last accepted baseline | Instrumented rerun | Delta / result |
+|---|---:|---:|---:|
+| Source video nominal FPS | `30.000` | `30.000` | input media rate, not processing throughput |
+| DB-completed FPS | `5.680314` | `5.425115` | `-4.49 %` |
+| DB completed elapsed | `799.428 s` | `837.033 s` | `+4.70 %` |
+| Step 2 frame wall | `462.188348 s` | `453.120390 s` | `-1.96 %` |
+| Step 2 through-pose wall | `633.939294 s` | `680.382658 s` | `+7.33 %` |
+| Step 2 pose-tail-only wall | `unavailable` | `227.262268 s` | new layer-throughput measurement |
+| Step 3 persistence wall | `40.601407 s` | `30.446074 s` | `-25.01 %` |
+| Step 4 render wall | `unavailable` | `25.860318 s` | new audit marker |
+| Run-complete wall | `700.368401 s` | `736.758104 s` | `+5.20 %` |
+| Behavior call rate | `4.499469 calls/s` | `4.297322 calls/s` | `-4.49 %` |
+| Behavior RTT mean | `84.171 ms` | `85.778 ms` | `+1.91 %` |
+| Behavior RTT p95 | `130.802 ms` | `133.209 ms` | `+1.84 %` |
+| Behavior RTT p99 | `137.384 ms` | `141.540 ms` | `+3.03 %` |
+| GPU avg util | `12.168 %` | `12.403 %` | `+1.93 %` |
+| GPU peak util | `51.000 %` | `57.000 %` | `+11.76 %` |
+| Peak VRAM | `15731 MiB` | `15725 MiB` | no material change |
+
+Layer-throughput measurements from the instrumented run:
+
+| Layer | Throughput | Count | Wall | Unavailable reason |
+|---|---:|---:|---:|---|
+| Source video nominal | `30.000 frames/s` | `4541` | `151.366667 s` |  |
+| Job DB completed | `5.425115 frames/s` | `4541` | `837.033 s` |  |
+| Step 1 primary tracking | `unavailable` | `4541` | `unavailable` | `step1_audit_timestamps_missing_or_skipped` |
+| Step 2 frame inference loop | `10.021619 frames/s` | `4541` | `453.120390 s` |  |
+| Step 2 through pose tail | `6.674185 frames/s` | `4541` | `680.382658 s` |  |
+| Step 2 pose tail only | `19.981320 frames/s` | `4541` | `227.262268 s` |  |
+| Step 2 decode stage sum | `75025.608829 frames/s` | `4541` | `0.060526 s` |  |
+| Step 2 inference stage sum | `5.584431 frames/s` | `4541` | `813.153619 s` |  |
+| Step 2 postprocess stage sum | `3.049727 frames/s` | `4541` | `1488.985740 s` |  |
+| Step 2 preprocess stage sum | `162.279335 frames/s` | `4541` | `27.982614 s` |  |
+| Step 3 persistence | `149.148951 frames/s` | `4541` | `30.446074 s` |  |
+| Cycle 20 post-stage persistence | `unavailable` | `0` | `unavailable` | `cycle20_post_stage_timeline_missing` |
+| Embedding stage frame equivalent | `45.967017 frames/s` | `4541` | `98.788224 s` |  |
+| Embedding stage work items | `1468.950388 embedding-items/s` | `145115` | `98.788224 s` |  |
+| Step 4 render | `175.597222 frames/s` | `4541` | `25.860318 s` |  |
+| Telemetry model calls | `6.820520 calls/s` | `5709` | `837.033 s` |  |
+| DB detection rows | `86.914136 rows/s` | `72750` | `837.033 s` |  |
+| DB bbox rows | `86.914136 rows/s` | `72750` | `837.033 s` |  |
+| DB embedding rows | `86.715816 rows/s` | `72584` | `837.033 s` |  |
+| DB pose-kinematics rows | `22.853340 rows/s` | `19129` | `837.033 s` |  |
+
+Correctness and instrumentation gates:
+
+| Gate | Result | Decision impact |
+|---|---:|---|
+| Processed frames | `4541/4541` | Pass run-completion gate |
+| Detection rows | `72744 -> 72750` | `+0.01 %`; within row-parity tolerance |
+| BBox rows | `72744 -> 72750` | `+0.01 %`; within row-parity tolerance |
+| Embedding rows | `72578 -> 72584` | `+0.01 %`; within row-parity tolerance |
+| StudentTracks | `53 -> 53` | Exact parity |
+| Minimum per-model F1@IoU0.5 | `99.766 %` | Pass model-agreement proxy |
+| `attention_tracking` boxes | `11770 -> 11775` | `+0.04 %`; within tolerance |
+| `hand_raising` boxes | `8799 -> 8801` | `+0.02 %`; within tolerance |
+| `person_detection` boxes | `19162 -> 19162` | Exact parity |
+| `sitting_standing` boxes | `33013 -> 33012` | Within tolerance |
+| Redis Stream evidence | `enabled=true`, `written=4729`, `xlen=1014`, `errors=0`, `fallbacks=0` | Pass stream-evidence capture |
+| py-spy Celery attach | `unavailable` | Production ptrace permission denied; collector py-spy profile succeeded |
+| pyinstrument collector profile | `available` | `pyinstrument_collect_metrics.json` produced |
+| Nsight Systems collector profile | `available` | `nsys_collect_metrics.nsys-rep` produced |
+| Rollback verified | `true` | `BENCHMARK_REDIS_STREAM_EVENTS=0`, `POSE_TAIL_PROFILING=0`, and `EMBEDDING_STAGE_PROFILING=0` restored |
+
+### 52.1 Figure Evidence
+
+![Decision Delta](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__decision_delta.png)
+
+![Relative Delta](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__relative_delta.png)
+
+![Wall Breakdown](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__wall_breakdown.png)
+
+![Model RTT](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__model_rtt.png)
+
+![GPU Profile](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__gpu_profile.png)
+
+![Resource Tail](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__resource_tail.png)
+
+![Unavailable Summary](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__unavailable_summary.png)
+
+![Evidence Completeness](figures/benchmark_artifacts/instrumented-accepted-baseline-20260606T1352Z/instrumented_accepted_baseline__evidence_completeness.png)
+
+Decision: **NO NEW OPTIMIZATION DECISION**. The accepted throughput profile
+completed under the instrumentation wrapper, with DB/model parity preserved and
+the requested repo-side evidence tools producing artifacts. The run is slower
+than the last accepted baseline at the end-to-end DB-completed level
+(`-4.49 %` FPS), while Step 2 frame wall alone improved `1.96 %`. Treat this as
+an instrumentation/reproducibility result, not a replacement accepted baseline.
+The active production profile remains the last accepted throughput profile, and
+evidence-only profiling flags were rolled back after capture.
+
 ---
 
 *Updated from production run on 2026-06-06. Update this file after each major pipeline change or hardware migration.*
