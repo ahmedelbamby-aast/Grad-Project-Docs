@@ -65,6 +65,14 @@ Replace the single `postprocess_ms` with explicit spans (one `with span(...)` ea
 - 017.3.10 `persistence.detections` / `persistence.poses` / `persistence.embeddings` (per-writer spans)
 - 017.3.11 also wrap `decode`, `preprocess`, `infer.<model>` so the whole frame is fully accounted (Σ children ≈ frame, residual = "unattributed" span — never hidden).
 
+### A.3.1 Required derived metric — generated bounding-box throughput
+Every metric surface (rollup, REST, live stream, figures) MUST expose
+generated-bounding-box throughput in **all five dimensions**: **per frame, per
+ms, per second, per call, per call_ms** (`core/telemetry/box_throughput.py`).
+Boxes are sourced from spans tagged with a `boxes` count (e.g.
+`postprocess.scene_normalize`, `infer.person_detector`). A dimension whose
+denominator is missing/zero is `None`, never measured-zero (§1.6).
+
 ### A.4 Sinks (fan-out, all behind one flush)
 - 017.4.1 **Ring buffer** — bounded in-proc deque (latest N spans) for live scrape + crash forensics.
 - 017.4.2 **Redis live sink** — `XADD telemetry:{mode}:{job}:{camera}` stream (capped, §3.4 rebuildable) for realtime fan-out.
