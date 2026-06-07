@@ -78,13 +78,15 @@ Ref: `docs/unified_telemetry_spine_and_subcycles.md` Part A. **Prerequisite for 
 | 017.3.3 `postprocess.box_decode` span | ☐ PLANNED | |
 | 017.3.4 `postprocess.gaze_decode` span | ☐ PLANNED | all-models decode |
 | 017.3.5 `postprocess.posture_decode` span | ☐ PLANNED | |
-| 017.3.6 `postprocess.scene_normalize` span | ☐ PLANNED | scene_lane step 4 |
-| 017.3.7 `postprocess.srvl_compute` span | ☐ PLANNED | scene_lane SRVL |
-| 017.3.8 `postprocess.person_embedding` span (pre/infer/post) | ☐ PLANNED | scene_lane step 6b |
-| 017.3.9 `postprocess.contradiction_arbiter` span | ☐ PLANNED | scene_lane step 9b |
-| 017.3.10 `persistence.{detections,poses,embeddings}` spans | ☐ PLANNED | per-writer |
+| 017.3.6 `postprocess.scene_normalize` span | ✔ TESTED | scene_lane step 4; fires through real lane (0.01ms) — commit pending |
+| 017.3.7 `postprocess.srvl_compute` span | ☐ PLANNED | scene_lane SRVL (in `_run_srvl_lane`) |
+| 017.3.8 `postprocess.person_embedding` span (pre/infer/post) | ✔ TESTED | scene_lane step 6b wrapped |
+| 017.3.9 `postprocess.contradiction_arbiter` span | ✔ TESTED | scene_lane step 9b wrapped |
+| 017.3.10 `persistence.scene_frame` span | ✔ TESTED | fires through real lane (11.7ms) |
+| 017.3.10b `persistence.{detections,poses}` spans (all-models) | ☐ PLANNED | in tasks.py persistence |
+| 017.3.1-5 mask_decode/nms/box_decode/gaze/posture spans | ☐ PLANNED | in yoloe_triton decode + tasks.py all-models decode |
 | 017.3.11 wrap `decode`/`preprocess`/`infer.<model>` + residual "unattributed" | ☐ PLANNED | full-frame accounting |
-| 017.3.12 sub-stage instrumentation tests | ☐ PLANNED | |
+| 017.3.12 sub-stage instrumentation verified through real lane | ✔ TESTED | prod shell: frame→{scene_normalize,persistence} tree, real durations |
 
 ### 017.4 Sinks
 | Sub-cycle (atomic) | Status | Notes |
