@@ -191,7 +191,9 @@ from the implementation evidence docs.
 
 ## 8. Implementation Status (T109 update — 2026-06-07)
 
-All 120 tasks implemented. The following reproduction commands are available:
+117 of 120 tasks are implemented. T106, T107, and T120 remain open until the
+production benchmark, figure lineage, and rollback command output are generated
+and linked. The following reproduction commands are available:
 
 ```bash
 # Collect metrics (run after a benchmark job)

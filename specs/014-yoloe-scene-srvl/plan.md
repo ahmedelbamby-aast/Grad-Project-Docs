@@ -148,7 +148,7 @@ error ratios for scene stages, and rollback with `YOLOE_SCENE_ENABLED=0` plus
 | Benchmark Decision Authority | PASS | Acceptance requires baseline/candidate `combined.mp4` production benchmarks, comparison table, GPU/CPU/DB/Redis/frontend metrics, correctness counters, figure bundle, and rollback proof. Figure Planner is the task owner for the required figure-plan task; Figure Implementer is the separate task owner for the generator task, and no benchmark decision is valid until tasks name both exactly once. |
 | Live/Offline Validation | PASS | Offline is V1. Live is disabled with explicit rationale and must get a separate plan before enablement. |
 | Anti-Regression Runtime Truth | PASS | Acceptance scripts must inspect runtime processes, ports, queues, model states, DB rows, artifacts, telemetry, and frontend output. |
-| Evidence Integrity and Lineage | PASS | Evidence is digest-addressed, non-placeholder, production/local labeled, and PostgreSQL-backed where relational. |
+| Evidence Integrity and Lineage | PASS | Evidence is real, digest-addressed, production/local labeled, and PostgreSQL-backed where relational. |
 | Replay and Closure | PASS | Acceptance replay policy is `new-attempt`; failed or partial runs cannot close acceptance. |
 | XFail, Drift and Debt | PASS | Hidden xfails, stale prompt digests, unsupported live flags, missing metrics, and untracked CI-required files block closure. |
 | Runtime Job Lifecycle and Vector Integrity | PASS WITH CONDITIONS | If implementation touches async stages or vector persistence, tasks must add beat-scheduled reconciliation, idempotency keys, vector size guards at DB write boundaries, and fail-closed error accounting before acceptance. |

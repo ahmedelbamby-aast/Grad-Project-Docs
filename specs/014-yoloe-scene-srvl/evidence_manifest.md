@@ -1,7 +1,7 @@
 # Evidence Manifest — 014-yoloe-scene-srvl
 
 **Date:** 2026-06-07  
-**Status:** `staged_local_only` — implementation complete, production benchmark pending  
+**Status:** `staged_local_only` — local implementation staged; production benchmark, figure lineage, and rollback evidence pending
 **Branch:** `014-yoloe-scene-srvl`
 
 ---
@@ -10,7 +10,7 @@
 
 | Requirement | Tasks | Evidence file / location | Status |
 |---|---|---|---|
-| FR-001 Disabled-by-default | T001, T018, T037, T048, T094, T104, T105, T120 | `config.py`, `scene_lane.py`, `prod_rollback_yoloe_scene.sh`, CI env block | ✅ Implemented |
+| FR-001 Disabled-by-default | T001, T018, T037, T048, T094, T104, T105 | `config.py`, `scene_lane.py`, `prod_rollback_yoloe_scene.sh`, CI env block | ✅ Local disabled-path implementation and rollback helper implemented; T120 production command output pending |
 | FR-002 Offline-only | T003, T020, T033, T034 | `live_guard.py`, `scene_lane.py` | ✅ Implemented |
 | FR-003 Prompt-locked export | T020-T022, T033 | `prompts.py`, export scripts | ✅ Implemented |
 | FR-004 RLE-Zstd masks | T011, T014, T020-T022, T033-T034, T040-T042 | `masks.py`, `artifacts.py` | ✅ Implemented |
@@ -22,9 +22,9 @@
 | FR-023 Absent optional fields no crash | T023-T027, T049, T074, T084-T086 | `OverlayCanvas.tsx`, `BoundingBoxCanvas.tsx`, type tests | ✅ Implemented |
 | FR-025 Production helper scripts | T032, T098-T105 | `tools/prod/prod_*.sh|ps1|py` | ✅ Implemented |
 | FR-026 Unavailable metric reasons | T028, T029, T088, T100 | `prod_collect_yoloe_scene_metrics.py` | ✅ Implemented |
-| FR-027 Docs updated | T005-T007, T030-T031, T089-T090, T106-T116 | `docs/`, `specs/`, `cycle_014_yoloe_scene_srvl.md` | ✅ Implemented |
-| FR-028 Constitution evidence | T005-T006, T094-T096, T106-T119 | This manifest, cycle doc §5, §6 | ✅ Implemented |
-| FR-029 Rollback proof | T037, T094, T104-T105, T120 | `prod_rollback_yoloe_scene.sh`, `test_yoloe_scene_rollback.py` | ✅ Implemented; production run pending |
+| FR-027 Docs updated | T005-T007, T030-T031, T089-T090, T108-T116 | `docs/`, `specs/`, `cycle_014_yoloe_scene_srvl.md` | ✅ Local/staging docs implemented; T106-T107 production evidence pending |
+| FR-028 Constitution evidence | T005-T006, T094-T096, T108-T119 | This manifest, cycle doc §5, §6 | ✅ Local/staging evidence implemented; production acceptance evidence pending |
+| FR-029 Rollback proof | T037, T094, T104-T105 | `prod_rollback_yoloe_scene.sh`, `test_yoloe_scene_rollback.py` | ✅ Local rollback helper/test implemented; T120 production rollback output pending |
 | FR-031 No unintended side effects | T008, T023, T035, T039 | Disabled-by-default contract, system tests | ✅ Implemented |
 
 ---
@@ -38,7 +38,7 @@
 | SQLite fallback | None — all DB operations use `SceneFrameSummary.objects.*` Django ORM against PostgreSQL. No SQLite pragma or `using='sqlite'`. |
 | Untracked CI-required files | All files listed in `yoloe-scene-srvl.yml` test steps exist. |
 | Mock acceptance artifacts | No mock FPS measurements. `sceneRendererBenchmark.test.ts` tests the harness structure only; actual SC-010 gate requires a production run. |
-| Local-only production claims | No production benchmark has been run yet. §6 of cycle doc is a placeholder. |
+| Local-only production claims | No production benchmark has been run yet. Cycle doc §6 is explicitly pending evidence, not an acceptance claim. |
 
 ---
 

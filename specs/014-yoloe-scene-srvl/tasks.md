@@ -27,7 +27,7 @@ implementable and testable after the shared foundation is complete.
 contract locations, and baseline documentation before shared model/runtime work.
 
 - [x] T001 Create scene package scaffold in `backend/apps/video_analysis/scene/__init__.py` for YOLOE/SRVL modules. (FR-001)
-- [x] T002 [P] Add scene env contract placeholders and default disabled flags in `.env.example`. (FR-001, FR-032, FR-033, SC-018, SC-022)
+- [x] T002 [P] Add scene env contract entries and default disabled flags in `.env.example`. (FR-001, FR-032, FR-033, SC-018, SC-022)
 - [x] T003 [P] Add backend dependency declarations for YOLOE export, RLE-Zstd masks, and NPZ artifact handling in `backend/pyproject.toml`. (FR-002, FR-007)
 - [x] T004 [P] Add frontend renderer dependency candidate entry for PixiJS benchmarking in `frontend/package.json`. (FR-022, SC-010)
 - [x] T005 [P] Add feature evidence root and generated-artifact ignore exceptions in `.gitignore` for CI-required manifests under `specs/014-yoloe-scene-srvl/` and `docs/figures/`. (FR-027, FR-028, SC-017, SC-018)
@@ -196,7 +196,7 @@ and representative object-count fixtures.
 ## Phase 6: User Story 4 - Prove Production Readiness (Priority: P4)
 
 **Goal**: Evidence helpers, benchmark collectors, figures, workflows,
-documentation, and rollback proof prevent acceptance from mocks, placeholders,
+documentation, and rollback proof prevent acceptance from mocks, template-only artifacts,
 or unsupported local runs.
 
 **Independent Test**: Review the evidence package and verify every accepted
@@ -226,12 +226,12 @@ and rollback proof.
 - [x] T103 [US4] Implement renderer benchmark PowerShell contract helper in `tools/prod/prod_benchmark_scene_renderers.ps1`. (FR-022, FR-025, SC-010)
 - [x] T104 [US4] Implement rollback helper in `tools/prod/prod_rollback_yoloe_scene.sh`. (FR-001, FR-025, FR-029, SC-001)
 - [x] T105 [US4] Implement rollback PowerShell contract helper in `tools/prod/prod_rollback_yoloe_scene.ps1`. (FR-001, FR-025, FR-029, SC-001)
-- [x] T106 [US4] Update production benchmark history with decision table and evidence links in `docs/production_inference_benchmark.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017)
-- [x] T107 [US4] Update feature cycle evidence with production job lineage, rollback proof, figure links, and unavailable metric reasons in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017, SC-018)
+- [ ] T106 [US4] Update production benchmark history with completed production decision table and evidence links in `docs/production_inference_benchmark.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017)
+- [ ] T107 [US4] Update feature cycle evidence with production job lineage, rollback proof, figure links, and unavailable metric reasons in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017, SC-018)
 - [x] T108 [US4] Add CI workflow or existing workflow updates for scene contracts, docs, figures, shell syntax, and frontend checks in `.github/workflows/yoloe-scene-srvl.yml`. (FR-027, FR-028, SC-013, SC-018)
 
 **Checkpoint**: US4 can be validated by reviewing a complete evidence package
-without relying on local-only, mock-only, or placeholder-only claims.
+without relying on local-only, mock-only, or template-only claims.
 
 ---
 
@@ -251,7 +251,7 @@ acceptance gates.
 - [x] T117 Confirm no hidden xfails, unsupported live enablement, SQLite fallback, untracked CI-required files, mock acceptance artifacts, or local-only production claims in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-018)
 - [x] T118 Confirm any async job, vector persistence, or orchestration changes declare stage deadlines, reconciler behavior, idempotency keys, error-ratio thresholds, vector payload guards, and re-run tests in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-019)
 - [x] T119 Confirm no worker/thread/concurrency candidate is accepted without governed production benchmark evidence in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-020)
-- [x] T120 Run final rollback and disabled-path proof, then link command output in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-001, FR-029, SC-001)
+- [ ] T120 Run final production rollback and disabled-path proof, then link command output in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-001, FR-029, SC-001)
 
 ---
 

@@ -133,7 +133,7 @@ benchmark decision claim.
 
 ### Figure Planner (T030)
 
-**Role owner**: implementation engineer responsible for the production benchmark run.
+**Role owner**: Codex 2026-06-07 spec repair session.
 
 **Required plots** (must be generated from raw metrics artifacts, not mocked):
 
@@ -155,7 +155,13 @@ with SHA-256 digest in the alt text.
 
 ### Figure Implementer (T031)
 
-**Role owner**: same engineer or a designated reviewer who owns the generator code.
+**Role owner**: Codex 2026-06-07 spec repair session.
+
+Role-separation note: this repair was performed in a single-agent session, so a
+separate Figure Implementer was not available. The planner evidence above
+defines required plots, inputs, unavailable-metric handling, and Markdown embed
+targets; the implementer evidence below is limited to generator code, tests,
+manifest paths, and workflow coverage.
 
 **Responsibilities**:
 - Owns `tools/prod/prod_generate_yoloe_scene_figures.py` and its unit tests
@@ -165,13 +171,14 @@ with SHA-256 digest in the alt text.
 - The CI workflow gate (`T108`) verifies figure digests against the manifest before
   accepting the benchmark evidence.
 
-*Both roles are named above. Benchmark decisions require their sign-off in §5.*
+Both roles are named above. Benchmark decisions require completed production
+evidence and role sign-off in §5.
 
 ## 5. Decision history
 
 | Cycle state | Date | Notes |
 |---|---|---|
-| `staged_local_only` | 2026-06-07 | Initial implementation. No production benchmark yet. |
+| `staged_local_only` | 2026-06-07 | Local implementation and helper scaffolding complete. Production benchmark and rollback evidence still pending. |
 
 ## 6. Production benchmark evidence
 
@@ -195,10 +202,12 @@ figures, rollback proof, and all metrics listed in SC-012.*
 | Phase 3 — YOLOE lane | T033–T054 | ✅ Complete |
 | Phase 4 — US2 contradiction | T055–T068 | ✅ Complete |
 | Phase 5 — SRVL pipeline | T069–T088 | ✅ Complete |
-| Phase 6 — US4 production readiness | T089–T108 | ✅ Complete |
-| Phase 7 — polish | T109–T120 | ✅ Complete |
+| Phase 6 — US4 production readiness | T089–T108 | Staged; T106-T107 pending production evidence |
+| Phase 7 — polish | T109–T120 | Staged; T120 pending production rollback output |
 
-Total: **120/120 tasks** (implementation complete; acceptance gates require production run)
+Total: **117/120 tasks complete**. Local implementation and helper scaffolding
+are staged. T106, T107, and T120 remain open until production benchmark,
+figure, lineage, and rollback evidence are generated and linked.
 
 ### Production helper scripts added (T098–T108)
 
@@ -221,6 +230,19 @@ tests, migration check, and disabled-by-default env contract verification.
 
 ### Backend test suite (T113)
 
+Local PostgreSQL-backed verification on 2026-06-07:
+
+```text
+.\.venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+# No changes detected
+
+.\.venv\Scripts\python.exe manage.py check
+# System check identified no issues (0 silenced).
+
+.\.venv\Scripts\python.exe -m pytest tests\unit\video_analysis\test_srvl_math.py tests\unit\pipeline\test_prod_collect_yoloe_scene_metrics.py tests\unit\pipeline\test_prod_generate_yoloe_scene_figures.py tests\unit\pipeline\test_scene_prod_helper_powershell_syntax.py tests\unit\pipeline\test_scene_prod_helper_shell_syntax.py tests\system\test_yoloe_scene_evidence_package.py tests\system\test_yoloe_scene_reconciliation.py tests\contract\test_yoloe_scene_production_helper_contract.py -q --tb=short
+# 99 passed, 3 skipped in 11.52s
+```
+
 | Suite | Status |
 |---|---|
 | Unit: SRVL math, vectorized, artifacts, visualization queue | ✅ Implemented |
@@ -231,6 +253,13 @@ tests, migration check, and disabled-by-default env contract verification.
 Actual passing run on production server: **PENDING**
 
 ### Frontend test suite (T114)
+
+Local benchmark harness verification on 2026-06-07:
+
+```text
+npm.cmd test -- sceneRendererBenchmark.test.ts --run
+# 1 test file passed, 8 tests passed
+```
 
 | Test | Status |
 |---|---|

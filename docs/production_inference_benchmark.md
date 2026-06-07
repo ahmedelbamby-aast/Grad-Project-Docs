@@ -4706,7 +4706,8 @@ reproducibility result rather than a replacement baseline.
 | Gate | ID | Requirement | Status |
 |---|---|---|---|
 | PixiJS renderer FPS | SC-010 | ≥30 FPS, no freeze >500 ms | Pending production run |
-| SRVL 128-object CPU | SC-011 | <200 ms wall time | Unit test guard in place |
+| SRVL production compute p95 | SC-009 | ≤10 ms for accepted representative object range, or keep disabled with bottleneck documented | Pending production run |
+| Visualization overload | SC-011 | Stale visualization frames drop while analytics artifacts remain complete | Unit/system guards in place |
 | Metrics completeness | SC-012 | All required fields present or marked unavailable | Tool: `prod_collect_yoloe_scene_metrics.py` |
 
 ### Production tools
