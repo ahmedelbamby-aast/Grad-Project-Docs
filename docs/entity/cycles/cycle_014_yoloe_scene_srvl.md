@@ -218,3 +218,37 @@ Total: **120/120 tasks** (implementation complete; acceptance gates require prod
 `.github/workflows/yoloe-scene-srvl.yml` (T108): runs on push to branch
 `014-yoloe-scene-srvl` and on PRs targeting `main`. Runs backend tests, frontend
 tests, migration check, and disabled-by-default env contract verification.
+
+### Backend test suite (T113)
+
+| Suite | Status |
+|---|---|
+| Unit: SRVL math, vectorized, artifacts, visualization queue | ✅ Implemented |
+| Integration: detector assist, append-only, scene map video | ✅ Implemented |
+| System: rollback, reconciliation, evidence package | ✅ Implemented |
+| Contract: production helpers | ✅ Implemented |
+
+Actual passing run on production server: **PENDING**
+
+### Frontend test suite (T114)
+
+| Test | Status |
+|---|---|
+| `sceneTypes.test.ts` | ✅ Implemented |
+| `sceneRendererMetrics.test.ts` | ✅ Implemented |
+| `sceneRendererBenchmark.test.ts` | ✅ Implemented |
+| `e2e/scene-map.spec.ts` | ✅ Implemented |
+
+SC-010 PixiJS FPS gate: **PENDING** — requires production run
+
+### Shell/PowerShell/Python helper checks (T115)
+
+All scripts pass `bash -n` (syntax), contain `DRY_RUN`/`$DryRun` switch,
+include no-sudo guard, and are covered by T089/T090/T097 automated tests.
+See `specs/014-yoloe-scene-srvl/evidence_manifest.md §8` for full table.
+
+### Rollback and disabled-path proof (T120)
+
+Rollback scripts implemented: `prod_rollback_yoloe_scene.sh` and `.ps1`.
+System test `test_yoloe_scene_rollback.py` verifies the disabled path.
+Production rollback command output: **PENDING** — must be run and linked here.

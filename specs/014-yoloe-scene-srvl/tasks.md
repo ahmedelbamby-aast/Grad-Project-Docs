@@ -130,21 +130,21 @@ and append-only recovery evidence.
 
 ### Validation and Evidence for User Story 2
 
-- [ ] T055 [P] [US2] Add person-count comparison tests in `backend/tests/unit/video_analysis/test_scene_people_counts.py`. (FR-010, SC-005)
-- [ ] T056 [P] [US2] Add Redis-first and DB-fallback lookup tests in `backend/tests/unit/video_analysis/test_scene_recovery_lookup.py`. (FR-011, FR-026, SC-005)
-- [ ] T057 [P] [US2] Add deterministic one-to-one assignment and unresolved ambiguity tests in `backend/tests/unit/video_analysis/test_scene_recovery_assignment.py`. (FR-012, FR-013, SC-006)
-- [ ] T058 [P] [US2] Add append-only missing-candidate persistence tests in `backend/tests/integration/video_analysis/test_scene_recovery_candidates.py`. (FR-014, FR-015, FR-016, SC-005, SC-006, SC-019)
+- [x] T055 [P] [US2] Add person-count comparison tests in `backend/tests/unit/video_analysis/test_scene_people_counts.py`. (FR-010, SC-005)
+- [x] T056 [P] [US2] Add Redis-first and DB-fallback lookup tests in `backend/tests/unit/video_analysis/test_scene_recovery_lookup.py`. (FR-011, FR-026, SC-005)
+- [x] T057 [P] [US2] Add deterministic one-to-one assignment and unresolved ambiguity tests in `backend/tests/unit/video_analysis/test_scene_recovery_assignment.py`. (FR-012, FR-013, SC-006)
+- [x] T058 [P] [US2] Add append-only missing-candidate persistence tests in `backend/tests/integration/video_analysis/test_scene_recovery_candidates.py`. (FR-014, FR-015, FR-016, SC-005, SC-006, SC-019)
 - [x] T059 [P] [US2] Add detector-assist recurrence tests in `backend/tests/integration/video_analysis/test_scene_detector_assist.py`. (FR-017, SC-005)
 - [x] T060 [P] [US2] Add recovery no-retroactive-mutation tests in `backend/tests/integration/video_analysis/test_scene_recovery_append_only.py`. (FR-014, FR-015, FR-016, SC-006, SC-007, SC-019)
 
 ### Implementation for User Story 2
 
-- [ ] T061 [US2] Implement YOLOE versus student-plus-teacher count comparison in `backend/apps/video_analysis/scene/people_counts.py`. (FR-010, SC-005)
-- [ ] T062 [US2] Implement Redis-first appearance and configured slower fallback lookup in `backend/apps/video_analysis/scene/recovery_lookup.py`. (FR-011, FR-026, SC-005)
-- [ ] T063 [US2] Implement deterministic one-to-one recovery assignment in `backend/apps/video_analysis/scene/recovery_assignment.py`. (FR-012, FR-013, SC-006)
-- [ ] T064 [US2] Implement recovery candidate scoring, thresholds, reason codes, and candidate-only default in `backend/apps/video_analysis/scene/recovery_candidates.py`. (FR-012, FR-014, FR-015, FR-031, FR-032, SC-005, SC-006, SC-022)
-- [ ] T065 [US2] Implement original-frame-time synchronization and append-only lineage for recovery candidates in `backend/apps/video_analysis/scene/recovery_timeline.py`. (FR-014, FR-016, SC-005, SC-019)
-- [ ] T066 [US2] Implement bounded detector-assist evidence for following frames in `backend/apps/video_analysis/scene/detector_assist.py`. (FR-017, SC-005)
+- [x] T061 [US2] Implement YOLOE versus student-plus-teacher count comparison in `backend/apps/video_analysis/scene/people_counts.py`. (FR-010, SC-005)
+- [x] T062 [US2] Implement Redis-first appearance and configured slower fallback lookup in `backend/apps/video_analysis/scene/recovery_lookup.py`. (FR-011, FR-026, SC-005)
+- [x] T063 [US2] Implement deterministic one-to-one recovery assignment in `backend/apps/video_analysis/scene/recovery_assignment.py`. (FR-012, FR-013, SC-006)
+- [x] T064 [US2] Implement recovery candidate scoring, thresholds, reason codes, and candidate-only default in `backend/apps/video_analysis/scene/recovery_candidates.py`. (FR-012, FR-014, FR-015, FR-031, FR-032, SC-005, SC-006, SC-022)
+- [x] T065 [US2] Implement original-frame-time synchronization and append-only lineage for recovery candidates in `backend/apps/video_analysis/scene/recovery_timeline.py`. (FR-014, FR-016, SC-005, SC-019)
+- [x] T066 [US2] Implement bounded detector-assist evidence for following frames in `backend/apps/video_analysis/scene/detector_assist.py`. (FR-017, SC-005)
 - [x] T067 [US2] Wire mismatch event emission into offline scene lane in `backend/apps/video_analysis/tasks.py`. (FR-010, FR-011, FR-012, FR-014, FR-024, SC-005)
 - [x] T068 [US2] Extend scene API and WebSocket payloads with mismatch/recovery state in `backend/apps/video_analysis/views_scene.py`. (FR-023, FR-024, SC-005, SC-014)
 
@@ -206,29 +206,29 @@ and rollback proof.
 
 ### Validation and Evidence for User Story 4
 
-- [ ] T089 [P] [US4] Add shell syntax tests for scene production helpers in `backend/tests/unit/pipeline/test_scene_prod_helper_shell_syntax.py`. (FR-025, FR-027, SC-018)
-- [ ] T090 [P] [US4] Add PowerShell parser tests for scene production helpers in `backend/tests/unit/pipeline/test_scene_prod_helper_powershell_syntax.py`. (FR-025, FR-027, SC-018)
-- [ ] T091 [P] [US4] Add metrics collector unit tests for throughput, latency, model calls, GPU, CPU, PostgreSQL, Redis, frontend, artifact, correctness, and unavailable reasons in `backend/tests/unit/pipeline/test_prod_collect_yoloe_scene_metrics.py`. (FR-026, SC-012)
-- [ ] T092 [P] [US4] Add figure generator tests proving input digests, missing-metric policy, and produced images in `backend/tests/unit/pipeline/test_prod_generate_yoloe_scene_figures.py`. (FR-025, FR-026, FR-027, FR-028, SC-013)
-- [ ] T093 [P] [US4] Add renderer benchmark collector tests in `frontend/tests/sceneRendererMetrics.test.ts`. (FR-022, FR-026, SC-010, SC-012)
-- [ ] T094 [P] [US4] Add rollback proof tests for disabled scene/SRVL flags and offline parity in `backend/tests/system/test_yoloe_scene_rollback.py`. (FR-001, FR-029, SC-001)
-- [ ] T095 [P] [US4] Add runtime reconciliation system test for task, queue, database, Redis, artifact, telemetry, frontend, and rendered media states in `backend/tests/system/test_yoloe_scene_reconciliation.py`. (FR-024, FR-026, FR-028, SC-016)
-- [ ] T096 [P] [US4] Add artifact access and immutable evidence system test in `backend/tests/system/test_yoloe_scene_evidence_package.py`. (FR-027, FR-028, FR-030, SC-015, SC-017, SC-018)
-- [ ] T097 [P] [US4] Add production benchmark command dry-run contract test in `backend/tests/contract/test_yoloe_scene_production_helper_contract.py`. (FR-025, FR-026, SC-012, SC-013)
+- [x] T089 [P] [US4] Add shell syntax tests for scene production helpers in `backend/tests/unit/pipeline/test_scene_prod_helper_shell_syntax.py`. (FR-025, FR-027, SC-018)
+- [x] T090 [P] [US4] Add PowerShell parser tests for scene production helpers in `backend/tests/unit/pipeline/test_scene_prod_helper_powershell_syntax.py`. (FR-025, FR-027, SC-018)
+- [x] T091 [P] [US4] Add metrics collector unit tests for throughput, latency, model calls, GPU, CPU, PostgreSQL, Redis, frontend, artifact, correctness, and unavailable reasons in `backend/tests/unit/pipeline/test_prod_collect_yoloe_scene_metrics.py`. (FR-026, SC-012)
+- [x] T092 [P] [US4] Add figure generator tests proving input digests, missing-metric policy, and produced images in `backend/tests/unit/pipeline/test_prod_generate_yoloe_scene_figures.py`. (FR-025, FR-026, FR-027, FR-028, SC-013)
+- [x] T093 [P] [US4] Add renderer benchmark collector tests in `frontend/tests/sceneRendererMetrics.test.ts`. (FR-022, FR-026, SC-010, SC-012)
+- [x] T094 [P] [US4] Add rollback proof tests for disabled scene/SRVL flags and offline parity in `backend/tests/system/test_yoloe_scene_rollback.py`. (FR-001, FR-029, SC-001)
+- [x] T095 [P] [US4] Add runtime reconciliation system test for task, queue, database, Redis, artifact, telemetry, frontend, and rendered media states in `backend/tests/system/test_yoloe_scene_reconciliation.py`. (FR-024, FR-026, FR-028, SC-016)
+- [x] T096 [P] [US4] Add artifact access and immutable evidence system test in `backend/tests/system/test_yoloe_scene_evidence_package.py`. (FR-027, FR-028, FR-030, SC-015, SC-017, SC-018)
+- [x] T097 [P] [US4] Add production benchmark command dry-run contract test in `backend/tests/contract/test_yoloe_scene_production_helper_contract.py`. (FR-025, FR-026, SC-012, SC-013)
 
 ### Implementation for User Story 4
 
-- [ ] T098 [US4] Implement production benchmark runner in `tools/prod/prod_run_yoloe_scene_benchmark.sh`. (FR-025, FR-026, FR-028, SC-012)
-- [ ] T099 [US4] Implement production benchmark PowerShell contract helper in `tools/prod/prod_run_yoloe_scene_benchmark.ps1`. (FR-025, FR-026, SC-012)
-- [ ] T100 [US4] Implement production metrics collector in `tools/prod/prod_collect_yoloe_scene_metrics.py`. (FR-025, FR-026, SC-012, SC-016, SC-017)
-- [ ] T101 [US4] Implement benchmark figure generator in `tools/prod/prod_generate_yoloe_scene_figures.py`. (FR-025, FR-026, FR-027, FR-028, SC-013)
-- [ ] T102 [US4] Implement renderer benchmark helper in `tools/prod/prod_benchmark_scene_renderers.sh`. (FR-022, FR-025, FR-026, SC-010, SC-012)
-- [ ] T103 [US4] Implement renderer benchmark PowerShell contract helper in `tools/prod/prod_benchmark_scene_renderers.ps1`. (FR-022, FR-025, SC-010)
-- [ ] T104 [US4] Implement rollback helper in `tools/prod/prod_rollback_yoloe_scene.sh`. (FR-001, FR-025, FR-029, SC-001)
-- [ ] T105 [US4] Implement rollback PowerShell contract helper in `tools/prod/prod_rollback_yoloe_scene.ps1`. (FR-001, FR-025, FR-029, SC-001)
-- [ ] T106 [US4] Update production benchmark history with decision table and evidence links in `docs/production_inference_benchmark.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017)
-- [ ] T107 [US4] Update feature cycle evidence with production job lineage, rollback proof, figure links, and unavailable metric reasons in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017, SC-018)
-- [ ] T108 [US4] Add CI workflow or existing workflow updates for scene contracts, docs, figures, shell syntax, and frontend checks in `.github/workflows/yoloe-scene-srvl.yml`. (FR-027, FR-028, SC-013, SC-018)
+- [x] T098 [US4] Implement production benchmark runner in `tools/prod/prod_run_yoloe_scene_benchmark.sh`. (FR-025, FR-026, FR-028, SC-012)
+- [x] T099 [US4] Implement production benchmark PowerShell contract helper in `tools/prod/prod_run_yoloe_scene_benchmark.ps1`. (FR-025, FR-026, SC-012)
+- [x] T100 [US4] Implement production metrics collector in `tools/prod/prod_collect_yoloe_scene_metrics.py`. (FR-025, FR-026, SC-012, SC-016, SC-017)
+- [x] T101 [US4] Implement benchmark figure generator in `tools/prod/prod_generate_yoloe_scene_figures.py`. (FR-025, FR-026, FR-027, FR-028, SC-013)
+- [x] T102 [US4] Implement renderer benchmark helper in `tools/prod/prod_benchmark_scene_renderers.sh`. (FR-022, FR-025, FR-026, SC-010, SC-012)
+- [x] T103 [US4] Implement renderer benchmark PowerShell contract helper in `tools/prod/prod_benchmark_scene_renderers.ps1`. (FR-022, FR-025, SC-010)
+- [x] T104 [US4] Implement rollback helper in `tools/prod/prod_rollback_yoloe_scene.sh`. (FR-001, FR-025, FR-029, SC-001)
+- [x] T105 [US4] Implement rollback PowerShell contract helper in `tools/prod/prod_rollback_yoloe_scene.ps1`. (FR-001, FR-025, FR-029, SC-001)
+- [x] T106 [US4] Update production benchmark history with decision table and evidence links in `docs/production_inference_benchmark.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017)
+- [x] T107 [US4] Update feature cycle evidence with production job lineage, rollback proof, figure links, and unavailable metric reasons in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-026, FR-027, FR-028, FR-029, SC-012, SC-013, SC-016, SC-017, SC-018)
+- [x] T108 [US4] Add CI workflow or existing workflow updates for scene contracts, docs, figures, shell syntax, and frontend checks in `.github/workflows/yoloe-scene-srvl.yml`. (FR-027, FR-028, SC-013, SC-018)
 
 **Checkpoint**: US4 can be validated by reviewing a complete evidence package
 without relying on local-only, mock-only, or placeholder-only claims.
@@ -240,18 +240,18 @@ without relying on local-only, mock-only, or placeholder-only claims.
 **Purpose**: Cross-story validation, documentation, reproducibility, and final
 acceptance gates.
 
-- [ ] T109 [P] Update quickstart reproduction commands and evidence expectations in `specs/014-yoloe-scene-srvl/quickstart.md`. (FR-025, FR-027, FR-028, SC-012, SC-013, SC-017, SC-018)
-- [ ] T110 [P] Update source plan references and remaining gap notes in `docs/yoloe_scene_segmentation_plan.md`. (FR-027, FR-028, SC-018)
-- [ ] T111 [P] Run and record Mermaid verification for feature docs in `specs/014-yoloe-scene-srvl/quickstart.md`. (FR-027, FR-028, SC-018)
-- [ ] T112 [P] Run and record documentation reading-order verification in `docs/production_inference_benchmark.md`. (FR-027, FR-028, SC-018)
-- [ ] T113 [P] Run and record backend PostgreSQL tests for scene unit, integration, contract, and system suites in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-028, SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008, SC-014, SC-015, SC-016, SC-017, SC-018, SC-019, SC-021, SC-022)
-- [ ] T114 [P] Run and record frontend type, unit, benchmark, and Playwright checks in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-020, FR-021, FR-022, FR-023, SC-010, SC-011, SC-014)
-- [ ] T115 [P] Run and record shell, PowerShell, and Python helper checks in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-025, FR-027, SC-012, SC-013, SC-018)
-- [ ] T116 Produce final requirements-to-evidence manifest in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-027, FR-028, SC-017, SC-018)
-- [ ] T117 Confirm no hidden xfails, unsupported live enablement, SQLite fallback, untracked CI-required files, mock acceptance artifacts, or local-only production claims in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-018)
-- [ ] T118 Confirm any async job, vector persistence, or orchestration changes declare stage deadlines, reconciler behavior, idempotency keys, error-ratio thresholds, vector payload guards, and re-run tests in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-019)
-- [ ] T119 Confirm no worker/thread/concurrency candidate is accepted without governed production benchmark evidence in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-020)
-- [ ] T120 Run final rollback and disabled-path proof, then link command output in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-001, FR-029, SC-001)
+- [x] T109 [P] Update quickstart reproduction commands and evidence expectations in `specs/014-yoloe-scene-srvl/quickstart.md`. (FR-025, FR-027, FR-028, SC-012, SC-013, SC-017, SC-018)
+- [x] T110 [P] Update source plan references and remaining gap notes in `docs/yoloe_scene_segmentation_plan.md`. (FR-027, FR-028, SC-018)
+- [x] T111 [P] Run and record Mermaid verification for feature docs in `specs/014-yoloe-scene-srvl/quickstart.md`. (FR-027, FR-028, SC-018)
+- [x] T112 [P] Run and record documentation reading-order verification in `docs/production_inference_benchmark.md`. (FR-027, FR-028, SC-018)
+- [x] T113 [P] Run and record backend PostgreSQL tests for scene unit, integration, contract, and system suites in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-028, SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008, SC-014, SC-015, SC-016, SC-017, SC-018, SC-019, SC-021, SC-022)
+- [x] T114 [P] Run and record frontend type, unit, benchmark, and Playwright checks in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-020, FR-021, FR-022, FR-023, SC-010, SC-011, SC-014)
+- [x] T115 [P] Run and record shell, PowerShell, and Python helper checks in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-025, FR-027, SC-012, SC-013, SC-018)
+- [x] T116 Produce final requirements-to-evidence manifest in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-027, FR-028, SC-017, SC-018)
+- [x] T117 Confirm no hidden xfails, unsupported live enablement, SQLite fallback, untracked CI-required files, mock acceptance artifacts, or local-only production claims in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-018)
+- [x] T118 Confirm any async job, vector persistence, or orchestration changes declare stage deadlines, reconciler behavior, idempotency keys, error-ratio thresholds, vector payload guards, and re-run tests in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-019)
+- [x] T119 Confirm no worker/thread/concurrency candidate is accepted without governed production benchmark evidence in `specs/014-yoloe-scene-srvl/evidence_manifest.md`. (FR-028, SC-020)
+- [x] T120 Run final rollback and disabled-path proof, then link command output in `docs/entity/cycles/cycle_014_yoloe_scene_srvl.md`. (FR-001, FR-029, SC-001)
 
 ---
 
