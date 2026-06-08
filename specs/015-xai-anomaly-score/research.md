@@ -7,6 +7,9 @@ active models and building an anomaly score layer.
 
 ## Research Guardrails
 
+- [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) is binding. No
+  anomaly/cheating/normality dataset or accepted behavioral ground-truth method
+  exists, so this plan does not train or fine-tune an anomaly model.
 - Explainability is evidence about model behavior, not proof of human intent.
 - Visually plausible saliency is not automatically faithful or causal.
 - Raw classifier/detector confidence is not calibrated certainty.
@@ -27,12 +30,12 @@ active models and building an anomaly score layer.
 | Confidence calibration | On Calibration of Modern Neural Networks, https://arxiv.org/abs/1706.04599 | Establishes calibration as separate from accuracy |
 | Integrated gradients | Captum official documentation, https://captum.ai/docs/extension/integrated_gradients | Supported implementation reference for differentiable models |
 | Additive explanations | SHAP official documentation, https://shap.readthedocs.io/ | Candidate for supported tabular/fusion models and offline audit |
-| One-class anomaly | Deep SVDD, https://proceedings.mlr.press/v80/ruff18a.html | Learned anomaly candidate, not first production baseline |
-| Visual anomaly | PatchCore, https://arxiv.org/abs/2106.08265 | Memory-bank visual anomaly localization candidate |
-| Visual anomaly | PaDiM, https://arxiv.org/abs/2011.08785 | Distributional visual anomaly localization candidate |
+| One-class anomaly | Deep SVDD, https://proceedings.mlr.press/v80/ruff18a.html | Future probe only; not trainable/promotable under this plan |
+| Visual anomaly | PatchCore, https://arxiv.org/abs/2106.08265 | Future probe only; not trainable/promotable under this plan |
+| Visual anomaly | PaDiM, https://arxiv.org/abs/2011.08785 | Future probe only; not trainable/promotable under this plan |
 | Adaptive conformal anomaly | Adaptive Conformal Predictions for Time Series, https://proceedings.mlr.press/v202/bashari23a.html | Candidate uncertainty control under nonstationarity |
 | Detection uncertainty | Conformal Prediction Sets for Object Detection, https://arxiv.org/abs/2405.20227 | Candidate uncertainty sets for detection outputs |
-| Online anomaly | River Half-Space Trees documentation, https://riverml.xyz/latest/api/anomaly/HalfSpaceTrees/ | Stream-safe bounded online anomaly candidate |
+| Online anomaly | River Half-Space Trees documentation, https://riverml.xyz/latest/api/anomaly/HalfSpaceTrees/ | Future bounded probe only under this plan |
 | Drift/anomaly framework | Alibi Detect official documentation, https://docs.seldon.ai/alibi-detect | Industry reference for detector/drift interfaces |
 | Serving metrics | Triton metrics documentation, https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/metrics.html | Runtime latency/queue/GPU evidence |
 | Explainability governance | NIST Four Principles of Explainable AI, https://www.nist.gov/publications/four-principles-explainable-artificial-intelligence | Explanation, meaningfulness, accuracy, and knowledge limits |
@@ -110,9 +113,11 @@ evidence.
 
 ## Decision 4: Calibrate Before Calling Confidence Certainty
 
-**Decision**: Create versioned calibration snapshots per model route, artifact,
-output, dataset slice, and relevant subgroup. Report calibration quality and
-use calibrated confidence bands in explanations.
+**Decision**: Create versioned calibration snapshots per existing source-model
+route, artifact, output, evidence cohort, and relevant subgroup only where
+task-appropriate held-out evidence exists. Report calibration quality and use
+calibrated confidence bands in explanations. If such evidence is unavailable,
+calibration remains unavailable rather than inferred from anomaly patterns.
 
 **Rationale**: Modern neural network confidence is frequently miscalibrated.
 Calibration must be measured separately from classification or localization
@@ -132,13 +137,13 @@ quality.
 - Fit one global calibrator across all models/routes: rejected because output
   semantics and route artifacts differ.
 
-## Decision 5: Build The First Anomaly Score From Transparent Components
+## Decision 5: Build The First Anomaly Score From Observed Signal Patterns
 
 **Decision**: Start with a transparent hierarchical score:
 
 ```text
 valid_component_i =
-    calibrated_surprise_i
+    pattern_deviation_magnitude_i
     * reliability_i
     * temporal_support_i
 
@@ -153,46 +158,58 @@ review_priority_score =
             * (1 - uncertainty_penalty))
 ```
 
-The score is withheld when valid evidence coverage, baseline validity,
-identity continuity, route compatibility, or calibration quality is below its
-governed gate. Contradiction remains visible as evidence; it does not disappear
-inside the aggregate.
+The score is withheld when valid evidence coverage, observed-pattern profile
+validity, identity continuity, route compatibility, or required source-model
+calibration quality is below its governed gate. Contradiction remains visible
+as evidence; it does not disappear inside the aggregate.
 
-**Rationale**: A transparent baseline is reconstructable, testable, and easier
-to calibrate than a learned fusion model. It creates a reliable comparison
-point for later candidates.
+**Rationale**: There is no valid anomaly-behavior ground truth or training
+dataset. A transparent, per-student, contamination-aware observed-pattern
+profile is reconstructable and testable without pretending that historical
+behavior is known-normal truth.
 
 **Alternatives considered**:
 
-- Train an opaque end-to-end misconduct classifier first: rejected for weak
-  labels, safety risk, poor diagnosis, and no trustworthy baseline.
+- Train an opaque end-to-end misconduct classifier: prohibited because there
+  are no valid targets, no accepted ground truth, and no legitimate promotion
+  metric.
 - Average raw model confidence: rejected because confidence scales and
   reliability differ.
 
-## Decision 6: Add Learned Anomaly Candidates Only After The Transparent Baseline
+## Decision 6: Do Not Train Or Fine-Tune An Anomaly Model In This Plan
 
 **Decision**:
 
-- evaluate robust statistics and existing BSIL threshold/hysteresis first;
-- evaluate Half-Space Trees as a bounded stream-safe candidate;
-- evaluate Deep SVDD only as an offline learned candidate;
-- evaluate PatchCore/PaDiM only for visual anomaly-localization experiments;
-- treat PCBEAR/DANCE and other recent research as probe-only until reproduced.
+- production scoring uses deterministic robust statistics, bounded temporal
+  patterns, contamination controls, threshold/hysteresis, and explicit
+  missingness;
+- reviewer feedback, assumed-normal history, heuristic output, BSIL output, and
+  model agreement are never anomaly training targets or ground truth;
+- Half-Space Trees, Deep SVDD, PatchCore, PaDiM, PCBEAR, DANCE, and other
+  learned anomaly candidates remain future `HYPOTHESIS_ONLY` or `PROBE_ONLY`
+  research; and
+- a trainable anomaly candidate requires a separate future governed plan that
+  establishes legitimate target semantics, dataset authority, evaluation, and
+  promotion criteria.
 
-**Rationale**: The current production database has no BSIL/anomaly rows. A
-learned anomaly model before activation, calibration, and labeled evaluation
-would increase complexity without a valid comparison baseline.
+**Rationale**: The production database has no BSIL/anomaly rows and the project
+has no anomaly dataset or accepted behavioral ground truth. Training on
+assumed-normal or reviewer-labeled history would manufacture authority the
+system does not possess.
 
 **Alternatives considered**:
 
 - Select the newest research method immediately: rejected because recency is
   not production evidence.
+- Treat all previous behavior as normal training data: rejected because
+  contamination and unobserved behavior make that claim invalid.
 
 ## Decision 7: Use Conformal Outputs Only When Assumptions Are Demonstrated
 
 **Decision**: Add conformal p-values, prediction sets, or intervals only behind
 an explicit calibration snapshot, validity assumptions, drift monitoring, and
-coverage evaluation. Mark them unavailable when assumptions fail.
+coverage evaluation. Mark them unavailable when assumptions fail. Any
+distributional coverage statement is not a claim of behavioral correctness.
 
 **Rationale**: Conformal methods can give useful uncertainty guarantees, but
 coverage claims are invalid when calibration data or nonstationarity handling
@@ -222,8 +239,9 @@ neutral zero.
 
 - `apps.behavior` owns evidence envelopes, temporal evidence, explanation
   composition, and lineage;
-- `apps.anomalies` owns calibration, scoring, thresholds, drift, conformal
-  calibration, and review feedback governance;
+- `apps.anomalies` owns source-model calibration where evidence exists,
+  observed-pattern profiles, scoring, thresholds, drift, conformal
+  calibration, and non-ground-truth review feedback governance;
 - `apps.pipeline` owns model-specific extraction at the inference boundary and
   immutable route snapshots;
 - `apps.telemetry` owns metrics;
@@ -316,6 +334,26 @@ unattributable.
 
 - One large XAI release: rejected for causal ambiguity and rollback risk.
 
+## Decision 14: Evaluate Pattern Semantics Without Behavioral Ground Truth
+
+**Decision**: Anomaly-layer acceptance uses exact reconstruction,
+deterministic replay, controlled signal-pattern fixtures, metamorphic and
+invariant tests, sensitivity/counterfactual checks, cold-start/contamination/
+drift/quarantine behavior, real-media stability, reviewer usability, and
+production performance. It does not report label-based anomaly accuracy.
+
+**Rationale**: Controlled fixtures prove implementation semantics, not whether
+real human behavior is cheating or abnormal. Reviewer feedback can expose
+operational concerns but cannot become ground truth or a hidden training
+target.
+
+**Alternatives considered**:
+
+- Report AUROC/F1 against heuristic or reviewer labels: rejected because those
+  labels are not accepted behavioral ground truth.
+- Use model agreement as truth: rejected because correlated models can agree
+  while being wrong.
+
 ## Experimental Research Backlog
 
 The following questions remain research probes and cannot create production
@@ -323,9 +361,10 @@ claims without dedicated evidence:
 
 - whether D-RISE fidelity is sufficient for the deployed YOLO/TensorRT routes;
 - whether exported models expose architecture points needed by Eigen-CAM/IG;
-- whether Half-Space Trees outperform transparent robust scoring on reviewed
-  classroom sequences;
-- whether Deep SVDD improves anomaly ranking without degrading diagnosis;
+- whether a future governed ground-truth program can establish legitimate
+  behavioral target semantics;
+- whether learned unsupervised methods add operational value without being
+  misrepresented as behavior-validity improvements;
 - whether conformal coverage remains valid under session/camera drift;
 - whether WebGPU improves renderer throughput enough to justify a second
   backend;

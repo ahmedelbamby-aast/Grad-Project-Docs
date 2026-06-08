@@ -7,8 +7,9 @@
 
 `review_priority_score` is a triage score from 0 to 100 indicating how strongly
 valid, calibrated, reliable, and temporally supported evidence differs from a
-governed baseline. It is not a cheating probability, intent estimate, or
-misconduct verdict.
+governed observed-pattern profile. It is deterministic signal-pattern
+comparison, not a trained anomaly classifier. It is not a cheating probability,
+intent estimate, misconduct verdict, or behavioral ground-truth label.
 
 ## Required Payload
 
@@ -27,10 +28,14 @@ misconduct verdict.
     "key": "transparent_hierarchical",
     "version": "v1"
   },
-  "baseline_snapshot_ref": "uuid",
+  "baseline_snapshot_ref": null,
+  "pattern_profile_ref": "uuid",
+  "pattern_window_ref": "uuid",
   "calibration_refs": ["uuid"],
   "review_priority_score": 72.4,
   "review_priority_band": "review-needed",
+  "pattern_state": "pattern_deviation",
+  "ground_truth_status": "unavailable_for_anomaly_behavior",
   "truth_state": "valid",
   "evidence_coverage": 0.87,
   "reliability": 0.79,
@@ -41,7 +46,7 @@ misconduct verdict.
     {
       "component_key": "pose.head_yaw.repeated_pattern",
       "evidence_ref": "uuid",
-      "calibrated_surprise": 0.81,
+      "pattern_deviation_magnitude": 0.81,
       "reliability": 0.85,
       "temporal_support": 0.88,
       "configured_weight": 1.0,
@@ -58,6 +63,7 @@ misconduct verdict.
   "withheld_reasons": [],
   "knowledge_limits": [
     "score_does_not_establish_intent",
+    "pattern_deviation_is_not_behavioral_ground_truth",
     "requires_human_review"
   ],
   "reconstruction_digest": "sha256:..."
@@ -70,7 +76,8 @@ The score is null and `truth_state` is degraded/suppressed/invalidated when any
 configured blocking gate fails, including:
 
 - route snapshot invalid or stale;
-- baseline missing, contaminated, drifting, or quarantined;
+- pattern profile/window missing, cold-start, incompatible, expired, or
+  quarantined;
 - required calibration missing, stale, incompatible, or underpowered;
 - valid evidence coverage below threshold;
 - identity continuity below threshold for identity-dependent components;
@@ -84,7 +91,9 @@ The scorer must reproduce the stored score from:
 
 - contribution records;
 - score profile and configured weights;
-- baseline/threshold/calibration snapshots;
+- pattern-profile/threshold and optional source-model calibration snapshots;
+- optional legacy baseline lineage when present;
+- pattern profile/window and feature-schema snapshots;
 - context/persistence/uncertainty modifiers;
 - exact missingness and validity states.
 
@@ -97,6 +106,9 @@ Persisted/user-facing summaries may use:
 - `review priority`;
 - `behavioral deviation`;
 - `unusual relative to baseline`;
+- `within observed pattern`;
+- `pattern deviation`;
+- `insufficient context`;
 - `supporting evidence`;
 - `contradicting evidence`;
 - `requires human review`.
@@ -108,3 +120,18 @@ They may not state or imply:
 - intent;
 - misconduct probability;
 - automatic penalty eligibility.
+
+They must not imply that `within_observed_pattern` proves normal,
+non-cheating, or innocent behavior, or that `pattern_deviation` proves
+abnormal intent, misconduct, or cheating.
+
+## No-Ground-Truth Invariants
+
+- `ground_truth_status` is
+  `unavailable_for_anomaly_behavior` under this plan.
+- The scorer consumes deterministic pattern comparisons, never anomaly-model
+  predictions trained/fine-tuned against behavioral targets.
+- Reviewer feedback, heuristic outputs, source-model agreement, BSIL output,
+  and assumed-normal history cannot be ground truth or training targets.
+- Label-based anomaly accuracy/precision/recall/F1/AUROC/AUPRC is not a valid
+  acceptance metric.

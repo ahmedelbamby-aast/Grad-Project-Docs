@@ -13,6 +13,21 @@ When WebGL2 is unavailable, the UI retains accessible numeric/table evidence
 and reports `webgl_unavailable`. Canvas2D is not presented as an accepted
 analytical figure substitute.
 
+## Required Behavioral Semantics
+
+- Primary pattern states are `within_observed_pattern`, `pattern_deviation`,
+  `insufficient_context`, and `withheld`.
+- Every score/pattern view exposes the no-ground-truth knowledge limit.
+- The workbench never presents pattern conformity as proof of normal,
+  non-cheating, or innocent behavior.
+- The workbench never presents pattern deviation or a high score as proof of
+  abnormal intent, misconduct, or cheating.
+- Reviewer feedback controls are described as operational assessments, never
+  truth labels or anomaly-model training input.
+- Per-student pattern-envelope, current-window, deviation-contribution,
+  cold-start, contamination, drift, and quarantine views use the shared WebGL2
+  renderer.
+
 ## Renderer Host Contract
 
 ```ts
@@ -49,6 +64,8 @@ Required stores:
 - graph node/edge store;
 - attribution texture store;
 - stable color registry keyed by canonical/source identity and behavior key.
+- observed-pattern envelope/window/deviation stores keyed by compatible
+  profile and feature-schema versions.
 
 ## Interaction Contract
 

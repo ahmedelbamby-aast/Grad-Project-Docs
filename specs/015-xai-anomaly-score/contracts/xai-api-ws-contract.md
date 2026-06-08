@@ -10,12 +10,14 @@ artifacts and reviewer feedback.
 |---|---|---|
 | `GET /api/v1/video-analysis/jobs/{job}/xai/signals/` | Signal definitions and availability | paginated definitions/status |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/evidence/` | Filtered evidence envelopes | paginated bounded summaries |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/pattern-profiles/` | Compatible observed-pattern profiles and knowledge limits | paginated bounded summaries |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/pattern-windows/` | Per-student signal-pattern windows | chunked/paginated bounded summaries |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/scores/` | Review-priority records | paginated scores/contributions |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/explanations/{id}/` | Composed explanation | explanation contract |
 | `POST /api/v1/video-analysis/jobs/{job}/xai/deep-requests/` | Request eligible deep XAI | `202` request state |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/deep-requests/{id}/` | Deep request status/artifact | lifecycle/status |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/artifacts/{id}/` | Authorized artifact access | streamed artifact |
-| `POST /api/v1/video-analysis/jobs/{job}/xai/reviews/` | Governed feedback | immutable feedback record |
+| `POST /api/v1/video-analysis/jobs/{job}/xai/reviews/` | Governed non-ground-truth reviewer assessment | immutable assessment record |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/renderer-config/` | Renderer/data contract | bounded WebGL config |
 
 ## Query Rules
@@ -25,6 +27,8 @@ artifacts and reviewer feedback.
 - Unbounded full-job arrays are never returned in one JSON response.
 - Large series/matrices use chunk/tile or binary endpoints.
 - Every response includes schema version and route snapshot reference.
+- Pattern/score responses include `ground_truth_status`,
+  `pattern_state`, profile/window references, and knowledge limits.
 
 ## WebSocket Events
 
@@ -46,6 +50,8 @@ Supported event types:
 
 - `xai.evidence.appended`;
 - `xai.score.appended`;
+- `xai.pattern_profile.changed`;
+- `xai.pattern_window.appended`;
 - `xai.explanation.updated`;
 - `xai.deep_request.state_changed`;
 - `xai.artifact.available`;
@@ -67,6 +73,8 @@ Supported event types:
 | `XAI_ROUTE_SNAPSHOT_INVALID` | Runtime truth is unavailable/incompatible |
 | `XAI_SIGNAL_UNREGISTERED` | Active source lacks a governed signal definition |
 | `XAI_SCORE_WITHHELD` | Score exists as withheld with reason |
+| `XAI_PATTERN_CONTEXT_INSUFFICIENT` | No compatible valid pattern comparison exists |
+| `XAI_PATTERN_PROFILE_QUARANTINED` | Profile cannot support scoring |
 | `XAI_DEEP_METHOD_INELIGIBLE` | Method unsupported for route/input |
 | `XAI_DEEP_QUEUE_SATURATED` | Bounded queue rejected request |
 | `XAI_ARTIFACT_UNAVAILABLE` | Artifact absent/expired/failed |

@@ -19,6 +19,11 @@ job-scoped artifacts for large arrays/images/traces.
   new record and preserves the prior record.
 - Reviewer feedback never directly mutates a baseline, threshold, score, or
   model.
+- No record represents anomaly, cheating, non-cheating, abnormality, or
+  normality ground truth. No reviewer assessment or observed history may be a
+  hidden anomaly-model training/fine-tuning target.
+- `within_observed_pattern` and `pattern_deviation` describe comparison with a
+  versioned signal-pattern profile only; they are not behavioral verdicts.
 
 ## Existing Entities Reused
 
@@ -30,8 +35,8 @@ job-scoped artifacts for large arrays/images/traces.
 | `SceneFrameSummary`, `SceneObjectObservation`, `SpatialRelationFrame` | `apps.video_analysis` | Scene and spatial evidence |
 | `BehaviorFeatureWindow`, `AnomalyPrimitiveEvent`, `SemanticPoseState` | `apps.behavior` | Semantic/temporal source evidence |
 | `BehavioralState`, `BehavioralEpisode`, `InteractionEdge` | `apps.behavior` | Higher-level behavioral evidence |
-| `DecisionLineageRecord`, `BehavioralReviewLabel` | `apps.behavior` | Existing lineage/review evidence |
-| `AnomalyEvent`, `BSILBaselineSnapshot`, `BSILThresholdShift`, `BSILReviewLabelRecord` | `apps.anomalies` | Existing anomaly/baseline governance |
+| `DecisionLineageRecord`, `BehavioralReviewLabel` | `apps.behavior` | Existing lineage/review evidence; never anomaly ground truth |
+| `AnomalyEvent`, `BSILBaselineSnapshot`, `BSILThresholdShift`, `BSILReviewLabelRecord` | `apps.anomalies` | Existing anomaly/baseline governance; never anomaly ground truth |
 | `TelemetryModelCall` and telemetry records | `apps.telemetry` | Runtime evidence |
 
 ## New Entity: XAIModelRouteSnapshot
@@ -126,6 +131,67 @@ runtime configuration used by an explanation/score.
 - Payload-size guard at persistence boundary.
 - Re-run with same idempotency key returns the existing record.
 
+## New Entity: SignalPatternWindow
+
+**Owner**: `apps.behavior.explainability`.
+
+**Purpose**: Bounded per-student multivariate temporal feature window derived
+from all compatible valid evidence.
+
+| Field | Type | Rule |
+|---|---|---|
+| `window_id` | UUID | Primary key |
+| `schema_version`, `feature_schema_version` | strings | Required |
+| `job_ref`, `track_ref` | references | Required scope |
+| `source_start_ms`, `source_end_ms` | integers | Required |
+| `route_snapshot_ref` | FK | Required |
+| `evidence_refs` | bounded array | Required |
+| `feature_vector_ref` | artifact/value ref | Bounded, digest-addressed |
+| `feature_validity` | bounded JSON | Missing/degraded/valid per feature |
+| `identity_continuity` | bounded JSON | Required |
+| `truth_state` | enum | Required |
+| `window_digest` | SHA-256 | Unique |
+| `created_at` | timestamp | Immutable |
+
+**Constraints**:
+
+- Features retain source, unit, timestamp, and validity lineage.
+- Missing/invalid features are not encoded as normal or zero evidence.
+- Window length/count and vector size are configuration-bounded.
+
+## New Entity: ObservedPatternProfileSnapshot
+
+**Owner**: `apps.anomalies.scoring`.
+
+**Purpose**: Versioned contamination-aware summary of valid observed signal
+patterns for one compatible scope. It is never known-normal ground truth.
+
+| Field | Type | Rule |
+|---|---|---|
+| `profile_id` | UUID | Primary key |
+| `schema_version`, `feature_schema_version` | strings | Required |
+| `scope` | bounded JSON | Student/session/camera/scene/context |
+| `route_compatibility` | bounded JSON | Required |
+| `method_profile` | bounded JSON | Robust statistics and configured bounds |
+| `source_window_refs` | bounded artifact/reference set | Required |
+| `valid_window_count` | integer | Required |
+| `quarantined_window_count` | integer | Required |
+| `contamination_state`, `drift_state` | enums | Required |
+| `valid_from`, `expires_at` | timestamps | Required |
+| `truth_state` | enum | Valid/degraded/quarantined/invalidated |
+| `knowledge_limits` | bounded array | Includes `not_known_normal_truth` |
+| `profile_digest` | SHA-256 | Unique |
+| `supersedes_ref` | nullable FK | Append-only evolution |
+
+**Constraints**:
+
+- Profile creation/update is deterministic, bounded, and append-only.
+- Cold-start remains `insufficient_context` until minimum valid windows exist.
+- High-deviation, disputed, drifting, invalid, or low-quality windows are
+  quarantined from updates.
+- No profile field may be described or consumed as behavioral ground truth.
+- Route, ontology, feature-schema, or artifact incompatibility invalidates use.
+
 ## New Entity: CalibrationSnapshot
 
 **Owner**: `apps.anomalies.scoring`.
@@ -141,7 +207,7 @@ route/output/slice.
 | `signal_key` | string | Required |
 | `method` | string | Temperature, isotonic, Platt, etc. |
 | `parameters_artifact_ref` | artifact ref | Digest-addressed |
-| `dataset_manifest_ref` | artifact ref | Required |
+| `evidence_cohort_manifest_ref` | artifact ref | Required when fitting |
 | `sample_count` | integer | Required |
 | `evaluation` | bounded JSON | ECE/Brier/task metrics/CIs/subgroups |
 | `valid_from`, `expires_at` | timestamps | Required |
@@ -153,6 +219,8 @@ route/output/slice.
 
 - Lookup rejects incompatible, expired, underpowered, or invalid snapshots.
 - Fitting is offline-only; lookup may be stream-safe.
+- This entity calibrates existing source-model outputs only where
+  task-appropriate held-out evidence exists. It is not anomaly ground truth.
 
 ## New Entity: ConformalCalibrationSnapshot
 
@@ -193,11 +261,15 @@ coverage.
 | `job_ref`, `track_ref` | references | Required scope |
 | `source_start_ms`, `source_end_ms` | integer | Required |
 | `route_snapshot_ref` | FK | Required |
-| `baseline_snapshot_ref` | FK/lineage ref | Required for valid score |
+| `baseline_snapshot_ref` | nullable FK/lineage ref | Optional legacy/auxiliary lineage only |
+| `pattern_profile_ref` | FK | Required for valid score |
+| `pattern_window_ref` | FK | Required for valid score |
 | `calibration_refs` | bounded array | Required where calibrated |
 | `score_profile_key/version` | strings | Required |
 | `review_priority_score` | decimal nullable | 0-100 or withheld |
 | `review_priority_band` | enum | Non-accusatory |
+| `pattern_state` | enum | Within observed pattern/deviation/insufficient/withheld |
+| `ground_truth_status` | enum | Always `unavailable_for_anomaly_behavior` in this plan |
 | `evidence_coverage` | decimal | 0-1 |
 | `reliability` | decimal | 0-1 |
 | `uncertainty` | decimal | 0-1 |
@@ -214,6 +286,9 @@ coverage.
 - User-facing/persisted description cannot contain prohibited accusation terms.
 - Valid numeric score requires all configured validity gates.
 - Score is append-only and superseded by a new record.
+- Numeric scores require compatible pattern window/profile references.
+- `pattern_state` cannot be converted into a cheating/non-cheating or
+  normal/abnormal-behavior verdict.
 
 ## New Entity: AnomalyScoreContribution
 
@@ -227,7 +302,7 @@ coverage.
 | `score_ref` | FK | Required |
 | `evidence_envelope_ref` | FK | Required |
 | `component_key` | string | Required |
-| `calibrated_surprise` | decimal | Required for valid component |
+| `pattern_deviation_magnitude` | decimal | Required for valid component |
 | `reliability` | decimal | Required |
 | `temporal_support` | decimal | Required |
 | `configured_weight` | decimal | Required |
@@ -328,7 +403,7 @@ evaluation.
 | `feedback_id` | UUID | Primary key |
 | `reviewer_ref` | authenticated user ref | Required |
 | `score_ref`, `explanation_ref` | references | At least one |
-| `label` | governed enum | Required |
+| `assessment` | governed enum | Operational review assessment, not truth label |
 | `reason_codes`, `notes` | bounded fields | Required/optional |
 | `evidence_refs` | bounded array | Required |
 | `created_at` | timestamp | Immutable |
@@ -338,6 +413,8 @@ evaluation.
 **Constraints**:
 
 - No direct production threshold/baseline/model mutation.
+- No anomaly-model training/fine-tuning, ground-truth, or direct
+  pattern-profile update use.
 - Access and write audit required.
 
 ## New Entity: XAIRendererTelemetryRecord
@@ -363,6 +440,10 @@ evaluation.
 ```text
 XAIModelRouteSnapshot 1 --- * XAIEvidenceEnvelope
 XAISignalDefinition  1 --- * XAIEvidenceEnvelope
+XAIEvidenceEnvelope  * --- * SignalPatternWindow
+SignalPatternWindow  * --- 1 ObservedPatternProfileSnapshot
+SignalPatternWindow  1 --- * AnomalyScoreRecord
+ObservedPatternProfileSnapshot 1 --- * AnomalyScoreRecord
 XAIEvidenceEnvelope  1 --- * AnomalyScoreContribution
 AnomalyScoreRecord   1 --- * AnomalyScoreContribution
 CalibrationSnapshot * --- * AnomalyScoreRecord
@@ -402,10 +483,22 @@ requested -> withheld
 scored_* -> superseded (new append-only record)
 ```
 
+### Observed Pattern Profile
+
+```text
+cold_start -> valid
+cold_start -> insufficient_context
+valid -> superseded (bounded append-only update)
+valid/degraded -> quarantined
+valid/degraded/quarantined -> invalidated
+```
+
 ## Index And Retention Plan
 
 - Index score/evidence by job, track, source-time range, signal key, truth state,
   and created time.
+- Index signal-pattern windows/profiles by scope, route/feature compatibility,
+  source-time range, truth/contamination/drift state, and digest.
 - Index route/calibration snapshots by digest and compatibility fields.
 - Index artifact lifecycle by request/status/created time.
 - Partition or retention-manage high-volume evidence only after measured

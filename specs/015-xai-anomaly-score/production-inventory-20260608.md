@@ -5,6 +5,15 @@
 profile
 **Git SHA**: `4ee4cc8c54a0a505263933a9fb1cb497871e4b05`
 **Branch**: `014-yoloe-scene-srvl`
+
+## Mandatory Planning Constraint
+
+The user has confirmed that the project has no anomaly, cheating,
+non-cheating, abnormality, or normality dataset and no accepted behavioral
+ground-truth method for training or fine-tuning anomaly models. This is a
+planning constraint, not a claim inferred from production row counts. All
+Cycle 015 artifacts must follow
+[no-ground-truth-doctrine.md](no-ground-truth-doctrine.md).
 **Status**: Point-in-time planning evidence; refresh before Cycle 015.0
 
 This file records what was observed while planning. It is not a timeless

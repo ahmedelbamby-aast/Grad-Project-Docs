@@ -6,6 +6,10 @@ available to XAI and anomaly scoring. Every enabled implementation must assign
 a schema version, unit, validity rule, missingness behavior, retention policy,
 and explanation strategy.
 
+[no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) is binding. Signals
+support per-student observed-pattern comparison; they are not anomaly,
+cheating, non-cheating, abnormality, or normality ground truth.
+
 ## Signal Contract
 
 Every signal definition must include:
@@ -235,25 +239,43 @@ Deterministic derivation and exact feature/rule contribution are the primary
 explanation. Heuristic-only outputs remain labeled heuristic and cannot be
 presented as model truth.
 
-## 8. Anomaly, Calibration, And Review Signals
+## 8. Observed-Pattern, Anomaly, Calibration, And Review Signals
 
-**Sources**: `apps.anomalies`, calibration artifacts, governed review labels.
+**Sources**: `apps.anomalies`, valid evidence envelopes, signal-pattern windows,
+observed-pattern profiles, optional source-model calibration artifacts, and
+non-ground-truth reviewer assessments.
 
 ### Existing Signals
 
 - baseline means/stddev/medians/ranges/sample counts, lineage, drift state;
 - threshold context, threshold shift, hysteresis state, z-score-like surprise;
-- baseline quarantine, governed review labels, and rollback target.
+- baseline quarantine, governed reviewer assessments, and rollback target.
 
 ### Required New Signals And Tasks
 
-- per-signal calibrated surprise, expected calibration error, Brier/task score,
-  calibration sample coverage, and calibration age;
+- per-student bounded multivariate signal-pattern window with feature coverage,
+  transition rates, recurrence, persistence, volatility, cross-signal
+  correlation, contradiction, and identity-continuity features;
+- observed-pattern profile robust medians/MADs/quantiles, bounded rolling/EWMA
+  statistics, sample age/count, cold-start, contamination, drift, quarantine,
+  compatibility, and expiry states;
+- per-signal pattern-deviation magnitude and threshold/counterfactual delta;
+- optional source-model expected calibration error, Brier/task score,
+  calibration sample coverage, and calibration age only where task-appropriate
+  held-out evidence exists;
 - conformal p-value/set/interval only where calibration assumptions are valid;
 - evidence coverage, reliability, uncertainty penalty, context support,
   contradiction penalty, and final review-priority decomposition;
 - score withholding reason, explanation completeness, and reviewer disagreement;
-- false-positive/false-negative, subgroup, drift, and threshold impact analysis.
+- controlled-fixture, metamorphic/invariant, sensitivity, cold-start,
+  contamination, drift, quarantine, and threshold impact analysis.
+
+### Knowledge Limits
+
+- `within_observed_pattern` does not mean normal, innocent, or non-cheating.
+- `pattern_deviation` does not mean abnormal intent, misconduct, or cheating.
+- Reviewer assessments, heuristic outputs, model agreement, and assumed-normal
+  history are not ground truth or training/fine-tuning targets.
 
 ## 9. Runtime, Quality, And Operational Signals
 
@@ -277,13 +299,14 @@ evidence must be degraded or withheld.
 
 ## 10. Candidate Additional Models And Strategies
 
-These are candidates, not pre-approved production dependencies:
+The production anomaly path is deterministic robust observed-pattern analysis.
+The following are research candidates, not pre-approved production
+dependencies:
 
 - robust statistics plus bounded hysteresis as the first score baseline;
 - conformal calibration for valid exchangeable or adaptively calibrated paths;
-- Half-Space Trees as a stream-safe online anomaly candidate;
-- Deep SVDD as an offline learned representation anomaly candidate;
-- PatchCore/PaDiM only for governed visual anomaly-localization experiments;
+- Half-Space Trees, Deep SVDD, PatchCore, and PaDiM only as future
+  `HYPOTHESIS_ONLY` or `PROBE_ONLY` candidates under a separate governed plan;
 - prototype/case-based explanations for reviewer diagnosis;
 - D-RISE/Eigen-CAM/Integrated Gradients only where model architecture,
   fidelity, and sanity checks support them;
@@ -292,6 +315,8 @@ These are candidates, not pre-approved production dependencies:
 
 Every candidate requires its own atomic cycle or explicit subtask, baseline,
 quality evaluation, production benchmark, rollback, and decision.
+No learned anomaly candidate may be trained/fine-tuned or promoted under the
+current no-ground-truth plan.
 
 ## Source References
 

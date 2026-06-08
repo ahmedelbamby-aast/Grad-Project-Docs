@@ -14,7 +14,10 @@ calibration and uncertainty, a transparent hierarchical
 `review_priority_score`, governed review feedback, and a shared WebGL2
 analytical renderer. Every implementation step is delivered as an indivisible
 atomic cycle with one causal variable, native RTX 5090 production benchmark,
-figure evidence, and rollback.
+figure evidence, and rollback. The anomaly layer is deterministic per-student
+multivariate signal-pattern analysis; this plan contains no anomaly-model
+training or fine-tuning because no valid anomaly-behavior dataset or
+ground-truth method exists.
 
 ## Technical Context
 
@@ -33,7 +36,8 @@ bound fast-XAI/scoring overhead per accepted cycle; isolate deep XAI; WebGL
 updates remain interactive under representative and stress payloads
 **Constraints**: PostgreSQL only; Triton-only production model inference; no
 Docker/no sudo production assumptions; frame stride 1 for acceptance;
-non-accusatory semantics; immutable lineage; bounded live state
+non-accusatory semantics; immutable lineage; bounded live state; binding
+no-ground-truth doctrine; no anomaly-model training/fine-tuning
 **Scale/Scope**: Nine ready Triton models, millions of current evidence rows,
 offline uploads and indefinite live streams, multi-student time series and
 matrices
@@ -51,8 +55,9 @@ calibration, API/WS, WebGL, and benchmark contracts
 topology until a separate benchmark proves it necessary
 **Runtime Reconciliation**: Route/task/queue/database/artifact/telemetry/
 frontend/review convergence blocks production-valid output on mismatch
-**Lineage/Fingerprints**: SHA, environment, route, model artifact, calibration,
-feature schema, dataset, runtime, and artifact digests
+**Lineage/Fingerprints**: SHA, environment, route, model artifact, source-model
+calibration evidence where available, feature schema, observed-pattern profile,
+replay/cohort manifest, runtime, and artifact digests
 **Budgets/SLOs**: Declared per atomic cycle; missing metrics invalidate the
 decision unless explicitly unavailable with reason
 
@@ -68,7 +73,7 @@ decision unless explicitly unavailable with reason
 | Streaming compatibility | PASS | Fast path bounded; deep path not automatic on live |
 | Queue/failure | PASS | Deep tasks bounded, isolated, reconciled, idempotent |
 | Contract/storage | PASS | Explicit versioned schemas and retention/access rules |
-| Scientific evidence | PASS | Calibration, fidelity, stability, sanity, and reviewer-label evidence |
+| Scientific evidence | PASS | No-ground-truth doctrine; reconstruction, invariants, controlled fixtures, fidelity, stability, sanity, and non-ground-truth reviewer evidence |
 | Benchmark authority | PASS | Every cycle requires stride-1 production benchmark and ledger entry |
 | Figure evidence | PASS | Every cycle requires one planner and one implementer plus manifest/digests |
 | Evidence lineage | PASS | Immutable route/calibration/artifact snapshots |
@@ -85,7 +90,8 @@ flowchart LR
     SNAP --> ENV["Evidence envelope<br/>quality + lineage"]
     ENV --> FAST["Fast explainers<br/>bounded critical path"]
     ENV --> DEEP["Deep XAI queue<br/>on-demand only"]
-    FAST --> SCORE["Anomaly scoring<br/>review priority"]
+    FAST --> PATTERN["Per-student signal pattern<br/>bounded + contamination-aware"]
+    PATTERN --> SCORE["Pattern-deviation score<br/>review priority"]
     DEEP --> COMPOSE["Explanation composer<br/>fidelity + artifacts"]
     SCORE --> COMPOSE
     COMPOSE --> API["Versioned API/WS<br/>incremental evidence"]
@@ -97,7 +103,7 @@ flowchart LR
     classDef warn fill:#F59E0B,stroke:#FCD34D,color:#1F2937;
     classDef fail fill:#DC2626,stroke:#F87171,color:#FFFFFF;
     classDef ok fill:#16A34A,stroke:#86EFAC,color:#053B17;
-    class FAST,SCORE,WEBGL prod;
+    class FAST,PATTERN,SCORE,WEBGL prod;
     class PG,ART store;
     class DEEP warn;
 ```
@@ -111,7 +117,7 @@ flowchart LR
 | `apps.pipeline` | Immutable route snapshot and model-bound raw explanation extraction |
 | `apps.video_analysis` | Authoritative frames, detections, tracks, pose, scene, and SRVL sources |
 | `apps.behavior` | Evidence envelope, signal registry, fast explainer interfaces, temporal evidence, explanation composition, lineage |
-| `apps.anomalies` | Calibration, conformal calibration, anomaly scoring, thresholds, drift, contribution persistence, governed review feedback |
+| `apps.anomalies` | Source-model calibration where evidence exists, observed-pattern profiles, pattern-deviation scoring, thresholds, drift, contribution persistence, governed non-ground-truth review feedback |
 | `apps.telemetry` | Performance/resource/quality metrics |
 | `frontend/src/features/xai` | Reviewer workbench and state orchestration |
 | `frontend/src/services/webgl` | Shared WebGL2 renderer, context budget, typed-array stores, export |
@@ -130,8 +136,12 @@ Explainer
 Calibrator
   -> calibrate(raw_score, calibration_snapshot) -> CalibratedConfidence
 
+PatternProfiler
+  -> update(valid_window, profile_snapshot) -> PatternProfileSnapshot
+  -> compare(valid_window, profile_snapshot) -> PatternComparison
+
 AnomalyScorer
-  -> score(valid_evidence, baseline_snapshot) -> AnomalyScoreRecord
+  -> score(pattern_comparison, valid_evidence) -> AnomalyScoreRecord
 
 FusionPolicy
   -> combine(contributions, contradictions) -> FusionResult
@@ -154,10 +164,11 @@ The inline path is deterministic and bounded:
 1. freeze route/schema/calibration snapshot references;
 2. normalize source evidence and explicit missingness;
 3. calculate model-specific output decomposition and reliability;
-4. append bounded temporal support/contradiction evidence;
-5. calculate calibrated surprise and transparent score contributions;
-6. withhold or degrade when validity gates fail;
-7. publish incremental versioned API/WS evidence.
+4. build a bounded per-student multivariate signal-pattern window;
+5. compare it with a compatible contamination-aware observed-pattern profile;
+6. calculate pattern-deviation magnitude and transparent score contributions;
+7. withhold or degrade when validity gates fail;
+8. publish incremental versioned API/WS evidence.
 
 No saliency image, prototype search, full-history query, whole-video scan, or
 unbounded artifact write occurs on this path.
@@ -178,13 +189,15 @@ Deep XAI is:
 
 ## Review Priority Score Contract
 
-The first accepted score is transparent and hierarchical.
+The first accepted score is transparent, hierarchical, and derived only from
+observed signal-pattern comparison. It is not trained against anomaly,
+cheating, normality, or non-cheating labels.
 
 ### Per-Signal Component
 
 ```text
 component_i =
-    calibrated_surprise_i
+    pattern_deviation_magnitude_i
     * reliability_i
     * temporal_support_i
     * configured_weight_i
@@ -207,13 +220,52 @@ review_priority_score =
 ### Mandatory Output
 
 - score and non-accusatory band;
+- pattern state: `within_observed_pattern`, `pattern_deviation`,
+  `insufficient_context`, or `withheld`;
 - valid/missing/degraded evidence coverage;
 - each contribution and configured weight;
-- baseline/threshold/calibration/route references;
+- observed-pattern profile, threshold, optional source-model calibration, and
+  route references;
 - reliability, uncertainty, contradictions, and identity continuity;
 - withholding/degradation reasons;
 - counterfactual deltas needed to cross/recover from the threshold;
 - reconstruction digest.
+
+## Mandatory No-Ground-Truth Doctrine
+
+[no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
+implementation.
+
+### Production Path
+
+- Build bounded multivariate feature windows from all valid source signals for
+  each student.
+- Compare windows with versioned, contamination-aware observed-pattern
+  profiles using deterministic robust statistics, temporal persistence,
+  transition/change measures, and cross-signal contradiction evidence.
+- Keep cold-start, missingness, identity gaps, route incompatibility,
+  contamination, drift, and quarantine explicit.
+- Withhold the score when a valid comparison is not possible.
+
+### Forbidden Under This Plan
+
+- Training or fine-tuning an anomaly, cheating, non-cheating, abnormality, or
+  normality model.
+- Treating reviewer feedback, heuristic output, BSIL output, assumed-normal
+  history, or model agreement as anomaly ground truth.
+- Reporting anomaly accuracy, precision, recall, F1, AUROC, AUPRC, or
+  cheating-detection quality.
+- Describing pattern conformity as proof of non-cheating or pattern deviation
+  as proof of cheating or abnormal intent.
+
+### Acceptance Without Behavioral Ground Truth
+
+Acceptance uses exact reconstruction, deterministic replay, controlled
+signal-pattern fixtures, metamorphic/invariant tests, sensitivity and
+counterfactual checks, cold-start/contamination/drift/quarantine behavior,
+real-media stability, bounded-state evidence, performance, and rollback.
+Reviewer studies measure usability and disagreement only and are explicitly
+non-ground-truth.
 
 ## WebGL2 Renderer Design
 
@@ -263,6 +315,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Deep path | `XAI_DEEP_ENABLED`, `XAI_DEEP_QUEUE`, `XAI_DEEP_DEADLINE_SECONDS`, `XAI_DEEP_MAX_ARTIFACT_BYTES`, `XAI_DEEP_METHOD_ALLOWLIST` |
 | Calibration | `XAI_CALIBRATION_REQUIRED`, `XAI_CALIBRATION_MAX_AGE_DAYS`, `XAI_CALIBRATION_MIN_SAMPLES` |
 | Scoring | `ANOMALY_SCORE_MIN_COVERAGE`, `ANOMALY_SCORE_MIN_IDENTITY_CONTINUITY`, `ANOMALY_SCORE_MAX_UNCERTAINTY`, `ANOMALY_SCORE_WEIGHT_PROFILE` |
+| Pattern profiles | `ANOMALY_PATTERN_PROFILE_VERSION`, `ANOMALY_PATTERN_MIN_VALID_WINDOWS`, `ANOMALY_PATTERN_MAX_WINDOWS`, `ANOMALY_PATTERN_QUARANTINE_THRESHOLD`, `ANOMALY_PATTERN_MAX_AGE_SECONDS` |
 | Conformal | `ANOMALY_CONFORMAL_ENABLED`, `ANOMALY_CONFORMAL_ALPHA`, `ANOMALY_CONFORMAL_MIN_CALIBRATION_SAMPLES` |
 | WebGL | `VITE_XAI_WEBGL_REQUIRED`, `VITE_XAI_WEBGL_CONTEXT_BUDGET`, `VITE_XAI_SERIES_RING_CAPACITY`, `VITE_XAI_MATRIX_TILE_SIZE`, `VITE_XAI_MAX_UPLOAD_BYTES_PER_FRAME` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
@@ -301,6 +354,7 @@ specs/015-xai-anomaly-score/
 |-- spec.md
 |-- plan.md
 |-- research.md
+|-- no-ground-truth-doctrine.md
 |-- production-inventory-20260608.md
 |-- signal-catalog.md
 |-- atomic-cycles.md
@@ -326,6 +380,8 @@ backend/apps/anomalies/
     |-- calibration.py
     |-- conformal.py
     |-- components.py
+    |-- pattern_profiles.py
+    |-- pattern_comparison.py
     |-- fusion.py
     |-- service.py
     `-- evaluation.py
@@ -347,6 +403,7 @@ docs/
 | Finding | Source | Required response |
 |---|---|---|
 | BSIL/anomaly schemas exist but production counts are zero | `production-inventory-20260608.md` | Cycle 015.0 activation/reconciliation blocker |
+| No anomaly dataset or accepted behavioral ground truth exists | `no-ground-truth-doctrine.md` | Deterministic signal-pattern analysis only; no anomaly training/fine-tuning or label-based accuracy claim |
 | Default model route table is mutable shared state | `backend/apps/pipeline/services/model_route_service.py` | Immutable route snapshot and no hidden mutation |
 | Rule engine uses accusatory wording | `backend/apps/pipeline/rule_engine.py` | Deprecate/replace with review-candidate evidence |
 | Explainability helpers write placeholder text | `backend/apps/pipeline/model_lifecycle/explainability.py` | Replace or retire through real artifact contract |
@@ -363,7 +420,8 @@ fallback, no live-unbounded state, and no automatic accusation. Deep XAI is
 isolated and optional; the fast path is bounded and transparent; all persisted
 and external contracts are versioned; all cycles remain blocked from acceptance
 until production benchmarks, figures, manifests, rollback, and ledger entries
-exist.
+exist. The design contains no trainable anomaly target and makes no
+behavioral-ground-truth accuracy claim.
 
 ## Complexity Tracking
 
@@ -373,3 +431,4 @@ exist.
 | Shared WebGL renderer | Existing contexts and Canvas2D surfaces violate the rendering goal | Independent chart code duplicates state and exhausts contexts |
 | Separate fast/deep lanes | Deep XAI is too expensive for critical paths | One inline lane would violate latency/stability |
 | Versioned calibration snapshots | Raw scores are not comparable certainty | One global calibrator cannot represent route/output differences |
+| Versioned observed-pattern profiles | Per-student temporal comparison requires compatible bounded history | A trainable anomaly classifier has no valid targets or ground truth |

@@ -61,6 +61,9 @@ a new version.
   "contradictions": [],
   "truth_state": "valid",
   "confidence_band": "review-needed",
+  "knowledge_limits": [
+    "source_signal_is_not_anomaly_ground_truth"
+  ],
   "lineage_digest": "sha256:..."
 }
 ```
@@ -75,6 +78,8 @@ a new version.
 - Large arrays/images are artifact references, not embedded payloads.
 - Persistence enforces a payload-size limit and idempotency key.
 - No envelope text states that a student cheated or intended misconduct.
+- No envelope or collection of envelopes is labeled anomaly/normality ground
+  truth or consumed as an anomaly-model training/fine-tuning target.
 
 ## Compatibility And Failure
 

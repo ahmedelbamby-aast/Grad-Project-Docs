@@ -8,6 +8,12 @@
 
 - [x] User value and safety semantics are explicit.
 - [x] Product requirements do not present anomaly scores as misconduct truth.
+- [x] The absence of an anomaly/cheating/normality dataset and accepted
+  behavioral ground truth is explicit and binding.
+- [x] The specification prohibits anomaly-model training/fine-tuning,
+  manufactured ground truth, and label-based anomaly-accuracy claims.
+- [x] Per-student multivariate observed-signal pattern analysis, cold start,
+  contamination, quarantine, drift, and required vocabulary are specified.
 - [x] All mandatory runtime scenarios are present.
 - [x] Scope, dependencies, and assumptions are explicit.
 

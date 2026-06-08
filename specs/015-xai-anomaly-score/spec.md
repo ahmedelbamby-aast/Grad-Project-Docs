@@ -6,7 +6,28 @@
 **Input**: User request to create a deep, production-grade implementation plan
 for XAI across all deployed models, an anomaly score layer, additional derived
 signals, atomic implementation cycles, strict modularity, per-cycle
-benchmarking, and WebGL-rendered analytical figures.
+benchmarking, and WebGL-rendered analytical figures. The user additionally
+clarified that no anomaly/cheating/normality dataset or ground-truth method
+exists; behavioral assessment must depend on per-student temporal patterns
+across all valid system signals.
+
+## Mandatory No-Ground-Truth Constraint
+
+[no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) is binding for every
+requirement, cycle, contract, task, benchmark, and user-facing claim.
+
+- No anomaly, abnormal-behavior, cheating, non-cheating, or normality model may
+  be trained or fine-tuned under this plan.
+- Reviewer feedback, heuristic rules, assumed-normal history, source-model
+  agreement, and current BSIL outputs are not anomaly ground truth.
+- The production layer compares bounded per-student multivariate temporal
+  signal windows with versioned, contamination-aware observed-pattern
+  profiles.
+- Controlled fixtures validate algorithm semantics and invariants; they do not
+  establish real-world behavioral truth.
+- No cycle may claim anomaly accuracy, precision, recall, F1, AUROC, AUPRC, or
+  cheating-detection quality without a separate future governed ground-truth
+  authority.
 
 ## Clarified Safety And Product Semantics
 
@@ -16,6 +37,12 @@ benchmarking, and WebGL-rendered analytical figures.
 - A high score means that governed signals differ materially from an accepted
   baseline and that enough reliable evidence supports human review. It is not a
   probability of misconduct, intent, or guilt.
+- `within_observed_pattern` means only that a valid signal window lies inside a
+  governed observed-pattern envelope. It does not mean normal, innocent, or
+  non-cheating.
+- `pattern_deviation` means only that a valid signal window differs from its
+  governed observed-pattern envelope. It does not mean abnormal intent,
+  misconduct, or cheating.
 - Every explanation must distinguish model confidence, calibration quality,
   evidence coverage, anomaly surprise, identity continuity, and missingness.
 - Missing, degraded, contradictory, or low-quality evidence is never converted
@@ -65,10 +92,12 @@ uncertainty, and exact score contributions.
 using all current model signals. This must be temporal, calibrated, and
 non-accusatory.
 
-**Independent Test**: Replay a governed labeled sequence containing stable,
-transient, sustained, contradictory, and missing-evidence intervals and verify
-that the score is reconstructable from recorded contributions and is withheld
-where coverage or quality is insufficient.
+**Independent Test**: Replay deterministic controlled signal-pattern fixtures
+and real-media signal sequences containing stable, transient, sustained,
+contradictory, cold-start, contaminated-profile, and missing-evidence
+intervals. Verify that the score is reconstructable, deterministic, and
+withheld where a valid comparison cannot be made. The fixtures validate
+algorithm behavior and are not behavioral ground truth.
 
 **Acceptance Scenarios**:
 
@@ -76,11 +105,16 @@ where coverage or quality is insufficient.
    the interval, **Then** temporal persistence and hysteresis prevent an
    unsupported high review priority.
 2. **Given** repeated reliable deviations from a valid baseline, **When** the
-   score activates, **Then** the explanation lists calibrated surprise,
-   persistence, context, reliability, uncertainty, and threshold provenance.
-3. **Given** a baseline is missing, contaminated, drifting, or quarantined,
+   score activates, **Then** the explanation lists pattern-deviation magnitude,
+   persistence, context, reliability, uncertainty, profile compatibility, and
+   threshold provenance.
+3. **Given** an observed-pattern profile is missing, contaminated, drifting, or
+   quarantined,
    **When** scoring is requested, **Then** the score is withheld or degraded
    and the reason is visible.
+4. **Given** a new student or incompatible route has insufficient valid
+   history, **When** scoring is requested, **Then** the result is
+   `insufficient_context` rather than a low score or normal label.
 
 ---
 
@@ -134,7 +168,8 @@ non-blocking inference.
    support a production-valid explanation.
 3. **Given** a reviewer submits feedback, **When** it is accepted, **Then** it
    becomes governed evaluation evidence and does not directly mutate production
-   thresholds, baselines, or model weights.
+   thresholds, profiles, baselines, or model weights and is never treated as
+   anomaly ground truth or a training target.
 
 ---
 
@@ -203,7 +238,13 @@ evidence.
 - All contributing signals are missing, degraded, or contradictory.
 - A student's local tracker ID changes after occlusion or reconnect.
 - Independent runs reuse the same numeric local tracker ID for different people.
-- A baseline contains anomalous or reviewer-disputed periods.
+- An observed-pattern profile contains high-deviation or reviewer-disputed
+  periods.
+- No anomaly-behavior dataset or accepted ground-truth method exists.
+- A new identity has too little valid history to form a pattern profile.
+- A consistently unusual session attempts to redefine itself as normal.
+- A contaminated, disputed, or high-deviation window attempts to update a
+  pattern profile.
 - A new model route or artifact version appears without an explainer adapter.
 - A route changes between scoring and explanation generation.
 - A model emits dense outputs too large to persist on every frame.
@@ -215,7 +256,7 @@ evidence.
 - A user lacks access to the source job or classroom imagery.
 - The production anomaly/BSIL tables exist but remain empty.
 - Runtime settings differ from the accepted benchmark route.
-- A review label conflicts with the current baseline or score.
+- A reviewer assessment conflicts with the current pattern profile or score.
 - A live stream runs indefinitely and must not accumulate unbounded state.
 - A score is requested across a reconnect gap or invalid temporal window.
 
@@ -266,6 +307,12 @@ evidence.
   fidelity/stability, identity, frontend frame time, resource budgets,
   unavailable reasons, causal interpretation, remaining bottleneck, generated
   figures, manifests, and rollback proof.
+- **No-Ground-Truth Evaluation Boundary**: Anomaly-layer acceptance uses exact
+  reconstruction, deterministic replay, controlled pattern fixtures,
+  metamorphic/invariant checks, contamination/cold-start/drift behavior,
+  real-media stability, performance, and rollback. It does not claim
+  behavioral classification accuracy. Reviewer feedback is explicitly
+  non-ground-truth evaluation evidence.
 - **Runtime Reconciliation**: Route snapshot, task, queue, database, artifact,
   telemetry, frontend, and review states must converge. Mismatch blocks
   production-valid explanations or scores.
@@ -309,24 +356,27 @@ evidence.
 - **FR-011**: The system MUST compute a non-accusatory
   `review_priority_score`, not a cheating probability or misconduct verdict.
 - **FR-012**: Every review priority MUST include reconstructable contributions,
-  coverage, reliability, uncertainty, baseline/threshold provenance,
+  coverage, reliability, uncertainty, pattern-profile/threshold provenance,
   contradictions, and score-withholding reasons.
 - **FR-013**: The system MUST support person-, session-, camera-, scene-, and
-  population-context baselines while preventing contaminated or drifting
-  baselines from silently changing decisions.
-- **FR-014**: The system MUST calibrate model confidence using governed held-out
-  evidence and report calibration quality; raw confidence is not accepted as
-  certainty.
+  population-context observed-pattern profiles while preventing contaminated
+  or drifting profiles from silently changing decisions.
+- **FR-014**: The system MUST calibrate existing source-model confidence only
+  where task-appropriate governed held-out evidence exists and MUST otherwise
+  report calibration unavailable; raw confidence is not accepted as certainty.
 - **FR-015**: The system MUST support uncertainty-aware or conformal outputs
   where assumptions and calibration evidence are valid and MUST label them
-  unavailable otherwise.
+  unavailable otherwise; distributional coverage MUST NOT be described as
+  behavioral correctness.
 - **FR-016**: Cross-model fusion MUST preserve each source, contribution,
   reliability, contradiction, and unavailable reason; it MUST NOT hide
   disagreement behind one aggregate score.
 - **FR-017**: Cross-person or peer-context evidence MUST be identity-gated and
   must remain unresolved when identity evidence is ambiguous.
 - **FR-018**: Review feedback MUST be governed evaluation evidence and MUST NOT
-  directly mutate production thresholds, baselines, or model weights.
+  be called ground truth, become a training/fine-tuning target, update a
+  pattern profile, or directly mutate production thresholds, baselines, or
+  model weights.
 - **FR-019**: All XAI artifacts containing classroom imagery or identity
   evidence MUST be job-scoped, authenticated, audited, and retention-governed.
 - **FR-020**: Deep XAI tasks MUST be idempotent, bounded, deadline-controlled,
@@ -359,6 +409,18 @@ evidence.
 - **FR-030**: Production acceptance MUST fail on placeholder artifacts,
   empty/unpopulated required layers, hidden fallbacks, stale route snapshots,
   missing metrics, unresolved reconciliation, or unsupported accusation terms.
+- **FR-031**: The current plan MUST NOT train or fine-tune an anomaly,
+  abnormal-behavior, cheating, non-cheating, or normality model and MUST NOT
+  use reviewer feedback, heuristic outputs, assumed-normal history, source
+  model agreement, or BSIL output as anomaly ground truth.
+- **FR-032**: The anomaly layer MUST derive bounded per-student multivariate
+  temporal pattern windows from all enabled valid signals and compare them
+  against versioned, contamination-aware observed-pattern profiles with
+  explicit cold-start, drift, quarantine, and incompatibility states.
+- **FR-033**: Persisted and user-facing behavioral states MUST use
+  `within_observed_pattern`, `pattern_deviation`, `insufficient_context`, or
+  `withheld` semantics and MUST NOT equate those states with cheating,
+  non-cheating, normality, abnormal intent, innocence, or guilt.
 
 ### Key Entities
 
@@ -371,12 +433,17 @@ evidence.
 - **XAI Explanation Record**: Human-readable and machine-readable explanation.
 - **Anomaly Score Record**: Non-accusatory review-priority result.
 - **Anomaly Score Contribution**: Per-signal or per-context contribution.
+- **Observed Pattern Profile Snapshot**: Versioned contamination-aware summary
+  of valid per-student multivariate signal history; never known-normal truth.
+- **Signal Pattern Window**: Bounded temporal feature vector and validity
+  evidence compared with an observed-pattern profile.
 - **Calibration Snapshot**: Versioned confidence calibration evidence.
 - **Conformal Calibration Snapshot**: Versioned uncertainty calibration and
   assumptions.
 - **Explanation Evaluation Record**: Fidelity, stability, sanity, and latency
   evaluation.
-- **XAI Review Feedback**: Governed reviewer label and evidence reference.
+- **XAI Reviewer Assessment**: Governed non-ground-truth reviewer assessment and
+  evidence reference.
 
 ## Success Criteria
 
@@ -385,13 +452,16 @@ evidence.
 - **SC-001**: Every active production model route has a registered fast
   explanation adapter and a documented deep-XAI eligibility decision.
 - **SC-002**: A reviewer can reconstruct every displayed review-priority score
-  from persisted contributions and the referenced baseline/threshold snapshot.
+  from persisted contributions and the referenced observed-pattern
+  profile/threshold snapshot.
 - **SC-003**: No production-valid score is emitted when required evidence
   coverage, route fingerprint, temporal authority, identity continuity, or
-  baseline validity fails its configured gate.
-- **SC-004**: Calibration reports include reliability diagrams, expected
-  calibration error, Brier score or task-appropriate alternatives, sample
-  counts, confidence intervals, and subgroup limitations.
+  observed-pattern profile validity fails its configured gate.
+- **SC-004**: Where task-appropriate source-model held-out evidence exists,
+  calibration reports include reliability diagrams, expected calibration
+  error, Brier score or task-appropriate alternatives, sample counts,
+  confidence intervals, and subgroup limitations; otherwise calibration is
+  explicitly unavailable.
 - **SC-005**: Explanation evaluation reports fidelity, stability, sanity-check,
   and unavailable reasons; unfaithful methods cannot support accepted
   explanations.
@@ -425,8 +495,18 @@ evidence.
 - **SC-017**: Every benchmark is recorded in
   `docs/BENCHMARK_RESULTS_LEDGER.md`, including refused and probe-only runs.
 - **SC-018**: Final production canary acceptance is tied to one committed SHA,
-  environment fingerprint, model-route snapshot, calibration snapshot,
-  benchmark jobs, rollback proof, and immutable evidence manifest.
+  environment fingerprint, model-route snapshot, source-model calibration
+  state/snapshot, observed-pattern profile snapshot, benchmark jobs, rollback
+  proof, and immutable evidence manifest.
+- **SC-019**: Static checks, runtime reconciliation, and final acceptance prove
+  that no anomaly model training/fine-tuning target exists and that reviewer
+  feedback and observed history cannot be consumed as anomaly ground truth.
+- **SC-020**: Controlled pattern fixtures and metamorphic tests prove exact,
+  deterministic behavior for persistence, missingness, cold start,
+  contamination, drift, quarantine, identity gaps, contradictions, and
+  counterfactual changes without claiming real-world behavioral accuracy.
+- **SC-021**: Every persisted and displayed anomaly state uses the required
+  observed-pattern vocabulary and exposes the no-ground-truth knowledge limit.
 
 ## Assumptions And Dependencies
 
@@ -434,6 +514,10 @@ evidence.
   interaction, evidence, and lineage behavior.
 - Existing `apps.anomalies` remains the owner of review-priority scoring,
   baselines, calibration, thresholds, drift, and review-label governance.
+- No anomaly/cheating/normality dataset or accepted behavioral ground-truth
+  method exists. Cycle 015 is restricted to deterministic, reconstructable
+  observed-signal pattern analysis as defined in
+  `no-ground-truth-doctrine.md`.
 - Existing `apps.pipeline` remains the owner of model-route and inference
   adapter integration, but anomaly code does not import pipeline internals.
 - Existing `apps.telemetry` remains the metrics authority.

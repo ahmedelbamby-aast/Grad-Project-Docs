@@ -39,6 +39,9 @@ traceability artifact, not implementation evidence.
 | FR-028 full evidence packet per atomic cycle | All cycles | T016-T250 cycle investigation/figure/benchmark/result/ledger tasks |
 | FR-029 one causal change and independent rollback | All cycles | `atomic-cycles.md`, each cycle investigation/rollback task |
 | FR-030 block placeholders/drift/empty layers/unsafe language | Setup, 015.0, 015.11, 015.12 | T004-T006, T024-T033, T220-T250 |
+| FR-031 no anomaly training/fine-tuning or manufactured ground truth | Setup, 015.2, 015.5, 015.9, 015.11-015.12 | T009-T010, T051-T067, T105-T123, T178-T192, T216-T250 |
+| FR-032 bounded per-student multivariate observed-pattern analysis | 015.1, 015.4-015.7 | T040, T088-T157 |
+| FR-033 required observed-pattern vocabulary and knowledge limits | Setup, 015.5, 015.9-015.12 | T004, T009-T010, T105-T123, T178-T250 |
 
 ## Success Criterion Coverage
 
@@ -62,6 +65,9 @@ traceability artifact, not implementation evidence.
 | SC-016 Figure Planner/Implementer per cycle | All cycles | paired figure-plan/implementation tasks |
 | SC-017 every run in benchmark ledger | All cycles | T033, T050, T067, T087, T104, T123, T139, T157, T177, T192, T215, T233, T250 |
 | SC-018 final canary fingerprint/evidence | 015.12 | T234-T250 |
+| SC-019 prove no anomaly training/fine-tuning or ground-truth path | Setup, 015.2, 015.5, 015.9, 015.11-015.12 | T009, T051-T067, T105-T123, T178-T192, T216-T250 |
+| SC-020 controlled pattern fixtures and metamorphic/invariant behavior | 015.4-015.6, 015.11 | T088-T139, T223-T233 |
+| SC-021 required observed-pattern vocabulary and knowledge limit | Setup, 015.5, 015.9-015.12 | T004, T010, T105-T123, T178-T250 |
 
 ## User Story Coverage
 
@@ -76,8 +82,9 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `30/30`
-- Success criteria covered: `18/18`
+- Functional requirements covered: `33/33`
+- Success criteria covered: `21/21`
 - User stories covered: `6/6`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
   `13/13`
+- Mandatory no-ground-truth doctrine covered: `yes`

@@ -12,6 +12,7 @@ AGENTS.md
 .specify/memory/constitution.md
 specs/015-xai-anomaly-score/spec.md
 specs/015-xai-anomaly-score/plan.md
+specs/015-xai-anomaly-score/no-ground-truth-doctrine.md
 specs/015-xai-anomaly-score/atomic-cycles.md
 specs/015-xai-anomaly-score/signal-catalog.md
 the cycle investigation/results docs
@@ -66,6 +67,11 @@ The investigation names:
   boundary.
 - Keep deep XAI outside critical inference.
 - Keep live state bounded.
+- Do not add anomaly-model training/fine-tuning or treat reviewer assessments,
+  heuristic output, BSIL output, model agreement, or assumed-normal history as
+  ground truth.
+- Build anomaly review priority from bounded per-student multivariate
+  observed-signal pattern comparison.
 
 ## 5. Validate Locally
 
@@ -117,6 +123,11 @@ Verify:
   variable.
 - Record all required performance, correctness, calibration, explanation,
   anomaly, identity, queue/storage, and WebGL metrics.
+- For anomaly behavior, record exact reconstruction, controlled fixtures,
+  metamorphic/invariant/sensitivity, cold-start/contamination/drift/quarantine,
+  withholding, stability, and knowledge-limit evidence. Do not report
+  behavioral accuracy, precision, recall, F1, AUROC, AUPRC, false-positive, or
+  false-negative claims.
 - Component probes remain probe-only.
 
 ## 9. Generate Figures And Decide
@@ -148,3 +159,5 @@ ROLLBACK
 ```
 
 No score or explanation is described as proof of cheating or intent.
+`within_observed_pattern` is not proof of normal/non-cheating behavior, and
+`pattern_deviation` is not proof of abnormal intent or cheating.

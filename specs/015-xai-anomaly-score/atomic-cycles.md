@@ -20,6 +20,8 @@ Every cycle must create:
 - explicit streaming compatibility;
 - baseline/candidate/best-comparable metric deltas;
 - unavailable metrics with reasons, never hidden or plotted as zero.
+- explicit proof that no anomaly model training/fine-tuning target or
+  behavioral-ground-truth claim was introduced.
 
 ## Cycle 015.0 - Runtime Truth, Route Snapshot, And BSIL Activation
 
@@ -40,6 +42,8 @@ truth.
   vocabulary or explicitly deprecate the path;
 - activate and reconcile BSIL semantic/temporal/lineage production rows behind
   flags;
+- record the absence of anomaly behavioral ground truth and block any anomaly
+  training/fine-tuning path;
 - prove current route, queue, DB, telemetry, and frontend state convergence;
 - retire or mark placeholder lifecycle explainability/visualization helpers.
 
@@ -71,6 +75,8 @@ quality, and schema semantics.
 
 - add `EvidenceEnvelope`, `SignalDefinition`, `SignalProvider`, and registry;
 - register every current raw/derived signal from `signal-catalog.md`;
+- register the bounded per-student signal-pattern feature schema and explicit
+  non-ground-truth knowledge limits;
 - enforce schema/version/unit/validity/missingness/retention definitions;
 - add idempotent persistence and explicit serializers;
 - add payload/vector size guards and route/schema compatibility checks.
@@ -98,8 +104,10 @@ and route compatibility.
 **Implementation scope**:
 
 - add calibration snapshot contracts and artifact lineage;
-- collect governed calibration datasets and subgroup slices;
-- fit/evaluate model-appropriate calibrators;
+- use task-appropriate held-out evidence only for existing source-model
+  calibration where such evidence exists;
+- fit/evaluate model-appropriate source-model calibrators or explicitly mark
+  calibration unavailable;
 - expose calibrated confidence, reliability, age, route compatibility, and
   unavailable reasons;
 - block stale/incompatible/underpowered calibration.
@@ -107,8 +115,10 @@ and route compatibility.
 **Benchmark hypothesis**: Calibration lookup adds negligible bounded overhead
 and materially improves calibration measures without output-quality regression.
 
-**Acceptance gates**: Reliability diagrams, ECE/Brier/task metrics, sample
-counts/confidence intervals, subgroup limitations, route compatibility,
+**Acceptance gates**: Where valid source-model held-out evidence exists:
+reliability diagrams, ECE/Brier/task metrics, sample counts/confidence
+intervals, subgroup limitations, and route compatibility. Where it does not:
+explicit unavailable state. No anomaly ground-truth inference, bounded
 production lookup overhead, and rollback.
 
 **Required figures**: reliability diagrams, confidence histograms, calibration
@@ -152,6 +162,8 @@ windows and stale eviction.
 **Implementation scope**:
 
 - build bounded per-camera/per-identity evidence windows;
+- derive bounded per-student multivariate signal-pattern windows from all valid
+  registered signals;
 - explain change points, drift, repeated patterns, instability, persistence,
   decay, hysteresis, cooldown, and invalid gaps;
 - generate episode-level contribution summaries and counterfactuals;
@@ -160,9 +172,9 @@ windows and stale eviction.
 **Benchmark hypothesis**: Temporal evidence improves transient suppression and
 diagnosis without unbounded state or unacceptable latency.
 
-**Acceptance gates**: Deterministic replay, spike suppression, sustained-event
-recall, invalid-gap behavior, bounded soak state, resource/latency budgets, and
-rollback.
+**Acceptance gates**: Deterministic replay, controlled transient/sustained
+pattern-fixture behavior, invalid-gap/cold-start behavior, bounded soak state,
+resource/latency budgets, and rollback. No behavioral recall claim.
 
 **Required figures**: temporal state transitions, window coverage, spike versus
 sustained behavior, state-size soak, latency/resource delta.
@@ -177,7 +189,9 @@ its contribution records, and score-withholding rules.
 
 **Implementation scope**:
 
-- implement per-signal calibrated surprise and reliability-weighted components;
+- implement per-signal observed-pattern deviation and reliability-weighted
+  components;
+- build versioned contamination-aware per-student pattern profiles;
 - add context/persistence/uncertainty modifiers;
 - persist score/contribution/reconstruction records;
 - enforce minimum coverage, baseline, identity, route, calibration, and
@@ -185,16 +199,19 @@ its contribution records, and score-withholding rules.
 - expose exact counterfactual threshold/recovery deltas;
 - deprecate score language implying cheating probability.
 
-**Benchmark hypothesis**: Transparent scoring improves review ranking and
-diagnosis while preserving latency/throughput and avoiding unsupported scores.
+**Benchmark hypothesis**: Transparent pattern-deviation scoring provides
+reconstructable review prioritization while preserving latency/throughput and
+avoiding unsupported behavioral-truth claims.
 
-**Acceptance gates**: Exact reconstruction, labeled ranking metrics,
-false-positive/false-negative analysis, withholding correctness, runtime
-budgets, non-accusatory vocabulary, and rollback.
+**Acceptance gates**: Exact reconstruction, deterministic replay, controlled
+pattern fixtures, metamorphic/invariant and sensitivity checks, cold-start/
+contamination/drift/quarantine behavior, withholding correctness, runtime
+budgets, required observed-pattern vocabulary, no anomaly training or
+ground-truth claim, and rollback.
 
-**Required figures**: score decomposition, PR/ROC/ranking curves as applicable,
-coverage versus score, threshold/counterfactual plots, error analysis,
-performance delta.
+**Required figures**: score decomposition, per-student pattern envelope versus
+window, coverage versus score, threshold/counterfactual plots, fixture and
+invariant outcomes, contamination/quarantine behavior, performance delta.
 
 ## Cycle 015.6 - Missingness, Uncertainty, And Conformal Calibration
 
@@ -212,6 +229,8 @@ state is bounded and drift-gated.
 - add conformal calibration snapshots and validity assumptions;
 - evaluate coverage under time/session/camera drift;
 - withhold conformal outputs when assumptions fail;
+- label all conformal coverage as distributional only, never behavioral
+  correctness;
 - compare adaptive versus fixed calibration as separate candidates inside the
   same cycle only if the cycle benchmark matrix keeps each candidate isolated.
 
@@ -241,12 +260,12 @@ windows.
 - keep unresolved identity/context unresolved;
 - prevent graph contamination across invalid windows.
 
-**Benchmark hypothesis**: Context/fusion improves reviewed ranking or diagnosis
-without association, correctness, or latency regressions.
+**Benchmark hypothesis**: Context/fusion improves explanation usefulness
+without association, source-output, or latency regressions.
 
 **Acceptance gates**: Identity/association metrics, contradiction visibility,
-graph reconstruction, reviewer-label delta, bounded graph state, performance,
-and rollback.
+graph reconstruction, non-ground-truth reviewer usability/disagreement,
+bounded graph state, performance, and rollback.
 
 **Required figures**: explanation graphs, contribution flow, contradiction
 matrix, association/fragmentation metrics, ranking/performance delta.
@@ -295,13 +314,16 @@ building/promotion is `offline-only`.
 - expose reviewer explanation, evidence, disagreement, and feedback workflow;
 - audit access and feedback lineage;
 - prove feedback cannot directly alter thresholds/baselines/models;
+- prove feedback cannot become behavioral ground truth, a training target, or
+  a direct pattern-profile update;
 - add promotion workflow requiring a later governed cycle.
 
 **Benchmark hypothesis**: Prototypes and explanations improve reviewer
 consistency/time without unsafe automatic adaptation.
 
-**Acceptance gates**: Reviewer agreement/time study, privacy/access, feedback
-immutability, no-direct-mutation proof, performance, and rollback.
+**Acceptance gates**: Reviewer agreement/time study explicitly labeled
+non-ground-truth, privacy/access, feedback immutability, no-training-target and
+no-direct-mutation proof, performance, and rollback.
 
 **Required figures**: reviewer time/agreement, prototype similarity, disagreement
 analysis, access/audit summary, performance delta.
@@ -352,6 +374,11 @@ cannot compensate for a critical failure in another.
 - run load, soak, queue-failure, restart, context-loss, DB/Redis, retention,
   access-control, privacy, calibration, subgroup, identity, and explanation
   stability tests;
+- verify the no-ground-truth doctrine, required observed-pattern vocabulary,
+  and absence of anomaly-model training/fine-tuning paths;
+- report subgroup signal-distribution and operational differences without
+  claiming behavioral-accuracy or fairness parity that ground truth cannot
+  support;
 - verify instrumentation readiness and evidence completeness;
 - quantify remaining bottlenecks and debt.
 
@@ -360,7 +387,9 @@ profiles are stable, measurable, secure, and scientifically auditable.
 
 **Acceptance gates**: All required metrics or unavailable reasons, no hidden
 xfails/fallbacks/placeholders, soak and failure recovery, access/privacy,
-subgroup limitations, performance budgets, and rollback.
+subgroup limitations, no label-based behavioral accuracy claim, no anomaly
+training/fine-tuning path, no unsupported fairness-performance claim,
+performance budgets, and rollback.
 
 **Required figures**: latency/throughput/resource overview, soak trends, queue
 and failure recovery, calibration/subgroup/error analysis, evidence
@@ -380,16 +409,20 @@ accepted as stream-safe.
 - define disabled, shadow, reviewer-visible, and promoted profiles;
 - execute production canary with explicit exposure and stop conditions;
 - prove score/explanation/frontend reconciliation and human-review semantics;
+- prove the no-ground-truth knowledge limit and observed-pattern vocabulary are
+  present in every canary surface;
 - execute rollback and verify original behavior;
 - package final immutable evidence and open remaining research debt.
 
 **Benchmark hypothesis**: The accepted capability set can operate in production
-without violating latency, throughput, correctness, stability, safety, or
-rollback gates.
+without violating latency, throughput, source-output correctness, pattern
+invariants, stability, safety, or rollback gates.
 
 **Acceptance gates**: Canary stop/promote criteria, reviewer and runtime
 evidence, full benchmark/figure/ledger package, rollback proof, branch/SHA/env/
 route/calibration fingerprint, and no unresolved blocker.
+The final fingerprint also includes the observed-pattern profile/feature schema
+and no-ground-truth policy version.
 
 **Required figures**: canary versus baseline, review-priority distribution,
 latency/throughput/resource/correctness, rollback verification, final evidence

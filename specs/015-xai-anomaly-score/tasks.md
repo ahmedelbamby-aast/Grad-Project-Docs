@@ -1,7 +1,8 @@
 # Tasks: Explainable Behavioral Evidence And Anomaly Scoring
 
 **Input**: `spec.md`, `plan.md`, `research.md`, `data-model.md`,
-`signal-catalog.md`, `atomic-cycles.md`, and `contracts/`
+`signal-catalog.md`, `no-ground-truth-doctrine.md`, `atomic-cycles.md`, and
+`contracts/`
 **Execution rule**: Each Cycle 015.x phase is an indivisible acceptance unit.
 Tasks may run in parallel where marked, but no partial cycle can claim a
 production decision.
@@ -14,19 +15,22 @@ production decision.
   production/scientific acceptance.
 - Every production decision requires stride-1 native Linux RTX 5090 evidence,
   figures, manifest/digests, ledger entry, and rollback proof.
+- No task may introduce anomaly-model training/fine-tuning, manufacture
+  behavioral ground truth, or use label-based anomaly accuracy as decision
+  authority.
 
 ## Phase 1: Planning And Shared Governance Setup
 
 - [ ] T001 Create XAI/anomaly results directory and index in `docs/xai_anomaly/README.md`
 - [ ] T002 [P] Add feature-owned environment contract placeholders to `.env.example`
 - [ ] T003 [P] Add XAI/anomaly source path filters and focused test placeholders to `.github/workflows/xai-anomaly.yml`
-- [ ] T004 [P] Add static prohibited-accusation vocabulary verifier in `scripts/ci/verify_xai_language.py`
+- [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
 - [ ] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
 - [ ] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [ ] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`
-- [ ] T009 [P] Define reviewer-label dataset governance in `docs/xai_anomaly/reviewer_dataset_governance.md`
-- [ ] T010 [P] Add XAI/anomaly terminology and knowledge-limit glossary in `docs/xai_anomaly/glossary.md`
+- [ ] T009 [P] Define no-anomaly-ground-truth governance, reviewer-assessment non-training rules, and future-plan boundary in `docs/xai_anomaly/no_ground_truth_governance.md`
+- [ ] T010 [P] Add required observed-pattern terminology and knowledge-limit glossary in `docs/xai_anomaly/glossary.md`
 - [ ] T011 Define configuration ownership and fingerprint contract in `docs/xai_anomaly/configuration_contract.md`
 - [ ] T012 Define exactly-one Figure Planner and Figure Implementer kickoff template in `docs/xai_anomaly/figure_role_template.md`
 - [ ] T013 Define cycle result/decision template in `docs/xai_anomaly/cycle_result_template.md`
@@ -70,7 +74,7 @@ idempotently produces a bounded envelope with explicit missingness.
 - [ ] T037 [P] [US1] Implement evidence/signal value contracts in `backend/apps/behavior/explainability/contracts.py`
 - [ ] T038 [P] [US1] Implement signal registry and compatibility validation in `backend/apps/behavior/explainability/registry.py`
 - [ ] T039 [P] [US1] Implement common source/time/identity/quality normalization in `backend/apps/behavior/explainability/signals.py`
-- [ ] T040 [US1] Register all current raw and derived signal definitions in `backend/apps/behavior/explainability/signal_definitions.py`
+- [ ] T040 [US1] Register all current raw/derived signals and bounded per-student pattern-feature definitions in `backend/apps/behavior/explainability/signal_definitions.py`
 - [ ] T041 [US1] Add idempotent evidence-envelope repository boundary in `backend/apps/behavior/repositories.py`
 - [ ] T042 [US1] Add signal-definition and evidence-envelope PostgreSQL models and migration in `backend/apps/behavior/models.py`
 - [ ] T043 [P] [US1] Add explicit evidence serializers and bounded API fields in `backend/apps/behavior/serializers.py`
@@ -84,23 +88,23 @@ idempotently produces a bounded envelope with explicit missingness.
 
 ## Phase 4: Cycle 015.2 - Per-Model Calibration And Reliability
 
-**Goal**: Produce compatible, measured calibration snapshots for active model
-outputs.
+**Goal**: Produce compatible, measured calibration snapshots for active source
+model outputs only where task-appropriate held-out evidence exists.
 **Independent test**: Calibration improves or accurately characterizes
 reliability and incompatible/stale snapshots are rejected.
 
-- [ ] T051 [P] [US1] Write Cycle 015.2 investigation and calibration protocol in `docs/xai_anomaly/cycle_015_2_investigation.md`
+- [ ] T051 [P] [US1] Write Cycle 015.2 source-model calibration protocol, unavailable-evidence behavior, and no-anomaly-ground-truth boundary in `docs/xai_anomaly/cycle_015_2_investigation.md`
 - [ ] T052 [P] [US6] Name Cycle 015.2 Figure Planner in `docs/xai_anomaly/cycle_015_2_figure_plan.md`
 - [ ] T053 [P] [US6] Name separate Cycle 015.2 Figure Implementer in `docs/xai_anomaly/cycle_015_2_figure_implementation.md`
 - [ ] T054 [P] [US1] Implement calibration contracts and compatibility rules in `backend/apps/anomalies/scoring/calibration.py`
 - [ ] T055 [P] [US1] Add calibration snapshot models and migration in `backend/apps/anomalies/models.py`
-- [ ] T056 [P] [US1] Implement calibration artifact/dataset manifest handling in `backend/apps/anomalies/scoring/calibration_artifacts.py`
+- [ ] T056 [P] [US1] Implement source-model calibration evidence-cohort manifest handling in `backend/apps/anomalies/scoring/calibration_artifacts.py`
 - [ ] T057 [US1] Implement model/output-specific calibrator registry in `backend/apps/anomalies/scoring/calibrator_registry.py`
 - [ ] T058 [US1] Implement calibration lookup and stale/incompatible rejection in `backend/apps/anomalies/scoring/calibration_service.py`
 - [ ] T059 [P] [US1] Add calibration fitting/evaluation command in `backend/apps/anomalies/management/commands/build_xai_calibration.py`
 - [ ] T060 [P] [US1] Add ECE, reliability, proper-score, CI, and subgroup evaluation in `backend/apps/anomalies/scoring/calibration_evaluation.py`
 - [ ] T061 [P] [US1] Add calibration contract and compatibility tests in `backend/tests/unit/anomalies/test_xai_calibration.py`
-- [ ] T062 [P] [US1] Add calibration dataset/manifest and PostgreSQL tests in `backend/tests/integration/anomalies/test_xai_calibration_artifacts.py`
+- [ ] T062 [P] [US1] Add calibration evidence-cohort manifest, unavailable-state, no-anomaly-ground-truth, and PostgreSQL tests in `backend/tests/integration/anomalies/test_xai_calibration_artifacts.py`
 - [ ] T063 [P] [US6] Add production calibration preflight/probe in `tools/prod/prod_probe_xai_calibration.py`
 - [ ] T064 [US6] Add Cycle 015.2 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_2.sh`
 - [ ] T065 [P] [US6] Implement Cycle 015.2 reliability figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_2_figures.py`
@@ -145,12 +149,12 @@ suppress spikes, and keep memory bounded.
 - [ ] T088 [P] [US2] Write Cycle 015.4 investigation and bounded-state contract in `docs/xai_anomaly/cycle_015_4_investigation.md`
 - [ ] T089 [P] [US6] Name Cycle 015.4 Figure Planner in `docs/xai_anomaly/cycle_015_4_figure_plan.md`
 - [ ] T090 [P] [US6] Name separate Cycle 015.4 Figure Implementer in `docs/xai_anomaly/cycle_015_4_figure_implementation.md`
-- [ ] T091 [P] [US2] Implement bounded temporal evidence windows in `backend/apps/behavior/explainability/temporal_windows.py`
-- [ ] T092 [P] [US2] Implement temporal pattern explanation in `backend/apps/behavior/explainability/temporal_explanations.py`
+- [ ] T091 [P] [US2] Implement bounded per-student multivariate signal-pattern windows in `backend/apps/behavior/explainability/temporal_windows.py`
+- [ ] T092 [P] [US2] Implement temporal pattern explanation, cold-start, contamination, and quarantine semantics in `backend/apps/behavior/explainability/temporal_explanations.py`
 - [ ] T093 [P] [US2] Implement episode contribution/counterfactual composition in `backend/apps/behavior/explainability/episode_explanations.py`
 - [ ] T094 [US2] Integrate temporal evidence with existing behavior temporal services in `backend/apps/behavior/temporal/windows.py`
 - [ ] T095 [US2] Add bounded cache/eviction/reconnect behavior in `backend/apps/behavior/temporal/cache.py`
-- [ ] T096 [P] [US2] Add spike, sustained, drift, gap, and deterministic replay tests in `backend/tests/unit/behavior/test_xai_temporal_explanations.py`
+- [ ] T096 [P] [US2] Add controlled pattern-fixture, spike, sustained, drift, cold-start, contamination, quarantine, gap, and deterministic replay tests in `backend/tests/unit/behavior/test_xai_temporal_explanations.py`
 - [ ] T097 [P] [US2] Add indefinite-stream bounded-state and restart integration tests in `backend/tests/integration/behavior/test_xai_temporal_bounded_state.py`
 - [ ] T098 [P] [US6] Add temporal state/soak production probe in `tools/prod/prod_probe_xai_temporal_state.py`
 - [ ] T099 [US6] Add Cycle 015.4 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_4.sh`
@@ -162,27 +166,29 @@ suppress spikes, and keep memory bounded.
 
 ## Phase 7: Cycle 015.5 - Transparent Hierarchical Anomaly Score
 
-**Goal**: Produce a reconstructable non-accusatory review-priority score.
+**Goal**: Produce a reconstructable non-accusatory review-priority score from
+per-student observed signal-pattern comparison without anomaly training or
+behavioral ground truth.
 **Independent test**: Persisted contributions exactly reconstruct scores and
 invalid evidence reliably withholds them.
 
-- [ ] T105 [P] [US2] Write Cycle 015.5 investigation, score profile, and labeled evaluation protocol in `docs/xai_anomaly/cycle_015_5_investigation.md`
+- [ ] T105 [P] [US2] Write Cycle 015.5 investigation, deterministic score profile, no-ground-truth evaluation protocol, and prohibited-metric list in `docs/xai_anomaly/cycle_015_5_investigation.md`
 - [ ] T106 [P] [US6] Name Cycle 015.5 Figure Planner in `docs/xai_anomaly/cycle_015_5_figure_plan.md`
 - [ ] T107 [P] [US6] Name separate Cycle 015.5 Figure Implementer in `docs/xai_anomaly/cycle_015_5_figure_implementation.md`
 - [ ] T108 [P] [US2] Implement anomaly score/contribution contracts in `backend/apps/anomalies/scoring/contracts.py`
-- [ ] T109 [P] [US2] Implement calibrated surprise and contribution components in `backend/apps/anomalies/scoring/components.py`
-- [ ] T110 [P] [US2] Implement transparent score fusion and withholding gates in `backend/apps/anomalies/scoring/fusion.py`
-- [ ] T111 [US2] Implement anomaly scoring orchestration service in `backend/apps/anomalies/scoring/service.py`
-- [ ] T112 [US2] Add score/contribution models and migration in `backend/apps/anomalies/models.py`
-- [ ] T113 [US2] Add idempotent score/contribution repositories in `backend/apps/anomalies/services.py`
+- [ ] T109 [P] [US2] Implement bounded contamination-aware observed-pattern profiles, compatible pattern comparison, and per-signal deviation components in `backend/apps/anomalies/scoring/pattern_profiles.py`, `backend/apps/anomalies/scoring/pattern_comparison.py`, and `backend/apps/anomalies/scoring/components.py`
+- [ ] T110 [P] [US2] Implement transparent pattern-deviation fusion, cold-start/quarantine, and withholding gates in `backend/apps/anomalies/scoring/fusion.py`
+- [ ] T111 [US2] Implement observed-pattern comparison and anomaly scoring orchestration service in `backend/apps/anomalies/scoring/service.py`
+- [ ] T112 [US2] Add signal-pattern window models in `backend/apps/behavior/models.py` and observed-pattern profile/score/contribution models with migrations in `backend/apps/anomalies/models.py`
+- [ ] T113 [US2] Add idempotent pattern-profile, score, and contribution repositories in `backend/apps/anomalies/services.py`
 - [ ] T114 [P] [US2] Add exact reconstruction and counterfactual service in `backend/apps/anomalies/scoring/reconstruction.py`
 - [ ] T115 [P] [US2] Add explicit score serializers and read endpoints in `backend/apps/anomalies/serializers.py` and `backend/apps/anomalies/views.py`
-- [ ] T116 [P] [US2] Add contribution math, missingness, withholding, and vocabulary tests in `backend/tests/unit/anomalies/test_xai_review_priority_score.py`
-- [ ] T117 [P] [US2] Add PostgreSQL reconstruction/idempotency/integration tests in `backend/tests/integration/anomalies/test_xai_score_persistence.py`
-- [ ] T118 [P] [US2] Add labeled ranking/error evaluation command in `backend/apps/anomalies/management/commands/evaluate_xai_scores.py`
-- [ ] T119 [P] [US6] Add production score reconstruction/probe helper in `tools/prod/prod_probe_xai_scores.py`
+- [ ] T116 [P] [US2] Add contribution math, controlled pattern fixtures, metamorphic/invariant, cold-start, contamination, quarantine, missingness, withholding, and vocabulary tests in `backend/tests/unit/anomalies/test_xai_review_priority_score.py`
+- [ ] T117 [P] [US2] Add PostgreSQL pattern-profile compatibility/quarantine, reconstruction, and idempotency integration tests in `backend/tests/integration/anomalies/test_xai_score_persistence.py`
+- [ ] T118 [P] [US2] Add no-ground-truth pattern invariant, sensitivity, counterfactual, and prohibited-metric evaluation command in `backend/apps/anomalies/management/commands/evaluate_xai_scores.py`
+- [ ] T119 [P] [US6] Add production pattern-profile/score reconstruction/no-ground-truth probe helper in `tools/prod/prod_probe_xai_scores.py`
 - [ ] T120 [US6] Add Cycle 015.5 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_5.sh`
-- [ ] T121 [P] [US6] Implement Cycle 015.5 score/error figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_5_figures.py`
+- [ ] T121 [P] [US6] Implement Cycle 015.5 pattern-envelope, score decomposition, fixture/invariant, contamination/quarantine, manifest/digest figures and generator tests in `tools/prod/prod_generate_xai_cycle015_5_figures.py`
 - [ ] T122 [US6] Execute rollback and record Cycle 015.5 decision in `docs/xai_anomaly/cycle_015_5_results.md`
 - [ ] T123 [US6] Record every Cycle 015.5 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
@@ -193,13 +199,13 @@ precision.
 **Independent test**: Coverage is measured and outputs are withheld when
 assumptions or drift gates fail.
 
-- [ ] T124 [P] [US2] Write Cycle 015.6 investigation and conformal assumption protocol in `docs/xai_anomaly/cycle_015_6_investigation.md`
+- [ ] T124 [P] [US2] Write Cycle 015.6 investigation, conformal assumption protocol, and distributional-not-behavioral coverage boundary in `docs/xai_anomaly/cycle_015_6_investigation.md`
 - [ ] T125 [P] [US6] Name Cycle 015.6 Figure Planner in `docs/xai_anomaly/cycle_015_6_figure_plan.md`
 - [ ] T126 [P] [US6] Name separate Cycle 015.6 Figure Implementer in `docs/xai_anomaly/cycle_015_6_figure_implementation.md`
-- [ ] T127 [P] [US2] Implement uncertainty/missingness propagation in `backend/apps/anomalies/scoring/uncertainty.py`
+- [ ] T127 [P] [US2] Implement pattern-profile/window uncertainty and missingness propagation in `backend/apps/anomalies/scoring/uncertainty.py`
 - [ ] T128 [P] [US2] Implement conformal snapshot/contracts and assumption gates in `backend/apps/anomalies/scoring/conformal.py`
 - [ ] T129 [US2] Add conformal snapshot model and migration in `backend/apps/anomalies/models.py`
-- [ ] T130 [P] [US2] Implement coverage/drift evaluation in `backend/apps/anomalies/scoring/conformal_evaluation.py`
+- [ ] T130 [P] [US2] Implement distributional coverage/drift evaluation without behavioral-correctness claims in `backend/apps/anomalies/scoring/conformal_evaluation.py`
 - [ ] T131 [US2] Integrate uncertainty/conformal outputs into score service in `backend/apps/anomalies/scoring/service.py`
 - [ ] T132 [P] [US2] Add missingness, coverage, drift, and withholding unit tests in `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py`
 - [ ] T133 [P] [US2] Add adaptive bounded-state and PostgreSQL integration tests in `backend/tests/integration/anomalies/test_xai_conformal_runtime.py`
@@ -270,17 +276,17 @@ self-modification.
 **Independent test**: Feedback is immutable evaluation evidence and prototype
 review improves measured reviewer outcomes without mutating runtime policy.
 
-- [ ] T178 [P] [US4] Write Cycle 015.9 investigation and reviewer-study protocol in `docs/xai_anomaly/cycle_015_9_investigation.md`
+- [ ] T178 [P] [US4] Write Cycle 015.9 non-ground-truth reviewer-usability/disagreement study protocol in `docs/xai_anomaly/cycle_015_9_investigation.md`
 - [ ] T179 [P] [US6] Name Cycle 015.9 Figure Planner in `docs/xai_anomaly/cycle_015_9_figure_plan.md`
 - [ ] T180 [P] [US6] Name separate Cycle 015.9 Figure Implementer in `docs/xai_anomaly/cycle_015_9_figure_implementation.md`
 - [ ] T181 [P] [US4] Implement governed prototype/exemplar contracts in `backend/apps/behavior/explainability/prototypes.py`
 - [ ] T182 [P] [US4] Implement similar-case comparison service in `backend/apps/behavior/explainability/case_comparison.py`
-- [ ] T183 [US4] Add review-feedback model/migration and no-direct-mutation guard in `backend/apps/anomalies/models.py`
-- [ ] T184 [US4] Implement review feedback/audit service in `backend/apps/anomalies/scoring/review_feedback.py`
+- [ ] T183 [US4] Add reviewer-assessment model/migration and no-ground-truth/no-training/no-direct-mutation guards in `backend/apps/anomalies/models.py`
+- [ ] T184 [US4] Implement non-ground-truth reviewer assessment/audit service in `backend/apps/anomalies/scoring/review_feedback.py`
 - [ ] T185 [P] [US4] Add prototype/case/review endpoints in `backend/apps/anomalies/views.py`
-- [ ] T186 [P] [US4] Add feedback immutability, access, and no-direct-mutation tests in `backend/tests/unit/anomalies/test_xai_review_feedback.py`
+- [ ] T186 [P] [US4] Add feedback immutability, access, no-ground-truth, no-training-target, no-profile-update, and no-direct-mutation tests in `backend/tests/unit/anomalies/test_xai_review_feedback.py`
 - [ ] T187 [P] [US4] Add reviewer workflow/audit integration tests in `backend/tests/integration/anomalies/test_xai_review_workflow.py`
-- [ ] T188 [P] [US6] Add reviewer-study evidence collector in `tools/prod/prod_collect_xai_reviewer_study.py`
+- [ ] T188 [P] [US6] Add explicitly non-ground-truth reviewer-usability/disagreement evidence collector in `tools/prod/prod_collect_xai_reviewer_study.py`
 - [ ] T189 [US6] Add Cycle 015.9 production benchmark/collector in `tools/prod/prod_run_xai_cycle015_9.sh`
 - [ ] T190 [P] [US6] Implement Cycle 015.9 reviewer/prototype figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_9_figures.py`
 - [ ] T191 [US6] Execute rollback and record Cycle 015.9 decision in `docs/xai_anomaly/cycle_015_9_results.md`
@@ -331,7 +337,7 @@ metric or a reason and fails on any critical veto.
 - [ ] T220 [P] [US6] Add runtime reconciliation checker in `backend/apps/behavior/explainability/reconciliation.py`
 - [ ] T221 [P] [US6] Add evidence/manifest authenticity validator in `backend/apps/behavior/explainability/evidence_validator.py`
 - [ ] T222 [P] [US6] Add access/privacy/retention audit verifier in `backend/apps/behavior/explainability/security_audit.py`
-- [ ] T223 [P] [US6] Add calibration/subgroup/explanation stability evaluator in `backend/apps/anomalies/scoring/integrated_evaluation.py`
+- [ ] T223 [P] [US6] Add source-model calibration/subgroup/explanation stability and no-ground-truth pattern-invariant evaluator in `backend/apps/anomalies/scoring/integrated_evaluation.py`
 - [ ] T224 [P] [US6] Add integrated load/soak/failure/restart tests in `backend/tests/system/test_xai_integrated_stability.py`
 - [ ] T225 [P] [US6] Add security/access/retention system tests in `backend/tests/system/test_xai_security_retention.py`
 - [ ] T226 [P] [US6] Add frontend integrated workbench/reconciliation tests in `frontend/tests/e2e/xai-integrated.spec.ts`
@@ -354,7 +360,7 @@ semantics, and rollback all reconcile from immutable evidence.
 - [ ] T236 [P] [US6] Name separate Cycle 015.12 Figure Implementer in `docs/xai_anomaly/cycle_015_12_figure_implementation.md`
 - [ ] T237 [P] [US6] Add disabled/shadow/reviewer-visible/promoted profile helper in `tools/prod/prod_set_xai_profile.sh`
 - [ ] T238 [P] [US6] Add canary preflight and branch/SHA/env/route/calibration fingerprint helper in `tools/prod/prod_xai_canary_preflight.py`
-- [ ] T239 [P] [US6] Add canary stop/promote policy evaluator in `backend/apps/behavior/explainability/canary_policy.py`
+- [ ] T239 [P] [US6] Add canary stop/promote policy evaluator that vetoes anomaly training, behavioral-ground-truth, prohibited-metric, and vocabulary violations in `backend/apps/behavior/explainability/canary_policy.py`
 - [ ] T240 [P] [US6] Add canary runtime reconciliation and final manifest validator in `backend/apps/behavior/explainability/final_acceptance.py`
 - [ ] T241 [P] [US6] Add canary policy, stop, promotion, and rollback tests in `backend/tests/system/test_xai_canary.py`
 - [ ] T242 [P] [US6] Add canary reviewer-surface Playwright tests in `frontend/tests/e2e/xai-canary.spec.ts`

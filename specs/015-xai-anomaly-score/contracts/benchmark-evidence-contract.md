@@ -22,13 +22,14 @@ runs are probe-only.
 | Storage/queues | PostgreSQL/Redis latency/volume, queue/backpressure/retries |
 | Correctness | Model output parity or task metrics, identity metrics |
 | XAI quality | Calibration, fidelity, stability, sanity, explanation completeness |
-| Anomaly quality | Ranking/error/coverage/withholding/reconstruction metrics |
+| Anomaly pattern quality | Reconstruction, deterministic replay, controlled fixtures, metamorphic/invariant/sensitivity, cold-start/contamination/drift/quarantine, coverage/withholding metrics |
 | Frontend | WebGL backend, frame/update latency, contexts, memory proxy |
 | Lifecycle | Deadlines, reconciler, idempotency, failure accounting |
 | Missing metrics | Explicit unavailable reason |
 | Causal interpretation | What changed and what remains bottleneck |
 | Rollback | Command, execution, and reconciliation proof |
 | Evidence | Raw paths, manifests, digests, docs, ledger row |
+| Knowledge limits | Proof of no anomaly training/fine-tuning path, no behavioral-ground-truth claim, and required observed-pattern vocabulary |
 
 ## Figure Roles
 
@@ -52,12 +53,24 @@ Every cycle includes:
 - PostgreSQL/Redis/queue impact;
 - correctness/identity or task-quality delta;
 - cycle-specific XAI/anomaly/calibration/renderer quality;
+- controlled pattern-fixture and invariant outcomes where anomaly behavior is
+  in scope;
 - unavailable-metric summary;
 - evidence completeness;
 - rollback verification.
 
 Figures consume the same raw artifacts as the decision table. Missing values
 are not plotted as zero.
+
+## No-Ground-Truth Decision Boundary
+
+Under this plan, no decision record may claim anomaly/cheating/normality
+accuracy, precision, recall, F1, AUROC, AUPRC, false-positive rate, or
+false-negative rate. Reviewer assessments, heuristic outputs, source-model
+agreement, BSIL output, and assumed-normal history are not ground truth.
+Controlled fixtures prove algorithm semantics only. Any unavailable
+behavioral-validity metric is recorded as unavailable with
+`no_accepted_behavioral_ground_truth`.
 
 ## Manifest
 
