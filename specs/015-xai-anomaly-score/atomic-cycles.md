@@ -1,0 +1,414 @@
+# Atomic Implementation Cycles
+
+**Date**: 2026-06-08
+**Rule**: Each cycle is an indivisible acceptance unit. Tasks inside a cycle may
+run in parallel, but the cycle has one causal hypothesis, one rollback boundary,
+and one production decision. No cycle may claim acceptance from partial tasks.
+
+## Universal Cycle Evidence Packet
+
+Every cycle must create:
+
+- `docs/xai_anomaly/cycle_015_<id>_investigation.md`;
+- `docs/xai_anomaly/cycle_015_<id>_results.md`;
+- raw JSON/CSV/log artifacts under a cycle-specific production evidence root;
+- a figure plan naming exactly one Figure Planner;
+- a figure implementation claim naming exactly one separate Figure Implementer;
+- generated figures and `figure_manifest.json` with input paths and digests;
+- a row in `docs/BENCHMARK_RESULTS_LEDGER.md`;
+- rollback command, rollback execution, and post-rollback reconciliation;
+- explicit streaming compatibility;
+- baseline/candidate/best-comparable metric deltas;
+- unavailable metrics with reasons, never hidden or plotted as zero.
+
+## Cycle 015.0 - Runtime Truth, Route Snapshot, And BSIL Activation
+
+**Indivisible capability**: Establish one trustworthy runtime/source baseline.
+Route immutability, mapping authority, and BSIL population cannot be accepted
+separately because all later explanations and scores depend on their combined
+truth.
+
+**Dependencies**: None. This blocks all later cycles.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- add immutable model-route/config/artifact snapshot and digest;
+- remove hidden mutation of the shared default route table;
+- reconcile behavior label mappings and persisted presentation names;
+- replace accusatory rule-engine outputs with non-accusatory review-candidate
+  vocabulary or explicitly deprecate the path;
+- activate and reconcile BSIL semantic/temporal/lineage production rows behind
+  flags;
+- prove current route, queue, DB, telemetry, and frontend state convergence;
+- retire or mark placeholder lifecycle explainability/visualization helpers.
+
+**Benchmark hypothesis**: Runtime truth capture and BSIL activation fit within
+declared latency/throughput/storage budgets without changing source model
+outputs.
+
+**Acceptance gates**:
+
+- nonzero, reconciled BSIL/lineage rows on a valid production job;
+- immutable route digest matches the exact active models/config;
+- mapping parity and no accusation-language gate pass;
+- source detection/track/pose/scene output parity;
+- rollback returns BSIL/XAI additions to disabled with original path intact.
+
+**Required figures**: route/config diff, BSIL row progression, phase overhead,
+DB/Redis/resource delta, output parity, unavailable-state summary.
+
+## Cycle 015.1 - Versioned Evidence Envelope And Signal Registry
+
+**Indivisible capability**: One governed evidence contract and one registry.
+Adapters cannot be accepted before all sources share lineage, missingness,
+quality, and schema semantics.
+
+**Dependencies**: 015.0.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- add `EvidenceEnvelope`, `SignalDefinition`, `SignalProvider`, and registry;
+- register every current raw/derived signal from `signal-catalog.md`;
+- enforce schema/version/unit/validity/missingness/retention definitions;
+- add idempotent persistence and explicit serializers;
+- add payload/vector size guards and route/schema compatibility checks.
+
+**Benchmark hypothesis**: Envelope normalization/persistence is bounded and
+does not cause unacceptable DB/Redis or critical-path overhead.
+
+**Acceptance gates**: Complete active-signal registry, contract tests, explicit
+missingness, idempotent replay, payload guards, production row/artifact
+reconciliation, output parity, and rollback.
+
+**Required figures**: evidence coverage, envelope size distribution,
+normalization latency, DB write cost, missingness distribution, signal registry
+coverage.
+
+## Cycle 015.2 - Per-Model Calibration And Reliability
+
+**Indivisible capability**: Versioned calibration snapshots plus reliability
+evaluation. Calibrated outputs are meaningless without the paired evaluation
+and route compatibility.
+
+**Dependencies**: 015.1.
+**Streaming compatibility**: `stream-safe` for lookup; fitting is `offline-only`.
+
+**Implementation scope**:
+
+- add calibration snapshot contracts and artifact lineage;
+- collect governed calibration datasets and subgroup slices;
+- fit/evaluate model-appropriate calibrators;
+- expose calibrated confidence, reliability, age, route compatibility, and
+  unavailable reasons;
+- block stale/incompatible/underpowered calibration.
+
+**Benchmark hypothesis**: Calibration lookup adds negligible bounded overhead
+and materially improves calibration measures without output-quality regression.
+
+**Acceptance gates**: Reliability diagrams, ECE/Brier/task metrics, sample
+counts/confidence intervals, subgroup limitations, route compatibility,
+production lookup overhead, and rollback.
+
+**Required figures**: reliability diagrams, confidence histograms, calibration
+delta, subgroup calibration, lookup latency/resource delta.
+
+## Cycle 015.3 - Deterministic Fast Explainers For Every Active Model
+
+**Indivisible capability**: Complete fast-explainer coverage across all active
+routes. Partial coverage would make aggregate explanations selectively blind.
+
+**Dependencies**: 015.2.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- implement registered fast adapters for detector, behavior children/ensemble,
+  RTMPose, OSNet ReID, YOLOE, tracking, pose kinematics, SRVL, and BSIL rules;
+- expose score/margin/entropy, geometry, quality, temporal support,
+  contradictions, thresholds, and counterfactual deltas;
+- reject active routes without registered compatible adapters;
+- replace placeholder explanation notes with real artifact/record contracts.
+
+**Benchmark hypothesis**: Fast explanation coverage can be complete within
+declared per-observation and per-frame overhead budgets.
+
+**Acceptance gates**: Every ready route covered, deterministic replay,
+model-output parity, bounded overhead/storage, no hidden fallback, and rollback.
+
+**Required figures**: adapter coverage, per-adapter latency, contribution
+examples, explanation completeness, output parity, storage/resource delta.
+
+## Cycle 015.4 - Bounded Temporal Evidence And Episode Explanations
+
+**Indivisible capability**: Bounded temporal windows plus deterministic episode
+explanations. A temporal score without reconstructable windows is not valid.
+
+**Dependencies**: 015.3.
+**Streaming compatibility**: `stream-safe-with-config` using bounded time/count
+windows and stale eviction.
+
+**Implementation scope**:
+
+- build bounded per-camera/per-identity evidence windows;
+- explain change points, drift, repeated patterns, instability, persistence,
+  decay, hysteresis, cooldown, and invalid gaps;
+- generate episode-level contribution summaries and counterfactuals;
+- prove reconnect, out-of-order, eviction, and indefinite-stream behavior.
+
+**Benchmark hypothesis**: Temporal evidence improves transient suppression and
+diagnosis without unbounded state or unacceptable latency.
+
+**Acceptance gates**: Deterministic replay, spike suppression, sustained-event
+recall, invalid-gap behavior, bounded soak state, resource/latency budgets, and
+rollback.
+
+**Required figures**: temporal state transitions, window coverage, spike versus
+sustained behavior, state-size soak, latency/resource delta.
+
+## Cycle 015.5 - Transparent Hierarchical Anomaly Score
+
+**Indivisible capability**: The first reconstructable review-priority score,
+its contribution records, and score-withholding rules.
+
+**Dependencies**: 015.4.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- implement per-signal calibrated surprise and reliability-weighted components;
+- add context/persistence/uncertainty modifiers;
+- persist score/contribution/reconstruction records;
+- enforce minimum coverage, baseline, identity, route, calibration, and
+  uncertainty gates;
+- expose exact counterfactual threshold/recovery deltas;
+- deprecate score language implying cheating probability.
+
+**Benchmark hypothesis**: Transparent scoring improves review ranking and
+diagnosis while preserving latency/throughput and avoiding unsupported scores.
+
+**Acceptance gates**: Exact reconstruction, labeled ranking metrics,
+false-positive/false-negative analysis, withholding correctness, runtime
+budgets, non-accusatory vocabulary, and rollback.
+
+**Required figures**: score decomposition, PR/ROC/ranking curves as applicable,
+coverage versus score, threshold/counterfactual plots, error analysis,
+performance delta.
+
+## Cycle 015.6 - Missingness, Uncertainty, And Conformal Calibration
+
+**Indivisible capability**: Uncertainty and coverage semantics plus conformal
+outputs where valid. A conformal value without assumption/coverage evaluation
+cannot be accepted.
+
+**Dependencies**: 015.5.
+**Streaming compatibility**: `stream-safe-with-config`; adaptive calibration
+state is bounded and drift-gated.
+
+**Implementation scope**:
+
+- propagate missingness and uncertainty into scoring/explanations;
+- add conformal calibration snapshots and validity assumptions;
+- evaluate coverage under time/session/camera drift;
+- withhold conformal outputs when assumptions fail;
+- compare adaptive versus fixed calibration as separate candidates inside the
+  same cycle only if the cycle benchmark matrix keeps each candidate isolated.
+
+**Benchmark hypothesis**: Explicit uncertainty improves coverage/error control
+without creating false precision or unacceptable overhead.
+
+**Acceptance gates**: Coverage/error metrics, drift behavior, withholding,
+reconstruction, bounded state, latency/resource budgets, and rollback.
+
+**Required figures**: empirical versus target coverage, interval/set size,
+coverage under drift, missingness impact, performance delta.
+
+## Cycle 015.7 - Cross-Model Fusion And Explanation Graph
+
+**Indivisible capability**: Identity-gated evidence fusion plus a reconstructable
+explanation graph. Fusion without source-preserving graph evidence is unsafe.
+
+**Dependencies**: 015.6.
+**Streaming compatibility**: `stream-safe-with-config` using bounded graph
+windows.
+
+**Implementation scope**:
+
+- implement source-preserving fusion and contradiction policies;
+- add identity-gated peer/scene/SRVL context;
+- create explanation graph nodes/edges with contribution and lineage;
+- keep unresolved identity/context unresolved;
+- prevent graph contamination across invalid windows.
+
+**Benchmark hypothesis**: Context/fusion improves reviewed ranking or diagnosis
+without association, correctness, or latency regressions.
+
+**Acceptance gates**: Identity/association metrics, contradiction visibility,
+graph reconstruction, reviewer-label delta, bounded graph state, performance,
+and rollback.
+
+**Required figures**: explanation graphs, contribution flow, contradiction
+matrix, association/fragmentation metrics, ranking/performance delta.
+
+## Cycle 015.8 - Offline And On-Demand Deep Vision XAI
+
+**Indivisible capability**: Isolated deep-XAI execution plus its fidelity,
+sanity, security, and lifecycle evidence.
+
+**Dependencies**: 015.3 and 015.7.
+**Streaming compatibility**: `offline-only` for automatic execution; authorized
+bounded snapshots may be requested from live evidence after capture.
+
+**Implementation scope**:
+
+- add deep-XAI request/task/artifact lifecycle;
+- implement eligible D-RISE, CAM/IG, perturbation, joint occlusion, and exemplar
+  adapters;
+- enforce method allowlist and route compatibility;
+- evaluate sanity, fidelity, stability, latency, memory, artifact size, access,
+  retention, idempotency, deadline, reconciler, and rollback.
+
+**Benchmark hypothesis**: Selected methods provide faithful diagnostic value
+without affecting critical inference and within bounded deep-task resources.
+
+**Acceptance gates**: Method-specific fidelity/sanity/stability, task isolation,
+critical-path parity, artifact access/lineage, lifecycle reconciliation, and
+rollback.
+
+**Required figures**: attribution examples, deletion/insertion curves, sanity
+comparisons, stability distribution, task latency/resource and critical-path
+delta.
+
+## Cycle 015.9 - Prototype, Case Comparison, And Governed Review Feedback
+
+**Indivisible capability**: Human-review diagnosis loop with governed prototypes
+and feedback that cannot self-modify production.
+
+**Dependencies**: 015.7 and 015.8.
+**Streaming compatibility**: `stream-safe` for read-only review; prototype
+building/promotion is `offline-only`.
+
+**Implementation scope**:
+
+- add governed prototypes/exemplars and similar-case comparison;
+- expose reviewer explanation, evidence, disagreement, and feedback workflow;
+- audit access and feedback lineage;
+- prove feedback cannot directly alter thresholds/baselines/models;
+- add promotion workflow requiring a later governed cycle.
+
+**Benchmark hypothesis**: Prototypes and explanations improve reviewer
+consistency/time without unsafe automatic adaptation.
+
+**Acceptance gates**: Reviewer agreement/time study, privacy/access, feedback
+immutability, no-direct-mutation proof, performance, and rollback.
+
+**Required figures**: reviewer time/agreement, prototype similarity, disagreement
+analysis, access/audit summary, performance delta.
+
+## Cycle 015.10 - Shared WebGL2 Explanation Workbench
+
+**Indivisible capability**: One shared renderer core and migrated analytical
+surfaces. Context management, data stores, and migrated figures must be
+accepted together because partial migration leaves the original context and
+Canvas2D failures.
+
+**Dependencies**: 015.3, 015.5, and 015.7.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- implement shared WebGL2 renderer/context/buffer/data-store core;
+- migrate time series, matrices, heatmaps, metrics, scene map, telemetry lanes,
+  contribution charts, attribution overlays, and explanation graph;
+- add typed-array/binary incremental transport, Workers, LOD/tiling, ring
+  buffers, stable colors, interactions, downloads, accessibility, and recovery;
+- remove accepted Canvas2D analytical rendering.
+
+**Benchmark hypothesis**: Shared WebGL2 improves update latency, frame time,
+memory, context stability, and large-data responsiveness without regressions.
+
+**Acceptance gates**: All accepted analytical figures report WebGL2, context
+budget holds, no crash on toggles, representative/stress frame-time budgets,
+large matrix/series correctness, context-loss recovery, accessibility,
+downloads, and rollback.
+
+**Required figures**: frame-time distributions, update latency, context count,
+buffer/upload bytes, memory proxy, stress scaling, dropped-update/recovery
+summary.
+
+## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
+
+**Indivisible capability**: Cross-cutting operational/scientific acceptance
+suite. These gates must be evaluated together because one green dimension
+cannot compensate for a critical failure in another.
+
+**Dependencies**: 015.0 through 015.10.
+**Streaming compatibility**: `stream-safe`.
+
+**Implementation scope**:
+
+- add end-to-end XAI/anomaly/renderer telemetry and dashboards;
+- run load, soak, queue-failure, restart, context-loss, DB/Redis, retention,
+  access-control, privacy, calibration, subgroup, identity, and explanation
+  stability tests;
+- verify instrumentation readiness and evidence completeness;
+- quantify remaining bottlenecks and debt.
+
+**Benchmark hypothesis**: The integrated disabled/default and enabled candidate
+profiles are stable, measurable, secure, and scientifically auditable.
+
+**Acceptance gates**: All required metrics or unavailable reasons, no hidden
+xfails/fallbacks/placeholders, soak and failure recovery, access/privacy,
+subgroup limitations, performance budgets, and rollback.
+
+**Required figures**: latency/throughput/resource overview, soak trends, queue
+and failure recovery, calibration/subgroup/error analysis, evidence
+completeness.
+
+## Cycle 015.12 - Production Canary, Rollback, And Final Acceptance
+
+**Indivisible capability**: One governed canary/promotion/rollback decision.
+Canary evidence and final rollback proof cannot be accepted independently.
+
+**Dependencies**: 015.11.
+**Streaming compatibility**: `stream-safe` only for capabilities previously
+accepted as stream-safe.
+
+**Implementation scope**:
+
+- define disabled, shadow, reviewer-visible, and promoted profiles;
+- execute production canary with explicit exposure and stop conditions;
+- prove score/explanation/frontend reconciliation and human-review semantics;
+- execute rollback and verify original behavior;
+- package final immutable evidence and open remaining research debt.
+
+**Benchmark hypothesis**: The accepted capability set can operate in production
+without violating latency, throughput, correctness, stability, safety, or
+rollback gates.
+
+**Acceptance gates**: Canary stop/promote criteria, reviewer and runtime
+evidence, full benchmark/figure/ledger package, rollback proof, branch/SHA/env/
+route/calibration fingerprint, and no unresolved blocker.
+
+**Required figures**: canary versus baseline, review-priority distribution,
+latency/throughput/resource/correctness, rollback verification, final evidence
+completeness.
+
+## Dependency Order
+
+```text
+015.0 -> 015.1 -> 015.2 -> 015.3 -> 015.4 -> 015.5 -> 015.6 -> 015.7
+                                      |                         |
+                                      +-------> 015.8 <---------+
+                                                  |
+                                               015.9
+
+015.3 + 015.5 + 015.7 -> 015.10
+015.0 through 015.10 -> 015.11 -> 015.12
+```
+
+Parallel implementation work is allowed only where dependencies and file
+ownership do not overlap. Production acceptance decisions remain sequential in
+the order above unless a later plan amendment proves an alternate dependency
+graph.
