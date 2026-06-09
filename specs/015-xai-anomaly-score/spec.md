@@ -66,6 +66,15 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   interaction-graph signal raises only the involved student's own review
   priority; it is never proof of collusion or cheating and never accuses the
   peer.
+- The general baseline is a contamination-aware, assumed-normal aggregate learned
+  by ingesting the supported videos. It provides population/context comparison
+  only, is never known-normal ground truth, and never converts a population
+  pattern into a per-student verdict. Each student is still judged primarily
+  against their own profile.
+- No operational value is hardcoded. Every threshold, weight, envelope bound,
+  geometric constant, and gate is either learned from a governed baseline or read
+  from a fingerprinted configuration/`.env` value, and each carries explicit
+  provenance so it stays reconstructable for XAI.
 
 ## User Scenarios & Testing
 
@@ -132,6 +141,11 @@ algorithm behavior and are not behavioral ground truth.
 4. **Given** a new student or incompatible route has insufficient valid
    history, **When** scoring is requested, **Then** the result is
    `insufficient_context` rather than a low score or normal label.
+5. **Given** a valid window with both a compatible general baseline and the
+   student's own profile, **When** scoring runs, **Then** the explanation lists
+   `deviation_vs_self` and `deviation_vs_population` separately, references both
+   snapshot versions, and the student's own profile remains the primary
+   comparison.
 
 ---
 
@@ -247,6 +261,11 @@ evidence.
 3. **Given** a component probe or local test passes, **When** production
    acceptance is considered, **Then** the result remains probe-only until a
    completed stride-1 native Linux RTX 5090 end-to-end benchmark exists.
+4. **Given** an operational value drives a gate, weight, or geometric constant,
+   **When** acceptance is audited, **Then** the value resolves to a learned
+   baseline reference or a fingerprinted configuration/`.env` key with a
+   `learned` or `configured` provenance tag, and no hardcoded operational
+   constant is present.
 
 ---
 
@@ -319,6 +338,15 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   missing, or has low pose/gaze quality.
 - Two students share a desk or scene object but never actually interact.
 - A learned graph model is proposed as production scoring authority.
+- The supported-video corpus is too small to form a valid general baseline
+  (population cold-start).
+- The supported-video corpus is contaminated or drifts at population scale.
+- The general baseline and the student's own profile disagree for the same
+  window.
+- A general-baseline tier (age-band, scene type, camera) has no compatible match.
+- A required configuration/`.env` value is missing, unfingerprinted, or changed
+  between scoring and reconciliation.
+- A hardcoded operational constant is introduced into the code path.
 
 ## Mandatory Runtime Scenarios
 
@@ -507,6 +535,28 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   identity evidence is ambiguous MUST be shown unresolved rather than asserted,
   and no graph edge or graph signal may be presented as proof of cheating,
   intent, or collusion.
+- **FR-037**: The system MUST learn a versioned, contamination-aware **general
+  baseline** (population tier plus context tiers such as age-band, scene type,
+  camera, and session) by ingesting all supported videos, using the same
+  deterministic robust-statistics, cold-start, quarantine, drift, and
+  append-only machinery as per-student profiles. The general baseline is
+  assumed-normal/semi-supervised aggregation; it MUST NOT be called known-normal
+  ground truth and MUST NOT be a trained anomaly/cheating/normality model.
+- **FR-038**: Scoring MUST perform **dual comparison** — each valid window is
+  compared against BOTH the compatible general baseline AND the student's own
+  observed-pattern profile. Contributions MUST expose `deviation_vs_self` and
+  `deviation_vs_population` separately; the student's own profile is the primary
+  comparison and the general baseline is contextual support; the score is
+  withheld when a required tier is missing, incompatible, cold-start, or
+  quarantined, and tier disagreement remains visible rather than hidden.
+- **FR-039**: No operational value may be hardcoded. Every threshold, weight,
+  envelope/quantile bound, geometric constant (e.g., gaze-cone angle),
+  persistence/hysteresis window, score weight, and gate MUST be either **learned**
+  from a governed baseline snapshot or sourced from a **fingerprinted
+  configuration/`.env`** value, and MUST carry an explicit provenance tag
+  (`learned` or `configured`) with its source reference. Static and runtime
+  checks MUST fail on any magic-number operational constant, and because XAI is
+  the top priority, every such value MUST be reconstructable to its provenance.
 
 ### Key Entities
 
@@ -536,6 +586,12 @@ render in WebGL2 within budget with a numeric/tabular fallback.
 - **Student Interaction Edge**: One directed or undirected pairwise relational
   evidence item (edge type, weight, persistence, identity confidence) between two
   tracked students, with explicit unresolved state when identity is ambiguous.
+- **General Baseline Snapshot**: Versioned, contamination-aware population/context-tier
+  observed-pattern aggregate learned by corpus ingestion; assumed-normal, never
+  known-normal ground truth.
+- **Parameter Provenance Record**: Binds each operational value to its source — a
+  `learned` baseline reference or a `configured` config/`.env` key plus fingerprint
+  — proving no hardcoded operational constant is used.
 
 ## Success Criteria
 
@@ -612,6 +668,14 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   expose a numeric/tabular fallback when WebGL is unavailable, and any learned
   graph model used for research comparison is recorded `PROBE_ONLY` with no
   anomaly accuracy, AUROC, or collusion-detection claim.
+- **SC-025**: A static no-hardcoding verifier plus runtime reconciliation prove
+  that every operational value resolves to a learned baseline reference or a
+  fingerprinted configuration/`.env` key with a `learned` or `configured`
+  provenance tag; any magic-number operational constant fails acceptance.
+- **SC-026**: Every score exposes `deviation_vs_self` and `deviation_vs_population`
+  (or an explicit unavailable reason), reconstructable from the referenced
+  student-profile and general-baseline snapshots; the general baseline is
+  versioned, contamination-aware, and never labeled ground truth.
 
 ## Assumptions And Dependencies
 

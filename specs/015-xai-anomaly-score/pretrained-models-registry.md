@@ -109,6 +109,12 @@ The models below are **frozen, `PROBE_ONLY` research candidates** for comparing 
 4. Because the best probes are **skeleton-based** and you already run
    `rtmpose_model`, you can stand up a credible unsupervised baseline **with the
    data you have and zero new labels**.
+5. The **general baseline** (population/context tiers, corpus-ingested) is **not a
+   pretrained model** — it is the same deterministic robust-statistics machinery
+   at population scale. Deriving bounds from it (quantile envelopes, robust scale)
+   is statistical estimation, not anomaly training; such values carry `learned`
+   provenance, while the remainder carry `configured` provenance from a
+   fingerprinted `.env`. **No operational value is hardcoded.**
 
 ## Acceptance (consistent with doctrine)
 
@@ -118,6 +124,9 @@ The models below are **frozen, `PROBE_ONLY` research candidates** for comparing 
   `ground_truth_status = unavailable_for_anomaly_behavior`.
 - No registry change may introduce a trainable anomaly/cheating/normality target
   or report label-based anomaly accuracy.
+- The general baseline is deterministic statistics, not a registry model; any
+  operational value it derives is `learned` provenance and every other value is
+  `configured` from a fingerprinted `.env` — no hardcoding.
 
 ---
 

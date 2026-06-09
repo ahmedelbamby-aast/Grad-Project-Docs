@@ -272,7 +272,17 @@ non-ground-truth reviewer assessments.
   contradiction penalty, and final review-priority decomposition;
 - score withholding reason, explanation completeness, and reviewer disagreement;
 - controlled-fixture, metamorphic/invariant, sensitivity, cold-start,
-  contamination, drift, quarantine, and threshold impact analysis.
+  contamination, drift, quarantine, and threshold impact analysis;
+- tiered observed-pattern profiles — student, session, camera, scene, and a
+  **corpus-ingested general/population baseline** — under the same robust
+  statistics, cold-start, contamination, quarantine, and drift governance;
+- per-signal **dual-comparison deltas** `deviation_vs_self` (versus the student's
+  own profile) and `deviation_vs_population` (versus the compatible general
+  baseline), kept separate and never merged into one opaque number;
+- **parameter provenance** for every derived bound: each threshold/weight/envelope
+  is tagged `learned` (with the baseline snapshot reference it was derived from)
+  or `configured` (with the fingerprinted `.env`/config key), so no operational
+  value is hardcoded.
 
 ### Knowledge Limits
 
@@ -280,6 +290,9 @@ non-ground-truth reviewer assessments.
 - `pattern_deviation` does not mean abnormal intent, misconduct, or cheating.
 - Reviewer assessments, heuristic outputs, model agreement, and assumed-normal
   history are not ground truth or training/fine-tuning targets.
+- The general/population baseline is a contamination-aware, assumed-normal
+  aggregate; it is context for comparison only and is never known-normal ground
+  truth or a per-student verdict.
 
 ## 9. Runtime, Quality, And Operational Signals
 

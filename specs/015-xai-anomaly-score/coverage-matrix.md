@@ -45,6 +45,9 @@ traceability artifact, not implementation evidence.
 | FR-034 student-independence and separate session aggregate | 015.5, 015.9 | T108-T123, T183-T192 |
 | FR-035 deterministic identity-gated interaction-graph signals | 015.13 | T254-T257, T260-T268 |
 | FR-036 interaction-graph WebGL render and unresolved-edge safety | 015.10, 015.13 | T196-T215, T258-T262 |
+| FR-037 corpus-ingested general baseline | 015.14 | T272-T273, T276-T285 |
+| FR-038 dual comparison (self + population) | 015.14 | T274, T278, T280-T285 |
+| FR-039 no hardcoding / parameter provenance | Setup, 015.14 | T005b, T275-T276, T279-T285 |
 
 ## Success Criterion Coverage
 
@@ -74,6 +77,8 @@ traceability artifact, not implementation evidence.
 | SC-022 peer-isolated session aggregate preview | 015.5, 015.9 | T116-T123, T183-T192 |
 | SC-023 deterministic reconstructable identity-gated graph features | 015.13 | T255-T257, T260-T268 |
 | SC-024 interaction-graph WebGL budgets and PROBE_ONLY learned graph | 015.10, 015.13 | T259, T262-T268 |
+| SC-025 no-hardcoding and parameter-provenance proof | Setup, 015.14 | T005b, T275, T279-T285 |
+| SC-026 dual-delta reconstruction and general baseline not ground truth | 015.14 | T274, T278-T285 |
 
 ## User Story Coverage
 
@@ -89,9 +94,9 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `36/36`
-- Success criteria covered: `24/24`
+- Functional requirements covered: `39/39`
+- Success criteria covered: `26/26`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
-  `14/14`
+  `15/15`
 - Mandatory no-ground-truth doctrine covered: `yes`

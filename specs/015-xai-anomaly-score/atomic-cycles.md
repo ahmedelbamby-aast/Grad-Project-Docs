@@ -398,6 +398,42 @@ vocabulary, performance, and rollback.
 per-student graph-feature envelopes, edge-persistence/identity-confidence
 distribution, graph render frame-time/context budget, performance delta.
 
+## Cycle 015.14 - General Baseline Ingestion, Dual Comparison, And Parameter Provenance
+
+**Indivisible capability**: A corpus-ingested general baseline, dual comparison
+(self + population), and parameter provenance. These ship together because dual
+comparison needs the general baseline, and the no-hardcoding provenance must
+cover both the new baseline-derived values and the existing scoring values.
+
+**Dependencies**: 015.4 and 015.5.
+**Streaming compatibility**: corpus ingestion is `offline-only`; dual-comparison
+lookup and provenance resolution are `stream-safe`.
+
+**Implementation scope**:
+
+- ingest the supported-video corpus into a versioned, contamination-aware general
+  baseline (population tier plus context tiers) reusing the per-student
+  robust-statistics, cold-start, quarantine, and drift machinery;
+- compare each valid window against both the student's own profile (primary) and
+  the compatible general baseline (contextual), exposing `deviation_vs_self` and
+  `deviation_vs_population` and keeping tier disagreement visible;
+- route every operational value through one parameter resolver and bind it to a
+  `learned`/`configured` `ParameterProvenanceRecord`;
+- prove the general baseline is never ground truth and no value is hardcoded.
+
+**Benchmark hypothesis**: A general baseline plus dual comparison improves
+cold-start/context anchoring and tunability within bounded overhead, without any
+trained anomaly target or hardcoded constant.
+
+**Acceptance gates**: General-baseline cold-start/contamination/quarantine/drift
+behavior, dual-delta reconstruction from both snapshots, tier-disagreement
+visibility, complete parameter-provenance coverage (no magic numbers),
+never-ground-truth proof, runtime budgets, and rollback.
+
+**Required figures**: population-versus-self envelopes, dual-delta decomposition,
+baseline contamination/quarantine behavior, parameter-provenance coverage
+(`learned` vs `configured`), performance delta.
+
 ## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
 
 **Indivisible capability**: Cross-cutting operational/scientific acceptance
@@ -478,7 +514,8 @@ completeness.
 
 015.3 + 015.5 + 015.7 -> 015.10
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
-015.0 through 015.10, plus 015.13 -> 015.11 -> 015.12
+015.4 + 015.5 -> 015.14
+015.0 through 015.10, plus 015.13 + 015.14 -> 015.11 -> 015.12
 ```
 
 Parallel implementation work is allowed only where dependencies and file

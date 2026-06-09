@@ -24,6 +24,8 @@ score record.
 | `POST /api/v1/video-analysis/jobs/{job}/xai/reviews/` | Governed non-ground-truth reviewer assessment | immutable assessment record |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/renderer-config/` | Renderer/data contract | bounded WebGL config |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/interaction-graph/` | Bounded deterministic student-interaction graph frames (identity-gated nodes/edges and per-student graph features) | chunked/paginated bounded graph frames |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/baselines/` | Compatible general/context baseline snapshots and tiers (assumed-normal, never ground truth) | paginated bounded baseline summaries |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/parameters/` | Parameter provenance (`learned`/`configured`) for the values used | paginated provenance records |
 | `POST /api/v1/anomalies/review-priority/aggregate-preview/` | Preview bounded student-local scores plus session/classroom aggregate using governed review-label semantics | bounded session summary only; no persistence |
 
 ## Query Rules
@@ -48,6 +50,10 @@ score record.
   `unresolved`, and never imply collusion or cheating. Large adjacency matrices
   use the binary/tile path; learned-graph (`PROBE_ONLY`) outputs are never
   returned as a production score or `pattern_state`.
+- Score responses expose `deviation_vs_self` and `deviation_vs_population` plus
+  `parameter_provenance_refs`; baseline responses are marked assumed-normal and
+  never ground truth; parameter responses carry a `learned`/`configured`
+  provenance with the baseline reference or fingerprinted `.env`/config key.
 
 ## Aggregate Preview Schema
 
@@ -142,6 +148,7 @@ Supported event types:
 - `xai.artifact.available`;
 - `xai.reconciliation.changed`;
 - `xai.interaction_graph.appended`;
+- `xai.baseline.changed`;
 - `xai.renderer.data_invalidated`.
 
 ## Incremental Delivery

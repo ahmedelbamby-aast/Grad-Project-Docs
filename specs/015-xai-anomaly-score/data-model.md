@@ -39,6 +39,15 @@ job-scoped artifacts for large arrays/images/traces.
   output is never persisted as a production `review_priority_score` or
   `pattern_state` (it stays `PROBE_ONLY` per
   [pretrained-models-registry.md](pretrained-models-registry.md)).
+- The general baseline is the same `ObservedPatternProfileSnapshot` machinery at a
+  population/context tier (`baseline_tier`), learned by corpus ingestion. It is
+  assumed-normal and contamination-aware, never known-normal ground truth, and a
+  score compares against both the student tier and the general tier.
+- No operational value is hardcoded. Every threshold, weight, envelope bound,
+  geometric constant, and gate is bound through a `ParameterProvenanceRecord`
+  tagged `learned` (with the baseline snapshot it was derived from) or
+  `configured` (with a fingerprinted `.env`/config key); records reference the
+  provenance of every value they used so XAI can reconstruct it.
 
 ## Existing Entities Reused
 
@@ -185,7 +194,8 @@ patterns for one compatible scope. It is never known-normal ground truth.
 |---|---|---|
 | `profile_id` | UUID | Primary key |
 | `schema_version`, `feature_schema_version` | strings | Required |
-| `scope` | bounded JSON | Student/session/camera/scene/context |
+| `scope` | bounded JSON | Student/session/camera/scene/context/population |
+| `baseline_tier` | enum | `student`, `session`, `camera`, `scene`, `context`, or `general` (population, corpus-ingested) |
 | `route_compatibility` | bounded JSON | Required |
 | `method_profile` | bounded JSON | Robust statistics and configured bounds |
 | `source_window_refs` | bounded artifact/reference set | Required |
@@ -206,6 +216,9 @@ patterns for one compatible scope. It is never known-normal ground truth.
   quarantined from updates.
 - No profile field may be described or consumed as behavioral ground truth.
 - Route, ontology, feature-schema, or artifact incompatibility invalidates use.
+- The `general` tier is learned by corpus ingestion under identical robust,
+  contamination-aware, append-only, cold-start, quarantine, and drift governance;
+  it stays assumed-normal and is never a per-student verdict.
 
 ## New Entity: CalibrationSnapshot
 
@@ -277,8 +290,12 @@ coverage.
 | `source_start_ms`, `source_end_ms` | integer | Required |
 | `route_snapshot_ref` | FK | Required |
 | `baseline_snapshot_ref` | nullable FK/lineage ref | Optional legacy/auxiliary lineage only |
-| `pattern_profile_ref` | FK | Required for valid score |
+| `pattern_profile_ref` | FK | Required for valid score (student tier) |
+| `general_baseline_ref` | nullable FK | Compatible general-baseline tier snapshot for dual comparison |
 | `pattern_window_ref` | FK | Required for valid score |
+| `deviation_vs_self` | decimal nullable | Summary deviation vs the student's own profile |
+| `deviation_vs_population` | decimal nullable | Summary deviation vs the general baseline |
+| `parameter_provenance_refs` | bounded array | Provenance of every operational value used |
 | `calibration_refs` | bounded array | Required where calibrated |
 | `score_profile_key/version` | strings | Required |
 | `review_priority_score` | decimal nullable | 0-100 or withheld |
@@ -307,6 +324,10 @@ coverage.
 - Reviewer approval for one student may annotate that student's review context
   or a separate session aggregate, but it must not mutate any peer student's
   `AnomalyScoreRecord`.
+- A valid score requires the student-tier profile; the general baseline is
+  contextual and, when present, the score exposes `deviation_vs_self` and
+  `deviation_vs_population` separately. Every operational value used resolves to a
+  `ParameterProvenanceRecord`; no hardcoded constant is permitted.
 
 ## New Derived Entity: SessionReviewPriorityAggregate
 
@@ -350,9 +371,12 @@ student-scoped review-priority summaries.
 | `evidence_envelope_ref` | FK | Required |
 | `component_key` | string | Required |
 | `pattern_deviation_magnitude` | decimal | Required for valid component |
+| `deviation_vs_self` | decimal nullable | Deviation vs the student's own profile |
+| `deviation_vs_population` | decimal nullable | Deviation vs the general baseline |
 | `reliability` | decimal | Required |
 | `temporal_support` | decimal | Required |
 | `configured_weight` | decimal | Required |
+| `parameter_provenance_ref` | FK | Provenance of the weight/threshold used (`learned`/`configured`) |
 | `effective_contribution` | decimal nullable | Null when invalid/missing |
 | `validity_state` | enum | Valid/missing/degraded/suppressed |
 | `reason_codes` | bounded array | Required |
@@ -521,6 +545,36 @@ is relational context, never collusion or cheating truth.
 - No field is described or consumed as collusion/cheating ground truth; learned
   graph-model outputs are not persisted here as production scores or states.
 
+## New Entity: ParameterProvenanceRecord
+
+**Owner**: `apps.anomalies.scoring` (parameter resolver).
+
+**Purpose**: Bind every operational value to a verifiable source so that no value
+is hardcoded and every value is reconstructable for XAI.
+
+| Field | Type | Rule |
+|---|---|---|
+| `provenance_id` | UUID | Primary key |
+| `schema_version` | string | Required |
+| `param_key` | string | Stable key (e.g. `score.weight.head_yaw`, `geom.gaze_cone_deg`) |
+| `value` | bounded JSON | The resolved value/bound |
+| `source_kind` | enum | `learned` or `configured` |
+| `learned_source_ref` | nullable FK | Baseline snapshot the value was derived from (when `learned`) |
+| `config_source_key` | nullable string | `.env`/config key (when `configured`) |
+| `config_fingerprint` | nullable SHA-256 | Required when `configured` |
+| `scope` | bounded JSON | Where the binding applies |
+| `valid_from`, `expires_at` | timestamps | Required |
+| `provenance_digest` | SHA-256 | Unique |
+| `created_at` | timestamp | Immutable |
+
+**Constraints**:
+
+- Exactly one source is set per `source_kind` (`learned` → `learned_source_ref`;
+  `configured` → `config_source_key` + `config_fingerprint`).
+- A `learned` value must be reconstructable from the referenced baseline snapshot.
+- An operational value without a provenance record is a hardcoding violation and
+  fails acceptance.
+
 ## Relationships
 
 ```text
@@ -539,6 +593,10 @@ XAIAttributionArtifact 1 --- 1 ExplanationEvaluationRecord
 XAIExplanationRecord 1 --- * XAIReviewFeedback
 StudentInteractionGraphFrame 1 --- * SignalPatternWindow
 StudentInteractionGraphFrame * --- 1 XAIModelRouteSnapshot
+ObservedPatternProfileSnapshot(general tier) 0..1 --- * AnomalyScoreRecord
+AnomalyScoreRecord   * --- * ParameterProvenanceRecord
+AnomalyScoreContribution * --- 1 ParameterProvenanceRecord
+ObservedPatternProfileSnapshot 1 --- * ParameterProvenanceRecord (learned source)
 ```
 
 ## State Transitions
@@ -589,6 +647,9 @@ valid/degraded/quarantined -> invalidated
   source-time range, truth/contamination/drift state, and digest.
 - Index student-interaction graph frames by job, scope, source-time range,
   truth state, and graph digest.
+- Index observed-pattern profiles additionally by `baseline_tier` so the general
+  baseline resolves separately from student-tier profiles.
+- Index parameter provenance by `param_key`, `source_kind`, scope, and digest.
 - Index route/calibration snapshots by digest and compatibility fields.
 - Index artifact lifecycle by request/status/created time.
 - Partition or retention-manage high-volume evidence only after measured

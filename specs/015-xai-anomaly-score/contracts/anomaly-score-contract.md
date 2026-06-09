@@ -30,8 +30,12 @@ intent estimate, misconduct verdict, or behavioral ground-truth label.
   },
   "baseline_snapshot_ref": null,
   "pattern_profile_ref": "uuid",
+  "general_baseline_ref": "uuid",
   "pattern_window_ref": "uuid",
   "calibration_refs": ["uuid"],
+  "deviation_vs_self": 0.74,
+  "deviation_vs_population": 0.41,
+  "parameter_provenance_refs": ["uuid"],
   "review_priority_score": 72.4,
   "review_priority_band": "review-needed",
   "pattern_state": "pattern_deviation",
@@ -47,9 +51,12 @@ intent estimate, misconduct verdict, or behavioral ground-truth label.
       "component_key": "pose.head_yaw.repeated_pattern",
       "evidence_ref": "uuid",
       "pattern_deviation_magnitude": 0.81,
+      "deviation_vs_self": 0.81,
+      "deviation_vs_population": 0.46,
       "reliability": 0.85,
       "temporal_support": 0.88,
       "configured_weight": 1.0,
+      "parameter_provenance_ref": "uuid",
       "effective_contribution": 0.606,
       "validity_state": "valid",
       "reason_codes": ["sustained_deviation"],
@@ -180,6 +187,28 @@ not a mutation of the student records:
 - A graph contribution is relational context, never proof of collusion or
   cheating. A learned graph model (`PROBE_ONLY`) MUST NOT supply a production
   contribution.
+
+## General Baseline And Dual Comparison
+
+- A valid score requires the student-tier profile. When a compatible general
+  baseline (population/context tier) exists, the score exposes
+  `deviation_vs_self` and `deviation_vs_population` separately; the student's own
+  profile is primary and the general baseline is contextual support.
+- The general baseline is a versioned, contamination-aware, assumed-normal
+  aggregate learned by corpus ingestion. It MUST NOT be labeled known-normal
+  ground truth and MUST NOT be a trained anomaly/cheating model.
+- Tier disagreement (self vs population) stays visible in the contributions; the
+  score is withheld when a required tier is missing, incompatible, cold-start, or
+  quarantined.
+
+## Parameter Provenance
+
+- Every operational value used (threshold, weight, envelope bound, geometric
+  constant, gate) is referenced through `parameter_provenance_refs` /
+  `parameter_provenance_ref`.
+- Each provenance entry is `learned` (with the baseline snapshot it was derived
+  from) or `configured` (with a fingerprinted `.env`/config key). No operational
+  value is hardcoded, and every value is reconstructable for XAI.
 
 ## No-Ground-Truth Invariants
 

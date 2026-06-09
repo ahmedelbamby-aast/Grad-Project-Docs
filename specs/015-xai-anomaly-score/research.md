@@ -399,6 +399,54 @@ graph probe needs no new labels — but stays a research hypothesis.
   shared renderer: deferred to a measured candidate so context budget and
   determinism are preserved.
 
+## Decision 16: Tiered Assumed-Normal Baselines (Student + General) Via Corpus Ingestion
+
+**Decision**: Learn a **general baseline** (population tier plus context tiers
+such as age-band, scene type, camera, and session) by ingesting all supported
+videos with the **same** robust-statistics, contamination, cold-start,
+quarantine, and drift machinery used for per-student profiles. Score by **dual
+comparison**: each window is compared against both the student's own profile
+(primary) and the compatible general baseline (contextual), exposing
+`deviation_vs_self` and `deviation_vs_population` separately.
+
+**Rationale**: A per-student profile alone cannot anchor a brand-new student or a
+globally unusual session; a population/context baseline supplies that anchor
+without any labels. Reusing one machinery means the general tier inherits the
+"contamination-aware, never ground truth" guarantees. The intuition mirrors
+hierarchical/partial-pooling estimation: sparse per-student estimates are
+interpreted against the population while staying distinct.
+
+**Alternatives considered**:
+
+- Population baseline only: rejected — erases legitimate per-student differences
+  and risks penalizing individuals for population norms.
+- Per-student only: rejected — no anchor for cold-start students/sessions.
+- Train a population "normal/abnormal" classifier on the corpus: prohibited —
+  that is assumed-normal-as-truth.
+
+## Decision 17: No Hardcoded Operational Constants — Learned Or Configured, With Provenance
+
+**Decision**: Every operational value (threshold, weight, envelope/quantile
+bound, geometric constant, persistence/hysteresis window, gate) is either
+**learned** from a governed baseline (data-derived) or read from a **fingerprinted
+`.env`/config** key, and is bound through a `ParameterProvenanceRecord`
+(`learned`/`configured`). A static verifier plus runtime reconciliation reject
+magic numbers. Clean code: all values flow through a single parameter resolver,
+never inline literals.
+
+**Rationale**: XAI is the top priority — a reviewer must be able to ask "where did
+this threshold come from?". Hardcoded constants are unexplainable, untunable, and
+brittle across age-bands and cameras. Deriving bounds from data (quantile
+envelopes, robust scale) where possible removes guesswork; the remainder live in
+`.env` for safe, fingerprinted tuning.
+
+**Alternatives considered**:
+
+- Inline literals/defaults scattered in code: rejected — unexplainable, untunable,
+  and drift-prone.
+- One global config blob without provenance: rejected — cannot distinguish learned
+  from configured values or reconstruct learned ones.
+
 ## Experimental Research Backlog
 
 The following questions remain research probes and cannot create production
@@ -418,7 +466,11 @@ claims without dedicated evidence:
   deterministic interaction graph adds operational value without being
   misrepresented as collusion-detection validity;
 - whether a GPU graph library (cosmos.gl/sigma.js) beats the shared WebGL2 core
-  for large interaction graphs enough to justify a second render path.
+  for large interaction graphs enough to justify a second render path;
+- how much of the general baseline should be partial-pooled into sparse
+  per-student profiles without erasing legitimate individual differences;
+- which operational bounds are robustly data-derivable from the corpus versus
+  which must remain `.env`-configured, and how to keep both fully auditable.
 
 ## Repository Evidence Used
 

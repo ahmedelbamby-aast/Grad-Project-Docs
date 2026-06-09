@@ -27,6 +27,7 @@ production decision.
 - [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
 - [ ] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
+- [ ] T005b [P] Add static no-hardcoded-operational-constant and parameter-provenance verifier (every threshold/weight/envelope/geometric constant resolves to a learned baseline reference or a fingerprinted `.env`/config key with `learned`/`configured` provenance) in `scripts/ci/verify_no_hardcode.py`
 - [ ] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
 - [ ] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [ ] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`
@@ -404,6 +405,35 @@ numeric fallback.
 - [ ] T267 [US6] Execute rollback and record Cycle 015.13 decision in `docs/xai_anomaly/cycle_015_13_results.md`
 - [ ] T268 [US6] Record every Cycle 015.13 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
+## Phase 16: Cycle 015.14 - General Baseline Ingestion, Dual Comparison, And Parameter Provenance
+
+**Goal**: Learn a corpus-ingested, contamination-aware general baseline
+(population/context tiers), score by dual comparison against it and the student's
+own profile, and bind every operational value to a `learned`/`configured`
+provenance so nothing is hardcoded — with XAI reconstructability as the priority.
+**Independent test**: Scores expose `deviation_vs_self` and
+`deviation_vs_population`, reconstructable from both snapshots; the general
+baseline stays assumed-normal (never ground truth); and the no-hardcoding
+verifier passes with every value resolved to a provenance record.
+
+- [ ] T269 [P] [US2] Write Cycle 015.14 investigation, general-baseline ingestion protocol, dual-comparison/withholding gates, no-hardcoding policy, and rollback in `docs/xai_anomaly/cycle_015_14_investigation.md`
+- [ ] T270 [P] [US6] Name Cycle 015.14 Figure Planner in `docs/xai_anomaly/cycle_015_14_figure_plan.md`
+- [ ] T271 [P] [US6] Name separate Cycle 015.14 Figure Implementer in `docs/xai_anomaly/cycle_015_14_figure_implementation.md`
+- [ ] T272 [P] [US2] Implement general-baseline (population/context tier) contracts and robust-statistics reuse in `backend/apps/anomalies/scoring/general_baseline.py`
+- [ ] T273 [P] [US2] Implement offline corpus-ingestion pass and command in `backend/apps/anomalies/scoring/baseline_ingestion.py` and `backend/apps/anomalies/management/commands/build_general_baseline.py`
+- [ ] T274 [US2] Implement dual comparison (`deviation_vs_self` + `deviation_vs_population`), tier precedence, and tier-disagreement visibility in `backend/apps/anomalies/scoring/pattern_comparison.py` and `backend/apps/anomalies/scoring/service.py`
+- [ ] T275 [P] [US1] Implement the single parameter resolver and `learned`/`configured` provenance binding in `backend/apps/anomalies/scoring/parameter_resolver.py` and `backend/apps/anomalies/scoring/parameter_provenance.py`
+- [ ] T276 [US2] Add `baseline_tier` to observed-pattern profiles and a `ParameterProvenanceRecord` model with migration in `backend/apps/anomalies/models.py`
+- [ ] T277 [P] [US2] Add general-baseline and provenance serializers and bounded endpoints in `backend/apps/anomalies/serializers.py` and `backend/apps/anomalies/views.py`
+- [ ] T278 [P] [US2] Add dual-comparison, general-baseline cold-start/contamination/quarantine/drift, and tier-disagreement unit tests in `backend/tests/unit/anomalies/test_xai_general_baseline.py`
+- [ ] T279 [P] [US1] Add no-hardcoding and provenance-reconstruction unit tests (every value `learned` or `configured`, none inline) in `backend/tests/unit/anomalies/test_xai_parameter_provenance.py`
+- [ ] T280 [P] [US2] Add PostgreSQL baseline-tier and provenance reconstruction/idempotency integration tests in `backend/tests/integration/anomalies/test_xai_general_baseline_persistence.py`
+- [ ] T281 [P] [US6] Add production baseline-ingestion, dual-comparison, and provenance coverage probe in `tools/prod/prod_probe_xai_general_baseline.py`
+- [ ] T282 [US6] Add Cycle 015.14 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_14.sh`
+- [ ] T283 [P] [US6] Implement Cycle 015.14 population-vs-self envelope, dual-delta, and provenance-coverage figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_14_figures.py`
+- [ ] T284 [US6] Execute rollback and record Cycle 015.14 decision in `docs/xai_anomaly/cycle_015_14_results.md`
+- [ ] T285 [US6] Record every Cycle 015.14 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
+
 ## Dependency Graph
 
 ```text
@@ -420,7 +450,8 @@ Setup
 015.3 + 015.7 -> 015.8 -> 015.9
 015.3 + 015.5 + 015.7 -> 015.10
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
-015.0 through 015.10, plus 015.13 -> 015.11 -> 015.12
+015.4 + 015.5 -> 015.14
+015.0 through 015.10, plus 015.13 + 015.14 -> 015.11 -> 015.12
 ```
 
 ## Parallel Execution Guidance

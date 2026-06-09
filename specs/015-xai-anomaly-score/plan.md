@@ -25,7 +25,11 @@ representations (e.g. skeleton normalizing-flow VAD over existing `rtmpose`
 skeletons). It also adds a deterministic, identity-gated student-interaction
 graph that turns existing relational signals into per-student graph features for
 scoring and into shared-WebGL2 node-link/adjacency plots; learned graph models
-stay `PROBE_ONLY`.
+stay `PROBE_ONLY`. A corpus-ingested, contamination-aware **general baseline**
+(population/context tiers) is learned with the same machinery and compared
+alongside each student's own profile (dual comparison). Every operational value
+is **learned or `.env`-configured with provenance** — no hardcoding — keeping XAI
+the top priority.
 
 ## Technical Context
 
@@ -88,6 +92,8 @@ decision unless explicitly unavailable with reason
 | XFail/drift/debt | PASS | Hidden fallback, route drift, empty required layers, and placeholders block closure |
 | Runtime lifecycle/vector integrity | PASS WITH CONDITIONS | Deep-XAI jobs require deadlines, reconciler, idempotency, and payload guards |
 | Documentation system | PASS | New docs use source-backed claims and compiled Mermaid |
+| No hardcoded constants / provenance | PASS | Every operational value is learned or fingerprinted-`.env`-configured and bound via a provenance record; a static verifier rejects magic numbers |
+| Tiered assumed-normal baselines | PASS | General baseline reuses contamination-aware profile machinery; never ground truth; dual comparison keeps self primary |
 
 ## Governing Architecture
 
@@ -125,7 +131,7 @@ flowchart LR
 | `apps.pipeline` | Immutable route snapshot and model-bound raw explanation extraction |
 | `apps.video_analysis` | Authoritative frames, detections, tracks, pose, scene, and SRVL sources |
 | `apps.behavior` | Evidence envelope, signal registry, fast explainer interfaces, temporal evidence, explanation composition, lineage, deterministic student-interaction graph builder and per-student graph signals |
-| `apps.anomalies` | Source-model calibration where evidence exists, observed-pattern profiles, pattern-deviation scoring, thresholds, drift, contribution persistence, governed non-ground-truth review feedback |
+| `apps.anomalies` | Source-model calibration where evidence exists, observed-pattern profiles, pattern-deviation scoring, thresholds, drift, contribution persistence, governed non-ground-truth review feedback, corpus-ingested general baseline (dual comparison), and parameter provenance (no hardcoding) |
 | `apps.telemetry` | Performance/resource/quality metrics |
 | `frontend/src/features/xai` | Reviewer workbench and state orchestration |
 | `frontend/src/services/webgl` | Shared WebGL2 renderer, context budget, typed-array stores, export, interaction-graph node-link and adjacency layers |
@@ -283,6 +289,36 @@ relational signals already produced by the stack; it is not a trained model.
   [pretrained-models-registry.md](pretrained-models-registry.md) and cannot drive
   a production score or report anomaly accuracy/AUROC.
 
+## General Baseline And Parameter Provenance
+
+### General baseline (corpus ingestion)
+
+- An offline ingestion pass reads the supported-video corpus and accumulates the
+  same bounded multivariate signal-pattern windows used for per-student profiles.
+- It builds a versioned, contamination-aware `general` tier (population) plus
+  context tiers (age-band, scene type, camera, session) with robust statistics,
+  cold-start, quarantine, drift, and append-only governance.
+- The general baseline is assumed-normal — never known-normal ground truth, never
+  a trained anomaly/cheating model, never a per-student verdict.
+
+### Dual comparison
+
+- Scoring compares each valid window against both the student's own profile
+  (primary) and the compatible general baseline (contextual), and exposes
+  `deviation_vs_self` and `deviation_vs_population` separately.
+- The score is withheld when a required tier is missing, incompatible, cold-start,
+  or quarantined; tier disagreement stays visible.
+
+### Parameter provenance (no hardcoding, XAI-first)
+
+- A single parameter resolver supplies every operational value; no literal magic
+  number lives in scoring/graph/render code.
+- Each value is bound to a `ParameterProvenanceRecord`: `learned` (data-derived
+  from a referenced baseline snapshot — e.g. quantile envelope, robust scale) or
+  `configured` (a fingerprinted `.env`/config key).
+- A static verifier and runtime reconciliation reject magic numbers and require
+  every value to be reconstructable to its provenance for XAI.
+
 ## Mandatory No-Ground-Truth Doctrine
 
 [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
@@ -371,10 +407,15 @@ All operational values are configured and fingerprinted. Required categories:
 | Conformal | `ANOMALY_CONFORMAL_ENABLED`, `ANOMALY_CONFORMAL_ALPHA`, `ANOMALY_CONFORMAL_MIN_CALIBRATION_SAMPLES` |
 | WebGL | `VITE_XAI_WEBGL_REQUIRED`, `VITE_XAI_WEBGL_CONTEXT_BUDGET`, `VITE_XAI_SERIES_RING_CAPACITY`, `VITE_XAI_MATRIX_TILE_SIZE`, `VITE_XAI_MAX_UPLOAD_BYTES_PER_FRAME` |
 | Interaction graph | `XAI_INTERACTION_GRAPH_ENABLED`, `XAI_GRAPH_MAX_NODES`, `XAI_GRAPH_MAX_EDGES`, `XAI_GRAPH_EDGE_PERSISTENCE_MS`, `XAI_GRAPH_GAZE_CONE_DEG`, `XAI_GRAPH_PROBE_ENABLED`, `VITE_XAI_GRAPH_RENDER_BUDGET` |
+| General baseline | `ANOMALY_GENERAL_BASELINE_ENABLED`, `ANOMALY_BASELINE_CORPUS_MANIFEST`, `ANOMALY_BASELINE_MIN_VIDEOS`, `ANOMALY_BASELINE_CONTEXT_TIERS`, `ANOMALY_DUAL_COMPARISON_ENABLED`, `ANOMALY_SELF_VS_POPULATION_WEIGHT` |
+| Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 
 Defaults must be disabled or conservative until the owning cycle is accepted.
+Every operational value is either learned (provenance `learned`) or read from a
+fingerprinted `.env`/config key (provenance `configured`); literal magic numbers
+in code are prohibited and fail the static verifier.
 
 ## Atomic Cycle Rule
 
@@ -435,6 +476,10 @@ backend/apps/anomalies/
     |-- components.py
     |-- pattern_profiles.py
     |-- pattern_comparison.py
+    |-- general_baseline.py
+    |-- baseline_ingestion.py
+    |-- parameter_resolver.py
+    |-- parameter_provenance.py
     |-- fusion.py
     |-- service.py
     `-- evaluation.py
@@ -485,3 +530,5 @@ behavioral-ground-truth accuracy claim.
 | Separate fast/deep lanes | Deep XAI is too expensive for critical paths | One inline lane would violate latency/stability |
 | Versioned calibration snapshots | Raw scores are not comparable certainty | One global calibrator cannot represent route/output differences |
 | Versioned observed-pattern profiles | Per-student temporal comparison requires compatible bounded history | A trainable anomaly classifier has no valid targets or ground truth |
+| Tiered general baseline + dual comparison | Cold-start students/sessions need a population/context anchor without labels | Per-student-only comparison cannot anchor new identities; a trained population classifier would manufacture ground truth |
+| Parameter provenance / no hardcoding | XAI requires every value reconstructable, tunable, and non-magic | Inline literals are unexplainable, untunable, and brittle across age-bands/cameras |
