@@ -1,8 +1,12 @@
 # Contract: XAI REST And WebSocket Surface
 
 **Contract ID**: `xai.api_ws.v1`
-**Access**: Authenticated, job-scoped authorization, access audit for sensitive
-artifacts and reviewer feedback.
+**Access**: Authenticated. Job-scoped authorization and access audit are
+required for sensitive artifacts and reviewer feedback. The
+review-priority aggregate preview endpoint is a non-persistent governed preview
+surface under `/api/v1/anomalies/`; it requires a real `job_id`, is limited to
+teacher/admin access, is authenticated and audited, but it does not persist a
+score record.
 
 ## REST Endpoints
 
@@ -19,6 +23,7 @@ artifacts and reviewer feedback.
 | `GET /api/v1/video-analysis/jobs/{job}/xai/artifacts/{id}/` | Authorized artifact access | streamed artifact |
 | `POST /api/v1/video-analysis/jobs/{job}/xai/reviews/` | Governed non-ground-truth reviewer assessment | immutable assessment record |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/renderer-config/` | Renderer/data contract | bounded WebGL config |
+| `POST /api/v1/anomalies/review-priority/aggregate-preview/` | Preview bounded student-local scores plus session/classroom aggregate using governed review-label semantics | bounded session summary only; no persistence |
 
 ## Query Rules
 
@@ -26,9 +31,83 @@ artifacts and reviewer feedback.
 - Track/signal/model/truth-state filters are optional and indexed.
 - Unbounded full-job arrays are never returned in one JSON response.
 - Large series/matrices use chunk/tile or binary endpoints.
-- Every response includes schema version and route snapshot reference.
+- Every persisted/runtime-bound response includes schema version and route
+  snapshot reference. The non-persistent aggregate-preview response includes
+  `schema_version` and `route_snapshot_ref=null`.
 - Pattern/score responses include `ground_truth_status`,
   `pattern_state`, profile/window references, and knowledge limits.
+- The aggregate-preview endpoint is authenticated, accepts only bounded
+  student summaries, uses a governed session aggregation policy, and applies
+  only governed confirmed-observation review labels to the separate
+  session/classroom lift term. Caller-supplied
+  `approved_deviation_weight` overrides are rejected.
+- The aggregate-preview request must include a valid `job_id` scope reference.
+
+## Aggregate Preview Schema
+
+Request:
+
+```json
+{
+  "job_id": "uuid",
+  "students": [
+    {
+      "student_ref": "student-a",
+      "review_priority_score": 25.0,
+      "pattern_state": "within_observed_pattern",
+      "truth_state": "valid",
+      "review_label": "confirmed-observation"
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "schema_version": "anomaly.review_priority.preview.v1",
+  "route_snapshot_ref": null,
+  "student_count": 2,
+  "approved_deviation_count": 1,
+  "base_mean_score": 17.5,
+  "approved_deviation_boost": 15.0,
+  "session_review_priority_score": 32.5,
+  "students": [
+    {
+      "student_ref": "student-a",
+      "review_priority_score": 25.0,
+      "pattern_state": "pattern_deviation",
+      "review_approved_deviation": true,
+      "truth_state": "valid"
+    },
+    {
+      "student_ref": "student-b",
+      "review_priority_score": 10.0,
+      "pattern_state": "within_observed_pattern",
+      "review_approved_deviation": false,
+      "truth_state": "valid"
+    }
+  ]
+}
+```
+
+Rules:
+
+- The caller must already hold job-scoped access for `job_id`; elevated role
+  membership alone is insufficient.
+- Student-local scores are echoed unchanged; the endpoint computes the
+  session/classroom lift as a separate aggregate term only.
+- Caller-supplied `approved_deviation_weight` overrides are rejected.
+- `pattern_deviation` input is accepted only when the student's own valid
+  evidence supports that state or when a governed approved review label
+  supplies the deviation trigger.
+- Non-valid truth states cannot yield `within_observed_pattern` or
+  `pattern_deviation` in the preview output. `unknown` and `unavailable`
+  normalize to `insufficient_context`; `degraded`, `suppressed`, and
+  `invalidated` normalize to `withheld`.
+- The endpoint is a preview surface only: no score, contribution, or profile
+  record is persisted.
 
 ## WebSocket Events
 

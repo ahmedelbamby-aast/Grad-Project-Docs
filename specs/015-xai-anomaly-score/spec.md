@@ -1,8 +1,8 @@
 # Feature Specification: Explainable Behavioral Evidence And Anomaly Scoring
 
-**Feature Branch**: `014-yoloe-scene-srvl`
+**Feature Branch**: `015-xai-anomaly-score`
 **Created**: 2026-06-08
-**Status**: Planned overlay; not the active production feature
+**Status**: Current active feature for implementation
 **Input**: User request to create a deep, production-grade implementation plan
 for XAI across all deployed models, an anomaly score layer, additional derived
 signals, atomic implementation cycles, strict modularity, per-cycle
@@ -18,6 +18,10 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
 
 - No anomaly, abnormal-behavior, cheating, non-cheating, or normality model may
   be trained or fine-tuned under this plan.
+- Every pretrained model consumed is FROZEN — either a production signal source
+  (Class A) or a `PROBE_ONLY` representation/one-class candidate (Class B) — and
+  is catalogued with its role and promotion constraint in
+  [pretrained-models-registry.md](pretrained-models-registry.md).
 - Reviewer feedback, heuristic rules, assumed-normal history, source-model
   agreement, and current BSIL outputs are not anomaly ground truth.
 - The production layer compares bounded per-student multivariate temporal
@@ -49,6 +53,13 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   to zero and never silently increases certainty.
 - Deep saliency and perturbation XAI is asynchronous and on-demand. It must not
   block the live critical path or the accepted offline inference path.
+- A student's score remains student-scoped. If a reviewer later approves that
+  one student's evidence as a meaningful deviation, that approval may raise the
+  session/classroom aggregate only; it must not mutate any peer student's
+  individual score or pattern state.
+- Where operators informally say "normal until proven otherwise", the governed
+  persisted state remains `within_observed_pattern` or `insufficient_context`
+  until valid evidence supports `pattern_deviation`.
 
 ## User Scenarios & Testing
 
@@ -421,6 +432,12 @@ evidence.
   `within_observed_pattern`, `pattern_deviation`, `insufficient_context`, or
   `withheld` semantics and MUST NOT equate those states with cheating,
   non-cheating, normality, abnormal intent, innocence, or guilt.
+- **FR-034**: Until a given student's own valid evidence supports a governed
+  deviation, that student's persisted and previewed state MUST remain
+  `within_observed_pattern`, `insufficient_context`, or `withheld`. A
+  reviewer-approved deviation for one student MAY lift only a separate
+  session/classroom aggregate term and MUST NOT mutate any peer student's
+  individual score, contribution set, or pattern state.
 
 ### Key Entities
 
@@ -507,6 +524,10 @@ evidence.
   counterfactual changes without claiming real-world behavioral accuracy.
 - **SC-021**: Every persisted and displayed anomaly state uses the required
   observed-pattern vocabulary and exposes the no-ground-truth knowledge limit.
+- **SC-022**: Aggregate previews and persisted summaries prove that
+  reviewer-approved deviation lifts only the separate session/classroom
+  aggregate while each peer student's individual score and pattern state remain
+  unchanged.
 
 ## Assumptions And Dependencies
 

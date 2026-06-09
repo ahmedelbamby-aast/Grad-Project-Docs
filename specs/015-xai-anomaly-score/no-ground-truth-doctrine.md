@@ -80,6 +80,12 @@ cheating. `pattern_deviation` does not mean abnormal intent, misconduct, or
 cheating. A `review_priority_score` ranks evidence for human inspection; it is
 not a class probability or behavioral verdict.
 
+Operationally, "normal until proven otherwise" is represented only as
+`within_observed_pattern` or `insufficient_context`. If one student's evidence
+is later review-approved as a meaningful deviation, that approval may raise a
+separate session/classroom aggregate but must not mutate any peer student's
+score or pattern state.
+
 ## Baseline And Cold-Start Rules
 
 - A profile is never called known-normal ground truth.

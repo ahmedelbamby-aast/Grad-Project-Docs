@@ -1,8 +1,8 @@
 # Implementation Plan: Explainable Behavioral Evidence And Anomaly Scoring
 
-**Branch**: `014-yoloe-scene-srvl` | **Date**: 2026-06-08 |
+**Branch**: `015-xai-anomaly-score` | **Date**: 2026-06-08 |
 **Spec**: [spec.md](spec.md)
-**Planning status**: Planned overlay; `014` remains the active production plan
+**Planning status**: Current active implementation plan
 
 ## Summary
 
@@ -17,7 +17,12 @@ atomic cycle with one causal variable, native RTX 5090 production benchmark,
 figure evidence, and rollback. The anomaly layer is deterministic per-student
 multivariate signal-pattern analysis; this plan contains no anomaly-model
 training or fine-tuning because no valid anomaly-behavior dataset or
-ground-truth method exists.
+ground-truth method exists. All pretrained models consumed are frozen and
+catalogued in [pretrained-models-registry.md](pretrained-models-registry.md):
+Class A production signal sources (e.g. `person_detector`, `rtmpose_model`,
+gaze/posture models, the COMBINED `yolo11m` head) and Class B `PROBE_ONLY`
+representations (e.g. skeleton normalizing-flow VAD over existing `rtmpose`
+skeletons).
 
 ## Technical Context
 
@@ -230,6 +235,11 @@ review_priority_score =
 - withholding/degradation reasons;
 - counterfactual deltas needed to cross/recover from the threshold;
 - reconstruction digest.
+- student-local results remain scoped to the student that produced the
+  supporting evidence;
+- reviewer-approved deviation may lift only a separate session/classroom
+  aggregate term and must never mutate a peer student's score or pattern
+  state.
 
 ## Mandatory No-Ground-Truth Doctrine
 

@@ -22,8 +22,17 @@ job-scoped artifacts for large arrays/images/traces.
 - No record represents anomaly, cheating, non-cheating, abnormality, or
   normality ground truth. No reviewer assessment or observed history may be a
   hidden anomaly-model training/fine-tuning target.
+- All pretrained models are FROZEN and catalogued in
+  [pretrained-models-registry.md](pretrained-models-registry.md); each consumed
+  model is captured via `XAIModelRouteSnapshot` lineage. Class B (`PROBE_ONLY`)
+  model outputs are never persisted as a production `review_priority_score` or
+  `pattern_state`.
 - `within_observed_pattern` and `pattern_deviation` describe comparison with a
   versioned signal-pattern profile only; they are not behavioral verdicts.
+- Student review-priority results remain student-scoped. Any session/classroom
+  escalation derived from reviewer-approved deviation is a separate aggregate
+  output and never mutates peer students' scores, contributions, or pattern
+  states.
 
 ## Existing Entities Reused
 
@@ -289,6 +298,38 @@ coverage.
 - Numeric scores require compatible pattern window/profile references.
 - `pattern_state` cannot be converted into a cheating/non-cheating or
   normal/abnormal-behavior verdict.
+- Reviewer approval for one student may annotate that student's review context
+  or a separate session aggregate, but it must not mutate any peer student's
+  `AnomalyScoreRecord`.
+
+## New Derived Entity: SessionReviewPriorityAggregate
+
+**Owner**: `apps.anomalies.scoring`.
+
+**Purpose**: Separate session/classroom-level aggregate derived from
+student-scoped review-priority summaries.
+
+| Field | Type | Rule |
+|---|---|---|
+| `scope_ref` | bounded reference | Session/classroom/camera/job scope |
+| `student_count` | integer | Required |
+| `base_mean_score` | decimal | Mean of individual student scores before session lift |
+| `approved_deviation_count` | integer | Count of reviewer-approved student deviations with valid truth state |
+| `approved_deviation_boost` | decimal | Separate session-only lift term |
+| `session_review_priority_score` | decimal | 0-100 aggregate after boost and clamp |
+| `students` | bounded summary array | Student-local summaries with no peer mutation |
+
+**Constraints**:
+
+- `session_review_priority_score` is derived from student-local summaries and a
+  configured session aggregation policy.
+- Reviewer-approved deviation for one student may increase only
+  `approved_deviation_count`, `approved_deviation_boost`, and
+  `session_review_priority_score`; it must not relabel or rescore any peer
+  student summary.
+- A student's own neutral default remains `within_observed_pattern` or
+  `insufficient_context` until valid evidence or a governed reviewer-approved
+  deviation changes that student's own review context.
 
 ## New Entity: AnomalyScoreContribution
 

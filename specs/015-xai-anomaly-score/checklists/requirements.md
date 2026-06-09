@@ -37,7 +37,7 @@
 
 ## Notes
 
-- This feature package is a planned overlay while `specs/014-yoloe-scene-srvl`
-  remains the active production plan.
+- This feature package is the current active implementation plan for the
+  explainable anomaly scoring workstream.
 - Production observations are point-in-time evidence and must be refreshed at
   the start of Cycle 015.0.

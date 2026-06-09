@@ -125,6 +125,49 @@ They must not imply that `within_observed_pattern` proves normal,
 non-cheating, or innocent behavior, or that `pattern_deviation` proves
 abnormal intent, misconduct, or cheating.
 
+## Student Independence And Session Aggregation
+
+- A review-approved deviation for one student is student-scoped evidence only.
+  It MUST NOT increase, decrease, or relabel any other student's individual
+  `review_priority_score`, contribution set, or pattern state.
+- Session or classroom aggregation MAY increase when one or more students have
+  review-approved deviation evidence, but that increase MUST be computed as a
+  separate session-level term rather than by mutating peer student scores.
+- Where product discussion uses "normal until proven otherwise", the persisted
+  and user-facing state remains `within_observed_pattern`,
+  `pattern_deviation`, `insufficient_context`, or `withheld`.
+
+## Derived Session Aggregate Payload
+
+When a session/classroom summary is emitted, it is a separate derived payload,
+not a mutation of the student records:
+
+```json
+{
+  "student_count": 2,
+  "approved_deviation_count": 1,
+  "base_mean_score": 45.0,
+  "approved_deviation_boost": 15.0,
+  "session_review_priority_score": 60.0,
+  "students": [
+    {
+      "student_ref": "student-a",
+      "review_priority_score": 70.0,
+      "pattern_state": "pattern_deviation",
+      "review_approved_deviation": true,
+      "truth_state": "valid"
+    },
+    {
+      "student_ref": "student-b",
+      "review_priority_score": 20.0,
+      "pattern_state": "within_observed_pattern",
+      "review_approved_deviation": false,
+      "truth_state": "valid"
+    }
+  ]
+}
+```
+
 ## No-Ground-Truth Invariants
 
 - `ground_truth_status` is

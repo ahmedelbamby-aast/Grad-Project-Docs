@@ -26,6 +26,7 @@ production decision.
 - [ ] T003 [P] Add XAI/anomaly source path filters and focused test placeholders to `.github/workflows/xai-anomaly.yml`
 - [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
+- [ ] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [ ] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
 - [ ] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [ ] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`

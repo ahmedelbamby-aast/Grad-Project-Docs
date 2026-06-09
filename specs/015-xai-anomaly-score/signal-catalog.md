@@ -10,6 +10,10 @@ and explanation strategy.
 support per-student observed-pattern comparison; they are not anomaly,
 cheating, non-cheating, abnormality, or normality ground truth.
 
+Pretrained-model lineage for every signal source is governed in
+[pretrained-models-registry.md](pretrained-models-registry.md); all sources are
+frozen Class A models captured via `XAIModelRouteSnapshot`.
+
 ## Signal Contract
 
 Every signal definition must include:

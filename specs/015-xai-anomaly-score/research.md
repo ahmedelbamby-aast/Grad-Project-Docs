@@ -42,6 +42,9 @@ active models and building an anomaly score layer.
 | AI risk governance | NIST AI RMF, https://www.nist.gov/itl/ai-risk-management-framework | Human oversight, risk, measurement, and governance |
 | Experimental 2025 method | PCBEAR, https://arxiv.org/abs/2506.17438 | Research probe only |
 | Experimental 2025 method | DANCE, https://arxiv.org/abs/2508.18182 | Research probe only |
+| Skeleton-based VAD | STG-NF, https://orhir.github.io/STG_NF/ | PROBE_ONLY; consumes existing `rtmpose` skeletons; no new labels |
+| Skeleton-based VAD | DA-Flow, https://arxiv.org/abs/2406.02976 | PROBE_ONLY; recent SOTA skeleton VAD; few parameters |
+| Pretrained model governance | [pretrained-models-registry.md](pretrained-models-registry.md) | Frozen Class A signal sources + Class B PROBE_ONLY representations |
 
 ## Decision 1: Use A Two-Lane XAI Architecture
 
