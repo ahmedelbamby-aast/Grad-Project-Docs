@@ -29,7 +29,10 @@ stay `PROBE_ONLY`. A corpus-ingested, contamination-aware **general baseline**
 (population/context tiers) is learned with the same machinery and compared
 alongside each student's own profile (dual comparison). Every operational value
 is **learned or `.env`-configured with provenance** — no hardcoding — keeping XAI
-the top priority.
+the top priority. Any research/probe model becomes a production requirement only
+through an **evidence-gated promotion lifecycle** (`PROBE_ONLY` → `SHADOW` →
+`CANARY` → `MANDATORY`) with a benchmark, computed serving metrics, governed
+approval, and rollback — and only as a governed signal, never a behavioral judge.
 
 ## Technical Context
 
@@ -94,6 +97,7 @@ decision unless explicitly unavailable with reason
 | Documentation system | PASS | New docs use source-backed claims and compiled Mermaid |
 | No hardcoded constants / provenance | PASS | Every operational value is learned or fingerprinted-`.env`-configured and bound via a provenance record; a static verifier rejects magic numbers |
 | Tiered assumed-normal baselines | PASS | General baseline reuses contamination-aware profile machinery; never ground truth; dual comparison keeps self primary |
+| Model promotion governance | PASS | Probe→mandatory only via evidence-gated lifecycle (benchmark + serving metrics + governed approver + rollback); signal/representation role only; no behavioral-accuracy claim |
 
 ## Governing Architecture
 
@@ -128,7 +132,7 @@ flowchart LR
 
 | Owner | New responsibility |
 |---|---|
-| `apps.pipeline` | Immutable route snapshot and model-bound raw explanation extraction |
+| `apps.pipeline` | Immutable route snapshot, model-bound raw explanation extraction, and the model promotion registry/records (probe→mandatory lifecycle) |
 | `apps.video_analysis` | Authoritative frames, detections, tracks, pose, scene, and SRVL sources |
 | `apps.behavior` | Evidence envelope, signal registry, fast explainer interfaces, temporal evidence, explanation composition, lineage, deterministic student-interaction graph builder and per-student graph signals |
 | `apps.anomalies` | Source-model calibration where evidence exists, observed-pattern profiles, pattern-deviation scoring, thresholds, drift, contribution persistence, governed non-ground-truth review feedback, corpus-ingested general baseline (dual comparison), and parameter provenance (no hardcoding) |
@@ -319,6 +323,37 @@ relational signals already produced by the stack; it is not a trained model.
 - A static verifier and runtime reconciliation reject magic numbers and require
   every value to be reconstructable to its provenance for XAI.
 
+## Model Promotion Governance
+
+A probe earns production-mandatory status with evidence, not opinion. The
+lifecycle and gates follow industry practice (staged shadow/canary rollout,
+champion/challenger, ML Test Score readiness, registry stages, model cards, NIST
+AI RMF) adapted to the doctrine.
+
+### Lifecycle (`promotion_status`)
+
+`PROBE_ONLY` → `SHADOW` (prod inputs copied, outputs discarded) → `CANARY`
+(limited, reviewer-visible, advisory) → `MANDATORY` (production signal), with
+`ARCHIVED`/`ROLLED_BACK`.
+
+### Gates (all required; bounded minimum bar)
+
+- **G1 doctrine cap** — signal/representation role only; no behavioral verdict,
+  no anomaly accuracy/AUROC;
+- **G2 reproducibility/determinism** — same inputs → same outputs; route/artifact
+  digest captured; idempotent;
+- **G3 serving SLO benchmark** — native RTX 5090 stride-1 latency/throughput/
+  resource budgets, minimum shadow duration, equal-or-better serving distribution;
+- **G4 signal quality** — stability, missingness, calibration where valid, drift,
+  XAI fidelity/sanity where it feeds explanations;
+- **G5 monitoring + rollback** — live drift/alert and proven automated rollback
+  with reconciliation convergence;
+- **G6 governance** — model card, benchmark-ledger entry, immutable manifest,
+  security/retention, and governed-approver sign-off.
+
+Every transition is an immutable `ModelPromotionRecord`, reversible, and ledgered.
+`PROBE_ONLY`/`SHADOW`/`CANARY` outputs never enter a production score or state.
+
 ## Mandatory No-Ground-Truth Doctrine
 
 [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
@@ -409,6 +444,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Interaction graph | `XAI_INTERACTION_GRAPH_ENABLED`, `XAI_GRAPH_MAX_NODES`, `XAI_GRAPH_MAX_EDGES`, `XAI_GRAPH_EDGE_PERSISTENCE_MS`, `XAI_GRAPH_GAZE_CONE_DEG`, `XAI_GRAPH_PROBE_ENABLED`, `VITE_XAI_GRAPH_RENDER_BUDGET` |
 | General baseline | `ANOMALY_GENERAL_BASELINE_ENABLED`, `ANOMALY_BASELINE_CORPUS_MANIFEST`, `ANOMALY_BASELINE_MIN_VIDEOS`, `ANOMALY_BASELINE_CONTEXT_TIERS`, `ANOMALY_DUAL_COMPARISON_ENABLED`, `ANOMALY_SELF_VS_POPULATION_WEIGHT` |
 | Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
+| Model promotion | `XAI_MODEL_PROMOTION_ENABLED`, `XAI_PROMOTION_MIN_SHADOW_HOURS`, `XAI_PROMOTION_LATENCY_SLO_MS`, `XAI_PROMOTION_DISTRIBUTION_TOLERANCE`, `XAI_PROMOTION_APPROVER_ROLES`, `XAI_PROMOTION_AUTOROLLBACK_ENABLED` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 
@@ -485,7 +521,8 @@ backend/apps/anomalies/
     `-- evaluation.py
 
 backend/apps/pipeline/services/
-`-- model_route_snapshot.py
+|-- model_route_snapshot.py
+`-- model_promotion.py
 
 frontend/src/features/xai/
 frontend/src/services/webgl/

@@ -434,6 +434,42 @@ never-ground-truth proof, runtime budgets, and rollback.
 baseline contamination/quarantine behavior, parameter-provenance coverage
 (`learned` vs `configured`), performance delta.
 
+## Cycle 015.15 - Model Promotion Governance (Probe -> Mandatory)
+
+**Indivisible capability**: An evidence-gated promotion lifecycle plus its record,
+gates, governed approval, and rollback. The lifecycle, the gate evaluation, and
+the rollback path must ship together because a stage transition without recorded
+evidence and a revert path is unsafe.
+
+**Dependencies**: 015.0 and 015.8.
+**Streaming compatibility**: shadow/canary serving is `stream-safe`; promotion
+fitting/decision is `offline-only`.
+
+**Implementation scope**:
+
+- implement stages `PROBE_ONLY` -> `SHADOW` -> `CANARY` -> `MANDATORY`
+  (+ `ARCHIVED`/`ROLLED_BACK`) and the `ModelPromotionRecord`;
+- run shadow/canary with a champion/challenger serving-metrics collector
+  (latency/throughput/resource, serving distribution, minimum shadow duration);
+- evaluate gates G1-G6 (doctrine cap; determinism; serving SLO benchmark; signal
+  quality; monitoring + rollback; model card + ledger + governed approver);
+- enforce signal/representation-only target and reject behavioral-decision or
+  accuracy/AUROC promotions;
+- prove governed-approver sign-off and automated rollback to the prior stage.
+
+**Benchmark hypothesis**: A probe can be promoted to a governed production signal
+within bounded serving overhead once it meets the recorded evidence bar, without
+any behavioral-truth claim.
+
+**Acceptance gates**: Complete promotion record on every transition, serving-SLO
+benchmark and equal-or-better distribution, determinism, drift + auto-rollback,
+governed-approver RBAC, model card, doctrine-cap proof (no decision authority, no
+behavioral accuracy/AUROC), and rollback restoring the prior stage.
+
+**Required figures**: serving-distribution champion-vs-challenger, latency/SLO
+versus budget, gate-coverage matrix, shadow/canary timeline, rollback
+verification.
+
 ## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
 
 **Indivisible capability**: Cross-cutting operational/scientific acceptance
@@ -515,7 +551,8 @@ completeness.
 015.3 + 015.5 + 015.7 -> 015.10
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
 015.4 + 015.5 -> 015.14
-015.0 through 015.10, plus 015.13 + 015.14 -> 015.11 -> 015.12
+015.0 + 015.8 -> 015.15
+015.0 through 015.10, plus 015.13 + 015.14 + 015.15 -> 015.11 -> 015.12
 ```
 
 Parallel implementation work is allowed only where dependencies and file

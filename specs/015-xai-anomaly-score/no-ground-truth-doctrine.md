@@ -63,6 +63,27 @@ trainable anomaly model requires a separate governed plan that establishes a
 legitimate dataset, target semantics, evaluation authority, and promotion
 contract.
 
+## Probe Promotion Boundary
+
+A `PROBE_ONLY`/`HYPOTHESIS_ONLY` model may be promoted to a production-mandatory
+role **only** through the evidence-gated promotion lifecycle defined in
+[pretrained-models-registry.md](pretrained-models-registry.md)
+(`PROBE_ONLY` → `SHADOW` → `CANARY` → `MANDATORY`), and **only** into a governed
+**signal/representation** role whose promotion claims serving quality
+(reproducibility/determinism, latency/throughput/resource SLOs, signal
+stability, drift behavior), **never** behavioral validity.
+
+Under this plan a probe MUST NOT be promoted into a behavioral, cheating, or
+normality **decision authority**, and no promotion may report anomaly accuracy,
+precision, recall, F1, AUROC, or AUPRC. Promoting a model into a behavioral
+decision target requires the separate governed ground-truth program named above.
+
+Every promotion is **evidence-driven** — a native production benchmark, computed
+serving metrics, and proven rollback — recorded in an immutable promotion
+record, reversible, and approved by a designated governed approver. Gates are a
+bounded minimum bar, not an open-ended obstacle: once the recorded evidence
+meets them, promotion is permitted.
+
 ## Required Behavioral Vocabulary
 
 The user-facing and persisted states are:
@@ -139,5 +160,8 @@ An implementation or cycle decision is invalid if it:
 - describes `within_observed_pattern` as proof of non-cheating;
 - describes `pattern_deviation` or a high score as proof of cheating or
   abnormal intent;
-- silently updates profiles from quarantined or invalid windows; or
+- silently updates profiles from quarantined or invalid windows;
+- promotes a probe into a behavioral/cheating/normality decision authority, or
+  promotes any model into production without the recorded evidence, benchmark,
+  serving metrics, rollback proof, and governed-approver sign-off; or
 - hides insufficient context behind a numeric zero or low-risk label.

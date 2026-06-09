@@ -210,6 +210,16 @@ not a mutation of the student records:
   from) or `configured` (with a fingerprinted `.env`/config key). No operational
   value is hardcoded, and every value is reconstructable for XAI.
 
+## Source Model Promotion
+
+- A model that contributes a production signal or score component MUST hold a
+  current `MANDATORY` promotion under the registry gates
+  (`pretrained-models-registry.md`). `PROBE_ONLY`/`SHADOW`/`CANARY` model outputs
+  MUST NOT contribute to a production `review_priority_score` or `pattern_state`.
+- A contributing model's `promotion_status` travels with its lineage; promotion
+  is judged on serving quality (benchmark, latency/throughput, serving
+  distribution, determinism, drift), never on behavioral accuracy/AUROC.
+
 ## No-Ground-Truth Invariants
 
 - `ground_truth_status` is

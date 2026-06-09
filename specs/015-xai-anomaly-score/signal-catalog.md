@@ -392,8 +392,13 @@ dependencies:
 
 Every candidate requires its own atomic cycle or explicit subtask, baseline,
 quality evaluation, production benchmark, rollback, and decision.
-No learned anomaly candidate may be trained/fine-tuned or promoted under the
-current no-ground-truth plan.
+No learned anomaly candidate may be trained/fine-tuned or promoted to a
+behavioral decision authority under the current no-ground-truth plan. A candidate
+may graduate only to a governed **signal/representation** role, and only through
+the evidence-gated promotion lifecycle
+(`PROBE_ONLY` → `SHADOW` → `CANARY` → `MANDATORY`) in
+[pretrained-models-registry.md](pretrained-models-registry.md); each source's
+`promotion_status` travels with its lineage.
 
 ## Source References
 

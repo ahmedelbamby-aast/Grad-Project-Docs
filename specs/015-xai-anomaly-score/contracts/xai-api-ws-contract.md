@@ -26,6 +26,7 @@ score record.
 | `GET /api/v1/video-analysis/jobs/{job}/xai/interaction-graph/` | Bounded deterministic student-interaction graph frames (identity-gated nodes/edges and per-student graph features) | chunked/paginated bounded graph frames |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/baselines/` | Compatible general/context baseline snapshots and tiers (assumed-normal, never ground truth) | paginated bounded baseline summaries |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/parameters/` | Parameter provenance (`learned`/`configured`) for the values used | paginated provenance records |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/model-promotions/` | Model promotion records and current `promotion_status` (probe -> mandatory) | paginated promotion records |
 | `POST /api/v1/anomalies/review-priority/aggregate-preview/` | Preview bounded student-local scores plus session/classroom aggregate using governed review-label semantics | bounded session summary only; no persistence |
 
 ## Query Rules
@@ -54,6 +55,10 @@ score record.
   `parameter_provenance_refs`; baseline responses are marked assumed-normal and
   never ground truth; parameter responses carry a `learned`/`configured`
   provenance with the baseline reference or fingerprinted `.env`/config key.
+- Model-promotion responses expose `promotion_status` and the evidence packet
+  (benchmark, serving metrics, model card, approver, rollback) for each
+  transition; only `MANDATORY` models contribute production signals, and no
+  promotion field reports behavioral accuracy/AUROC.
 
 ## Aggregate Preview Schema
 
@@ -149,6 +154,7 @@ Supported event types:
 - `xai.reconciliation.changed`;
 - `xai.interaction_graph.appended`;
 - `xai.baseline.changed`;
+- `xai.model_promotion.changed`;
 - `xai.renderer.data_invalidated`.
 
 ## Incremental Delivery

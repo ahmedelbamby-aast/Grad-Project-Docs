@@ -28,6 +28,7 @@ production decision.
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
 - [ ] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [ ] T005b [P] Add static no-hardcoded-operational-constant and parameter-provenance verifier (every threshold/weight/envelope/geometric constant resolves to a learned baseline reference or a fingerprinted `.env`/config key with `learned`/`configured` provenance) in `scripts/ci/verify_no_hardcode.py`
+- [ ] T005c [P] Add static model-promotion-gate verifier (any `MANDATORY` model carries a complete `ModelPromotionRecord` with benchmark/serving-metrics/model-card/approver/rollback; `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never feed a production score/state; `target_role` is signal/representation only; no behavioral-accuracy metric) in `scripts/ci/verify_model_promotion.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [ ] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
 - [ ] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [ ] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`
@@ -434,6 +435,34 @@ verifier passes with every value resolved to a provenance record.
 - [ ] T284 [US6] Execute rollback and record Cycle 015.14 decision in `docs/xai_anomaly/cycle_015_14_results.md`
 - [ ] T285 [US6] Record every Cycle 015.14 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
+## Phase 17: Cycle 015.15 - Model Promotion Governance (Probe -> Mandatory)
+
+**Goal**: Make a research/probe model promotable to a production-mandatory role
+only through an evidence-gated lifecycle (`PROBE_ONLY` -> `SHADOW` -> `CANARY` ->
+`MANDATORY`) with a native benchmark, computed serving metrics, governed-approver
+sign-off, and proven rollback — and only as a governed signal/representation,
+never a behavioral judge.
+**Independent test**: A probe advances only with a complete `ModelPromotionRecord`;
+`PROBE_ONLY`/`SHADOW`/`CANARY` outputs never feed a production score; no behavioral
+accuracy/AUROC is recorded; and a rollback restores the prior stage.
+
+- [ ] T286 [P] [US6] Write Cycle 015.15 investigation, promotion lifecycle/gates (G1-G6), doctrine cap, and rollback in `docs/xai_anomaly/cycle_015_15_investigation.md`
+- [ ] T287 [P] [US6] Name Cycle 015.15 Figure Planner in `docs/xai_anomaly/cycle_015_15_figure_plan.md`
+- [ ] T288 [P] [US6] Name separate Cycle 015.15 Figure Implementer in `docs/xai_anomaly/cycle_015_15_figure_implementation.md`
+- [ ] T289 [P] [US6] Implement promotion lifecycle/stage/gate contracts in `backend/apps/pipeline/services/model_promotion.py`
+- [ ] T290 [US6] Add `ModelPromotionRecord` model, `promotion_status` enum, and migration in `backend/apps/pipeline/models.py`
+- [ ] T291 [US6] Implement shadow/canary runner and champion/challenger serving-metrics collector (latency/throughput/resource, serving distribution, shadow duration) in `backend/apps/pipeline/services/model_promotion.py`
+- [ ] T292 [P] [US6] Implement governed-approver/RBAC sign-off, decision, and automated rollback service in `backend/apps/pipeline/services/model_promotion.py`
+- [ ] T293 [P] [US6] Add promotion serializers and authenticated endpoints in `backend/apps/pipeline/serializers.py` and `backend/apps/pipeline/views.py`
+- [ ] T294 [P] [US6] Add model-card template and generator in `docs/xai_anomaly/model_card_template.md` and `backend/apps/pipeline/services/model_card.py`
+- [ ] T295 [P] [US6] Add promotion-gate, doctrine-cap (signal-role-only, no behavioral accuracy/AUROC), and record-completeness unit tests in `backend/tests/unit/pipeline/test_xai_model_promotion.py`
+- [ ] T296 [P] [US6] Add shadow/canary serving-metrics, champion/challenger, and auto-rollback integration tests in `backend/tests/integration/pipeline/test_xai_promotion_runtime.py`
+- [ ] T297 [P] [US6] Add production shadow/canary promotion-evidence probe in `tools/prod/prod_probe_xai_model_promotion.py`
+- [ ] T298 [US6] Add Cycle 015.15 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_15.sh`
+- [ ] T299 [P] [US6] Implement Cycle 015.15 serving-distribution, latency-SLO, and gate-coverage figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_15_figures.py`
+- [ ] T300 [US6] Execute rollback and record Cycle 015.15 decision in `docs/xai_anomaly/cycle_015_15_results.md`
+- [ ] T301 [US6] Record every Cycle 015.15 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
+
 ## Dependency Graph
 
 ```text
@@ -451,7 +480,8 @@ Setup
 015.3 + 015.5 + 015.7 -> 015.10
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
 015.4 + 015.5 -> 015.14
-015.0 through 015.10, plus 015.13 + 015.14 -> 015.11 -> 015.12
+015.0 + 015.8 -> 015.15
+015.0 through 015.10, plus 015.13 + 015.14 + 015.15 -> 015.11 -> 015.12
 ```
 
 ## Parallel Execution Guidance

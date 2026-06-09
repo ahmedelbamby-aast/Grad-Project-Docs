@@ -43,6 +43,10 @@
 - [x] No operational value is hardcoded: every value is learned or
   `.env`-configured with `learned`/`configured` provenance and a no-hardcoding
   verifier, keeping XAI reconstructability the top priority.
+- [x] An evidence-gated model promotion lifecycle (`PROBE_ONLY` -> `SHADOW` ->
+  `CANARY` -> `MANDATORY`) is specified — benchmark, serving metrics, model card,
+  governed approver, and rollback — promoting probes only to a governed signal,
+  never a behavioral judge, and never with an accuracy/AUROC claim.
 
 ## Notes
 

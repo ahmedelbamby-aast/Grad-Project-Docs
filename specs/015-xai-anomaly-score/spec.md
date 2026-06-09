@@ -75,6 +75,11 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   geometric constant, and gate is either learned from a governed baseline or read
   from a fingerprinted configuration/`.env` value, and each carries explicit
   provenance so it stays reconstructable for XAI.
+- A research/probe model becomes a production requirement only through an
+  evidence-gated promotion lifecycle (`PROBE_ONLY` → `SHADOW` → `CANARY` →
+  `MANDATORY`) and only as a governed signal/representation — never as a
+  behavioral judge. Promotions are benchmark- and metric-driven, recorded,
+  approved by a governed approver, and reversible.
 
 ## User Scenarios & Testing
 
@@ -347,6 +352,13 @@ render in WebGL2 within budget with a numeric/tabular fallback.
 - A required configuration/`.env` value is missing, unfingerprinted, or changed
   between scoring and reconciliation.
 - A hardcoded operational constant is introduced into the code path.
+- A probe is proposed for production-mandatory status without a benchmark,
+  computed metrics, model card, governed approver, or rollback proof.
+- A shadow model meets latency but degrades serving-output distribution quality.
+- A promoted model later drifts and must automatically roll back to the prior
+  stage.
+- Someone proposes promoting a learned model into a behavioral decision authority
+  or claiming anomaly accuracy/AUROC for it.
 
 ## Mandatory Runtime Scenarios
 
@@ -557,6 +569,22 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   (`learned` or `configured`) with its source reference. Static and runtime
   checks MUST fail on any magic-number operational constant, and because XAI is
   the top priority, every such value MUST be reconstructable to its provenance.
+- **FR-040**: A `PROBE_ONLY` model MUST advance to a production-mandatory role
+  only through the governed promotion lifecycle (`PROBE_ONLY` → `SHADOW` →
+  `CANARY` → `MANDATORY`), where each transition requires a recorded evidence
+  packet: a native RTX 5090 stride-1 benchmark; computed serving metrics
+  (latency/throughput/resource SLOs, equal-or-better serving distribution versus
+  the incumbent, minimum shadow duration); reproducibility/determinism; drift
+  monitoring; XAI fidelity/sanity where applicable; a model card; security and
+  retention compliance; a benchmark-ledger entry; governed-approver sign-off; and
+  proven automated rollback. The gates are a bounded minimum bar — once the
+  recorded evidence meets them, promotion is permitted.
+- **FR-041**: Promotion MUST NOT convert a learned model into a behavioral,
+  cheating, or normality decision authority, and MUST NOT report anomaly
+  accuracy, precision, recall, F1, AUROC, or AUPRC. A probe MAY be promoted only
+  into a governed signal/representation role; any behavioral-decision promotion
+  requires a separate governed ground-truth program. `PROBE_ONLY`/`SHADOW`/`CANARY`
+  outputs MUST NOT enter a production `review_priority_score` or `pattern_state`.
 
 ### Key Entities
 
@@ -592,6 +620,10 @@ render in WebGL2 within budget with a numeric/tabular fallback.
 - **Parameter Provenance Record**: Binds each operational value to its source — a
   `learned` baseline reference or a `configured` config/`.env` key plus fingerprint
   — proving no hardcoded operational constant is used.
+- **Model Promotion Record**: Immutable record of one model stage transition
+  (`PROBE_ONLY`/`SHADOW`/`CANARY`/`MANDATORY`), the benchmark, computed serving
+  metrics, model card, governed approver, decision, and rollback proof that
+  justified it.
 
 ## Success Criteria
 
@@ -676,6 +708,14 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   (or an explicit unavailable reason), reconstructable from the referenced
   student-profile and general-baseline snapshots; the general baseline is
   versioned, contamination-aware, and never labeled ground truth.
+- **SC-027**: Every model promotion records its from/to stage, the computed
+  benchmark and serving metrics and evidence references that justified it, the
+  governed approver, and the rollback proof; a promotion missing that packet
+  fails acceptance, and a rollback restores the prior stage.
+- **SC-028**: No promotion produces or claims anomaly/behavioral accuracy or
+  AUROC; a promoted learned model serves only as a governed signal/representation,
+  and `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never enter a production score or
+  pattern state.
 
 ## Assumptions And Dependencies
 

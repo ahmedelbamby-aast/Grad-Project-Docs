@@ -23,7 +23,10 @@ cheating, or normality target. The registry makes that boundary auditable.
   **only as `PROBE_ONLY` / `HYPOTHESIS_ONLY`**. They MUST NOT be promoted to a
   production behavioral decision, trained on assumed-normal data presented as
   truth, or used to fine-tune production behavior. They produce hypotheses for
-  research comparison, never review-priority authority.
+  research comparison, never review-priority authority. A Class B model may
+  graduate to a production-mandatory **signal/representation** role **only**
+  through the evidence-gated promotion lifecycle (see *Promotion* below), and
+  **never** into a behavioral decision authority.
 - Every consumed model is captured in `XAIModelRouteSnapshot`
   (model/version/artifact-digest lineage). A registry entry **without** a route
   snapshot is not production-valid.
@@ -97,6 +100,65 @@ The models below are **frozen, `PROBE_ONLY` research candidates** for comparing 
 > collusion/cheating target, and MUST NOT report anomaly/collusion accuracy. The
 > production graph and its per-student signals stay deterministic.
 
+## Promotion: From `PROBE_ONLY` To Production-Mandatory
+
+A probe does not become a production requirement by opinion — it earns it with
+**evidence, a benchmark, and computed metrics**. This mirrors how the industry
+promotes models: a **gated offline check → shadow → canary → production** rollout
+with a **champion/challenger** comparison, a **governed approver**, and
+**automated rollback**; the **ML Test Score** four-area production-readiness
+rubric; staged **model-registry** promotion (`dev → staging → pre-production →
+production`) with role-based approval; **model cards** for documentation; and the
+**NIST AI RMF** Measure/Manage functions. We adapt those gates to our
+no-ground-truth constraint: a probe may graduate only into a governed
+**signal/representation** role, judged on **serving quality** — never on
+behavioral validity.
+
+### Promotion lifecycle (`promotion_status`)
+
+| Stage | `promotion_status` | Runs in prod? | Outputs used? |
+|---|---|---|---|
+| Offline hypothesis | `PROBE_ONLY` / `HYPOTHESIS_ONLY` | No | No |
+| Shadow — receives a copy of real inputs, logs outputs | `SHADOW` | Yes | No (discarded) |
+| Canary — limited, reviewer-visible | `CANARY` | Yes | Advisory only |
+| Production-required signal/representation | `MANDATORY` | Yes | Yes — as a governed signal |
+| Retired / reverted | `ARCHIVED` / `ROLLED_BACK` | No | No |
+
+### Promotion gates (all required; bounded, evidence-driven)
+
+- **G1 — Doctrine cap.** The promotion target is a governed **signal/representation**,
+  not a behavioral verdict. No anomaly/cheating/normality accuracy, AUROC, or
+  AUPRC is claimed. A behavioral-decision promotion is out of scope and needs the
+  separate governed ground-truth program.
+- **G2 — Reproducibility & determinism.** Same inputs → same outputs; exact
+  model/version/artifact digest captured in `XAIModelRouteSnapshot`; idempotent.
+- **G3 — Serving SLOs (benchmark).** A native RTX 5090 stride-1 benchmark meets
+  the declared latency/throughput/VRAM/CPU budgets; a minimum shadow duration is
+  observed; the serving-output distribution is **equal or better** than the
+  incumbent (champion/challenger).
+- **G4 — Signal quality & stability.** Stable produced signal, explicit
+  missingness, calibration where task-appropriate evidence exists, drift
+  behavior, and — where the model feeds explanations — XAI fidelity/sanity.
+- **G5 — Monitoring & rollback.** Live drift/alert wiring plus **proven automated
+  rollback** to the prior state, with runtime reconciliation convergence.
+- **G6 — Governance & documentation.** A model card (purpose, inputs, metrics,
+  limits), a benchmark-ledger entry, an immutable evidence manifest, security and
+  retention compliance, and **sign-off by a designated governed approver**
+  (role-gated). No self-promotion.
+
+> **Not overly strict.** G1–G6 are a **bounded minimum bar**, not an open-ended
+> obstacle course. Once the recorded benchmark + computed serving metrics +
+> rollback proof meet the bar and the approver signs off, the model is promoted
+> from probe to a fixed production requirement. Every transition is recorded in a
+> `ModelPromotionRecord`, is reversible, and is logged in the benchmark ledger.
+
+### What promotion still may NOT do
+
+- Turn a learned model into a behavioral/cheating/normality decision authority.
+- Report anomaly/behavioral accuracy/AUROC, or relabel assumed-normal data as
+  ground truth.
+- Skip the benchmark, the computed metrics, the rollback proof, or the approver.
+
 ## How this registry overcomes "no ground-truth"
 
 1. **Class A is pure signal extraction** — frozen pretrained models turn video
@@ -127,6 +189,11 @@ The models below are **frozen, `PROBE_ONLY` research candidates** for comparing 
 - The general baseline is deterministic statistics, not a registry model; any
   operational value it derives is `learned` provenance and every other value is
   `configured` from a fingerprinted `.env` — no hardcoding.
+- A model reaches `MANDATORY` only with a complete `ModelPromotionRecord`
+  (native benchmark, computed serving metrics, model card, governed-approver
+  sign-off, and rollback proof); `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never
+  enter a production `review_priority_score` or `pattern_state`, and no promotion
+  reports behavioral accuracy/AUROC.
 
 ---
 
@@ -140,3 +207,10 @@ The models below are **frozen, `PROBE_ONLY` research candidates** for comparing 
 [Actor Relation Graph (group activity)](https://arxiv.org/abs/1904.10117) ·
 [StrGNN (structural temporal graph anomaly)](https://arxiv.org/abs/2005.07427) ·
 [Deep Graph Anomaly Detection survey (TKDE 2025)](https://github.com/mala-lab/Awesome-Deep-Graph-Anomaly-Detection)
+
+*Sources for the promotion gates (industry practice):*
+[ML Test Score — production-readiness rubric (Breck et al., IEEE Big Data 2017)](https://research.google/pubs/pub46555/) ·
+[MLflow Model Registry — staged promotion](https://mlflow.org/docs/latest/ml/model-registry) ·
+[Champion/Challenger + shadow/canary rollout (DataRobot)](https://www.datarobot.com/blog/introducing-mlops-champion-challenger-models/) ·
+[Model Cards for model reporting](https://arxiv.org/abs/1810.03993) ·
+[NIST AI RMF (Measure/Manage)](https://www.nist.gov/itl/ai-risk-management-framework)

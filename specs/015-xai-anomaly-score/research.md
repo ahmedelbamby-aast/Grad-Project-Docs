@@ -50,6 +50,10 @@ active models and building an anomaly score layer.
 | Dynamic-graph anomaly | StrGNN structural temporal GNN, https://arxiv.org/abs/2005.07427 | PROBE_ONLY unsupervised dynamic-graph anomaly reference; no labels |
 | Graph anomaly survey | Deep Graph Anomaly Detection survey (TKDE 2025), https://github.com/mala-lab/Awesome-Deep-Graph-Anomaly-Detection | Landscape reference; all candidates remain PROBE_ONLY |
 | WebGL graph rendering | cosmos.gl (OpenJS), https://openjsf.org/blog/introducing-cosmos-gl and sigma.js, https://www.sigmajs.org/ | GPU graph-render references; only as a measured candidate behind the shared WebGL2 core |
+| ML production readiness | ML Test Score (Breck et al., IEEE Big Data 2017), https://research.google/pubs/pub46555/ | Four-area production-readiness rubric for promotion gates |
+| Model registry promotion | MLflow Model Registry, https://mlflow.org/docs/latest/ml/model-registry | Staged `dev → staging → production` promotion with role-based approval |
+| Staged rollout / champion-challenger | DataRobot champion/challenger, https://www.datarobot.com/blog/introducing-mlops-champion-challenger-models/ | Shadow/canary promotion, governed approver, automated rollback |
+| Model documentation | Model Cards, https://arxiv.org/abs/1810.03993 | Promotion documentation (purpose, metrics, limits) |
 
 ## Decision 1: Use A Two-Lane XAI Architecture
 
@@ -447,6 +451,40 @@ envelopes, robust scale) where possible removes guesswork; the remainder live in
 - One global config blob without provenance: rejected — cannot distinguish learned
   from configured values or reconstruct learned ones.
 
+## Decision 18: Evidence-Gated Model Promotion (Probe -> Shadow -> Canary -> Mandatory)
+
+**Decision**: A research/probe model is promoted to a production-mandatory role
+only through a staged, evidence-gated lifecycle modeled on industry practice and
+adapted to our doctrine:
+
+- stages `PROBE_ONLY` -> `SHADOW` (prod inputs copied, outputs discarded) ->
+  `CANARY` (limited, reviewer-visible, advisory) -> `MANDATORY` (production
+  signal/representation), with `ARCHIVED`/`ROLLED_BACK`;
+- gates G1-G6 (doctrine cap; reproducibility/determinism; native RTX 5090
+  stride-1 serving-SLO benchmark with minimum shadow duration and
+  equal-or-better serving distribution; signal quality/stability/calibration/
+  XAI fidelity; monitoring + proven automated rollback; model card + ledger +
+  governed-approver sign-off);
+- every transition recorded in a `ModelPromotionRecord`, reversible, ledgered.
+
+**Rationale**: Industry promotes models with gated offline checks, shadow/canary
+rollout, champion/challenger comparison, governed approval, and automated
+rollback (ML Test Score rubric; MLflow/Databricks registry stages; DataRobot
+champion/challenger; model cards; NIST AI RMF Measure/Manage). We keep those
+**serving-quality** gates — which are doctrine-safe — and drop the
+behavioral-accuracy criterion that our no-ground-truth constraint forbids. The
+result is evidence-driven but **bounded**: a clear minimum bar, not infinite
+gates.
+
+**Alternatives considered**:
+
+- Promote on benchmark pass alone with no governance/rollback: rejected — no
+  approver, model card, or revert path.
+- Allow a learned probe to become a behavioral decision authority once it "looks
+  good": prohibited by the doctrine; requires a separate ground-truth program.
+- Keep everything `PROBE_ONLY` forever: rejected — a useful representation should
+  be promotable to a governed signal once it earns it with evidence.
+
 ## Experimental Research Backlog
 
 The following questions remain research probes and cannot create production
@@ -470,7 +508,10 @@ claims without dedicated evidence:
 - how much of the general baseline should be partial-pooled into sparse
   per-student profiles without erasing legitimate individual differences;
 - which operational bounds are robustly data-derivable from the corpus versus
-  which must remain `.env`-configured, and how to keep both fully auditable.
+  which must remain `.env`-configured, and how to keep both fully auditable;
+- which probe (skeleton-VAD, graph, or representation) first earns promotion to a
+  governed signal under the gates, and what minimum shadow duration and
+  serving-distribution criterion fit our streams.
 
 ## Repository Evidence Used
 

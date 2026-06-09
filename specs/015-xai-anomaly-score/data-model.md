@@ -48,6 +48,10 @@ job-scoped artifacts for large arrays/images/traces.
   tagged `learned` (with the baseline snapshot it was derived from) or
   `configured` (with a fingerprinted `.env`/config key); records reference the
   provenance of every value they used so XAI can reconstruct it.
+- A model used in production must hold a current `MANDATORY` `ModelPromotionRecord`;
+  `PROBE_ONLY`/`SHADOW`/`CANARY` outputs are never persisted as a production
+  `review_priority_score` or `pattern_state`, and no promotion record stores a
+  behavioral accuracy/AUROC metric.
 
 ## Existing Entities Reused
 
@@ -575,6 +579,47 @@ is hardcoded and every value is reconstructable for XAI.
 - An operational value without a provenance record is a hardcoding violation and
   fails acceptance.
 
+## New Entity: ModelPromotionRecord
+
+**Owner**: `apps.pipeline` (promotion registry); read through a neutral versioned
+contract.
+
+**Purpose**: Immutable record of one model stage transition and the evidence that
+justified it, so promotion from probe to production-mandatory is auditable and
+reversible.
+
+| Field | Type | Rule |
+|---|---|---|
+| `promotion_id` | UUID | Primary key |
+| `schema_version` | string | Required |
+| `model_key`, `model_version`, `artifact_digest` | strings | Required |
+| `route_snapshot_ref` | FK | Required |
+| `from_stage`, `to_stage` | enums | `PROBE_ONLY`/`SHADOW`/`CANARY`/`MANDATORY`/`ARCHIVED`/`ROLLED_BACK` |
+| `promotion_status` | enum | Current stage |
+| `target_role` | enum | `signal` or `representation` only (never `decision_authority`) |
+| `benchmark_ref` | reference | Native RTX 5090 stride-1 benchmark |
+| `serving_metrics` | bounded JSON | Latency/throughput/resource, serving distribution, shadow duration |
+| `gate_results` | bounded JSON | G1-G6 pass/fail with evidence references |
+| `model_card_ref` | reference | Required for `MANDATORY` |
+| `ledger_ref` | reference | Benchmark ledger entry |
+| `approver_ref` | authenticated user ref | Governed approver (role-gated) |
+| `decision` | enum | `promoted`/`held`/`rejected`/`rolled_back` |
+| `rollback_ref` | nullable reference | Proven rollback |
+| `valid_from` | timestamp | Required |
+| `promotion_digest` | SHA-256 | Unique |
+| `supersedes_ref` | nullable FK | Append-only evolution |
+| `created_at` | timestamp | Immutable |
+
+**Constraints**:
+
+- Append-only; each transition creates a new record.
+- `MANDATORY` requires `benchmark_ref`, complete `serving_metrics`, all gate
+  results passing, `model_card_ref`, `approver_ref`, and a proven `rollback_ref`.
+- `target_role` is `signal`/`representation` only; a behavioral
+  `decision_authority` target is invalid under the doctrine.
+- No behavioral accuracy/AUROC metric is recorded.
+- A rollback creates a `ROLLED_BACK` record and restores the prior stage.
+
 ## Relationships
 
 ```text
@@ -597,6 +642,8 @@ ObservedPatternProfileSnapshot(general tier) 0..1 --- * AnomalyScoreRecord
 AnomalyScoreRecord   * --- * ParameterProvenanceRecord
 AnomalyScoreContribution * --- 1 ParameterProvenanceRecord
 ObservedPatternProfileSnapshot 1 --- * ParameterProvenanceRecord (learned source)
+XAIModelRouteSnapshot 1 --- * ModelPromotionRecord
+ModelPromotionRecord 0..1 --- 1 ModelPromotionRecord (supersedes)
 ```
 
 ## State Transitions
@@ -650,6 +697,8 @@ valid/degraded/quarantined -> invalidated
 - Index observed-pattern profiles additionally by `baseline_tier` so the general
   baseline resolves separately from student-tier profiles.
 - Index parameter provenance by `param_key`, `source_kind`, scope, and digest.
+- Index model promotion records by `model_key`/`model_version`, `promotion_status`,
+  `decision`, and promotion digest.
 - Index route/calibration snapshots by digest and compatibility fields.
 - Index artifact lifecycle by request/status/created time.
 - Partition or retention-manage high-volume evidence only after measured

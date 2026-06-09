@@ -48,6 +48,8 @@ traceability artifact, not implementation evidence.
 | FR-037 corpus-ingested general baseline | 015.14 | T272-T273, T276-T285 |
 | FR-038 dual comparison (self + population) | 015.14 | T274, T278, T280-T285 |
 | FR-039 no hardcoding / parameter provenance | Setup, 015.14 | T005b, T275-T276, T279-T285 |
+| FR-040 evidence-gated model promotion lifecycle | Setup, 015.15 | T005c, T286-T301 |
+| FR-041 promotion doctrine cap (signal-only, no behavioral accuracy) | Setup, 015.15 | T005c, T289, T295, T300-T301 |
 
 ## Success Criterion Coverage
 
@@ -79,6 +81,8 @@ traceability artifact, not implementation evidence.
 | SC-024 interaction-graph WebGL budgets and PROBE_ONLY learned graph | 015.10, 015.13 | T259, T262-T268 |
 | SC-025 no-hardcoding and parameter-provenance proof | Setup, 015.14 | T005b, T275, T279-T285 |
 | SC-026 dual-delta reconstruction and general baseline not ground truth | 015.14 | T274, T278-T285 |
+| SC-027 promotion evidence packet, approver, and rollback proof | Setup, 015.15 | T005c, T289-T301 |
+| SC-028 no behavioral-accuracy promotion; probe outputs excluded from prod score | Setup, 015.15 | T005c, T295-T296 |
 
 ## User Story Coverage
 
@@ -94,9 +98,9 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `39/39`
-- Success criteria covered: `26/26`
+- Functional requirements covered: `41/41`
+- Success criteria covered: `28/28`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
-  `15/15`
+  `16/16`
 - Mandatory no-ground-truth doctrine covered: `yes`
