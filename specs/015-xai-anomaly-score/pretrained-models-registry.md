@@ -74,6 +74,29 @@ labels**, fully inside the doctrine.
 > never be promoted, can never claim accuracy/AUROC, and can never mutate a
 > production profile or decision.
 
+## Class B (graph) — Student-Interaction Graph Models (`PROBE_ONLY`)
+
+The **production** student-interaction graph (FR-035) is **deterministic** — a
+rule-based, identity-gated consolidation of existing Class A relational signals
+(SRVL geometry, `InteractionEdge`, gaze/`head_yaw` orientation, the COMBINED
+head, scene segmentation). **No pretrained model is required for production.**
+The models below are **frozen, `PROBE_ONLY` research candidates** for comparing a
+*learned* graph representation against the deterministic graph — they consume the
+`rtmpose` skeletons / the deterministic graph you already build, so they need
+**no new labels**.
+
+| Candidate | Idea | Why it fits here | Constraint |
+|---|---|---|---|
+| **ST-GCN family** (ST-GCN, 2s-AGCN, CTR-GCN, MS-G3D) | spatio-temporal graph conv over skeleton joints, extendable to multi-person | consumes existing `rtmpose` skeletons; learns relational dynamics | `PROBE_ONLY`, frozen-after-fit-on-assumed-normal |
+| **GAT / GraphSAGE** | learned node/edge embeddings over the interaction graph | embeds the deterministic graph for hypothesis comparison | `PROBE_ONLY`, frozen, no production authority |
+| **ARG / GroupFormer** | actor-relation / group-activity graphs | reference for multi-person interaction structure | `PROBE_ONLY` |
+| **StrGNN / TADDY** | structural-temporal / transformer **dynamic-graph anomaly** | unsupervised low-likelihood edge/subgraph scoring on the temporal interaction graph | `PROBE_ONLY`, no accuracy/AUROC claim |
+
+> All four rows are **`PROBE_ONLY` / `HYPOTHESIS_ONLY`**. They MUST NOT drive a
+> production `review_priority_score` or `pattern_state`, MUST NOT be trained as a
+> collusion/cheating target, and MUST NOT report anomaly/collusion accuracy. The
+> production graph and its per-student signals stay deterministic.
+
 ## How this registry overcomes "no ground-truth"
 
 1. **Class A is pure signal extraction** — frozen pretrained models turn video
@@ -102,3 +125,9 @@ labels**, fully inside the doctrine.
 [STG-NF (pose normalizing flows)](https://orhir.github.io/STG_NF/) ·
 [DA-Flow (dual-attention skeleton VAD)](https://arxiv.org/abs/2406.02976) ·
 [Contracting skeletal kinematics for human-related VAD](https://www.sciencedirect.com/science/article/pii/S0031320324005685)
+
+*Sources for the interaction-graph probe candidates:*
+[ST-GCN (spatio-temporal graph conv)](https://arxiv.org/abs/1801.07455) ·
+[Actor Relation Graph (group activity)](https://arxiv.org/abs/1904.10117) ·
+[StrGNN (structural temporal graph anomaly)](https://arxiv.org/abs/2005.07427) ·
+[Deep Graph Anomaly Detection survey (TKDE 2025)](https://github.com/mala-lab/Awesome-Deep-Graph-Anomaly-Detection)

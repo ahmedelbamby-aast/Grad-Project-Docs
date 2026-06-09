@@ -42,6 +42,9 @@ traceability artifact, not implementation evidence.
 | FR-031 no anomaly training/fine-tuning or manufactured ground truth | Setup, 015.2, 015.5, 015.9, 015.11-015.12 | T009-T010, T051-T067, T105-T123, T178-T192, T216-T250 |
 | FR-032 bounded per-student multivariate observed-pattern analysis | 015.1, 015.4-015.7 | T040, T088-T157 |
 | FR-033 required observed-pattern vocabulary and knowledge limits | Setup, 015.5, 015.9-015.12 | T004, T009-T010, T105-T123, T178-T250 |
+| FR-034 student-independence and separate session aggregate | 015.5, 015.9 | T108-T123, T183-T192 |
+| FR-035 deterministic identity-gated interaction-graph signals | 015.13 | T254-T257, T260-T268 |
+| FR-036 interaction-graph WebGL render and unresolved-edge safety | 015.10, 015.13 | T196-T215, T258-T262 |
 
 ## Success Criterion Coverage
 
@@ -68,6 +71,9 @@ traceability artifact, not implementation evidence.
 | SC-019 prove no anomaly training/fine-tuning or ground-truth path | Setup, 015.2, 015.5, 015.9, 015.11-015.12 | T009, T051-T067, T105-T123, T178-T192, T216-T250 |
 | SC-020 controlled pattern fixtures and metamorphic/invariant behavior | 015.4-015.6, 015.11 | T088-T139, T223-T233 |
 | SC-021 required observed-pattern vocabulary and knowledge limit | Setup, 015.5, 015.9-015.12 | T004, T010, T105-T123, T178-T250 |
+| SC-022 peer-isolated session aggregate preview | 015.5, 015.9 | T116-T123, T183-T192 |
+| SC-023 deterministic reconstructable identity-gated graph features | 015.13 | T255-T257, T260-T268 |
+| SC-024 interaction-graph WebGL budgets and PROBE_ONLY learned graph | 015.10, 015.13 | T259, T262-T268 |
 
 ## User Story Coverage
 
@@ -79,12 +85,13 @@ traceability artifact, not implementation evidence.
 | US4 Request deep XAI and review evidence | 015.8-015.9 | isolated evaluated artifacts and governed feedback |
 | US5 Responsive WebGL workbench | 015.10 | WebGL2 renderer and representative/stress benchmark |
 | US6 Production/scientific integrity | Every cycle, 015.11-015.12 | benchmark/figure/ledger/rollback packets and final canary |
+| US7 Inspect student-interaction graph | 015.13 | deterministic identity-gated graph signals + shared-WebGL2 node-link/adjacency render |
 
 ## Coverage Result
 
-- Functional requirements covered: `33/33`
-- Success criteria covered: `21/21`
-- User stories covered: `6/6`
+- Functional requirements covered: `36/36`
+- Success criteria covered: `24/24`
+- User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
-  `13/13`
+  `14/14`
 - Mandatory no-ground-truth doctrine covered: `yes`

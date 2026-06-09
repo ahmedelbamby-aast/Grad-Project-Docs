@@ -33,6 +33,12 @@ job-scoped artifacts for large arrays/images/traces.
   escalation derived from reviewer-approved deviation is a separate aggregate
   output and never mutates peer students' scores, contributions, or pattern
   states.
+- The student-interaction graph is deterministic, identity-gated relational
+  evidence derived from existing source signals; an edge or graph feature is
+  context only, never a collusion/cheating record, and a learned graph model
+  output is never persisted as a production `review_priority_score` or
+  `pattern_state` (it stays `PROBE_ONLY` per
+  [pretrained-models-registry.md](pretrained-models-registry.md)).
 
 ## Existing Entities Reused
 
@@ -476,6 +482,45 @@ evaluation.
 | `memory_proxy_bytes` | integer nullable | Explicit unavailable reason if absent |
 | `truth_state`, `unavailable_reasons` | fields | Required |
 
+## New Entity: StudentInteractionGraphFrame
+
+**Owner**: `apps.behavior.explainability` (deterministic graph builder).
+
+**Purpose**: Bounded, identity-gated per-frame/per-window graph of student
+relational evidence plus the per-student graph-derived features it produces. It
+is relational context, never collusion or cheating truth.
+
+| Field | Type | Rule |
+|---|---|---|
+| `graph_frame_id` | UUID | Primary key |
+| `schema_version`, `feature_schema_version` | strings | Required |
+| `job_ref` | reference | Required scope |
+| `scope` | bounded JSON | Session/camera/scene |
+| `source_start_ms`, `source_end_ms` | integers | Ordered |
+| `route_snapshot_ref` | FK | Required |
+| `node_refs` | bounded array | Resolved, identity-gated track refs |
+| `edges` | bounded JSON array | `edge_type`, src/dst track, `directed`, `weight`, `persistence`, `identity_confidence`, `truth_state`, `evidence_refs` |
+| `per_student_features_ref` | artifact/value ref | Digest-addressed bounded graph features |
+| `node_count`, `edge_count`, `unresolved_edge_count` | integers | Required |
+| `bounds` | bounded JSON | Configured node/edge caps and overflow policy |
+| `source_signal_refs` | bounded array | SRVL/behavior/scene/pose/gaze lineage |
+| `truth_state` | enum | Required |
+| `graph_digest` | SHA-256 | Unique reconstruction digest |
+| `created_at` | timestamp | Immutable |
+
+**Constraints**:
+
+- Edges are built only between resolved identities; an edge touching an
+  ambiguous/unresolved identity is recorded `unresolved` and excluded from valid
+  per-student features (it is not fabricated and not counted as zero).
+- Node/edge counts are configuration-bounded; overflow uses bounded sampling and
+  is logged, never silently truncated.
+- Construction is deterministic and reconstructable from `source_signal_refs`.
+- Per-student features feed `SignalPatternWindow` for the producing student only
+  and never mutate a peer student's records.
+- No field is described or consumed as collusion/cheating ground truth; learned
+  graph-model outputs are not persisted here as production scores or states.
+
 ## Relationships
 
 ```text
@@ -492,6 +537,8 @@ AnomalyScoreRecord   0..1 --- * XAIExplanationRecord
 XAIEvidenceEnvelope  1 --- * XAIAttributionArtifact
 XAIAttributionArtifact 1 --- 1 ExplanationEvaluationRecord
 XAIExplanationRecord 1 --- * XAIReviewFeedback
+StudentInteractionGraphFrame 1 --- * SignalPatternWindow
+StudentInteractionGraphFrame * --- 1 XAIModelRouteSnapshot
 ```
 
 ## State Transitions
@@ -540,6 +587,8 @@ valid/degraded/quarantined -> invalidated
   and created time.
 - Index signal-pattern windows/profiles by scope, route/feature compatibility,
   source-time range, truth/contamination/drift state, and digest.
+- Index student-interaction graph frames by job, scope, source-time range,
+  truth state, and graph digest.
 - Index route/calibration snapshots by digest and compatibility fields.
 - Index artifact lifecycle by request/status/created time.
 - Partition or retention-manage high-volume evidence only after measured

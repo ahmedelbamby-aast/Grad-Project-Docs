@@ -34,6 +34,9 @@
 - [x] Modularity and anti-duplication requirements are explicit.
 - [x] Every atomic cycle requires benchmark, figures, rollback, and ledger work.
 - [x] WebGL is mandatory for accepted analytical rendering.
+- [x] The deterministic student-interaction graph (per-student signals plus
+  shared-WebGL2 node-link/adjacency plots) is specified, identity-gated,
+  non-accusatory, and keeps learned graph models `PROBE_ONLY`.
 
 ## Notes
 

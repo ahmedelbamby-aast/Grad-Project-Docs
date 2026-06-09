@@ -22,7 +22,10 @@ catalogued in [pretrained-models-registry.md](pretrained-models-registry.md):
 Class A production signal sources (e.g. `person_detector`, `rtmpose_model`,
 gaze/posture models, the COMBINED `yolo11m` head) and Class B `PROBE_ONLY`
 representations (e.g. skeleton normalizing-flow VAD over existing `rtmpose`
-skeletons).
+skeletons). It also adds a deterministic, identity-gated student-interaction
+graph that turns existing relational signals into per-student graph features for
+scoring and into shared-WebGL2 node-link/adjacency plots; learned graph models
+stay `PROBE_ONLY`.
 
 ## Technical Context
 
@@ -121,11 +124,11 @@ flowchart LR
 |---|---|
 | `apps.pipeline` | Immutable route snapshot and model-bound raw explanation extraction |
 | `apps.video_analysis` | Authoritative frames, detections, tracks, pose, scene, and SRVL sources |
-| `apps.behavior` | Evidence envelope, signal registry, fast explainer interfaces, temporal evidence, explanation composition, lineage |
+| `apps.behavior` | Evidence envelope, signal registry, fast explainer interfaces, temporal evidence, explanation composition, lineage, deterministic student-interaction graph builder and per-student graph signals |
 | `apps.anomalies` | Source-model calibration where evidence exists, observed-pattern profiles, pattern-deviation scoring, thresholds, drift, contribution persistence, governed non-ground-truth review feedback |
 | `apps.telemetry` | Performance/resource/quality metrics |
 | `frontend/src/features/xai` | Reviewer workbench and state orchestration |
-| `frontend/src/services/webgl` | Shared WebGL2 renderer, context budget, typed-array stores, export |
+| `frontend/src/services/webgl` | Shared WebGL2 renderer, context budget, typed-array stores, export, interaction-graph node-link and adjacency layers |
 
 ### Core Interfaces
 
@@ -241,6 +244,45 @@ review_priority_score =
   aggregate term and must never mutate a peer student's score or pattern
   state.
 
+## Student Interaction Graph
+
+The interaction graph is a deterministic, identity-gated consolidation of
+relational signals already produced by the stack; it is not a trained model.
+
+### Build (deterministic, in `apps.behavior.explainability`)
+
+1. resolve nodes from identity-gated tracks; skip/`unresolved` ambiguous identity;
+2. build typed edges from existing evidence — `proximity` (SRVL/detector
+   geometry), directed/`mutual_gaze` (gaze + `head_yaw` cone test),
+   `orientation_toward_peer` (pose/torso), `co_movement` (bounded temporal
+   correlation), `shared_scene` (scene segmentation);
+3. compute bounded per-student graph features (degree, mutual-gaze dwell,
+   directed-attention duration, persistence, clustering/centrality proxy, dyad
+   strength) and register them as governed signals feeding the observed-pattern
+   profile;
+4. cap node/edge counts by configuration; on overflow use bounded sampling and
+   log it (never silent truncation);
+5. persist a reconstructable `StudentInteractionGraphFrame` with source lineage.
+
+### Render (shared WebGL2 core)
+
+- a node-link layer (spatially anchored to real student positions for stable,
+  deterministic layout; optional GPU force-directed as a measured candidate),
+- the N×N interaction adjacency matrix on the existing `MatrixTileStore`, and
+- per-dyad interaction timelines on the `TypedSeriesStore`,
+- all under the same context-budget, incremental-append, LOD/tiling,
+  context-loss-recovery, and numeric/tabular-fallback rules.
+
+### Guardrails
+
+- A graph edge or feature is relational context; it never asserts collusion,
+  intent, or cheating, and a graph feature lifts only the producing student's own
+  review priority (per the student-independence rule above).
+- Any learned graph model (ST-GCN-family, GAT/GraphSAGE, ARG/GroupFormer,
+  StrGNN/TADDY-style dynamic-graph anomaly) is `PROBE_ONLY` per
+  [pretrained-models-registry.md](pretrained-models-registry.md) and cannot drive
+  a production score or report anomaly accuracy/AUROC.
+
 ## Mandatory No-Ground-Truth Doctrine
 
 [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
@@ -328,6 +370,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Pattern profiles | `ANOMALY_PATTERN_PROFILE_VERSION`, `ANOMALY_PATTERN_MIN_VALID_WINDOWS`, `ANOMALY_PATTERN_MAX_WINDOWS`, `ANOMALY_PATTERN_QUARANTINE_THRESHOLD`, `ANOMALY_PATTERN_MAX_AGE_SECONDS` |
 | Conformal | `ANOMALY_CONFORMAL_ENABLED`, `ANOMALY_CONFORMAL_ALPHA`, `ANOMALY_CONFORMAL_MIN_CALIBRATION_SAMPLES` |
 | WebGL | `VITE_XAI_WEBGL_REQUIRED`, `VITE_XAI_WEBGL_CONTEXT_BUDGET`, `VITE_XAI_SERIES_RING_CAPACITY`, `VITE_XAI_MATRIX_TILE_SIZE`, `VITE_XAI_MAX_UPLOAD_BYTES_PER_FRAME` |
+| Interaction graph | `XAI_INTERACTION_GRAPH_ENABLED`, `XAI_GRAPH_MAX_NODES`, `XAI_GRAPH_MAX_EDGES`, `XAI_GRAPH_EDGE_PERSISTENCE_MS`, `XAI_GRAPH_GAZE_CONE_DEG`, `XAI_GRAPH_PROBE_ENABLED`, `VITE_XAI_GRAPH_RENDER_BUDGET` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 

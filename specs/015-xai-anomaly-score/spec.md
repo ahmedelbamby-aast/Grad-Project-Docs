@@ -60,6 +60,12 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
 - Where operators informally say "normal until proven otherwise", the governed
   persisted state remains `within_observed_pattern` or `insufficient_context`
   until valid evidence supports `pattern_deviation`.
+- Student-interaction-graph edges (proximity, directed/mutual gaze-toward-peer,
+  relative orientation, co-movement, shared-scene association) are identity-gated
+  relational context derived from existing signals. An edge or an elevated
+  interaction-graph signal raises only the involved student's own review
+  priority; it is never proof of collusion or cheating and never accuses the
+  peer.
 
 ## User Scenarios & Testing
 
@@ -242,6 +248,42 @@ evidence.
    acceptance is considered, **Then** the result remains probe-only until a
    completed stride-1 native Linux RTX 5090 end-to-end benchmark exists.
 
+---
+
+### User Story 7 - Inspect The Student-Interaction Graph (Priority: P2)
+
+As a reviewer, I need to see how students relate to one another over time — who
+is near whom, who is oriented or looking toward whom, and how those relations
+change — as both a live WebGL graph and as per-student signals that feed the
+review-priority score, without any edge implying collusion or cheating.
+
+**Why this priority**: Many review-worthy moments are relational (sustained
+directed attention toward a neighbor, abnormal proximity dynamics). These must
+be derived from existing signals deterministically, identity-gated, rendered
+responsively, and kept non-accusatory and student-scoped.
+
+**Independent Test**: Replay crowded, crossing, occluded, and
+synchronized-behavior sequences and verify that the interaction graph is
+reconstructable from the referenced relational signals, that ambiguous-identity
+edges stay unresolved, that per-student graph features are bounded and feed the
+observed-pattern profile, and that the node-link graph and adjacency matrix
+render in WebGL2 within budget with a numeric/tabular fallback.
+
+**Acceptance Scenarios**:
+
+1. **Given** two students with sustained directed gaze-toward-peer and close
+   proximity, **When** the interaction graph is built, **Then** a weighted edge
+   with persistence and identity-confidence appears and the per-student
+   directed-attention/proximity features are exposed, without labeling either
+   student as cheating or colluding.
+2. **Given** an unresolved or ambiguous identity, **When** a candidate edge
+   would connect it, **Then** the edge is marked unresolved and excluded from
+   the student's valid graph features rather than fabricated.
+3. **Given** a graph with more nodes/edges than the configured bound or a lost
+   WebGL context, **When** the workbench renders, **Then** bounded LOD/tiling
+   and context-loss recovery keep it interactive, or a numeric/tabular fallback
+   is shown and the figure is marked unavailable.
+
 ## Edge Cases
 
 - A model is confident but miscalibrated.
@@ -270,6 +312,13 @@ evidence.
 - A reviewer assessment conflicts with the current pattern profile or score.
 - A live stream runs indefinitely and must not accumulate unbounded state.
 - A score is requested across a reconnect gap or invalid temporal window.
+- A pairwise interaction edge depends on an ambiguous or unresolved identity.
+- An interaction graph contains more students or edges than the configured
+  node/edge bound.
+- A mutual-gaze or directed-attention edge is implied while the peer is occluded,
+  missing, or has low pose/gaze quality.
+- Two students share a desk or scene object but never actually interact.
+- A learned graph model is proposed as production scoring authority.
 
 ## Mandatory Runtime Scenarios
 
@@ -438,6 +487,26 @@ evidence.
   reviewer-approved deviation for one student MAY lift only a separate
   session/classroom aggregate term and MUST NOT mutate any peer student's
   individual score, contribution set, or pattern state.
+- **FR-035**: The system MUST derive a bounded, identity-gated
+  student-interaction graph (nodes = tracked students/teacher; edges =
+  deterministic relational evidence such as proximity, directed/mutual
+  gaze-toward-peer, relative body orientation, co-movement, and
+  shared-scene-object association) from existing valid relational signals
+  (person detection, pose kinematics, gaze, the COMBINED head, YOLOE scene, and
+  SRVL), and MUST expose per-student graph-derived features (interaction degree,
+  weighted degree, mutual-gaze dwell, directed-attention duration, edge
+  persistence, local clustering/centrality proxy, neighbor churn, and dyad
+  strength) as governed signals that feed the per-student observed-pattern
+  profiles. Any learned graph model (GNN, ST-GCN-family, or dynamic-graph
+  anomaly method) remains `PROBE_ONLY` per the pretrained-models registry and
+  MUST NOT drive a production score.
+- **FR-036**: Interaction-graph node-link views, adjacency/interaction matrices,
+  and dyad timelines MUST render through the shared WebGL2 renderer under the
+  same persistent-context, incremental-append, viewport-LOD/tiling,
+  context-loss-recovery, and numeric/tabular-fallback rules; edges whose
+  identity evidence is ambiguous MUST be shown unresolved rather than asserted,
+  and no graph edge or graph signal may be presented as proof of cheating,
+  intent, or collusion.
 
 ### Key Entities
 
@@ -461,6 +530,12 @@ evidence.
   evaluation.
 - **XAI Reviewer Assessment**: Governed non-ground-truth reviewer assessment and
   evidence reference.
+- **Student Interaction Graph Frame**: Bounded, identity-gated per-frame/per-window
+  graph of student relational evidence plus per-student graph-derived features;
+  relational context only, never collusion proof.
+- **Student Interaction Edge**: One directed or undirected pairwise relational
+  evidence item (edge type, weight, persistence, identity confidence) between two
+  tracked students, with explicit unresolved state when identity is ambiguous.
 
 ## Success Criteria
 
@@ -528,6 +603,15 @@ evidence.
   reviewer-approved deviation lifts only the separate session/classroom
   aggregate while each peer student's individual score and pattern state remain
   unchanged.
+- **SC-023**: Per-student interaction-graph features are deterministic,
+  reconstructable from the referenced source relational signals, identity-gated,
+  and bounded; ambiguous-identity edges remain unresolved and never fabricate
+  peer interactions or peer scores.
+- **SC-024**: Interaction-graph node-link and adjacency renders use WebGL2
+  within the declared frame-time, context-count, and update-latency budgets,
+  expose a numeric/tabular fallback when WebGL is unavailable, and any learned
+  graph model used for research comparison is recorded `PROBE_ONLY` with no
+  anomaly accuracy, AUROC, or collusion-detection claim.
 
 ## Assumptions And Dependencies
 

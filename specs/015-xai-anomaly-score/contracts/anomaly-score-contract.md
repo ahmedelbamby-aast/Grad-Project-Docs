@@ -168,6 +168,19 @@ not a mutation of the student records:
 }
 ```
 
+## Interaction-Graph Contributions
+
+- Student-interaction-graph features may appear as score contributions under the
+  `interaction_graph.*` `component_key` namespace (e.g.
+  `interaction_graph.gaze_toward_peer.sustained`,
+  `interaction_graph.proximity.dwell`).
+- A graph contribution is computed deterministically from identity-gated
+  relational evidence and is scoped to the producing student only; it MUST NOT
+  add, remove, or relabel any peer student's contributions or score.
+- A graph contribution is relational context, never proof of collusion or
+  cheating. A learned graph model (`PROBE_ONLY`) MUST NOT supply a production
+  contribution.
+
 ## No-Ground-Truth Invariants
 
 - `ground_truth_status` is

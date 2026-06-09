@@ -301,7 +301,67 @@ Operational factors are first-class explanation context. A high anomaly score
 that coincides with degraded runtime, poor input quality, route drift, or stale
 evidence must be degraded or withheld.
 
-## 10. Candidate Additional Models And Strategies
+## 10. Student Interaction Graph Signals
+
+**Sources**: `SpatialRelationFrame` and `scene/srvl.py` (pairwise distance/angle),
+`InteractionEdge` (`apps.behavior`), `person_detector` tracks, `rtmpose_model`
+head/torso orientation, gaze models, the COMBINED `yolo11m` head (gaze
+direction), and `yoloe_scene_seg` (shared seat/zone/object). The production graph
+is a **deterministic** consolidation of these existing relational signals; it is
+not a trained model. Learned graph methods are governed `PROBE_ONLY` per
+[pretrained-models-registry.md](pretrained-models-registry.md) and never drive a
+production score.
+
+### Graph Construction (deterministic)
+
+- nodes are tracked students/teacher with source-scoped, identity-gated labels;
+- candidate edges are built only between resolved identities; an edge touching an
+  ambiguous/unresolved identity is emitted as `unresolved` and excluded from
+  valid per-student features;
+- edge types and their evidence:
+  - `proximity` — normalized pairwise distance and approach/withdrawal velocity
+    from SRVL/detector centroids;
+  - `gaze_toward_peer` (directed) — peer falls inside the gaze/head-orientation
+    cone using gaze yaw/pitch + `head_yaw`; `mutual_gaze` when both directions hold;
+  - `orientation_toward_peer` — relative torso/body orientation and lean;
+  - `co_movement` — bounded temporal correlation of motion/transition events;
+  - `shared_scene` — shared desk/seat/zone/object from scene segmentation
+    (context only; not asserted as interaction).
+- each edge carries `edge_type`, `weight`, `persistence`, `identity_confidence`,
+  `truth_state`, and source/evidence lineage; node/edge counts are
+  configuration-bounded.
+
+### Derived Per-Student Graph Signals And Tasks
+
+- interaction degree, weighted degree, and per-edge-type degree;
+- mutual-gaze count/dwell and directed gaze-toward-peer duration;
+- proximity dwell and nearest-peer approach/withdrawal rate;
+- edge persistence, neighbor churn, and dyad-specific interaction strength;
+- local clustering coefficient and bounded centrality/betweenness proxy;
+- graph-topology change magnitude and synchronized-transition support;
+- per-feature coverage, identity-continuity gating, and contradiction with
+  individual-behavior evidence.
+
+These per-student features are registered governed signals (FR-035) that feed the
+bounded multivariate observed-pattern profiles in §8; a graph-feature deviation
+raises only that student's own review priority and never the peer's.
+
+### Explanation Strategy
+
+- Fast: exact edge list with type/weight/persistence/identity-confidence, the
+  per-student feature derivation trace, source lineage, and counterfactual graph
+  deltas. SRVL/graph geometry is deterministic and requires no deep method.
+- Deep path is not required for the production deterministic graph; any learned
+  graph embedding is `PROBE_ONLY` research only.
+
+### Knowledge Limits And Streaming
+
+- An edge or graph feature is relational context, never proof of collusion,
+  cheating, or intent.
+- `streaming_compatibility`: `stream-safe-with-config` using bounded graph
+  windows, node/edge caps, and stale-edge eviction.
+
+## 11. Candidate Additional Models And Strategies
 
 The production anomaly path is deterministic robust observed-pattern analysis.
 The following are research candidates, not pre-approved production

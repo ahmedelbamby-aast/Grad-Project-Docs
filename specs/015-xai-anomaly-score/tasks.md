@@ -374,6 +374,36 @@ semantics, and rollback all reconcile from immutable evidence.
 - [ ] T249 [US6] Record final decision, limitations, research backlog, and rollback in `docs/xai_anomaly/cycle_015_12_results.md`
 - [ ] T250 [US6] Record every Cycle 015.12 run and final decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
+## Phase 15: Cycle 015.13 - Student Interaction Graph Signals And Plots
+
+**Goal**: Add a deterministic, identity-gated student-interaction graph that
+emits per-student graph signals for scoring and renders node-link/adjacency
+plots through the shared WebGL2 core, without any collusion/cheating claim and
+with learned graph models kept `PROBE_ONLY`.
+**Independent test**: The graph is reconstructable from referenced relational
+signals, ambiguous-identity edges stay unresolved, per-student features feed the
+observed-pattern profile, and the graph renders in WebGL2 within budget with a
+numeric fallback.
+
+- [ ] T251 [P] [US3] Write Cycle 015.13 investigation, deterministic-graph contract, non-accusatory/identity-gating gates, and rollback in `docs/xai_anomaly/cycle_015_13_investigation.md`
+- [ ] T252 [P] [US6] Name Cycle 015.13 Figure Planner in `docs/xai_anomaly/cycle_015_13_figure_plan.md`
+- [ ] T253 [P] [US6] Name separate Cycle 015.13 Figure Implementer in `docs/xai_anomaly/cycle_015_13_figure_implementation.md`
+- [ ] T254 [P] [US3] Implement interaction-graph node/edge/feature contracts in `backend/apps/behavior/explainability/interaction_graph_contracts.py`
+- [ ] T255 [P] [US3] Implement deterministic identity-gated graph builder (proximity, directed/mutual gaze cone, orientation, co-movement, shared-scene edges) reusing SRVL/gaze/pose/scene signals in `backend/apps/behavior/explainability/interaction_graph.py`
+- [ ] T256 [P] [US2] Register per-student graph-derived feature signals (degree, mutual-gaze dwell, directed-attention, persistence, clustering/centrality proxy, dyad strength) feeding observed-pattern profiles in `backend/apps/behavior/explainability/signal_definitions.py`
+- [ ] T257 [US3] Add `StudentInteractionGraphFrame` model, bounds, and migration in `backend/apps/behavior/models.py`
+- [ ] T258 [P] [US3] Add interaction-graph serializers and bounded chunked endpoints in `backend/apps/behavior/serializers.py` and `backend/apps/behavior/views.py`
+- [ ] T259 [P] [US5] Implement shared-WebGL2 node-link and adjacency graph layers in `frontend/src/services/webgl/GraphLayer.ts` and the graph view in `frontend/src/features/xai/`
+- [ ] T260 [P] [US3] Add identity-gating, unresolved-edge, node/edge-bound/overflow, and deterministic-reconstruction unit tests in `backend/tests/unit/behavior/test_xai_interaction_graph.py`
+- [ ] T261 [P] [US2] Add graph-feature determinism, profile-feed, and no-peer-mutation tests in `backend/tests/unit/behavior/test_xai_interaction_graph_signals.py`
+- [ ] T262 [P] [US5] Add WebGL graph render, context-budget, large-graph LOD, context-loss, and numeric-fallback tests in `frontend/src/services/webgl/__tests__/graphLayer.test.ts`
+- [ ] T263 [P] [US3] Add `PROBE_ONLY` learned-graph isolation guard proving no learned graph model drives a production score in `backend/tests/unit/behavior/test_xai_interaction_graph_probe_only.py`
+- [ ] T264 [P] [US6] Add production graph signal/render coverage probe in `tools/prod/prod_probe_xai_interaction_graph.py`
+- [ ] T265 [US6] Add Cycle 015.13 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_13.sh`
+- [ ] T266 [P] [US6] Implement Cycle 015.13 graph/adjacency/feature figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_13_figures.py`
+- [ ] T267 [US6] Execute rollback and record Cycle 015.13 decision in `docs/xai_anomaly/cycle_015_13_results.md`
+- [ ] T268 [US6] Record every Cycle 015.13 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
+
 ## Dependency Graph
 
 ```text
@@ -389,7 +419,8 @@ Setup
 
 015.3 + 015.7 -> 015.8 -> 015.9
 015.3 + 015.5 + 015.7 -> 015.10
-015.0 through 015.10 -> 015.11 -> 015.12
+015.3 + 015.5 + 015.7 + 015.10 -> 015.13
+015.0 through 015.10, plus 015.13 -> 015.11 -> 015.12
 ```
 
 ## Parallel Execution Guidance

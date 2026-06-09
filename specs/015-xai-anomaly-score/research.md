@@ -45,6 +45,11 @@ active models and building an anomaly score layer.
 | Skeleton-based VAD | STG-NF, https://orhir.github.io/STG_NF/ | PROBE_ONLY; consumes existing `rtmpose` skeletons; no new labels |
 | Skeleton-based VAD | DA-Flow, https://arxiv.org/abs/2406.02976 | PROBE_ONLY; recent SOTA skeleton VAD; few parameters |
 | Pretrained model governance | [pretrained-models-registry.md](pretrained-models-registry.md) | Frozen Class A signal sources + Class B PROBE_ONLY representations |
+| Skeleton spatio-temporal graph | ST-GCN, https://arxiv.org/abs/1801.07455 | PROBE_ONLY graph backbone over existing `rtmpose` skeletons; production graph stays deterministic |
+| Group relation graph | Actor Relation Graph (ARG), https://arxiv.org/abs/1904.10117 | PROBE_ONLY reference for multi-person interaction modeling |
+| Dynamic-graph anomaly | StrGNN structural temporal GNN, https://arxiv.org/abs/2005.07427 | PROBE_ONLY unsupervised dynamic-graph anomaly reference; no labels |
+| Graph anomaly survey | Deep Graph Anomaly Detection survey (TKDE 2025), https://github.com/mala-lab/Awesome-Deep-Graph-Anomaly-Detection | Landscape reference; all candidates remain PROBE_ONLY |
+| WebGL graph rendering | cosmos.gl (OpenJS), https://openjsf.org/blog/introducing-cosmos-gl and sigma.js, https://www.sigmajs.org/ | GPU graph-render references; only as a measured candidate behind the shared WebGL2 core |
 
 ## Decision 1: Use A Two-Lane XAI Architecture
 
@@ -357,6 +362,43 @@ target.
 - Use model agreement as truth: rejected because correlated models can agree
   while being wrong.
 
+## Decision 15: Build The Student-Interaction Graph As A Deterministic Signal And Plot
+
+**Decision**: Add a student-interaction graph whose **production** form is a
+deterministic, identity-gated consolidation of existing relational signals
+(SRVL pairwise geometry, behavior `InteractionEdge`, gaze/`head_yaw`
+orientation, the COMBINED head, and scene segmentation):
+
+- nodes are tracked students/teacher; edges are typed relational evidence
+  (`proximity`, directed/`mutual_gaze`, `orientation_toward_peer`, `co_movement`,
+  `shared_scene`);
+- per-student graph features (degree, mutual-gaze dwell, directed-attention
+  duration, persistence, clustering/centrality proxy, dyad strength) become
+  governed signals that feed the per-student observed-pattern profiles;
+- the graph and its adjacency matrix render through the shared WebGL2 core
+  (Decision 11), reusing the matrix-tile and series stores;
+- learned graph models (ST-GCN-family, GAT/GraphSAGE, ARG/GroupFormer,
+  StrGNN/TADDY-style dynamic-graph anomaly) are `PROBE_ONLY` per the registry and
+  cannot drive a production score.
+
+**Rationale**: Many review-worthy moments are relational, yet the no-ground-truth
+doctrine forbids training a collusion/cheating model. A deterministic graph turns
+relations into reconstructable per-student signals without manufacturing
+ground truth, and reuses the SRVL graph-degree/centrality work already noted in
+`signal-catalog.md`. Because the strongest learned graph methods are
+skeleton-based and consume the `rtmpose` skeletons already produced, a learned
+graph probe needs no new labels — but stays a research hypothesis.
+
+**Alternatives considered**:
+
+- Train a supervised collusion/group-cheating classifier on the interaction
+  graph: prohibited — no valid targets or ground truth.
+- Promote an unsupervised dynamic-graph anomaly model to production scoring:
+  rejected — remains `PROBE_ONLY` with no accuracy/AUROC claim.
+- Introduce a standalone GPU graph library (cosmos.gl/sigma.js) outside the
+  shared renderer: deferred to a measured candidate so context budget and
+  determinism are preserved.
+
 ## Experimental Research Backlog
 
 The following questions remain research probes and cannot create production
@@ -371,7 +413,12 @@ claims without dedicated evidence:
 - whether conformal coverage remains valid under session/camera drift;
 - whether WebGPU improves renderer throughput enough to justify a second
   backend;
-- whether 2025 PCBEAR/DANCE results reproduce on the project's signals.
+- whether 2025 PCBEAR/DANCE results reproduce on the project's signals;
+- whether a learned graph probe (ST-GCN-family or dynamic-graph anomaly) over the
+  deterministic interaction graph adds operational value without being
+  misrepresented as collusion-detection validity;
+- whether a GPU graph library (cosmos.gl/sigma.js) beats the shared WebGL2 core
+  for large interaction graphs enough to justify a second render path.
 
 ## Repository Evidence Used
 

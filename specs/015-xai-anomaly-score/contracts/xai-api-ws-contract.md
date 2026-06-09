@@ -23,6 +23,7 @@ score record.
 | `GET /api/v1/video-analysis/jobs/{job}/xai/artifacts/{id}/` | Authorized artifact access | streamed artifact |
 | `POST /api/v1/video-analysis/jobs/{job}/xai/reviews/` | Governed non-ground-truth reviewer assessment | immutable assessment record |
 | `GET /api/v1/video-analysis/jobs/{job}/xai/renderer-config/` | Renderer/data contract | bounded WebGL config |
+| `GET /api/v1/video-analysis/jobs/{job}/xai/interaction-graph/` | Bounded deterministic student-interaction graph frames (identity-gated nodes/edges and per-student graph features) | chunked/paginated bounded graph frames |
 | `POST /api/v1/anomalies/review-priority/aggregate-preview/` | Preview bounded student-local scores plus session/classroom aggregate using governed review-label semantics | bounded session summary only; no persistence |
 
 ## Query Rules
@@ -42,6 +43,11 @@ score record.
   session/classroom lift term. Caller-supplied
   `approved_deviation_weight` overrides are rejected.
 - The aggregate-preview request must include a valid `job_id` scope reference.
+- Interaction-graph responses are bounded by configured node/edge caps, carry
+  per-edge `identity_confidence` and `truth_state`, mark ambiguous-identity edges
+  `unresolved`, and never imply collusion or cheating. Large adjacency matrices
+  use the binary/tile path; learned-graph (`PROBE_ONLY`) outputs are never
+  returned as a production score or `pattern_state`.
 
 ## Aggregate Preview Schema
 
@@ -135,6 +141,7 @@ Supported event types:
 - `xai.deep_request.state_changed`;
 - `xai.artifact.available`;
 - `xai.reconciliation.changed`;
+- `xai.interaction_graph.appended`;
 - `xai.renderer.data_invalidated`.
 
 ## Incremental Delivery

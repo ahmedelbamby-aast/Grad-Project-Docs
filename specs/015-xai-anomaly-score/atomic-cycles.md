@@ -359,6 +359,45 @@ downloads, and rollback.
 buffer/upload bytes, memory proxy, stress scaling, dropped-update/recovery
 summary.
 
+## Cycle 015.13 - Student Interaction Graph Signals And Plots
+
+**Indivisible capability**: A deterministic, identity-gated student-interaction
+graph plus its per-student graph signals and shared-WebGL2 plots. The builder,
+the registered graph signals, and the render layer must be accepted together
+because graph features without a reconstructable graph, or a graph without
+identity gating, are unsafe.
+
+**Dependencies**: 015.5, 015.7, and 015.10.
+**Streaming compatibility**: `stream-safe-with-config` using bounded graph
+windows, node/edge caps, and stale-edge eviction.
+
+**Implementation scope**:
+
+- build a deterministic identity-gated graph (nodes = resolved tracks; typed
+  edges = proximity, directed/mutual gaze cone, orientation, co-movement,
+  shared-scene) reusing SRVL/gaze/pose/scene signals;
+- register bounded per-student graph features as governed signals feeding the
+  observed-pattern profiles;
+- keep ambiguous-identity edges `unresolved` and out of valid features;
+- render node-link, adjacency-matrix, and dyad-timeline views on the shared
+  WebGL2 core with LOD/tiling, context-loss recovery, and numeric fallback;
+- prove no learned graph model (`PROBE_ONLY`) drives a production score and no
+  edge/feature asserts collusion or cheating.
+
+**Benchmark hypothesis**: Deterministic interaction-graph signals and plots add
+reconstructable relational evidence within bounded latency/state and render
+budgets, without introducing a trainable collusion target.
+
+**Acceptance gates**: Deterministic reconstruction, identity-gating and
+unresolved-edge correctness, node/edge bound/overflow behavior, per-student
+feed-into-profile and no-peer-mutation proof, WebGL render/context budgets and
+numeric fallback, `PROBE_ONLY` learned-graph isolation, non-accusatory
+vocabulary, performance, and rollback.
+
+**Required figures**: interaction graph snapshots, adjacency/interaction matrix,
+per-student graph-feature envelopes, edge-persistence/identity-confidence
+distribution, graph render frame-time/context budget, performance delta.
+
 ## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
 
 **Indivisible capability**: Cross-cutting operational/scientific acceptance
@@ -438,7 +477,8 @@ completeness.
                                                015.9
 
 015.3 + 015.5 + 015.7 -> 015.10
-015.0 through 015.10 -> 015.11 -> 015.12
+015.3 + 015.5 + 015.7 + 015.10 -> 015.13
+015.0 through 015.10, plus 015.13 -> 015.11 -> 015.12
 ```
 
 Parallel implementation work is allowed only where dependencies and file
