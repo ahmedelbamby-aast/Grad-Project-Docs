@@ -156,6 +156,7 @@ not a mutation of the student records:
   "base_mean_score": 45.0,
   "approved_deviation_boost": 15.0,
   "session_review_priority_score": 60.0,
+  "general_classroom_deviation": 0.32,
   "students": [
     {
       "student_ref": "student-a",
@@ -195,8 +196,14 @@ not a mutation of the student records:
   `deviation_vs_self` and `deviation_vs_population` separately; the student's own
   profile is primary and the general baseline is contextual support.
 - The general baseline is a versioned, contamination-aware, assumed-normal
-  aggregate learned by corpus ingestion. It MUST NOT be labeled known-normal
-  ground truth and MUST NOT be a trained anomaly/cheating model.
+  aggregate learned by corpus ingestion **across many students/sessions** — never
+  derived from, or equal to, a single student's profile. It MUST NOT be labeled
+  known-normal ground truth and MUST NOT be a trained anomaly/cheating model.
+- `deviation_vs_self` is measured against the student's **Local Boundaries**
+  (own time-windowed, cold-start-aware profile); `deviation_vs_population` is
+  measured against the **General Boundaries** (population baseline). The General
+  Boundaries may also yield a `general_classroom_deviation`, distinct from any
+  individual student's deviation.
 - Tier disagreement (self vs population) stays visible in the contributions; the
   score is withheld when a required tier is missing, incompatible, cold-start, or
   quarantined.

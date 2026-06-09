@@ -274,11 +274,16 @@ non-ground-truth reviewer assessments.
 - controlled-fixture, metamorphic/invariant, sensitivity, cold-start,
   contamination, drift, quarantine, and threshold impact analysis;
 - tiered observed-pattern profiles — student, session, camera, scene, and a
-  **corpus-ingested general/population baseline** — under the same robust
-  statistics, cold-start, contamination, quarantine, and drift governance;
+  **corpus-ingested General Population Baseline** computed across many
+  students/sessions (never from a single student) — under the same robust
+  statistics, cold-start, contamination, quarantine, and drift governance; the
+  population baseline yields **General Boundaries**, while the student's own
+  time-windowed, cold-start-aware profile yields **Local Boundaries**;
+- a **general classroom-level deviation** signal derived from the General
+  Boundaries, kept distinct from any individual student's deviation;
 - per-signal **dual-comparison deltas** `deviation_vs_self` (versus the student's
-  own profile) and `deviation_vs_population` (versus the compatible general
-  baseline), kept separate and never merged into one opaque number;
+  own Local Boundaries) and `deviation_vs_population` (versus the General
+  Boundaries), kept separate and never merged into one opaque number;
 - **parameter provenance** for every derived bound: each threshold/weight/envelope
   is tagged `learned` (with the baseline snapshot reference it was derived from)
   or `configured` (with the fingerprinted `.env`/config key), so no operational

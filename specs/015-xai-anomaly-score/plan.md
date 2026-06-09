@@ -304,6 +304,11 @@ relational signals already produced by the stack; it is not a trained model.
   cold-start, quarantine, drift, and append-only governance.
 - The general baseline is assumed-normal — never known-normal ground truth, never
   a trained anomaly/cheating model, never a per-student verdict.
+- It is computed across many students/sessions (at least a configured minimum of
+  distinct students) and is **never derived from a single student**. It yields
+  **General Boundaries**; each student's own time-windowed, cold-start-aware
+  profile yields **Local Boundaries**; and the General Boundaries also support a
+  general classroom-level deviation distinct from any individual.
 
 ### Dual comparison
 
@@ -312,6 +317,9 @@ relational signals already produced by the stack; it is not a trained model.
   `deviation_vs_self` and `deviation_vs_population` separately.
 - The score is withheld when a required tier is missing, incompatible, cold-start,
   or quarantined; tier disagreement stays visible.
+- `deviation_vs_self` reflects the Local Boundaries and `deviation_vs_population`
+  reflects the General Boundaries; the General Boundaries also yield a
+  classroom-level deviation kept separate from any individual student's deviation.
 
 ### Parameter provenance (no hardcoding, XAI-first)
 
@@ -442,7 +450,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Conformal | `ANOMALY_CONFORMAL_ENABLED`, `ANOMALY_CONFORMAL_ALPHA`, `ANOMALY_CONFORMAL_MIN_CALIBRATION_SAMPLES` |
 | WebGL | `VITE_XAI_WEBGL_REQUIRED`, `VITE_XAI_WEBGL_CONTEXT_BUDGET`, `VITE_XAI_SERIES_RING_CAPACITY`, `VITE_XAI_MATRIX_TILE_SIZE`, `VITE_XAI_MAX_UPLOAD_BYTES_PER_FRAME` |
 | Interaction graph | `XAI_INTERACTION_GRAPH_ENABLED`, `XAI_GRAPH_MAX_NODES`, `XAI_GRAPH_MAX_EDGES`, `XAI_GRAPH_EDGE_PERSISTENCE_MS`, `XAI_GRAPH_GAZE_CONE_DEG`, `XAI_GRAPH_PROBE_ENABLED`, `VITE_XAI_GRAPH_RENDER_BUDGET` |
-| General baseline | `ANOMALY_GENERAL_BASELINE_ENABLED`, `ANOMALY_BASELINE_CORPUS_MANIFEST`, `ANOMALY_BASELINE_MIN_VIDEOS`, `ANOMALY_BASELINE_CONTEXT_TIERS`, `ANOMALY_DUAL_COMPARISON_ENABLED`, `ANOMALY_SELF_VS_POPULATION_WEIGHT` |
+| General baseline | `ANOMALY_GENERAL_BASELINE_ENABLED`, `ANOMALY_BASELINE_CORPUS_MANIFEST`, `ANOMALY_BASELINE_MIN_VIDEOS`, `ANOMALY_BASELINE_MIN_DISTINCT_STUDENTS`, `ANOMALY_BASELINE_CONTEXT_TIERS`, `ANOMALY_DUAL_COMPARISON_ENABLED`, `ANOMALY_SELF_VS_POPULATION_WEIGHT`, `ANOMALY_CLASSROOM_DEVIATION_ENABLED` |
 | Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
 | Model promotion | `XAI_MODEL_PROMOTION_ENABLED`, `XAI_PROMOTION_MIN_SHADOW_HOURS`, `XAI_PROMOTION_LATENCY_SLO_MS`, `XAI_PROMOTION_DISTRIBUTION_TOLERANCE`, `XAI_PROMOTION_APPROVER_ROLES`, `XAI_PROMOTION_AUTOROLLBACK_ENABLED` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |

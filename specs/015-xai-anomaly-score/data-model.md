@@ -40,9 +40,13 @@ job-scoped artifacts for large arrays/images/traces.
   `pattern_state` (it stays `PROBE_ONLY` per
   [pretrained-models-registry.md](pretrained-models-registry.md)).
 - The general baseline is the same `ObservedPatternProfileSnapshot` machinery at a
-  population/context tier (`baseline_tier`), learned by corpus ingestion. It is
-  assumed-normal and contamination-aware, never known-normal ground truth, and a
-  score compares against both the student tier and the general tier.
+  population/context tier (`baseline_tier=general`), **computed across many
+  students/sessions and never from or equal to a single student's profile**. It is
+  assumed-normal and contamination-aware, never known-normal ground truth. It
+  supplies **General Boundaries**; the student-tier profile supplies **Local
+  Boundaries** (time-window + cold-start dependent). A score compares against both
+  and may also emit a general classroom-level deviation from the General
+  Boundaries, distinct from any individual.
 - No operational value is hardcoded. Every threshold, weight, envelope bound,
   geometric constant, and gate is bound through a `ParameterProvenanceRecord`
   tagged `learned` (with the baseline snapshot it was derived from) or
@@ -223,6 +227,10 @@ patterns for one compatible scope. It is never known-normal ground truth.
 - The `general` tier is learned by corpus ingestion under identical robust,
   contamination-aware, append-only, cold-start, quarantine, and drift governance;
   it stays assumed-normal and is never a per-student verdict.
+- The `general` tier MUST aggregate at least the configured minimum number of
+  distinct students/sessions; it is never derived from, or equal to, a single
+  student's windows. It supplies General Boundaries; student-tier profiles supply
+  Local Boundaries.
 
 ## New Entity: CalibrationSnapshot
 
@@ -330,8 +338,10 @@ coverage.
   `AnomalyScoreRecord`.
 - A valid score requires the student-tier profile; the general baseline is
   contextual and, when present, the score exposes `deviation_vs_self` and
-  `deviation_vs_population` separately. Every operational value used resolves to a
-  `ParameterProvenanceRecord`; no hardcoded constant is permitted.
+  `deviation_vs_population` separately. `deviation_vs_self` uses the student's
+  Local Boundaries; `deviation_vs_population` uses the General Boundaries
+  (population baseline, never a peer student). Every operational value used
+  resolves to a `ParameterProvenanceRecord`; no hardcoded constant is permitted.
 
 ## New Derived Entity: SessionReviewPriorityAggregate
 
@@ -348,6 +358,7 @@ student-scoped review-priority summaries.
 | `approved_deviation_count` | integer | Count of reviewer-approved student deviations with valid truth state |
 | `approved_deviation_boost` | decimal | Separate session-only lift term |
 | `session_review_priority_score` | decimal | 0-100 aggregate after boost and clamp |
+| `general_classroom_deviation` | decimal nullable | Classroom-level deviation versus the General Boundaries (population baseline), distinct from any individual |
 | `students` | bounded summary array | Student-local summaries with no peer mutation |
 
 **Constraints**:
@@ -361,6 +372,9 @@ student-scoped review-priority summaries.
 - A student's own neutral default remains `within_observed_pattern` or
   `insufficient_context` until valid evidence or a governed reviewer-approved
   deviation changes that student's own review context.
+- `general_classroom_deviation` is derived only from the General Boundaries
+  (population baseline) and describes the classroom aggregate; it is never
+  attributed to, or substituted for, an individual student's deviation.
 
 ## New Entity: AnomalyScoreContribution
 

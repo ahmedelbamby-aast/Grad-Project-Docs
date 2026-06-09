@@ -411,12 +411,15 @@ lookup and provenance resolution are `stream-safe`.
 
 **Implementation scope**:
 
-- ingest the supported-video corpus into a versioned, contamination-aware general
-  baseline (population tier plus context tiers) reusing the per-student
-  robust-statistics, cold-start, quarantine, and drift machinery;
-- compare each valid window against both the student's own profile (primary) and
-  the compatible general baseline (contextual), exposing `deviation_vs_self` and
-  `deviation_vs_population` and keeping tier disagreement visible;
+- ingest the supported-video corpus into a versioned, contamination-aware General
+  Population Baseline (population tier plus context tiers) reusing the per-student
+  robust-statistics, cold-start, quarantine, and drift machinery, aggregated
+  across >= the configured minimum distinct students/sessions and never from a
+  single student (General Boundaries vs Local Boundaries);
+- compare each valid window against both the student's own profile (primary, Local
+  Boundaries) and the compatible general baseline (contextual, General
+  Boundaries), exposing `deviation_vs_self` and `deviation_vs_population`, emitting
+  a general classroom-level deviation, and keeping tier disagreement visible;
 - route every operational value through one parameter resolver and bind it to a
   `learned`/`configured` `ParameterProvenanceRecord`;
 - prove the general baseline is never ground truth and no value is hardcoded.
@@ -455,6 +458,8 @@ fitting/decision is `offline-only`.
   quality; monitoring + rollback; model card + ledger + governed approver);
 - enforce signal/representation-only target and reject behavioral-decision or
   accuracy/AUROC promotions;
+- restrict promotable candidates to unsupervised/self-supervised models, since no
+  ground-truth labels exist;
 - prove governed-approver sign-off and automated rollback to the prior stage.
 
 **Benchmark hypothesis**: A probe can be promoted to a governed production signal

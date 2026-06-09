@@ -66,11 +66,13 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   interaction-graph signal raises only the involved student's own review
   priority; it is never proof of collusion or cheating and never accuses the
   peer.
-- The general baseline is a contamination-aware, assumed-normal aggregate learned
-  by ingesting the supported videos. It provides population/context comparison
-  only, is never known-normal ground truth, and never converts a population
-  pattern into a per-student verdict. Each student is still judged primarily
-  against their own profile.
+- The general baseline is a **General Population Baseline** — a contamination-aware,
+  assumed-normal aggregate computed across many students and sessions while
+  ingesting the supported videos. It is **never derived from, or equal to, a
+  single student's profile**. It provides **General Boundaries**, while each
+  student's own time-windowed, cold-start-aware profile provides **Local
+  Boundaries**. Scoring uses both; the general baseline is never known-normal
+  ground truth, and a population pattern never becomes a per-student verdict.
 - No operational value is hardcoded. Every threshold, weight, envelope bound,
   geometric constant, and gate is either learned from a governed baseline or read
   from a fingerprinted configuration/`.env` value, and each carries explicit
@@ -585,6 +587,17 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   into a governed signal/representation role; any behavioral-decision promotion
   requires a separate governed ground-truth program. `PROBE_ONLY`/`SHADOW`/`CANARY`
   outputs MUST NOT enter a production `review_priority_score` or `pattern_state`.
+  Because no ground-truth labels exist, every promotable candidate MUST be
+  unsupervised or self-supervised (e.g. skeleton normalizing-flow VAD, one-class
+  boundaries, dynamic-graph anomaly), and its promotion certifies serving quality
+  as a signal, never a labeled accuracy.
+- **FR-042**: The general baseline MUST be a population/context aggregate computed
+  across many students and sessions and MUST NOT be derived from, or equated with,
+  any single student's profile. It provides **General Boundaries** for comparison,
+  while each student's own time-windowed, cold-start-aware profile provides **Local
+  Boundaries**. Scoring MUST reference both, and the General Boundaries MUST
+  additionally support a **general classroom-level deviation** signal that is
+  distinct from, and never substituted for, any individual student's deviation.
 
 ### Key Entities
 
@@ -716,6 +729,11 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   AUROC; a promoted learned model serves only as a governed signal/representation,
   and `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never enter a production score or
   pattern state.
+- **SC-029**: Evidence proves the general baseline is population-derived (built
+  from at least the configured minimum distinct students/sessions, never a single
+  student), that General Boundaries and Local Boundaries are separately referenced
+  in each score, and that a classroom-level deviation derived from General
+  Boundaries never becomes a per-student verdict.
 
 ## Assumptions And Dependencies
 

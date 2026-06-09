@@ -65,8 +65,10 @@ contract.
 
 ## Probe Promotion Boundary
 
-A `PROBE_ONLY`/`HYPOTHESIS_ONLY` model may be promoted to a production-mandatory
-role **only** through the evidence-gated promotion lifecycle defined in
+A `PROBE_ONLY`/`HYPOTHESIS_ONLY` model — necessarily unsupervised or
+self-supervised, since no ground-truth labels exist — may be promoted to a
+production-mandatory role **only** through the evidence-gated promotion lifecycle
+defined in
 [pretrained-models-registry.md](pretrained-models-registry.md)
 (`PROBE_ONLY` → `SHADOW` → `CANARY` → `MANDATORY`), and **only** into a governed
 **signal/representation** role whose promotion claims serving quality
@@ -119,6 +121,11 @@ score or pattern state.
   as normal.
 - Cross-person context is advisory, identity-gated, and cannot substitute for
   the student's own valid history.
+- The general/population baseline is computed across many students/sessions and is
+  never a single student's profile. It supplies General Boundaries, while each
+  student's own time-windowed, cold-start-aware profile supplies Local Boundaries;
+  a classroom-level deviation derived from the General Boundaries is never a
+  per-student verdict.
 - Route, ontology, feature-schema, or model-artifact changes invalidate
   incompatible profiles.
 

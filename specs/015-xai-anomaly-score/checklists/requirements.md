@@ -47,6 +47,11 @@
   `CANARY` -> `MANDATORY`) is specified — benchmark, serving metrics, model card,
   governed approver, and rollback — promoting probes only to a governed signal,
   never a behavioral judge, and never with an accuracy/AUROC claim.
+- [x] Promotable candidates are unsupervised/self-supervised (no ground-truth
+  labels) and certified on serving quality, not accuracy.
+- [x] The General Population Baseline is population-derived (never a single
+  student); General Boundaries vs Local Boundaries (time-window + cold-start) are
+  specified, with a classroom-level deviation distinct from any individual.
 
 ## Notes
 

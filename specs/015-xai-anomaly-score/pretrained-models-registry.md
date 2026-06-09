@@ -112,7 +112,10 @@ production`) with role-based approval; **model cards** for documentation; and th
 **NIST AI RMF** Measure/Manage functions. We adapt those gates to our
 no-ground-truth constraint: a probe may graduate only into a governed
 **signal/representation** role, judged on **serving quality** — never on
-behavioral validity.
+behavioral validity. Because we have no ground-truth labels, every promotable
+candidate is **unsupervised or self-supervised** (skeleton normalizing-flow VAD,
+one-class boundaries, dynamic-graph anomaly); promotion certifies its serving
+quality as a signal, not any labeled accuracy.
 
 ### Promotion lifecycle (`promotion_status`)
 

@@ -411,7 +411,12 @@ videos with the **same** robust-statistics, contamination, cold-start,
 quarantine, and drift machinery used for per-student profiles. Score by **dual
 comparison**: each window is compared against both the student's own profile
 (primary) and the compatible general baseline (contextual), exposing
-`deviation_vs_self` and `deviation_vs_population` separately.
+`deviation_vs_self` and `deviation_vs_population` separately. The general baseline
+is a **General Population Baseline** aggregated across many students/sessions —
+never a single student — yielding **General Boundaries**, while each student's
+time-windowed, cold-start-aware profile yields **Local Boundaries**; the General
+Boundaries also support a general classroom-level deviation distinct from any
+individual.
 
 **Rationale**: A per-student profile alone cannot anchor a brand-new student or a
 globally unusual session; a population/context baseline supplies that anchor
@@ -465,7 +470,9 @@ adapted to our doctrine:
   equal-or-better serving distribution; signal quality/stability/calibration/
   XAI fidelity; monitoring + proven automated rollback; model card + ledger +
   governed-approver sign-off);
-- every transition recorded in a `ModelPromotionRecord`, reversible, ledgered.
+- every transition recorded in a `ModelPromotionRecord`, reversible, ledgered;
+- every promotable candidate is **unsupervised or self-supervised** (no
+  ground-truth labels exist) and is certified on serving quality, not accuracy.
 
 **Rationale**: Industry promotes models with gated offline checks, shadow/canary
 rollout, champion/challenger comparison, governed approval, and automated

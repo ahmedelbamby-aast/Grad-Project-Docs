@@ -50,6 +50,7 @@ traceability artifact, not implementation evidence.
 | FR-039 no hardcoding / parameter provenance | Setup, 015.14 | T005b, T275-T276, T279-T285 |
 | FR-040 evidence-gated model promotion lifecycle | Setup, 015.15 | T005c, T286-T301 |
 | FR-041 promotion doctrine cap (signal-only, no behavioral accuracy) | Setup, 015.15 | T005c, T289, T295, T300-T301 |
+| FR-042 population-derived general baseline; General vs Local Boundaries | 015.14 | T272-T274, T278, T280-T285 |
 
 ## Success Criterion Coverage
 
@@ -83,6 +84,7 @@ traceability artifact, not implementation evidence.
 | SC-026 dual-delta reconstruction and general baseline not ground truth | 015.14 | T274, T278-T285 |
 | SC-027 promotion evidence packet, approver, and rollback proof | Setup, 015.15 | T005c, T289-T301 |
 | SC-028 no behavioral-accuracy promotion; probe outputs excluded from prod score | Setup, 015.15 | T005c, T295-T296 |
+| SC-029 population-derived baseline, General/Local Boundaries, classroom deviation | 015.14 | T272-T274, T278 |
 
 ## User Story Coverage
 
@@ -98,8 +100,8 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `41/41`
-- Success criteria covered: `28/28`
+- Functional requirements covered: `42/42`
+- Success criteria covered: `29/29`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
   `16/16`
