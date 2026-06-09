@@ -51,6 +51,10 @@ score record.
   `unresolved`, and never imply collusion or cheating. Large adjacency matrices
   use the binary/tile path; learned-graph (`PROBE_ONLY`) outputs are never
   returned as a production score or `pattern_state`.
+- The `xai.interaction_graph.appended` event drives a live, real-time,
+  continuously-updating node-link plot rendered alongside the other plots; updates
+  are incremental and latest-frame-wins under backpressure (stale renderer updates
+  may drop while authoritative graph frames are reconciled via the REST range).
 - Score responses expose `deviation_vs_self` and `deviation_vs_population` plus
   `parameter_provenance_refs`; baseline responses are marked assumed-normal and
   never ground truth; parameter responses carry a `learned`/`configured`

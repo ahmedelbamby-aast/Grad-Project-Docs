@@ -379,8 +379,11 @@ orientation, the COMBINED head, and scene segmentation):
 - per-student graph features (degree, mutual-gaze dwell, directed-attention
   duration, persistence, clustering/centrality proxy, dyad strength) become
   governed signals that feed the per-student observed-pattern profiles;
-- the graph and its adjacency matrix render through the shared WebGL2 core
-  (Decision 11), reusing the matrix-tile and series stores;
+- the graph renders as a **live, real-time, continuously-updating** node-link plot
+  through the shared WebGL2 core (Decision 11) — additional to, not a replacement
+  for, the existing plots — updating incrementally on every
+  `xai.interaction_graph.appended` event, with its adjacency matrix and dyad
+  timelines reusing the matrix-tile and series stores;
 - learned graph models (ST-GCN-family, GAT/GraphSAGE, ARG/GroupFormer,
   StrGNN/TADDY-style dynamic-graph anomaly) are `PROBE_ONLY` per the registry and
   cannot drive a production score.

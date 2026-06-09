@@ -395,10 +395,10 @@ numeric fallback.
 - [ ] T256 [P] [US2] Register per-student graph-derived feature signals (degree, mutual-gaze dwell, directed-attention, persistence, clustering/centrality proxy, dyad strength) feeding observed-pattern profiles in `backend/apps/behavior/explainability/signal_definitions.py`
 - [ ] T257 [US3] Add `StudentInteractionGraphFrame` model, bounds, and migration in `backend/apps/behavior/models.py`
 - [ ] T258 [P] [US3] Add interaction-graph serializers and bounded chunked endpoints in `backend/apps/behavior/serializers.py` and `backend/apps/behavior/views.py`
-- [ ] T259 [P] [US5] Implement shared-WebGL2 node-link and adjacency graph layers in `frontend/src/services/webgl/GraphLayer.ts` and the graph view in `frontend/src/features/xai/`
+- [ ] T259 [P] [US5] Implement shared-WebGL2 node-link and adjacency graph layers as a **live, real-time, continuously-updating** plot (incremental append on `xai.interaction_graph.appended`, latest-frame-wins, rendered alongside the other plots) in `frontend/src/services/webgl/GraphLayer.ts` and the graph view in `frontend/src/features/xai/`
 - [ ] T260 [P] [US3] Add identity-gating, unresolved-edge, node/edge-bound/overflow, and deterministic-reconstruction unit tests in `backend/tests/unit/behavior/test_xai_interaction_graph.py`
 - [ ] T261 [P] [US2] Add graph-feature determinism, profile-feed, and no-peer-mutation tests in `backend/tests/unit/behavior/test_xai_interaction_graph_signals.py`
-- [ ] T262 [P] [US5] Add WebGL graph render, context-budget, large-graph LOD, context-loss, and numeric-fallback tests in `frontend/src/services/webgl/__tests__/graphLayer.test.ts`
+- [ ] T262 [P] [US5] Add WebGL graph render, live real-time incremental-update/soak, context-budget, large-graph LOD, context-loss, backpressure-drop, and numeric-fallback tests in `frontend/src/services/webgl/__tests__/graphLayer.test.ts`
 - [ ] T263 [P] [US3] Add `PROBE_ONLY` learned-graph isolation guard proving no learned graph model drives a production score in `backend/tests/unit/behavior/test_xai_interaction_graph_probe_only.py`
 - [ ] T264 [P] [US6] Add production graph signal/render coverage probe in `tools/prod/prod_probe_xai_interaction_graph.py`
 - [ ] T265 [US6] Add Cycle 015.13 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_13.sh`

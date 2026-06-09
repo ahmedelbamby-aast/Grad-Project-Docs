@@ -379,8 +379,11 @@ windows, node/edge caps, and stale-edge eviction.
 - register bounded per-student graph features as governed signals feeding the
   observed-pattern profiles;
 - keep ambiguous-identity edges `unresolved` and out of valid features;
-- render node-link, adjacency-matrix, and dyad-timeline views on the shared
-  WebGL2 core with LOD/tiling, context-loss recovery, and numeric fallback;
+- render the node-link view as a **live, real-time, continuously-updating** plot
+  (incremental on `xai.interaction_graph.appended`, latest-frame-wins, rendered
+  alongside the other plots), plus adjacency-matrix and dyad-timeline views, on
+  the shared WebGL2 core with LOD/tiling, context-loss recovery, and numeric
+  fallback;
 - prove no learned graph model (`PROBE_ONLY`) drives a production score and no
   edge/feature asserts collusion or cheating.
 
@@ -391,12 +394,14 @@ budgets, without introducing a trainable collusion target.
 **Acceptance gates**: Deterministic reconstruction, identity-gating and
 unresolved-edge correctness, node/edge bound/overflow behavior, per-student
 feed-into-profile and no-peer-mutation proof, WebGL render/context budgets and
-numeric fallback, `PROBE_ONLY` learned-graph isolation, non-accusatory
-vocabulary, performance, and rollback.
+numeric fallback, live real-time update-latency and indefinite-stream soak
+budgets, `PROBE_ONLY` learned-graph isolation, non-accusatory vocabulary,
+performance, and rollback.
 
 **Required figures**: interaction graph snapshots, adjacency/interaction matrix,
 per-student graph-feature envelopes, edge-persistence/identity-confidence
-distribution, graph render frame-time/context budget, performance delta.
+distribution, graph render frame-time/context budget, live update-latency/soak
+trend, performance delta.
 
 ## Cycle 015.14 - General Baseline Ingestion, Dual Comparison, And Parameter Provenance
 

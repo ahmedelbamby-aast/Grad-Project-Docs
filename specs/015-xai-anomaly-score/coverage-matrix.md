@@ -51,6 +51,7 @@ traceability artifact, not implementation evidence.
 | FR-040 evidence-gated model promotion lifecycle | Setup, 015.15 | T005c, T286-T301 |
 | FR-041 promotion doctrine cap (signal-only, no behavioral accuracy) | Setup, 015.15 | T005c, T289, T295, T300-T301 |
 | FR-042 population-derived general baseline; General vs Local Boundaries | 015.14 | T272-T274, T278, T280-T285 |
+| FR-043 live real-time student-interaction graph plot | 015.13 | T259, T262, T264-T268 |
 
 ## Success Criterion Coverage
 
@@ -85,6 +86,7 @@ traceability artifact, not implementation evidence.
 | SC-027 promotion evidence packet, approver, and rollback proof | Setup, 015.15 | T005c, T289-T301 |
 | SC-028 no behavioral-accuracy promotion; probe outputs excluded from prod score | Setup, 015.15 | T005c, T295-T296 |
 | SC-029 population-derived baseline, General/Local Boundaries, classroom deviation | 015.14 | T272-T274, T278 |
+| SC-030 live interaction-graph real-time update and soak budgets | 015.13 | T259, T262, T266 |
 
 ## User Story Coverage
 
@@ -100,8 +102,8 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `42/42`
-- Success criteria covered: `29/29`
+- Functional requirements covered: `43/43`
+- Success criteria covered: `30/30`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
   `16/16`

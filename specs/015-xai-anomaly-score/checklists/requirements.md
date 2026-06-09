@@ -37,6 +37,10 @@
 - [x] The deterministic student-interaction graph (per-student signals plus
   shared-WebGL2 node-link/adjacency plots) is specified, identity-gated,
   non-accusatory, and keeps learned graph models `PROBE_ONLY`.
+- [x] A dedicated **live, real-time, continuously-updating** student-interaction
+  graph plot is mandated (FR-043/SC-030) — additional to, not a replacement for,
+  the existing plots — with live update-latency/soak budgets, backpressure
+  drop, context-loss recovery, and numeric fallback.
 - [x] A corpus-ingested general/population baseline and dual comparison
   (`deviation_vs_self` + `deviation_vs_population`) are specified, assumed-normal,
   and never labeled ground truth.

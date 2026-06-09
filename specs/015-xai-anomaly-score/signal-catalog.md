@@ -378,6 +378,10 @@ raises only that student's own review priority and never the peer's.
   cheating, or intent.
 - `streaming_compatibility`: `stream-safe-with-config` using bounded graph
   windows, node/edge caps, and stale-edge eviction.
+- Graph frames are emitted **incrementally per frame/window** to drive a **live,
+  real-time, continuously-updating** node-link plot (via the
+  `xai.interaction_graph.appended` event), alongside the other live plots, with
+  latest-frame-wins under backpressure.
 
 ## 11. Candidate Additional Models And Strategies
 

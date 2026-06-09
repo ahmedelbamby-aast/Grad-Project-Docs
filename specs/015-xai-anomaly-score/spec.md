@@ -309,6 +309,11 @@ render in WebGL2 within budget with a numeric/tabular fallback.
    WebGL context, **When** the workbench renders, **Then** bounded LOD/tiling
    and context-loss recovery keep it interactive, or a numeric/tabular fallback
    is shown and the figure is marked unavailable.
+4. **Given** a running live or offline job, **When** new interaction-graph frames
+   arrive, **Then** the dedicated real-time graph plot updates incrementally and
+   continuously alongside the other plots without rebuilding the full graph,
+   stays within the live frame-time/update-latency budgets, and drops only stale
+   renderer updates under backpressure.
 
 ## Edge Cases
 
@@ -345,6 +350,9 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   missing, or has low pose/gaze quality.
 - Two students share a desk or scene object but never actually interact.
 - A learned graph model is proposed as production scoring authority.
+- The live interaction graph receives updates faster than its render budget.
+- A WebGL context is lost while the real-time interaction graph is streaming.
+- The live interaction graph runs for an indefinite stream and must stay bounded.
 - The supported-video corpus is too small to form a valid general baseline
   (population cold-start).
 - The supported-video corpus is contaminated or drifts at population scale.
@@ -598,6 +606,19 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   Boundaries**. Scoring MUST reference both, and the General Boundaries MUST
   additionally support a **general classroom-level deviation** signal that is
   distinct from, and never substituted for, any individual student's deviation.
+- **FR-043**: In addition to the already-required analytical plots (time series,
+  contribution charts, matrices/heatmaps, scene maps, and explanation graphs), the
+  system MUST provide a dedicated **live, real-time, continuously-updating
+  student-interaction graph plot** that visualizes students as nodes and their
+  relations (proximity, directed/mutual gaze-toward-peer, orientation, co-movement,
+  shared-scene) as edges. It MUST update **incrementally as each new frame/window
+  arrives** — driven by the `xai.interaction_graph.appended` WebSocket event and
+  shared-WebGL2 incremental append — during both live streaming and offline
+  processing, within the declared live frame-time and update-latency budgets, with
+  bounded state, latest-frame-wins under backpressure, context-loss recovery, and a
+  numeric/tabular fallback. This live graph **complements, and does not replace,**
+  the existing plots, and remains identity-gated and non-accusatory (it never
+  asserts collusion or cheating).
 
 ### Key Entities
 
@@ -734,6 +755,11 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   student), that General Boundaries and Local Boundaries are separately referenced
   in each score, and that a classroom-level deviation derived from General
   Boundaries never becomes a per-student verdict.
+- **SC-030**: A documented live and offline soak proves the real-time
+  student-interaction graph plot updates incrementally within the declared
+  frame-time and update-latency budgets alongside the other live plots, recovers
+  from context loss, keeps bounded state across an indefinite stream, drops only
+  stale renderer updates under backpressure, and never leaks WebGL contexts.
 
 ## Assumptions And Dependencies
 

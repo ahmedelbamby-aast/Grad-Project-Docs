@@ -562,6 +562,9 @@ is relational context, never collusion or cheating truth.
   and never mutate a peer student's records.
 - No field is described or consumed as collusion/cheating ground truth; learned
   graph-model outputs are not persisted here as production scores or states.
+- Frames are produced incrementally per frame/window so a live, real-time
+  node-link plot updates continuously (latest-frame-wins); the live graph stays
+  bounded by `bounds` and stale-edge eviction over indefinite streams.
 
 ## New Entity: ParameterProvenanceRecord
 
