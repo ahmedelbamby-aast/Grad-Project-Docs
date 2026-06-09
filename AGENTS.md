@@ -57,8 +57,8 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 <!-- SPECKIT START -->
 ## Active Spec Kit Plan
-- Active feature plan: [specs/014-yoloe-scene-srvl/plan.md](specs/014-yoloe-scene-srvl/plan.md)
-- Previous feature reminder: [specs/013-human-pose-kinematics/plan.md](specs/013-human-pose-kinematics/plan.md)
+- Active feature plan: [specs/015-xai-anomaly-score/plan.md](specs/015-xai-anomaly-score/plan.md)
+- Previous feature reminder: [specs/014-yoloe-scene-srvl/plan.md](specs/014-yoloe-scene-srvl/plan.md)
 - 2026-06-05 Cycle 013 Human Pose Kinematics decision: **INITIAL PRODUCTION
   ENABLEMENT EXCEPTION for the offline-proven path only**. Offline
   `combined.mp4` matrix evidence, enabled retry evidence, and disabled-layer
