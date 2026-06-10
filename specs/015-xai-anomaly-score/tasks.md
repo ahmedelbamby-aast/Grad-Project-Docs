@@ -48,17 +48,17 @@ production decision.
 **Independent test**: One production job yields a valid route snapshot and
 reconciled nonzero BSIL/lineage records without source-output regression.
 
-- [ ] T016 [P] [US6] Write Cycle 015.0 investigation, hypothesis, streaming compatibility, gates, and rollback in `docs/xai_anomaly/cycle_015_0_investigation.md`
-- [ ] T017 [P] [US6] Name Cycle 015.0 Figure Planner and define raw inputs/plots/targets in `docs/xai_anomaly/cycle_015_0_figure_plan.md`
-- [ ] T018 [P] [US6] Name separate Cycle 015.0 Figure Implementer and claim generator ownership in `docs/xai_anomaly/cycle_015_0_figure_implementation.md`
-- [ ] T019 [P] [US1] Add immutable route snapshot value contract in `backend/apps/pipeline/services/model_route_snapshot.py`
-- [ ] T020 [US1] Remove shared-default route mutation and add snapshot/fingerprint APIs in `backend/apps/pipeline/services/model_route_service.py`
+- [X] T016 [P] [US6] Write Cycle 015.0 investigation, hypothesis, streaming compatibility, gates, and rollback in `docs/xai_anomaly/cycle_015_0_investigation.md`
+- [X] T017 [P] [US6] Name Cycle 015.0 Figure Planner and define raw inputs/plots/targets in `docs/xai_anomaly/cycle_015_0_figure_plan.md`
+- [X] T018 [P] [US6] Name separate Cycle 015.0 Figure Implementer and claim generator ownership in `docs/xai_anomaly/cycle_015_0_figure_implementation.md`
+- [X] T019 [P] [US1] Add immutable route snapshot value contract in `backend/apps/pipeline/services/model_route_snapshot.py`
+- [X] T020 [US1] Remove shared-default route mutation and add snapshot/fingerprint APIs in `backend/apps/pipeline/services/model_route_service.py`
 - [ ] T021 [P] [US1] Add route snapshot PostgreSQL model, migration, and explicit serializer boundary in `backend/apps/behavior/models.py` and `backend/apps/behavior/serializers.py`
 - [ ] T022 [P] [US1] Audit and reconcile behavior label mappings in `backend/apps/pipeline/multi_model.py`
 - [ ] T023 [P] [US1] Audit and reconcile layer-specific behavior mappings in `backend/apps/pipeline/layers/`
-- [ ] T024 [P] [US2] Replace or deprecate accusatory rule-engine outputs in `backend/apps/pipeline/rule_engine.py`
+- [X] T024 [P] [US2] Replace or deprecate accusatory rule-engine outputs in `backend/apps/pipeline/rule_engine.py`
 - [ ] T025 [US2] Wire BSIL semantic/temporal/lineage activation flags into existing offline and live orchestration in `backend/apps/video_analysis/tasks.py`
-- [ ] T026 [P] [US6] Add route immutability, mapping parity, vocabulary, and snapshot digest tests in `backend/tests/unit/pipeline/test_xai_runtime_truth.py`
+- [X] T026 [P] [US6] Add route immutability, mapping parity, vocabulary, and snapshot digest tests in `backend/tests/unit/pipeline/test_xai_runtime_truth.py`
 - [ ] T027 [P] [US2] Add BSIL activation/population/reconciliation integration tests in `backend/tests/integration/behavior/test_xai_bsil_activation.py`
 - [ ] T028 [P] [US6] Add production runtime-truth/BSIL preflight helper in `tools/prod/prod_xai_cycle015_0_preflight.py`
 - [ ] T029 [US6] Add Cycle 015.0 stride-1 production benchmark and metrics collector in `tools/prod/prod_run_xai_cycle015_0.sh`
