@@ -226,18 +226,18 @@ limits, and graph lineage.
 **Independent test**: Crowded/crossing/contradiction sequences keep unresolved
 identity unresolved and reconstruct the explanation graph.
 
-- [ ] T140 [P] [US3] Write Cycle 015.7 investigation and identity-gated fusion protocol in `docs/xai_anomaly/cycle_015_7_investigation.md`
-- [ ] T141 [P] [US6] Name Cycle 015.7 Figure Planner in `docs/xai_anomaly/cycle_015_7_figure_plan.md`
-- [ ] T142 [P] [US6] Name separate Cycle 015.7 Figure Implementer in `docs/xai_anomaly/cycle_015_7_figure_implementation.md`
-- [ ] T143 [P] [US3] Implement source-preserving fusion policy in `backend/apps/anomalies/scoring/fusion.py`
-- [ ] T144 [P] [US3] Implement contradiction policy and visibility contract in `backend/apps/behavior/explainability/contradictions.py`
-- [ ] T145 [P] [US3] Implement identity-gated scene/SRVL/peer context in `backend/apps/behavior/explainability/context.py`
-- [ ] T146 [P] [US3] Implement explanation graph contracts and builder in `backend/apps/behavior/explainability/graph.py`
-- [ ] T147 [US3] Implement composed explanation records and persistence in `backend/apps/behavior/explainability/composer.py`
-- [ ] T148 [US3] Add explanation record models and migration in `backend/apps/behavior/models.py`
-- [ ] T149 [P] [US3] Add explanation graph serializers/endpoints in `backend/apps/behavior/serializers.py`
-- [ ] T150 [P] [US3] Add fusion, contradiction, identity, and graph reconstruction tests in `backend/tests/unit/behavior/test_xai_explanation_graph.py`
-- [ ] T151 [P] [US3] Add crossing/fragmentation/unresolved integration tests in `backend/tests/integration/behavior/test_xai_context_identity.py`
+- [X] T140 [P] [US3] Write Cycle 015.7 investigation and identity-gated fusion protocol in `docs/xai_anomaly/cycle_015_7_investigation.md`
+- [X] T141 [P] [US6] Name Cycle 015.7 Figure Planner in `docs/xai_anomaly/cycle_015_7_figure_plan.md`
+- [X] T142 [P] [US6] Name separate Cycle 015.7 Figure Implementer in `docs/xai_anomaly/cycle_015_7_figure_implementation.md`
+- [X] T143 [P] [US3] Implement source-preserving fusion policy in `backend/apps/anomalies/scoring/fusion.py`
+- [X] T144 [P] [US3] Implement contradiction policy and visibility contract in `backend/apps/behavior/explainability/contradictions.py`
+- [X] T145 [P] [US3] Implement identity-gated scene/SRVL/peer context in `backend/apps/behavior/explainability/context.py`
+- [X] T146 [P] [US3] Implement explanation graph contracts and builder in `backend/apps/behavior/explainability/graph.py`
+- [X] T147 [US3] Implement composed explanation records and persistence in `backend/apps/behavior/explainability/composer.py`
+- [X] T148 [US3] Add explanation record models and migration in `backend/apps/behavior/models.py`
+- [X] T149 [P] [US3] Add explanation graph serializers/endpoints in `backend/apps/behavior/serializers.py`
+- [X] T150 [P] [US3] Add fusion, contradiction, identity, and graph reconstruction tests in `backend/tests/unit/behavior/test_xai_explanation_graph.py`
+- [X] T151 [P] [US3] Add crossing/fragmentation/unresolved integration tests in `backend/tests/integration/behavior/test_xai_context_identity.py`
 - [ ] T152 [P] [US6] Add production fusion/identity/graph probe in `tools/prod/prod_probe_xai_fusion.py`
 - [ ] T153 [US6] Add Cycle 015.7 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_7.sh`
 - [ ] T154 [P] [US6] Implement Cycle 015.7 graph/identity figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_7_figures.py`
