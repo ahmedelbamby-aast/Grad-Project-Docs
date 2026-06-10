@@ -245,7 +245,7 @@ n, honest number.
 | `combined_m_prod_250_na` | **12-logit N/A** | cosine, patience 200, auto-optimizer | mAP50 0.459; posture 0.73 / gaze 0.62 (inflated by n/a); left 0.002, up 0.00 | **N/A design retired by this evidence** |
 | `combined_m_prod_v3_masked` | 10-logit masked | SGD intended 0.02 — **auto ignored it** | killed at epoch ~10 | mislaunched; optimizer bug found |
 | `combined_m_prod_v4_dirflip` | 10-logit masked | SGD lr0 0.02, warmup 8, cosine, patience 60, class weights, focal 1.5, **direction-aware flip** | running (150 epochs, ~5 h) | the everything-fixed run; baseline for v5 |
-| `combined_m_prod_v5_oversample` | 10-logit masked | = v4 + **repeat-factor oversampling** (cap 3, median threshold, weights learned post-duplication) | queued — launches when v4 finishes | one new variable vs v4 |
+| `combined_m_prod_v5_oversample` | 10-logit masked | = v4 + **repeat-factor oversampling** (cap 3, median threshold, weights learned post-duplication); **owner relaunched mid-flight with `--optimizer Adamw --cache ram`** (replacing the SGD launch), so v5 now carries THREE deltas vs v4: oversampling + AdamW@0.02 + RAM cache | running | owner's variant; compare to v4 knowing the optimizer changed too |
 
 **What to look at when v4 finishes:** `per_class_recall.png` for `look_left`,
 `look_right`, `look_backward`, `standing` (the four corrupted/starved classes);
