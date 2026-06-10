@@ -32,7 +32,7 @@ production decision.
 - [X] T005b [P] Add static no-hardcoded-operational-constant and parameter-provenance verifier (every threshold/weight/envelope/geometric constant resolves to a learned baseline reference or a fingerprinted `.env`/config key with `learned`/`configured` provenance) in `scripts/ci/verify_no_hardcode.py`
 - [X] T005c [P] Add static model-promotion-gate verifier (any `MANDATORY` model carries a complete `ModelPromotionRecord` with benchmark/serving-metrics/model-card/approver/rollback; `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never feed a production score/state; `target_role` is signal/representation only; no behavioral-accuracy metric) in `scripts/ci/verify_model_promotion.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [X] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
-- [ ] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
+- [X] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [ ] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`
 - [ ] T009 [P] Define no-anomaly-ground-truth governance, reviewer-assessment non-training rules, and future-plan boundary in `docs/xai_anomaly/no_ground_truth_governance.md`
 - [ ] T010 [P] Add required observed-pattern terminology and knowledge-limit glossary in `docs/xai_anomaly/glossary.md`

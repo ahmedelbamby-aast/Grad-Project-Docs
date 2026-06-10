@@ -124,6 +124,7 @@ context.
 | 37vn | [`docs/xai_anomaly/cycle_015_8_investigation.md`](docs/xai_anomaly/cycle_015_8_investigation.md) | 2026-06-10 | Cycle 015.8 deep-XAI request/artifact/evaluation contract and local persistence boundary. |
 | 37vo | [`docs/xai_anomaly/cycle_015_8_figure_plan.md`](docs/xai_anomaly/cycle_015_8_figure_plan.md) | 2026-06-10 | Figure Planner output for Cycle 015.8 deep-XAI lifecycle evidence. |
 | 37vp | [`docs/xai_anomaly/cycle_015_8_figure_implementation.md`](docs/xai_anomaly/cycle_015_8_figure_implementation.md) | 2026-06-10 | Figure Implementer ownership record for the Cycle 015.8 local contract slice. |
+| 37vq | [`docs/xai_anomaly/benchmark_evidence_layout.md`](docs/xai_anomaly/benchmark_evidence_layout.md) | 2026-06-10 | Feature-owned layout for future Cycle 015 raw benchmark results, figure bundles, manifests, and ledger links. |
 | 37w | [`docs/cycle_14b_rtmpose_scenario_results.md`](docs/cycle_14b_rtmpose_scenario_results.md) | 2026-06-03 | Cycle 14.B production result: B1 not accepted, first B2 rejected, fixed B2 accepted with exact DB/model parity. |
 | 37x | [`docs/cycle_14c_pose_batch_size_matrix_investigation.md`](docs/cycle_14c_pose_batch_size_matrix_investigation.md) | 2026-06-03 | Cycle 14.C investigation: RTMPose cross-frame batch-size matrix after accepted 14.B2. |
 | 37y | [`docs/cycle_14c1_pose_batch_size_8_investigation.md`](docs/cycle_14c1_pose_batch_size_8_investigation.md) | 2026-06-03 | Cycle 14.C1 investigation: batch cap 8 scenario benchmarked against accepted batch 16. |
