@@ -45,6 +45,10 @@ score record.
   only governed confirmed-observation review labels to the separate
   session/classroom lift term. Caller-supplied
   `approved_deviation_weight` overrides are rejected.
+- Aggregate-preview input may use operator shorthand such as `abnormal`,
+  `abnormal-behavior`, or `cheating`; the API normalizes those aliases to the
+  single governed `confirmed_observation` review label before applying the
+  session/classroom lift term.
 - The aggregate-preview request must include a valid `job_id` scope reference.
 - Interaction-graph responses are bounded by configured node/edge caps, carry
   per-edge `identity_confidence` and `truth_state`, mark ambiguous-identity edges
@@ -119,6 +123,8 @@ Rules:
   membership alone is insufficient.
 - Student-local scores are echoed unchanged; the endpoint computes the
   session/classroom lift as a separate aggregate term only.
+- Input aliases such as `abnormal` and `cheating` normalize to
+  `confirmed_observation`; they do not create separate persisted labels.
 - Caller-supplied `approved_deviation_weight` overrides are rejected.
 - `pattern_deviation` input is accepted only when the student's own valid
   evidence supports that state or when a governed approved review label

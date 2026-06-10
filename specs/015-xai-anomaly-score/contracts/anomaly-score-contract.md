@@ -143,6 +143,9 @@ abnormal intent, misconduct, or cheating.
 - Where product discussion uses "normal until proven otherwise", the persisted
   and user-facing state remains `within_observed_pattern`,
   `pattern_deviation`, `insufficient_context`, or `withheld`.
+- Where product input uses `abnormal` or `cheating` as equivalent shorthand,
+  that input MUST normalize to the same governed approved-deviation path rather
+  than introducing separate persisted labels or peer-student mutations.
 
 ## Derived Session Aggregate Payload
 

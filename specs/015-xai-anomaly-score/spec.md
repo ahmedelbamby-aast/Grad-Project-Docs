@@ -60,6 +60,11 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
 - Where operators informally say "normal until proven otherwise", the governed
   persisted state remains `within_observed_pattern` or `insufficient_context`
   until valid evidence supports `pattern_deviation`.
+- Where operators use the shorthand `abnormal` or `cheating` for the same
+  escalation bucket, the system normalizes that input to the single governed
+  review-approved deviation path; it does not create separate persisted
+  "abnormal" or "cheating" states, and it still keeps every student's score
+  student-scoped.
 - Student-interaction-graph edges (proximity, directed/mutual gaze-toward-peer,
   relative orientation, co-movement, shared-scene association) are identity-gated
   relational context derived from existing signals. An edge or an elevated

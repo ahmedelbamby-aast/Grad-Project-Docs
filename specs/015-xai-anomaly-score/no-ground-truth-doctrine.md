@@ -107,7 +107,10 @@ Operationally, "normal until proven otherwise" is represented only as
 `within_observed_pattern` or `insufficient_context`. If one student's evidence
 is later review-approved as a meaningful deviation, that approval may raise a
 separate session/classroom aggregate but must not mutate any peer student's
-score or pattern state.
+score or pattern state. If operators use `abnormal` or `cheating` as
+equivalent shorthand, that shorthand collapses to the same governed
+review-approved deviation path; it does not create a separate persisted
+behavioral taxonomy.
 
 ## Baseline And Cold-Start Rules
 

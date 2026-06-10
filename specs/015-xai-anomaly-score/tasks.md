@@ -21,7 +21,7 @@ production decision.
 
 ## Phase 1: Planning And Shared Governance Setup
 
-- [ ] T001 Create XAI/anomaly results directory and index in `docs/xai_anomaly/README.md`
+- [X] T001 Create XAI/anomaly results directory and index in `docs/xai_anomaly/README.md`
 - [ ] T002 [P] Add feature-owned environment contract placeholders to `.env.example`
 - [ ] T003 [P] Add XAI/anomaly source path filters and focused test placeholders to `.github/workflows/xai-anomaly.yml`
 - [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
@@ -175,23 +175,23 @@ behavioral ground truth.
 **Independent test**: Persisted contributions exactly reconstruct scores and
 invalid evidence reliably withholds them.
 
-- [ ] T105 [P] [US2] Write Cycle 015.5 investigation, deterministic score profile, no-ground-truth evaluation protocol, and prohibited-metric list in `docs/xai_anomaly/cycle_015_5_investigation.md`
-- [ ] T106 [P] [US6] Name Cycle 015.5 Figure Planner in `docs/xai_anomaly/cycle_015_5_figure_plan.md`
-- [ ] T107 [P] [US6] Name separate Cycle 015.5 Figure Implementer in `docs/xai_anomaly/cycle_015_5_figure_implementation.md`
-- [ ] T108 [P] [US2] Implement anomaly score/contribution contracts in `backend/apps/anomalies/scoring/contracts.py`
-- [ ] T109 [P] [US2] Implement bounded contamination-aware observed-pattern profiles, compatible pattern comparison, and per-signal deviation components in `backend/apps/anomalies/scoring/pattern_profiles.py`, `backend/apps/anomalies/scoring/pattern_comparison.py`, and `backend/apps/anomalies/scoring/components.py`
-- [ ] T110 [P] [US2] Implement transparent pattern-deviation fusion, cold-start/quarantine, and withholding gates in `backend/apps/anomalies/scoring/fusion.py`
-- [ ] T111 [US2] Implement observed-pattern comparison and anomaly scoring orchestration service in `backend/apps/anomalies/scoring/service.py`
-- [ ] T112 [US2] Add signal-pattern window models in `backend/apps/behavior/models.py` and observed-pattern profile/score/contribution models with migrations in `backend/apps/anomalies/models.py`
-- [ ] T113 [US2] Add idempotent pattern-profile, score, and contribution repositories in `backend/apps/anomalies/services.py`
-- [ ] T114 [P] [US2] Add exact reconstruction and counterfactual service in `backend/apps/anomalies/scoring/reconstruction.py`
-- [ ] T115 [P] [US2] Add explicit score serializers and read endpoints in `backend/apps/anomalies/serializers.py` and `backend/apps/anomalies/views.py`
-- [ ] T116 [P] [US2] Add contribution math, controlled pattern fixtures, metamorphic/invariant, cold-start, contamination, quarantine, missingness, withholding, and vocabulary tests in `backend/tests/unit/anomalies/test_xai_review_priority_score.py`
-- [ ] T117 [P] [US2] Add PostgreSQL pattern-profile compatibility/quarantine, reconstruction, and idempotency integration tests in `backend/tests/integration/anomalies/test_xai_score_persistence.py`
-- [ ] T118 [P] [US2] Add no-ground-truth pattern invariant, sensitivity, counterfactual, and prohibited-metric evaluation command in `backend/apps/anomalies/management/commands/evaluate_xai_scores.py`
-- [ ] T119 [P] [US6] Add production pattern-profile/score reconstruction/no-ground-truth probe helper in `tools/prod/prod_probe_xai_scores.py`
-- [ ] T120 [US6] Add Cycle 015.5 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_5.sh`
-- [ ] T121 [P] [US6] Implement Cycle 015.5 pattern-envelope, score decomposition, fixture/invariant, contamination/quarantine, manifest/digest figures and generator tests in `tools/prod/prod_generate_xai_cycle015_5_figures.py`
+- [X] T105 [P] [US2] Write Cycle 015.5 investigation, deterministic score profile, no-ground-truth evaluation protocol, and prohibited-metric list in `docs/xai_anomaly/cycle_015_5_investigation.md`
+- [X] T106 [P] [US6] Name Cycle 015.5 Figure Planner in `docs/xai_anomaly/cycle_015_5_figure_plan.md`
+- [X] T107 [P] [US6] Name separate Cycle 015.5 Figure Implementer in `docs/xai_anomaly/cycle_015_5_figure_implementation.md`
+- [X] T108 [P] [US2] Implement anomaly score/contribution contracts in `backend/apps/anomalies/scoring/contracts.py`
+- [X] T109 [P] [US2] Implement bounded contamination-aware observed-pattern profiles, compatible pattern comparison, and per-signal deviation components in `backend/apps/anomalies/scoring/pattern_profiles.py`, `backend/apps/anomalies/scoring/pattern_comparison.py`, and `backend/apps/anomalies/scoring/components.py`
+- [X] T110 [P] [US2] Implement transparent pattern-deviation fusion, cold-start/quarantine, and withholding gates in `backend/apps/anomalies/scoring/fusion.py`
+- [X] T111 [US2] Implement observed-pattern comparison and anomaly scoring orchestration service in `backend/apps/anomalies/scoring/service.py`
+- [X] T112 [US2] Add signal-pattern window models in `backend/apps/behavior/models.py` and observed-pattern profile/score/contribution models with migrations in `backend/apps/anomalies/models.py`
+- [X] T113 [US2] Add idempotent pattern-profile, score, and contribution repositories in `backend/apps/anomalies/services.py`
+- [X] T114 [P] [US2] Add exact reconstruction and counterfactual service in `backend/apps/anomalies/scoring/reconstruction.py`
+- [X] T115 [P] [US2] Add explicit score serializers and read endpoints in `backend/apps/anomalies/serializers.py` and `backend/apps/anomalies/views.py`
+- [X] T116 [P] [US2] Add contribution math, controlled pattern fixtures, metamorphic/invariant, cold-start, contamination, quarantine, missingness, withholding, and vocabulary tests in `backend/tests/unit/anomalies/test_xai_review_priority_score.py`
+- [X] T117 [P] [US2] Add PostgreSQL pattern-profile compatibility/quarantine, reconstruction, and idempotency integration tests in `backend/tests/integration/anomalies/test_xai_score_persistence.py`
+- [X] T118 [P] [US2] Add no-ground-truth pattern invariant, sensitivity, counterfactual, and prohibited-metric evaluation command in `backend/apps/anomalies/management/commands/evaluate_xai_scores.py`
+- [X] T119 [P] [US6] Add production pattern-profile/score reconstruction/no-ground-truth probe helper in `tools/prod/prod_probe_xai_scores.py`
+- [X] T120 [US6] Add Cycle 015.5 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_5.sh`
+- [X] T121 [P] [US6] Implement Cycle 015.5 pattern-envelope, score decomposition, fixture/invariant, contamination/quarantine, manifest/digest figures and generator tests in `tools/prod/prod_generate_xai_cycle015_5_figures.py`
 - [ ] T122 [US6] Execute rollback and record Cycle 015.5 decision in `docs/xai_anomaly/cycle_015_5_results.md`
 - [ ] T123 [US6] Record every Cycle 015.5 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 

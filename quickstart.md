@@ -842,6 +842,22 @@ Checks:
 - `docker compose -f docker-compose.dev.yml ps`
 - `docker compose -f docker-compose.dev.yml logs postgres`
 
+Safe recovery helper:
+
+```powershell
+pwsh -File .\scripts\recover-dev-postgres.ps1
+```
+
+If the report says `recreate_container_first`, apply the compose shutdown fix to
+the running container without touching the `pgdata` volume:
+
+```powershell
+pwsh -File .\scripts\recover-dev-postgres.ps1 -RecreateContainer
+```
+
+If the report still says `volume_needs_manual_investigation`, the problem is the
+existing `grad_project_pgdata` volume state rather than the compose file.
+
 ### Issue: Redis connection errors
 
 Checks:
