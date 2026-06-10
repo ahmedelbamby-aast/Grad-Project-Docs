@@ -54,8 +54,8 @@ reconciled nonzero BSIL/lineage records without source-output regression.
 - [X] T019 [P] [US1] Add immutable route snapshot value contract in `backend/apps/pipeline/services/model_route_snapshot.py`
 - [X] T020 [US1] Remove shared-default route mutation and add snapshot/fingerprint APIs in `backend/apps/pipeline/services/model_route_service.py`
 - [X] T021 [P] [US1] Add route snapshot PostgreSQL model, migration, and explicit serializer boundary in `backend/apps/behavior/models.py` and `backend/apps/behavior/serializers.py`
-- [ ] T022 [P] [US1] Audit and reconcile behavior label mappings in `backend/apps/pipeline/multi_model.py`
-- [ ] T023 [P] [US1] Audit and reconcile layer-specific behavior mappings in `backend/apps/pipeline/layers/`
+- [X] T022 [P] [US1] Audit and reconcile behavior label mappings in `backend/apps/pipeline/multi_model.py`
+- [X] T023 [P] [US1] Audit and reconcile layer-specific behavior mappings in `backend/apps/pipeline/layers/`
 - [X] T024 [P] [US2] Replace or deprecate accusatory rule-engine outputs in `backend/apps/pipeline/rule_engine.py`
 - [ ] T025 [US2] Wire BSIL semantic/temporal/lineage activation flags into existing offline and live orchestration in `backend/apps/video_analysis/tasks.py`
 - [X] T026 [P] [US6] Add route immutability, mapping parity, vocabulary, and snapshot digest tests in `backend/tests/unit/pipeline/test_xai_runtime_truth.py`
