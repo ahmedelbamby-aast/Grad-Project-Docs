@@ -60,9 +60,9 @@ reconciled nonzero BSIL/lineage records without source-output regression.
 - [X] T025 [US2] Wire BSIL semantic/temporal/lineage activation flags into existing offline and live orchestration in `backend/apps/video_analysis/tasks.py`
 - [X] T026 [P] [US6] Add route immutability, mapping parity, vocabulary, and snapshot digest tests in `backend/tests/unit/pipeline/test_xai_runtime_truth.py`
 - [X] T027 [P] [US2] Add BSIL activation/population/reconciliation integration tests in `backend/tests/integration/behavior/test_xai_bsil_activation.py`
-- [ ] T028 [P] [US6] Add production runtime-truth/BSIL preflight helper in `tools/prod/prod_xai_cycle015_0_preflight.py`
+- [X] T028 [P] [US6] Add production runtime-truth/BSIL preflight helper in `tools/prod/prod_xai_cycle015_0_preflight.py`
 - [ ] T029 [US6] Add Cycle 015.0 stride-1 production benchmark and metrics collector in `tools/prod/prod_run_xai_cycle015_0.sh`
-- [ ] T030 [P] [US6] Implement Cycle 015.0 figure generator and manifest tests in `tools/prod/prod_generate_xai_cycle015_0_figures.py`
+- [X] T030 [P] [US6] Implement Cycle 015.0 figure generator and manifest tests in `tools/prod/prod_generate_xai_cycle015_0_figures.py`
 - [ ] T031 [US6] Execute Cycle 015.0 rollback and reconciliation helper from `tools/prod/prod_rollback_xai_cycle015_0.sh`
 - [ ] T032 [US6] Record Cycle 015.0 decision, metrics, figures, unavailable reasons, and rollback in `docs/xai_anomaly/cycle_015_0_results.md`
 - [ ] T033 [US6] Record every Cycle 015.0 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
