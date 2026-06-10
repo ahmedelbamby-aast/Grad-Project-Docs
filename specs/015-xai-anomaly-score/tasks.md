@@ -136,18 +136,18 @@ model outputs only where task-appropriate held-out evidence exists.
 **Independent test**: Calibration improves or accurately characterizes
 reliability and incompatible/stale snapshots are rejected.
 
-- [ ] T051 [P] [US1] Write Cycle 015.2 source-model calibration protocol, unavailable-evidence behavior, and no-anomaly-ground-truth boundary in `docs/xai_anomaly/cycle_015_2_investigation.md`
-- [ ] T052 [P] [US6] Name Cycle 015.2 Figure Planner in `docs/xai_anomaly/cycle_015_2_figure_plan.md`
-- [ ] T053 [P] [US6] Name separate Cycle 015.2 Figure Implementer in `docs/xai_anomaly/cycle_015_2_figure_implementation.md`
-- [ ] T054 [P] [US1] Implement calibration contracts and compatibility rules in `backend/apps/anomalies/scoring/calibration.py`
-- [ ] T055 [P] [US1] Add calibration snapshot models and migration in `backend/apps/anomalies/models.py`
-- [ ] T056 [P] [US1] Implement source-model calibration evidence-cohort manifest handling in `backend/apps/anomalies/scoring/calibration_artifacts.py`
-- [ ] T057 [US1] Implement model/output-specific calibrator registry in `backend/apps/anomalies/scoring/calibrator_registry.py`
-- [ ] T058 [US1] Implement calibration lookup and stale/incompatible rejection in `backend/apps/anomalies/scoring/calibration_service.py`
-- [ ] T059 [P] [US1] Add calibration fitting/evaluation command in `backend/apps/anomalies/management/commands/build_xai_calibration.py`
-- [ ] T060 [P] [US1] Add ECE, reliability, proper-score, CI, and subgroup evaluation in `backend/apps/anomalies/scoring/calibration_evaluation.py`
-- [ ] T061 [P] [US1] Add calibration contract and compatibility tests in `backend/tests/unit/anomalies/test_xai_calibration.py`
-- [ ] T062 [P] [US1] Add calibration evidence-cohort manifest, unavailable-state, no-anomaly-ground-truth, and PostgreSQL tests in `backend/tests/integration/anomalies/test_xai_calibration_artifacts.py`
+- [X] T051 [P] [US1] Write Cycle 015.2 source-model calibration protocol, unavailable-evidence behavior, and no-anomaly-ground-truth boundary in `docs/xai_anomaly/cycle_015_2_investigation.md`
+- [X] T052 [P] [US6] Name Cycle 015.2 Figure Planner in `docs/xai_anomaly/cycle_015_2_figure_plan.md`
+- [X] T053 [P] [US6] Name separate Cycle 015.2 Figure Implementer in `docs/xai_anomaly/cycle_015_2_figure_implementation.md`
+- [X] T054 [P] [US1] Implement calibration contracts and compatibility rules in `backend/apps/anomalies/scoring/calibration.py`
+- [X] T055 [P] [US1] Add calibration snapshot models and migration in `backend/apps/anomalies/models.py`
+- [X] T056 [P] [US1] Implement source-model calibration evidence-cohort manifest handling in `backend/apps/anomalies/scoring/calibration_artifacts.py`
+- [X] T057 [US1] Implement model/output-specific calibrator registry in `backend/apps/anomalies/scoring/calibrator_registry.py`
+- [X] T058 [US1] Implement calibration lookup and stale/incompatible rejection in `backend/apps/anomalies/scoring/calibration_service.py`
+- [X] T059 [P] [US1] Add calibration fitting/evaluation command in `backend/apps/anomalies/management/commands/build_xai_calibration.py`
+- [X] T060 [P] [US1] Add ECE, reliability, proper-score, CI, and subgroup evaluation in `backend/apps/anomalies/scoring/calibration_evaluation.py`
+- [X] T061 [P] [US1] Add calibration contract and compatibility tests in `backend/tests/unit/anomalies/test_xai_calibration.py`
+- [X] T062 [P] [US1] Add calibration evidence-cohort manifest, unavailable-state, no-anomaly-ground-truth, and PostgreSQL tests in `backend/tests/integration/anomalies/test_xai_calibration_artifacts.py`
 - [ ] T063 [P] [US6] Add production calibration preflight/probe in `tools/prod/prod_probe_xai_calibration.py`
 - [ ] T064 [US6] Add Cycle 015.2 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_2.sh`
 - [ ] T065 [P] [US6] Implement Cycle 015.2 reliability figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_2_figures.py`
