@@ -132,11 +132,12 @@ it. Computed in float32 even under AMP (half precision) for numeric safety.
 **Weapon 3 — the direction-aware flip (this one is a bug fix AND a weapon).**
 See the next chapter — it is the biggest single finding of the project.
 
-**Considered and REFUSED (for now): oversampling rare-class images.** Repeating
-images that contain rare classes interacts messily with mosaic augmentation
-(one image appears inside four others), and the 4-sample `look_up` class would
-just be memorised. We keep it as a future lever if weapons 1-3 are not enough —
-and we change one variable at a time so we can attribute the improvement.
+**Oversampling rare-class images — first REFUSED, then ACCEPTED as weapon 4
+(its own chapter below).** When weapons 1–3 went in, we deliberately held
+oversampling back: it interacts with mosaic, the 4-sample `look_up` class risks
+being memorised, and we change one variable at a time so improvements stay
+attributable. The owner then asked for it explicitly, so it was designed and
+implemented as the *next* run's single new variable — see Chapter 11.
 
 ## Chapter 6 — The mirror that lied: the horizontal-flip label bug
 
@@ -243,12 +244,54 @@ n, honest number.
 | `combined_m_prod_250` | 10-logit masked | flat LR, patience 200 | mAP50 0.486, late precision collapse | revealed flat-LR problem |
 | `combined_m_prod_250_na` | **12-logit N/A** | cosine, patience 200, auto-optimizer | mAP50 0.459; posture 0.73 / gaze 0.62 (inflated by n/a); left 0.002, up 0.00 | **N/A design retired by this evidence** |
 | `combined_m_prod_v3_masked` | 10-logit masked | SGD intended 0.02 — **auto ignored it** | killed at epoch ~10 | mislaunched; optimizer bug found |
-| `combined_m_prod_v4_dirflip` | 10-logit masked | SGD lr0 0.02, warmup 8, cosine, patience 60, class weights, focal 1.5, **direction-aware flip** | running (150 epochs, ~5 h) | the everything-fixed run |
+| `combined_m_prod_v4_dirflip` | 10-logit masked | SGD lr0 0.02, warmup 8, cosine, patience 60, class weights, focal 1.5, **direction-aware flip** | running (150 epochs, ~5 h) | the everything-fixed run; baseline for v5 |
+| `combined_m_prod_v5_oversample` | 10-logit masked | = v4 + **repeat-factor oversampling** (cap 3, median threshold, weights learned post-duplication) | queued — launches when v4 finishes | one new variable vs v4 |
 
 **What to look at when v4 finishes:** `per_class_recall.png` for `look_left`,
 `look_right`, `look_backward`, `standing` (the four corrupted/starved classes);
 the role-conditioned heatmaps; and whether val losses now bottom later than
 epoch ~75 (the LR/warmup change working).
+
+## Chapter 11 — Weapon 4: repeat-factor oversampling (built, queued for v5)
+
+The owner asked to apply an oversampling strategy. **Which strategy? Decision:
+LVIS-style repeat-factor sampling at the IMAGE level. ACCEPTED.** It is the
+standard remedy for long-tailed *detection* datasets, and it fits our pipeline
+because it works by simple duplication: for each attribute class `c` we measure
+`f(c)` = the fraction of train images containing `c`; classes rarer than a
+threshold `t` get a repeat factor `r(c) = sqrt(t / f(c))`, capped at **3**; an
+image repeats according to its **rarest** present class. The duplicated entries
+are ordinary dataset rows, so mosaic and the direction-aware flip treat them as
+normal images — every extra copy arrives with different augmentation, which is
+exactly what a rare class needs.
+
+The tiny details that make it safe:
+
+- **The square root** keeps the boost gentle — a class 100× rarer than the
+  threshold asks for 10×, and the **cap of 3** stops the 4-sample `look_up`
+  from flooding the epoch with memorised copies.
+- **Deterministic** — repeats are computed by rounding, no randomness, so the
+  run is reproducible (`deterministic=True` stays honest).
+- **No double-compensation** — this was the subtle trap. We already multiply
+  rare-class losses by learned class weights (weapon 1). If both mechanisms saw
+  the *original* distribution, a rare class would be boosted twice (up to
+  3 × 4 = 12×). So the class weights are now computed **after** duplication:
+  they see the already-rebalanced label counts and automatically shrink for
+  boosted classes. The two weapons share the work instead of stacking blindly.
+- **Tunable from the environment, not hardcoded** — `COMBINED_OVERSAMPLE_MAX`
+  (default 3; set ≤ 1 to disable) and `COMBINED_OVERSAMPLE_T` (default −1 =
+  the median class frequency decides what counts as "rare").
+- **Tested before trusted** — a unit test on the production box fed the
+  sampler a fake 10-image dataset: the two rare-class images tripled, the
+  eight common ones stayed single, all parallel bookkeeping arrays stayed
+  consistent, and the disable switch worked.
+
+**Decision: do NOT restart the running v4. ACCEPTED.** v4 is the
+"everything-fixed, no oversampling" run — it is the *baseline that makes v5
+attributable*. The code is synced and `prod_run_v5_oversample.sh` is staged;
+v5 launches when v4 finishes, identical in every way except this one new
+variable. The cost to expect: the epoch gets ~20-40% longer (more images per
+epoch), which is the price of the extra rare-class exposure.
 
 ---
 

@@ -187,12 +187,12 @@ three soft‑max cross‑entropies**. Anchor‑to‑object assignment keys on **
 (student/teacher), the one attribute every person has. UNKNOWN posture/gaze
 targets (`-1`, e.g. every teacher) are masked out — zero gradient, see §3.1.
 
-### 3.4 Fighting class imbalance (three mechanisms in the trainer/loss)
+### 3.4 Fighting class imbalance (four mechanisms in the trainer/loss)
 
 The data is brutally imbalanced (`look_down` ≈ 5,300 val samples; `look_up` 4).
-Three mechanisms — added after the imbalance was measured, full reasoning in
-[DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md) Chapters 5–6 — keep the rare
-classes alive:
+Four mechanisms — added after the imbalance was measured, full reasoning in
+[DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md) Chapters 5–6 and 11 — keep the
+rare classes alive:
 
 1. **Learned class weights** — at startup the trainer counts the real train
    labels and computes bounded inverse‑frequency weights
@@ -210,6 +210,12 @@ classes alive:
    are mirror‑invariant. Vertical flip is force‑disabled (it would corrupt
    `up/down` the same way). The mirror stops lying, and every flip becomes a
    correctly‑labelled extra sample for the rarest classes.
+4. **Repeat‑factor oversampling** — images containing rare attribute classes
+   are duplicated in the epoch index (LVIS‑style: repeat
+   `r = clamp(sqrt(t/f(c)), 1, 3)`, rarest present class wins, deterministic;
+   `COMBINED_OVERSAMPLE_MAX` / `COMBINED_OVERSAMPLE_T`). The class weights of
+   mechanism 1 are learned **after** duplication, so the two cannot
+   double‑boost the same class.
 
 ### 3.5 Inference — decode and the clean TensorRT story
 
