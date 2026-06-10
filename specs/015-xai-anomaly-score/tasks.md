@@ -551,13 +551,13 @@ reconciled before terminal state, and DB-completed FPS does not regress.
 - [X] T320 [US6] Add default-off settings + environment contract in `backend/config/settings/base.py` and `.env.example`
 - [X] T321 [US6] Add pipeline contract unit tests (disabled-default, live-exclusion, packet roundtrip/digest, bounded enqueue, fail-closed enqueue, consumer apply/ack/drain, no-writer abort, max-attempt failure accounting, drain-and-collect) in `backend/tests/unit/video_analysis/test_persistence_pipeline.py`
 - [X] T322 [US6] Wire the new tests into CI in `.github/workflows/inference-parallelization.yml`
-- [ ] T323 [US6] Implement the `db_rows` lane writer adapter over the existing idempotent packet writer and register it in `backend/apps/video_analysis/tasks.py`
-- [ ] T324 [US6] Integrate the producer seam into the offline frame loop / Step 3 (enqueue instead of inline persist when enabled; serial fallback + drain/reconcile before terminal state) in `backend/apps/video_analysis/tasks.py`
-- [ ] T325 [US6] Extend the production watcher with per-lane depth/pending/applied/failed evidence in `tools/prod/prod_watch_benchmark_metrics.sh`
-- [ ] T326 [US6] Fix lifecycle/status terminal convergence (RC-8: completed evidence while `status=embedding`) with reconciler proof in `backend/apps/video_analysis/tasks.py`
+- [X] T323 [US6] Implement the `db_rows` lane writer adapter over the existing idempotent packet writer and register it in `backend/apps/video_analysis/tasks.py`
+- [X] T324 [US6] Integrate the producer seam into the offline frame loop / Step 3 (enqueue instead of inline persist when enabled; serial fallback + drain/reconcile before terminal state) in `backend/apps/video_analysis/tasks.py`
+- [X] T325 [US6] Extend the production watcher with per-lane depth/pending/applied/failed evidence in `tools/prod/prod_watch_benchmark_metrics.sh`
+- [X] T326 [US6] Fix lifecycle/status terminal convergence (RC-8: completed evidence while `status=embedding`) with reconciler proof in `backend/apps/video_analysis/tasks.py`
 - [ ] T327 [US6] Offload postprocess fanout construction (row building, derived records) into the consumer lanes, keeping ordered tracking on the producer path, in `backend/apps/video_analysis/tasks.py` + `backend/apps/video_analysis/persistence_pipeline.py`
 - [ ] T328 [US6] Add embedding-lane consumer slice (separate process embedding application) behind the same flag in `backend/apps/video_analysis/persistence_pipeline.py`
-- [ ] T329 [US6] Add Cycle 015.17 stride-1 baseline/candidate benchmark runner in `tools/prod/prod_run_xai_cycle015_17.sh`
+- [X] T329 [US6] Add Cycle 015.17 stride-1 baseline/candidate benchmark runner in `tools/prod/prod_run_xai_cycle015_17.sh`
 - [ ] T330 [US6] Run the native RTX 5090 stride-1 baseline/candidate pair (after the GPU is free of training runs) and record parity/identity/lifecycle/FPS evidence
 - [ ] T331 [US6] Generate Cycle 015.17 figures + manifest/digests in `tools/prod/prod_generate_xai_cycle015_17_figures.py`
 - [ ] T332 [US6] Execute rollback (flag off → serial parity proof) and record the Cycle 015.17 decision in `docs/xai_anomaly/cycle_015_17_results.md`
