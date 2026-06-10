@@ -25,6 +25,7 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_8_figure_plan.md` | Figure Planner output for Cycle 015.8 deep-XAI lifecycle evidence | active |
 | `cycle_015_8_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.8 local contract slice | active |
 | `benchmark_evidence_layout.md` | Feature-owned layout for future Cycle 015 raw benchmark results, manifests, figures, and ledger links | active |
+| `security_retention_policy.md` | Feature-owned privacy, access, audit, and retention policy for Cycle 015 XAI artifacts | active |
 
 ## Current implementation state
 
@@ -110,6 +111,7 @@ Cycle 015.8 currently has:
 | Doc | `specs/015-xai-anomaly-score/contracts/anomaly-score-contract.md` |
 | Doc | `specs/015-xai-anomaly-score/contracts/benchmark-evidence-contract.md` |
 | Doc | `docs/xai_anomaly/benchmark_evidence_layout.md` |
+| Doc | `docs/xai_anomaly/security_retention_policy.md` |
 | Doc | `docs/xai_anomaly/cycle_015_6_results.md` |
 | Doc | `docs/xai_anomaly/cycle_015_7_investigation.md` |
 | Doc | `docs/xai_anomaly/cycle_015_7_results.md` |
