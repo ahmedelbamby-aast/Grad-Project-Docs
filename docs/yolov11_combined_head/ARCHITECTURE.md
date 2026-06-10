@@ -75,20 +75,20 @@ logits. **Those class logits are the only thing we touch.**
 
 A stock head outputs `nc` independent class logits and squashes each with a
 **sigmoid** (multi‑label). We instead make the head output exactly
-**`nc = 12`** logits and read them as **three groups**, each with its own
+**`nc = 10`** logits and read them as **three groups**, each with its own
 **soft‑max**:
 
 ```mermaid
 flowchart TB
     NF["Neck feature map<br/>(one per scale)"] --> DET["Detect head<br/>(UNCHANGED conv graph)"]
     DET --> BOX["Box branch → DFL → xywh"]
-    DET --> CLS["Class branch → 12 raw logits z"]
+    DET --> CLS["Class branch → 10 raw logits z"]
 
     CLS --> SPLIT{{"reinterpret z as 3 groups<br/>(no new layers!)"}}
 
     SPLIT -->|"z[0:2]"| ROLE["<b>role</b> soft-max<br/>0 student · 1 teacher"]
-    SPLIT -->|"z[2:5]"| POST["<b>posture</b> soft-max<br/>2 sitting · 3 standing · 4 posture_na"]
-    SPLIT -->|"z[5:12]"| GAZE["<b>gaze</b> soft-max<br/>5 fwd · 6 back · 7 left · 8 right · 9 up · 10 down · 11 gaze_na"]
+    SPLIT -->|"z[2:4]"| POST["<b>posture</b> soft-max<br/>2 sitting · 3 standing"]
+    SPLIT -->|"z[4:10]"| GAZE["<b>gaze</b> soft-max<br/>4 fwd · 5 back · 6 left · 7 right · 8 up · 9 down"]
 
     ROLE --> R1["P(role) sums to 1<br/>→ exactly ONE role"]
     POST --> R2["P(posture) sums to 1<br/>→ exactly ONE posture"]
@@ -106,30 +106,29 @@ fact gives us mutual exclusivity *for free, by construction* — the model
 **cannot** output "sitting *and* standing," and it **cannot** output two gaze
 directions. We never have to police it; the mathematics does.
 
-The **12‑logit layout** is the whole design encoded in one number line:
+The **10‑logit layout** is the whole design encoded in one number line:
 
 ```
- index:   0       1     | 2        3         4        | 5    6     7    8     9   10     11
- group:  └──── role ───┘ └──────── posture ─────────┘ └───────────── gaze ──────────────┘
- means:  student teacher  sitting standing posture_na  fwd  back  left right  up  down  gaze_na
+ index:   0       1     | 2        3       | 4    5     6     7      8    9
+ group:  └──── role ───┘ └──── posture ───┘ └──────────── gaze ────────────┘
+ means:  student teacher  sitting standing   fwd  back  left  right  up  down
 ```
 
-### 3.1 Why `posture_na` and `gaze_na` are real classes (the N/A upgrade)
+### 3.1 The teacher has no posture or gaze — and the head knows it (masking)
 
 In our dataset a **teacher has no posture or gaze** — those attributes simply do
-not apply. Early on we handled this by *masking* (giving teachers zero gradient
-on posture/gaze), but then the model never *learned* anything about teachers'
-attributes and emitted arbitrary values we had to remember to ignore.
+not apply, and the product is **not interested** in them. The head handles this
+*architecturally* through the loss: when a box's posture or gaze is UNKNOWN
+(every teacher, plus any student labelled only "student"), that group's target
+is `-1` and its loss term is **skipped — zero gradient**. The network spends
+**100% of its posture/gaze capacity on students**, and the decode layer simply
+never reads posture/gaze off a teacher box.
 
-We upgraded this: **`posture_na` and `gaze_na` are explicit, trainable classes.**
-A teacher is trained with target `posture = posture_na`, `gaze = gaze_na`. Now
-the model **learns** the full rule you would say out loud:
-
-> *"A student is exactly one of {sitting, standing} and exactly one gaze.
-> A teacher is `posture_na`, `gaze_na`."*
-
-So the structure you asked about is no longer a post‑processing convention — it
-is **inside the weights**, and its output for a teacher is trustworthy.
+> **History note:** we also ran a full experiment with explicit `posture_na` /
+> `gaze_na` classes (a 12‑logit head). The production figures retired it: the
+> n/a classes were "free wins" that inflated accuracy and starved the rare real
+> classes (`look_left` fell to 0.002 recall). The full story, with the numbers,
+> is Chapter 4 of [DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md).
 
 ### 3.2 Labels: how three overlapping boxes become one structured target
 
@@ -153,21 +152,21 @@ flowchart LR
 ```
 
 The dataset advertises `nc = 42` (so the composite ids pass the label check), but
-the **head is forced to `nc = 12`** by our trainer — the loss is what bridges the
+the **head is forced to `nc = 10`** by our trainer — the loss is what bridges the
 two.
 
 ### 3.3 Training — where "structured" actually happens (the loss)
 
 ```mermaid
 flowchart TB
-    PRED["12 logits per foreground anchor"] --> A["Task-Aligned Assigner<br/>(keyed on ROLE — always present)"]
-    GT["composite GT of matched box"] --> LUTL["LUT → role_t, posture_t, gaze_t"]
+    PRED["10 logits per foreground anchor"] --> A["Task-Aligned Assigner<br/>(keyed on ROLE — always present)"]
+    GT["composite GT of matched box"] --> LUTL["LUT → role_t, posture_t, gaze_t<br/>(-1 = UNKNOWN → masked, no gradient)"]
 
     A --> CER["CE(role logits z[0:2], role_t)"]
     LUTL --> CER
-    A --> CEP["CE(posture logits z[2:5], posture_t)"]
+    A --> CEP["CE(posture logits z[2:4], posture_t)<br/>× class weights × focal (1-pt)^γ"]
     LUTL --> CEP
-    A --> CEG["CE(gaze logits z[5:12], gaze_t)"]
+    A --> CEG["CE(gaze logits z[4:10], gaze_t)<br/>× class weights × focal (1-pt)^γ"]
     LUTL --> CEG
 
     CER --> SUM["cls loss = CE_role + CE_posture + CE_gaze<br/>(each weighted by TAL alignment)"]
@@ -185,18 +184,43 @@ flowchart TB
 The box/DFL terms are **exactly stock YOLO**, so localisation behaves normally.
 The only new thing is replacing the single sigmoid‑BCE class loss with a **sum of
 three soft‑max cross‑entropies**. Anchor‑to‑object assignment keys on **role**
-(student/teacher), the one attribute every person has.
+(student/teacher), the one attribute every person has. UNKNOWN posture/gaze
+targets (`-1`, e.g. every teacher) are masked out — zero gradient, see §3.1.
 
-### 3.4 Inference — decode and the clean TensorRT story
+### 3.4 Fighting class imbalance (three mechanisms in the trainer/loss)
+
+The data is brutally imbalanced (`look_down` ≈ 5,300 val samples; `look_up` 4).
+Three mechanisms — added after the imbalance was measured, full reasoning in
+[DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md) Chapters 5–6 — keep the rare
+classes alive:
+
+1. **Learned class weights** — at startup the trainer counts the real train
+   labels and computes bounded inverse‑frequency weights
+   `w_c = sqrt(total/(C·n_c))` clamped to `[0.5, 4.0]`; rare classes get up to
+   4× loss, common ones are damped. Re‑learned from the data every run — never
+   hardcoded.
+2. **Focal modulation** — posture/gaze CE is scaled by `(1−p_true)^γ`
+   (γ = 1.5 via `COMBINED_FOCAL_GAMMA`): easy, already‑correct samples lose
+   loss mass; hard/rare ones keep it. Role stays plain CE.
+3. **Direction‑aware horizontal flip** — the stock mirror augmentation silently
+   corrupted direction labels (a mirrored `look_left` student *looks right* but
+   kept the `look_left` label — 50% label noise on left/right!). Our flip
+   subclass remaps `look_left ↔ look_right` through a lookup table whenever the
+   image is actually mirrored; `forward/backward`, `up/down`, posture, and role
+   are mirror‑invariant. Vertical flip is force‑disabled (it would corrupt
+   `up/down` the same way). The mirror stops lying, and every flip becomes a
+   correctly‑labelled extra sample for the rarest classes.
+
+### 3.5 Inference — decode and the clean TensorRT story
 
 ```mermaid
 flowchart LR
-    ENG["TensorRT / ONNX engine<br/>(stock YOLO graph)"] --> RAW2["raw output: 4 + 12 per anchor"]
+    ENG["TensorRT / ONNX engine<br/>(stock YOLO graph)"] --> RAW2["raw output: 4 + 10 per anchor"]
     RAW2 --> NMS["NMS on role confidence"]
     NMS --> AM["per-group arg-max"]
     AM --> ROUT["role  = argmax z[0:2]"]
-    AM --> POUT["posture = argmax z[2:5]"]
-    AM --> GOUT["gaze = argmax z[5:12]"]
+    AM --> POUT["posture = argmax z[2:4]"]
+    AM --> GOUT["gaze = argmax z[4:10]"]
     ROUT & POUT & GOUT --> FINAL["student | sitting | look_right"]
 
     classDef kept fill:#eef,stroke:#88a;
@@ -222,8 +246,9 @@ free, deployment unchanged.**
 | Neck (PAN‑FPN, C3k2) | ✅ | ✅ unchanged |
 | Detect head **graph** (box + class conv) | ✅ | ✅ unchanged |
 | Class activation | sigmoid, multi‑label | **3 group soft‑maxes** (role / posture / gaze) |
-| `nc` | dataset classes | **12** (2 + 3 + 7, with `posture_na`/`gaze_na`) |
-| Class loss | BCE | **Σ grouped cross‑entropy** (box/DFL unchanged) |
+| `nc` | dataset classes | **10** (2 + 2 + 6; teacher posture/gaze MASKED, not predicted) |
+| Class loss | BCE | **Σ grouped cross‑entropy** + learned class weights + focal `(1−pt)^γ` on posture/gaze (box/DFL unchanged) |
+| Horizontal flip | mirrors image, labels untouched | **direction‑aware**: `look_left ↔ look_right` label remap on mirrored images |
 | Decode | one arg‑max | **per‑group arg‑max** (mutual exclusivity guaranteed) |
 | TensorRT export | stock | **stock — identical graph** |
 
@@ -237,6 +262,9 @@ free, deployment unchanged.**
 > YOLO.**
 
 ---
+
+*Decision history (why each piece looks the way it does):*
+[DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md)
 
 *Sources for the stock‑YOLOv11 description:*
 [Ultralytics YOLO11 architecture overview](https://www.emergentmind.com/topics/yolov11-architecture) ·

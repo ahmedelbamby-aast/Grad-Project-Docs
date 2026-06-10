@@ -133,11 +133,13 @@ Accuracy is then the **empirical 0/1 risk** — an unbiased estimate of
 "P(correct)" on the population we evaluate. That is the textbook way to score a
 classifier.
 
-### Note on N/A
-Because `posture_na` / `gaze_na` are now **real trained classes**, these accuracies
-**include teachers** (the model should predict N/A for them). That's why `n` is
-larger than in earlier runs — it now counts every matched person, not just the
-ones with a concrete posture/gaze.
+### Note on masking (who is counted)
+Teacher posture/gaze is **masked** (not trained, not scored — the product is not
+interested in it), so these accuracies count **only boxes that truly have the
+attribute**: students with a posture/gaze label (~10.7k of ~17.3k matched
+boxes). The `n` is smaller than in the retired N/A-class runs, but the number is
+*honest* — no free "n/a" points inflate it. (Why the N/A design was retired:
+[DECISIONS_JOURNAL.md](DECISIONS_JOURNAL.md), Chapter 4.)
 
 ---
 
@@ -149,8 +151,8 @@ The **diagonal is correct**; everything off the diagonal is a specific mistake
 into fractions, so the diagonal *is* the per‑class **recall**.
 
 ### 4.1 `role_confusion_matrix`, `posture_confusion_matrix`, `gaze_confusion_matrix`
-These are the clean, honest views — one per group (2×2, 3×3 with `posture_na`, and
-7×7 with `gaze_na`). **This is where you catch the imbalance problem.** A bright
+These are the clean, honest views — one per group (2×2 role, 2×2 posture, 6×6
+gaze; teachers are masked out). **This is where you catch the imbalance problem.** A bright
 diagonal cell on `down` with a near‑empty `up` row tells you instantly: "the model
 is great at the common gaze and blind to the rare one." Read the **normalised**
 one for fairness across classes, the **count** one to see how much data backed it.
@@ -171,7 +173,7 @@ design**: confusion can only ever happen *inside* a group, never across groups.
 ### 4.3 `per_class_recall.png` — the no‑nonsense summary
 One bar per class, coloured by group, with the support `n=` on each bar. This is
 the figure to screenshot when someone asks "how good is it, per class?" — it
-shows all twelve classes at once **without** the misleading off‑block zeros. Read
+shows all ten classes at once **without** the misleading off‑block zeros. Read
 it as: tall bar = the model reliably catches that class; short bar over a tiny
 `n` = a rare class the dataset barely teaches.
 
@@ -185,15 +187,14 @@ that students have postures and teachers do not?** Two heatmaps, rows = the
 
 - The **student row** should spread across the real attributes (sitting/standing,
   the six gazes) — it learned them.
-- The **teacher row** should collapse almost entirely onto **`posture_na` /
-  `gaze_na`** — a single bright cell at ~1.0.
+- The **teacher row** is **untrained by design** (masked — the product is not
+  interested in teacher posture/gaze), so whatever it shows is arbitrary and is
+  **ignored at decode**. Do not read meaning into it; it is shown only so you can
+  *see* that it is arbitrary rather than secretly biased.
 
-When you see that teacher row light up only the `*_na` column, that is the
-model **stating the rule itself**: *"I am a teacher, therefore I have no posture
-and no gaze."* That is the structural understanding you were after, made visible.
-`attribute_confidence_by_role.png` is the companion: it shows how *sure* the model
-is per attribute, split by role — a confident, peaked teacher‑N/A distribution
-means it isn't guessing.
+`attribute_confidence_by_role.png` is the companion: it shows how *sure* the
+model is per attribute, split by role — the student distributions are the ones
+that matter; teacher confidence on posture/gaze is meaningless by construction.
 
 ---
 
@@ -216,8 +217,8 @@ Always glance at these — they are the reality check on every metric above.
 3. **`posture_acc` / `gaze_acc`** with their `n` — good overall?
 4. **per‑group + `per_class_recall.png`** — is the overall accuracy *honest*, or
    is it the majority class carrying weak rare classes?
-5. **`role_conditioned_attributes.png`** — does the **teacher row → N/A**? (the
-   structure is learned).
+5. **`role_conditioned_attributes.png`** — is the **student row** structured
+   (and remember the teacher row is masked/arbitrary by design)?
 6. **`val_batch*_pred.jpg`** — do the pictures actually look right?
 
 If 1–6 are green, you have a model you can trust **and** explain.
@@ -231,8 +232,8 @@ If 1–6 are green, you have a model you can trust **and** explain.
 | val loss vs train loss | fall together | val rises, train falls | overfit → use `best.pt`, more aug, fewer epochs |
 | mAP curve | smooth ↑ | spiky / collapses late | LR too high/flat → cosine LR |
 | precision suddenly low, recall high | — | yes | model over‑predicting boxes (late‑epoch instability) |
-| posture/gaze acc high but rare‑class recall ~0 | expected on rare classes | misread as "great" | imbalance → read per‑class, not the average |
-| teacher row not on N/A | — | yes | N/A under‑trained → more epochs / check labels |
+| posture/gaze acc high but rare‑class recall ~0 | expected on rare classes | misread as "great" | imbalance → read per‑class, not the average; class weights + focal + direction‑aware flip fight it |
+| `look_left`/`look_right` recall near zero | — | yes | mirrored‑flip label corruption → must use the direction‑aware flip (journal Ch. 6) |
 | `n=` tiny on a class | — | yes | not enough data for that class — collect more |
 
 ---
