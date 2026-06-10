@@ -57,9 +57,9 @@ reconciled nonzero BSIL/lineage records without source-output regression.
 - [X] T022 [P] [US1] Audit and reconcile behavior label mappings in `backend/apps/pipeline/multi_model.py`
 - [X] T023 [P] [US1] Audit and reconcile layer-specific behavior mappings in `backend/apps/pipeline/layers/`
 - [X] T024 [P] [US2] Replace or deprecate accusatory rule-engine outputs in `backend/apps/pipeline/rule_engine.py`
-- [ ] T025 [US2] Wire BSIL semantic/temporal/lineage activation flags into existing offline and live orchestration in `backend/apps/video_analysis/tasks.py`
+- [X] T025 [US2] Wire BSIL semantic/temporal/lineage activation flags into existing offline and live orchestration in `backend/apps/video_analysis/tasks.py`
 - [X] T026 [P] [US6] Add route immutability, mapping parity, vocabulary, and snapshot digest tests in `backend/tests/unit/pipeline/test_xai_runtime_truth.py`
-- [ ] T027 [P] [US2] Add BSIL activation/population/reconciliation integration tests in `backend/tests/integration/behavior/test_xai_bsil_activation.py`
+- [X] T027 [P] [US2] Add BSIL activation/population/reconciliation integration tests in `backend/tests/integration/behavior/test_xai_bsil_activation.py`
 - [ ] T028 [P] [US6] Add production runtime-truth/BSIL preflight helper in `tools/prod/prod_xai_cycle015_0_preflight.py`
 - [ ] T029 [US6] Add Cycle 015.0 stride-1 production benchmark and metrics collector in `tools/prod/prod_run_xai_cycle015_0.sh`
 - [ ] T030 [P] [US6] Implement Cycle 015.0 figure generator and manifest tests in `tools/prod/prod_generate_xai_cycle015_0_figures.py`
