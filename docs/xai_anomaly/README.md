@@ -26,6 +26,13 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_8_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.8 local contract slice | active |
 | `benchmark_evidence_layout.md` | Feature-owned layout for future Cycle 015 raw benchmark results, manifests, figures, and ledger links | active |
 | `security_retention_policy.md` | Feature-owned privacy, access, audit, and retention policy for Cycle 015 XAI artifacts | active |
+| `no_ground_truth_governance.md` | Setup-slice governance rules for reviewer feedback, prohibited metrics, and future trainable-model boundaries | active |
+| `glossary.md` | Required observed-pattern vocabulary and knowledge-limit terminology for Cycle 015 docs and payloads | active |
+| `configuration_contract.md` | Ownership and fingerprint contract for all configured or learned Cycle 015 operational values | active |
+| `figure_role_template.md` | Required exactly-one Figure Planner / Figure Implementer kickoff template | active |
+| `cycle_result_template.md` | Standard Cycle 015 results/decision template with production-evidence and rollback sections | active |
+| `production_cycle_runbook.md` | Template preflight, benchmark, figure, and rollback runbook for future production Cycle 015 runs | active |
+| `setup_validation.md` | Record of documentation and source-reference validation for the setup-slice artifacts | active |
 
 ## Current implementation state
 

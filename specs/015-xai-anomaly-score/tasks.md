@@ -34,13 +34,13 @@ production decision.
 - [X] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
 - [X] T007 [P] Define benchmark evidence root layout in `docs/xai_anomaly/benchmark_evidence_layout.md`
 - [X] T008 [P] Define XAI privacy, access, and retention policy in `docs/xai_anomaly/security_retention_policy.md`
-- [ ] T009 [P] Define no-anomaly-ground-truth governance, reviewer-assessment non-training rules, and future-plan boundary in `docs/xai_anomaly/no_ground_truth_governance.md`
-- [ ] T010 [P] Add required observed-pattern terminology and knowledge-limit glossary in `docs/xai_anomaly/glossary.md`
-- [ ] T011 Define configuration ownership and fingerprint contract in `docs/xai_anomaly/configuration_contract.md`
-- [ ] T012 Define exactly-one Figure Planner and Figure Implementer kickoff template in `docs/xai_anomaly/figure_role_template.md`
-- [ ] T013 Define cycle result/decision template in `docs/xai_anomaly/cycle_result_template.md`
-- [ ] T014 Define cycle production preflight/rollback template in `docs/xai_anomaly/production_cycle_runbook.md`
-- [ ] T015 Run documentation and source-reference validation for the setup artifacts and record it in `docs/xai_anomaly/setup_validation.md`
+- [X] T009 [P] Define no-anomaly-ground-truth governance, reviewer-assessment non-training rules, and future-plan boundary in `docs/xai_anomaly/no_ground_truth_governance.md`
+- [X] T010 [P] Add required observed-pattern terminology and knowledge-limit glossary in `docs/xai_anomaly/glossary.md`
+- [X] T011 Define configuration ownership and fingerprint contract in `docs/xai_anomaly/configuration_contract.md`
+- [X] T012 Define exactly-one Figure Planner and Figure Implementer kickoff template in `docs/xai_anomaly/figure_role_template.md`
+- [X] T013 Define cycle result/decision template in `docs/xai_anomaly/cycle_result_template.md`
+- [X] T014 Define cycle production preflight/rollback template in `docs/xai_anomaly/production_cycle_runbook.md`
+- [X] T015 Run documentation and source-reference validation for the setup artifacts and record it in `docs/xai_anomaly/setup_validation.md`
 
 ## Phase 2: Cycle 015.0 - Runtime Truth, Route Snapshot, And BSIL Activation
 
