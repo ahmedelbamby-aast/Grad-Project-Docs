@@ -46,9 +46,13 @@ helpers, benchmark ledger and figure verifier
 **Target Platform**: Native Linux RTX 5090 production; local Windows validation
 is contract-only
 **Project Type**: Existing Django/React video behavioral intelligence platform
-**Performance Goals**: Preserve accepted inference throughput and latency;
-bound fast-XAI/scoring overhead per accepted cycle; isolate deep XAI; WebGL
-updates remain interactive under representative and stress payloads
+**Performance Goals**: Highest priority is restoring and then preserving
+production end-to-end throughput: `>=15 FPS` DB-completed on canonical
+`combined.mp4` stride-1 production benchmarks, with a practical 32-frame
+envelope completing the full authoritative cycle in `<=2 seconds` (>=16 FPS
+effective). Fast-XAI/scoring must fit inside accepted budgets, deep XAI remains
+isolated, and WebGL updates remain interactive under representative and stress
+payloads.
 **Constraints**: PostgreSQL only; Triton-only production model inference; no
 Docker/no sudo production assumptions; frame stride 1 for acceptance;
 non-accusatory semantics; immutable lineage; bounded live state; binding
@@ -125,6 +129,27 @@ flowchart LR
     class PG,ART store;
     class DEEP warn;
 ```
+
+## Highest-Priority Throughput Mandate
+
+Cycle 015 feature work is subordinate to the production bottleneck remediation
+target until a completed native Linux RTX 5090 benchmark proves `>=15 FPS`
+DB-completed end-to-end throughput on `combined.mp4` at frame stride `1`. The
+batch envelope target is `32` frames finishing their full authoritative cycle in
+`<=2` seconds, meaning source inference, pose/behavior postprocess, PostgreSQL
+frame/detection/bounding-box writes, embeddings and derived records, telemetry,
+artifacts, reconciliation, and terminal lifecycle state are complete.
+
+The Cycle 015.0 baseline run
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd` is the current blocking evidence. It
+completed `4541/4541` frames but only reached about `1.773` DB-completed FPS;
+Step 2 through-pose wall was about `2499.409 s`, live GPU samples were near
+idle, and postprocess/inference wall dominated the available stage timings.
+Every subsequent Cycle 015 implementation must either directly reduce this
+bottleneck or prove it does not widen the gap. Additive XAI/anomaly work cannot
+advance to production acceptance while this target remains unmet, except by a
+documented governed exception with rollback.
 
 ## Ownership And Modular Design
 

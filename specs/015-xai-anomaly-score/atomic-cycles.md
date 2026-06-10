@@ -22,6 +22,27 @@ Every cycle must create:
 - unavailable metrics with reasons, never hidden or plotted as zero.
 - explicit proof that no anomaly model training/fine-tuning target or
   behavioral-ground-truth claim was introduced.
+- explicit DB-completed end-to-end throughput versus the `>=15 FPS` target and
+  the 32-frame full-cycle `<=2s` envelope status.
+
+## Highest-Priority Throughput Remediation Gate
+
+Before downstream Cycle 015 capabilities can be accepted on the critical path,
+the production benchmark path must reach `>=15 FPS` DB-completed end-to-end
+throughput on canonical `combined.mp4` at frame stride `1`. The practical batch
+envelope is `32` frames completing their full authoritative cycle in `<=2`
+seconds. This includes inference, pose/behavior postprocess, PostgreSQL writes,
+embeddings/derived records, telemetry/artifacts, reconciliation, and terminal
+lifecycle state.
+
+The Cycle 015.0 production baseline
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd` is blocking evidence: final watcher
+output showed about `1.773` DB-completed FPS, `2499.409 s` Step 2 through-pose
+wall, `1610.740 s` Step 2 frame wall, and dominant summed `postprocess_s` /
+`inference_s` stage timing. Remediation of these bottlenecks is the highest
+priority cycle work until the target is met without correctness or rollback
+regression.
 
 ## Cycle 015.0 - Runtime Truth, Route Snapshot, And BSIL Activation
 

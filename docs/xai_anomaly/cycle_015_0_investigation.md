@@ -54,6 +54,24 @@ Runtime-truth capture and BSIL activation can produce job-scoped,
 reconstructable evidence without changing source model outputs or violating
 the accepted runtime's latency, throughput, storage, or resource boundaries.
 
+## Current Production Bottleneck Blocker
+
+The 2026-06-10 production baseline
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd` exposed a blocking throughput gap.
+Final watcher evidence in
+`docs/xai_anomaly/cycle_015_0_current_run_bottleneck_report.md` showed about
+`1.773` DB-completed FPS, `2499.409 s` Step 2 through-pose wall,
+`1610.740 s` Step 2 frame wall, `888.668 s` pose tail, and dominant summed
+`postprocess_s` / `inference_s` timing. The persisted job status also remained
+`embedding` after completed rows and run summaries were visible.
+
+Cycle 015.0 and downstream Cycle 015 work are therefore blocked from critical
+path production acceptance until the canonical `combined.mp4` stride-1
+benchmark reaches `>=15 FPS` DB-completed end-to-end throughput and the
+`32 frames <=2s` full authoritative cycle envelope, or a governed exception is
+recorded with rollback and explicit unavailable-metric reasons.
+
 ## Atomic acceptance gates
 
 Cycle 015.0 remains indivisible. A production decision requires all gates:
@@ -70,9 +88,12 @@ Cycle 015.0 remains indivisible. A production decision requires all gates:
 6. FPS, phase wall, per-model RTT/call rate, GPU/VRAM, worker RSS,
    PostgreSQL/Redis, and queue metrics are available or carry a specific
    unavailable reason. A critical unavailable metric blocks acceptance.
-7. Rollback disables XAI benchmark and all BSIL activation flags, restarts the
+7. The throughput target status is recorded: `>=15 FPS` DB-completed
+   end-to-end throughput and `32 frames <=2s` full-cycle envelope are either
+   met or explicitly not met with a blocking reason.
+8. Rollback disables XAI benchmark and all BSIL activation flags, restarts the
    governed workers, and produces a ready post-rollback reconciliation report.
-8. Figures and their manifest digest the same raw artifacts used by the
+9. Figures and their manifest digest the same raw artifacts used by the
    decision table, and every run is recorded in the benchmark ledger.
 
 ## Knowledge limits

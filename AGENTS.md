@@ -77,7 +77,7 @@ This file defines how agents should execute tests quickly and safely in this rep
 
 ## ⭐ Benchmark Figure Evidence — BINDING
 
-Constitution v2.12.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
+Constitution v2.13.0 extends Sections 7.1.1, 12.6, and 14.25: no optimization
 cycle decision has authority unless generated figures are created from the same
 raw artifacts as the benchmark decision table and embedded or linked from the
 connected Markdown evidence.
@@ -90,6 +90,21 @@ native-Linux RTX 5090 benchmark** with the §7.1.1 precision metrics captured an
 saved. Every benchmark run — accepted or refused — MUST be recorded with its
 config (stride=1, video, frames, hardware), metrics, and the decision + reason in
 the single consolidated ledger [`docs/BENCHMARK_RESULTS_LEDGER.md`](docs/BENCHMARK_RESULTS_LEDGER.md).
+
+**End-to-end throughput priority target (BINDING, v2.13.0).** The highest
+current runtime target is **>= 15 FPS DB-completed end-to-end throughput** on
+the canonical production `combined.mp4` stride-1 benchmark. The practical batch
+envelope target is **32 frames completing their full authoritative cycle in
+<= 2 seconds** (>=16 FPS effective). This target is end-to-end: inference,
+pose/behavior postprocess, PostgreSQL frame/detection/bounding-box writes,
+embedding and derived records, telemetry/artifacts, reconciliation, and
+terminal lifecycle state must all complete. Frame-loop FPS, progress-percent
+FPS, inference-only FPS, or GPU-only throughput does not satisfy this target.
+Until a completed native Linux RTX 5090 benchmark reaches the target with
+correctness, identity, lineage, rollback, and figure evidence intact,
+bottleneck remediation is the top implementation priority. Additive XAI,
+anomaly, visualization, or model work that widens the throughput gap is blocked
+unless the plan records a governed exception and rollback.
 
 Before implementation or benchmark work on any optimization cycle, the agent
 MUST read:

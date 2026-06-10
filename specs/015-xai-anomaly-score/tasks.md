@@ -18,6 +18,44 @@ production decision.
 - No task may introduce anomaly-model training/fine-tuning, manufacture
   behavioral ground truth, or use label-based anomaly accuracy as decision
   authority.
+- Highest-priority performance rule: Cycle 015 work is blocked from additive
+  critical-path acceptance until the canonical `combined.mp4` stride-1
+  production benchmark reaches `>=15 FPS` DB-completed end-to-end throughput
+  and a 32-frame full authoritative cycle completes in `<=2` seconds. This
+  target includes inference, postprocess, PostgreSQL writes, embeddings/derived
+  records, telemetry/artifacts, reconciliation, and terminal lifecycle state.
+
+## Urgent Phase 0A: Throughput Bottleneck Remediation Gate
+
+**Goal**: Make bottleneck remediation the highest implementation priority before
+downstream XAI/anomaly feature acceptance.
+**Independent test**: A native Linux RTX 5090 stride-1 production benchmark on
+`combined.mp4` proves `>=15 FPS` DB-completed end-to-end throughput and the
+32-frame full-cycle envelope completes in `<=2` seconds, with source-output
+correctness, identity, lineage, rollback, and figure evidence intact.
+
+- [X] T000a [US6] Keep
+  `docs/xai_anomaly/cycle_015_0_current_run_bottleneck_report.md` current with
+  final Cycle 015.0 baseline metrics, unavailable reasons, and root-cause
+  classification from production evidence.
+- [X] T000b [US6] Add a highest-priority bottleneck-remediation investigation in
+  `docs/xai_anomaly/cycle_015_throughput_remediation_investigation.md` with
+  causal hypotheses for postprocess wall, inference wall, pose-tail wall,
+  telemetry visibility, and lifecycle/status convergence.
+- [X] T000c [US6] Add a throughput-target benchmark/collector contract that
+  reports DB-completed FPS, 32-frame full-cycle wall, Step 2 through-pose wall,
+  postprocess wall, inference wall, GPU/VRAM/power, PostgreSQL/Redis,
+  embeddings, derived rows, telemetry, and terminal lifecycle state.
+- [X] T000d [US6] Implement or extend production watcher/collector evidence so
+  active long-running jobs expose live per-model RTT and stage-wall data before
+  task end; end-of-task telemetry alone is insufficient for bottleneck triage.
+- [X] T000e [US6] Design the remediation plan for the measured Cycle 015.0
+  bottlenecks before additive XAI work: reduce postprocess wall, reduce
+  inference/orchestration wall, bound pose-tail wall, and fix status/lifecycle
+  convergence where `completed_at` is set while `status` remains non-terminal.
+- [ ] T000f [US6] Execute a stride-1 production benchmark proving the
+  `>=15 FPS` DB-completed and `32 frames <=2s` end-to-end target, with figures,
+  rollback, and `docs/BENCHMARK_RESULTS_LEDGER.md` entry.
 
 ## Phase 1: Planning And Shared Governance Setup
 

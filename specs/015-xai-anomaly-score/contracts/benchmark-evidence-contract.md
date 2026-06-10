@@ -9,6 +9,21 @@ frame stride `1` may accept, reject, close, or replace a production baseline.
 Local tests, component probes, direct model calls, reduced clips, and sampled
 runs are probe-only.
 
+## Throughput Target Authority
+
+The current required target is `>=15 FPS` DB-completed end-to-end throughput on
+canonical `combined.mp4` production runs at frame stride `1`. The practical
+batch envelope is `32` frames completing their full authoritative cycle in
+`<=2` seconds (>=16 FPS effective). The target is satisfied only after
+inference, pose/behavior postprocess, PostgreSQL frame/detection/bounding-box
+writes, embeddings and derived records, telemetry/artifacts, reconciliation,
+and terminal lifecycle state are complete.
+
+Every Cycle 015 decision record must include the observed DB-completed FPS and
+the 32-frame full-cycle envelope status (`met`, `not_met`, or `unavailable`
+with reason). Inference-only, frame-loop-only, progress-percent, direct Triton,
+or GPU-only FPS cannot satisfy this target.
+
 ## Required Decision Record
 
 | Field | Requirement |
@@ -18,6 +33,7 @@ runs are probe-only.
 | Runtime truth | Environment fingerprint, route snapshot, profile, models |
 | Config delta | One causal candidate variable |
 | Performance | Live/cumulative/DB FPS, latency percentiles, throughput, phase wall |
+| Throughput target | `>=15 FPS` DB-completed status, 32-frame full-cycle `<=2s` status, and unavailable reason if missing |
 | Model/runtime | Per-model RTT/call rate/status/input shape, GPU/VRAM, CPU/RSS |
 | Storage/queues | PostgreSQL/Redis latency/volume, queue/backpressure/retries |
 | Correctness | Model output parity or task metrics, identity metrics |

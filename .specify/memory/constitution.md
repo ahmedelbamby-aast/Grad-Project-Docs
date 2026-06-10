@@ -1,6 +1,33 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.12.0 -> 2.13.0
+Bump rationale: MINOR - Adds the End-to-End Throughput Priority Target to
+Section 7.1.1. All active feature and optimization work must now treat
+production bottleneck removal as the highest implementation priority until the
+canonical stride-1 `combined.mp4` run reaches at least 15 FPS DB-completed
+throughput, with a practical 32-frame envelope target of completing full
+authoritative end-to-end processing in <=2 seconds (>=16 FPS effective). The
+target is explicitly end-to-end, not inference-only: frame rows, detections,
+boxes, embeddings/derived records, telemetry, artifacts, and terminal lifecycle
+state must be complete. Correctness, identity, lineage, no-ground-truth, and
+rollback gates remain non-negotiable.
+
+Triggering observation: the Cycle 015.0 production baseline
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd` exposed a severe throughput bottleneck:
+early frame-loop samples were only ~2.5-3.1 FPS, final DB-completed throughput
+was ~1.773 FPS, GPU utilization was near idle, Step 2 through-pose wall was
+~2499 s, and postprocess/inference wall dominated the evidence package. This
+invalidates any plan that adds new XAI/anomaly work before recovering the
+runtime budget.
+
+Affected laws and consequences: Section 7.1.1 now contains the target and the
+priority rule. Specs, plans, tasks, AGENTS.md, and XAI Cycle 015 artifacts must
+record the same target. Any cycle that widens the throughput gap without a
+governed exception is blocked; any claimed remediation must be proven by a
+completed native Linux RTX 5090 stride-1 benchmark with figures and rollback.
+
 Version change: 2.11.0 -> 2.12.0
 Bump rationale: MINOR - Adds the Benchmark Frame-Stride Mandate to Section 7.1.1:
 every acceptance benchmark MUST run at frame stride = 1 (inference on every
@@ -1082,6 +1109,25 @@ profiling-only and carries no decision authority. The benchmark evidence MUST
 record the stride value; a recorded stride ≠ 1 invalidates acceptance. All
 benchmark decision tables and the consolidated results ledger
 (`docs/BENCHMARK_RESULTS_LEDGER.md`) MUST state `stride=1`.
+
+**End-to-end throughput priority target (v2.13.0).** The current highest
+runtime target is **at least 15 FPS DB-completed end-to-end throughput** on the
+canonical production benchmark video (`combined.mp4`, stride `1`, native Linux
+RTX 5090). The practical batch envelope target is **32 frames completing their
+full authoritative end-to-end cycle in <=2 seconds**, equivalent to >=16 FPS
+effective throughput. "End-to-end" means the frame inference, pose/behavior
+postprocess, PostgreSQL frame/detection/bounding-box writes, embedding and
+derived records, telemetry/artifacts, reconciliation, and terminal lifecycle
+state are complete. Inference-only, frame-loop-only, progress-percent-only, or
+GPU-only FPS MUST NOT be presented as satisfying this target.
+
+Until this target is met by a completed production benchmark with correctness,
+identity, lineage, rollback, and figure evidence intact, bottleneck
+identification and remediation take priority over additive XAI/anomaly feature
+work. A candidate may not be accepted merely because it improves a sub-stage if
+DB-completed FPS remains below target or the dominant wall moves unaddressed.
+Correctness, no-ground-truth doctrine, streaming safety, and rollback gates
+remain binding; they may not be weakened to chase FPS.
 
 Production benchmark evidence MUST be precise enough to localize bottlenecks,
 not merely rank candidates by coarse total FPS. Every benchmark watcher,
@@ -2831,4 +2877,4 @@ feature plan and evidence artifacts when they are not fixed by this
 constitution. Such values are engineering decisions subject to validation, not
 license to weaken these laws.
 
-**Version**: 2.12.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-08
+**Version**: 2.13.0 | **Ratified**: 2026-02-27 | **Last Amended**: 2026-06-10

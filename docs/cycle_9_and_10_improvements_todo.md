@@ -1,6 +1,6 @@
 # Cycle 9 + Cycle 10 — Remaining Improvements (TODO)
 
-**Last updated:** 2026-06-06
+**Last updated:** 2026-06-10
 
 **Status:** Consolidated TODO list. Nothing in this document is accepted or
 flagged "done" until each improvement has its own production benchmark on
@@ -17,6 +17,17 @@ Cycle 9 precedent for what "not accepted" means in practice.
 > accepted, staged, planned, deferred) is in **§ Z below**. Before starting
 > any item here, scan § Z to see whether a more-recent cycle has changed
 > the baseline these improvements are computed against.
+
+**Superseding 2026-06-10 throughput priority:** the active target is now
+`>=15 FPS` DB-completed end-to-end throughput on canonical `combined.mp4`
+at frame stride `1`, plus a 32-frame full authoritative cycle completed in
+`<=2` seconds. The older `10.07 FPS` video-plus-5-min SLA remains a historical
+lower bound. The current blocking evidence is
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd`, which reached only about `1.773`
+DB-completed FPS with dominant postprocess, inference/orchestration, and
+pose-tail costs. See
+`docs/xai_anomaly/cycle_015_throughput_remediation_investigation.md`.
 
 ## File-completion checklist (read this first)
 
@@ -129,9 +140,12 @@ ship the flag.
 | Cycle 9b B.4 batch window 2 → 4 | `416efe8c` | 1 016 s (16.9 min) | 4.471 | **NOT ACCEPTED** — Step 2 improved 5.17 %, but behavior RTT mean regressed 16.95 %, StudentTrack count dropped 53 → 47, and model-agreement F1 failed for three behavior outputs |
 | Cycle 12.C single-inflight behavior overlap | `069a217f` | 936 s (15.6 min) | 4.854 | **ACCEPTED** — Step 2 wall 540.399 → 459.461 s, behavior RTT mean 84.865 → 83.936 ms, tracks unchanged, model-agreement F1 `>=99.716 %` |
 
-**SLA target (`combined.mp4`, 4 541 frames, 2 m 31 s):** total wall ≤ 7 m 31 s
-= 451 s = **≥ 10.07 FPS overall**. Current accepted baseline (Cycle 12.C
-single-inflight behavior overlap) is **15.6 min** — gap is **~8.1 min**.
+**Current target (`combined.mp4`, 4 541 frames, 2 m 31 s):** the active
+priority target is **>=15 FPS DB-completed end-to-end** plus **32 frames
+full-cycle <=2s**. The older video-plus-5-min lower bound is total wall
+≤ 7 m 31 s = 451 s = **>=10.07 FPS overall**. Current accepted baseline
+(Cycle 12.C single-inflight behavior overlap) is **15.6 min** and the 2026-06-10
+Cycle 015.0 blocking run was about **1.773 FPS**.
 
 ---
 
@@ -902,9 +916,10 @@ turn is taken or released.
 | Quantity | Value |
 |---|---|
 | Benchmark video | `combined.mp4` (4 541 frames, 2 m 31 s @ 30 fps) |
-| SLA contract | `total_wall ≤ duration(video) + 5 min` |
+| Active target | `>=15 FPS` DB-completed end-to-end plus `32 frames <=2s` full-cycle envelope |
+| Historical lower-bound SLA | `total_wall ≤ duration(video) + 5 min` |
 | For `combined.mp4` | total wall ≤ **7 m 31 s** = 451 s |
-| Required overall FPS | **≥ 10.07** |
+| Historical required overall FPS | **>=10.07** |
 | Current accepted baseline (Cycle 12.C single-inflight behavior overlap) | 15.6 min = **4.854 FPS** (gap: ~8.1 min) |
 | Cycle 9 NOT ACCEPTED but produced | 18.51 min = 4.09 FPS (gap: 11.0 min) |
 | Cycle 10 NOT ACCEPTED but produced | 17.93 min = 4.219 FPS (invalid for baseline because correctness regressed) |

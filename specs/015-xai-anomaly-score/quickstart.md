@@ -15,11 +15,24 @@ specs/015-xai-anomaly-score/plan.md
 specs/015-xai-anomaly-score/no-ground-truth-doctrine.md
 specs/015-xai-anomaly-score/atomic-cycles.md
 specs/015-xai-anomaly-score/signal-catalog.md
+docs/xai_anomaly/cycle_015_throughput_remediation_investigation.md
 the cycle investigation/results docs
 docs/production_inference_benchmark.md
 docs/inference_parallelization_plan.md
 docs/cycle_9_and_10_improvements_todo.md
 ```
+
+## 1a. Throughput Target Authority
+
+Before additive XAI/anomaly work can be accepted on the production critical
+path, the canonical `combined.mp4` stride-1 benchmark must reach `>=15 FPS`
+DB-completed end-to-end throughput. The practical batch envelope is `32` frames
+completing their full authoritative cycle in `<=2` seconds.
+
+This target includes inference, pose/behavior postprocess, PostgreSQL writes,
+embeddings/derived records, telemetry/artifacts, reconciliation, and terminal
+lifecycle state. Inference-only, direct Triton, frame-loop-only, or
+progress-percent FPS cannot satisfy the target.
 
 ## 2. Refresh Runtime Truth
 

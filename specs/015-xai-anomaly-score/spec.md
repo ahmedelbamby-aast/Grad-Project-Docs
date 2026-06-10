@@ -97,6 +97,30 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   distillation from governed deterministic signals. Filtered inferences are
   model-derived training signals, never ground truth.
 
+## Mandatory End-To-End Throughput Target
+
+The highest current implementation priority is restoring production throughput
+before adding more critical-path XAI/anomaly work. The required target is
+`>=15 FPS` DB-completed end-to-end throughput on the canonical production
+`combined.mp4` benchmark at frame stride `1`. The practical batch envelope is
+`32` frames completing their full authoritative cycle in `<=2` seconds
+(>=16 FPS effective).
+
+This target is not inference-only. It is satisfied only when inference,
+pose/behavior postprocess, PostgreSQL frame/detection/bounding-box writes,
+embedding and derived records, telemetry/artifacts, reconciliation, and terminal
+lifecycle state are complete. Progress-percent FPS, frame-loop FPS, direct
+Triton RTT, or GPU-only throughput cannot satisfy the target.
+
+Cycle 015.0 production baseline evidence currently blocks downstream priority:
+`cycle015-0-baseline-final-20260610T184443Z` / job
+`c080fac3-b5d0-43db-8d0a-0e037fa92ddd` reached only about `1.773`
+DB-completed FPS, with Step 2 through-pose wall around `2499.409 s` and idle
+GPU samples. Until a completed RTX 5090 stride-1 benchmark reaches the target
+without correctness, identity, lineage, rollback, or no-ground-truth
+regression, all Cycle 015 planning and implementation must prioritize
+bottleneck remediation over additive capability.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Explain A Model Output (Priority: P1)
@@ -443,6 +467,12 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   real-media stability, performance, and rollback. It does not claim
   behavioral classification accuracy. Reviewer feedback is explicitly
   non-ground-truth evaluation evidence.
+- **Throughput Priority Boundary**: No production-valid Cycle 015 capability may
+  widen the throughput gap or claim acceptance while the canonical stride-1
+  `combined.mp4` run is below `>=15 FPS` DB-completed end-to-end throughput,
+  unless a governed exception and rollback are recorded. A 32-frame batch must
+  be able to complete the full authoritative cycle in `<=2` seconds before the
+  practical target is met.
 - **Runtime Reconciliation**: Route snapshot, task, queue, database, artifact,
   telemetry, frontend, and review states must converge. Mismatch blocks
   production-valid explanations or scores.
@@ -723,6 +753,10 @@ render in WebGL2 within budget with a numeric/tabular fallback.
 - **SC-006**: Fast-XAI plus scoring stays within the per-cycle accepted latency,
   throughput, memory, database, Redis, and correctness budgets established by
   a completed production benchmark.
+- **SC-006a**: The canonical production benchmark reaches `>=15 FPS`
+  DB-completed end-to-end throughput, and the 32-frame full-cycle envelope
+  completes in `<=2` seconds, before additive critical-path XAI/anomaly
+  capabilities can be accepted without a governed exception.
 - **SC-007**: Deep XAI does not reduce critical inference throughput or violate
   latency/stability gates because it is isolated, bounded, and optional.
 - **SC-008**: Live state remains bounded during a documented soak test and

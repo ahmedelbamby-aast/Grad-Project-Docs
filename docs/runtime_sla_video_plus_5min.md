@@ -1,6 +1,6 @@
 # Runtime SLA: `total_wall ≤ video_duration + 5 min`
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-10
 
 **Status:** Plan adopted 2026-06-01. Latest accepted baseline updated
 2026-06-03 after Cycle 12.C single-inflight behavior overlap. Acceptance only
@@ -22,6 +22,15 @@ For the canonical benchmark `combined.mp4`:
 - duration = 4 541 / 30 fps ≈ **151.4 s (2 m 31 s)**
 - target total wall = 151.4 + 300 = **451 s (7 m 31 s)**
 - required throughput = 4 541 / 451 ≈ **10.07 FPS overall (DB-completed)**
+
+**Superseding performance target, adopted 2026-06-10:** the active priority
+target is now **>= 15 FPS DB-completed end-to-end throughput** on canonical
+`combined.mp4` at frame stride `1`, plus a practical batch envelope of **32
+frames completing their full authoritative cycle in <= 2 seconds**. The older
+`10.07 FPS` video-plus-5-min SLA remains a lower historical threshold, not the
+current target. The active target includes inference, pose/behavior
+postprocess, PostgreSQL writes, embeddings/derived records,
+telemetry/artifacts, reconciliation, and terminal lifecycle state.
 
 Current state (Cycle 12.C single-inflight behavior overlap, job
 `069a217f-fa43-48cc-bf18-c946d53bb3ee`):
