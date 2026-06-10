@@ -202,16 +202,16 @@ precision.
 **Independent test**: Coverage is measured and outputs are withheld when
 assumptions or drift gates fail.
 
-- [ ] T124 [P] [US2] Write Cycle 015.6 investigation, conformal assumption protocol, and distributional-not-behavioral coverage boundary in `docs/xai_anomaly/cycle_015_6_investigation.md`
-- [ ] T125 [P] [US6] Name Cycle 015.6 Figure Planner in `docs/xai_anomaly/cycle_015_6_figure_plan.md`
-- [ ] T126 [P] [US6] Name separate Cycle 015.6 Figure Implementer in `docs/xai_anomaly/cycle_015_6_figure_implementation.md`
-- [ ] T127 [P] [US2] Implement pattern-profile/window uncertainty and missingness propagation in `backend/apps/anomalies/scoring/uncertainty.py`
-- [ ] T128 [P] [US2] Implement conformal snapshot/contracts and assumption gates in `backend/apps/anomalies/scoring/conformal.py`
-- [ ] T129 [US2] Add conformal snapshot model and migration in `backend/apps/anomalies/models.py`
-- [ ] T130 [P] [US2] Implement distributional coverage/drift evaluation without behavioral-correctness claims in `backend/apps/anomalies/scoring/conformal_evaluation.py`
-- [ ] T131 [US2] Integrate uncertainty/conformal outputs into score service in `backend/apps/anomalies/scoring/service.py`
-- [ ] T132 [P] [US2] Add missingness, coverage, drift, and withholding unit tests in `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py`
-- [ ] T133 [P] [US2] Add adaptive bounded-state and PostgreSQL integration tests in `backend/tests/integration/anomalies/test_xai_conformal_runtime.py`
+- [X] T124 [P] [US2] Write Cycle 015.6 investigation, conformal assumption protocol, and distributional-not-behavioral coverage boundary in `docs/xai_anomaly/cycle_015_6_investigation.md`
+- [X] T125 [P] [US6] Name Cycle 015.6 Figure Planner in `docs/xai_anomaly/cycle_015_6_figure_plan.md`
+- [X] T126 [P] [US6] Name separate Cycle 015.6 Figure Implementer in `docs/xai_anomaly/cycle_015_6_figure_implementation.md`
+- [X] T127 [P] [US2] Implement pattern-profile/window uncertainty and missingness propagation in `backend/apps/anomalies/scoring/uncertainty.py`
+- [X] T128 [P] [US2] Implement conformal snapshot/contracts and assumption gates in `backend/apps/anomalies/scoring/conformal.py`
+- [X] T129 [US2] Add conformal snapshot model and migration in `backend/apps/anomalies/models.py`
+- [X] T130 [P] [US2] Implement distributional coverage/drift evaluation without behavioral-correctness claims in `backend/apps/anomalies/scoring/conformal_evaluation.py`
+- [X] T131 [US2] Integrate uncertainty/conformal outputs into score service in `backend/apps/anomalies/scoring/service.py`
+- [X] T132 [P] [US2] Add missingness, coverage, drift, and withholding unit tests in `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py`
+- [X] T133 [P] [US2] Add adaptive bounded-state and PostgreSQL integration tests in `backend/tests/integration/anomalies/test_xai_conformal_runtime.py`
 - [ ] T134 [P] [US6] Add production conformal coverage/drift probe in `tools/prod/prod_probe_xai_conformal.py`
 - [ ] T135 [US6] Add Cycle 015.6 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_6.sh`
 - [ ] T136 [P] [US6] Implement Cycle 015.6 coverage figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_6_figures.py`

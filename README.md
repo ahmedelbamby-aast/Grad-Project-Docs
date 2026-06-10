@@ -113,6 +113,9 @@ context.
 | 37vc | [`docs/xai_anomaly/cycle_015_5_figure_plan.md`](docs/xai_anomaly/cycle_015_5_figure_plan.md) | 2026-06-10 | Figure Planner output for Cycle 015.5 score evidence. |
 | 37vd | [`docs/xai_anomaly/cycle_015_5_figure_implementation.md`](docs/xai_anomaly/cycle_015_5_figure_implementation.md) | 2026-06-10 | Figure Implementer output for the Cycle 015.5 score probe and figure generator. |
 | 37ve | [`docs/xai_anomaly/cycle_015_5_results.md`](docs/xai_anomaly/cycle_015_5_results.md) | 2026-06-10 | Cycle 015.5 staged-local-only results: local verification passed, but production benchmark, rollback proof, and ledger entry remain open. |
+| 37vf | [`docs/xai_anomaly/cycle_015_6_investigation.md`](docs/xai_anomaly/cycle_015_6_investigation.md) | 2026-06-10 | Cycle 015.6 uncertainty propagation and conformal assumption protocol, with the distributional-only coverage boundary. |
+| 37vg | [`docs/xai_anomaly/cycle_015_6_figure_plan.md`](docs/xai_anomaly/cycle_015_6_figure_plan.md) | 2026-06-10 | Figure Planner output for Cycle 015.6 uncertainty and conformal evidence. |
+| 37vh | [`docs/xai_anomaly/cycle_015_6_figure_implementation.md`](docs/xai_anomaly/cycle_015_6_figure_implementation.md) | 2026-06-10 | Figure Implementer ownership record for the Cycle 015.6 local slice. |
 | 37w | [`docs/cycle_14b_rtmpose_scenario_results.md`](docs/cycle_14b_rtmpose_scenario_results.md) | 2026-06-03 | Cycle 14.B production result: B1 not accepted, first B2 rejected, fixed B2 accepted with exact DB/model parity. |
 | 37x | [`docs/cycle_14c_pose_batch_size_matrix_investigation.md`](docs/cycle_14c_pose_batch_size_matrix_investigation.md) | 2026-06-03 | Cycle 14.C investigation: RTMPose cross-frame batch-size matrix after accepted 14.B2. |
 | 37y | [`docs/cycle_14c1_pose_batch_size_8_investigation.md`](docs/cycle_14c1_pose_batch_size_8_investigation.md) | 2026-06-03 | Cycle 14.C1 investigation: batch cap 8 scenario benchmarked against accepted batch 16. |

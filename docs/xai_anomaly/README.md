@@ -13,6 +13,9 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_5_figure_plan.md` | Figure Planner output for Cycle 015.5 score evidence | active |
 | `cycle_015_5_figure_implementation.md` | Figure Implementer ownership and generator/test evidence for Cycle 015.5 | active |
 | `cycle_015_5_results.md` | Local validation state, remaining production-only gaps, and rollback boundary for Cycle 015.5 | active |
+| `cycle_015_6_investigation.md` | Conformal assumption protocol, uncertainty propagation rules, and the distributional-only coverage boundary for Cycle 015.6 | active |
+| `cycle_015_6_figure_plan.md` | Figure Planner output for Cycle 015.6 uncertainty/conformal evidence | active |
+| `cycle_015_6_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.6 local slice | active |
 
 ## Current implementation state
 
@@ -26,6 +29,15 @@ Cycle 015.5 currently has:
   `backend/tests/integration/anomalies/test_xai_score_persistence.py`; and
 - a staged-local-only results doc that records the remaining production-only
   gaps before Cycle 015.5 can claim a benchmark decision.
+
+Cycle 015.6 currently has:
+
+- explicit uncertainty propagation for missing profile features, degraded
+  features, and invalid windows;
+- governed conformal snapshots with route/schema/expiry/drift gates;
+- distributional-only coverage evaluation helpers; and
+- PostgreSQL-backed conformal snapshot persistence plus local unit/integration
+  validation.
 
 ## Related sources
 
@@ -43,6 +55,11 @@ Cycle 015.5 currently has:
 | File | `tools/prod/prod_probe_xai_scores.py` |
 | File | `tools/prod/prod_generate_xai_cycle015_5_figures.py` |
 | File | `backend/tests/integration/anomalies/test_xai_score_persistence.py` |
+| File | `backend/apps/anomalies/scoring/uncertainty.py` |
+| File | `backend/apps/anomalies/scoring/conformal.py` |
+| File | `backend/apps/anomalies/scoring/conformal_evaluation.py` |
+| File | `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py` |
+| File | `backend/tests/integration/anomalies/test_xai_conformal_runtime.py` |
 | Commit | `7e8e870e` |
 | Doc | `specs/015-xai-anomaly-score/spec.md` |
 | Doc | `specs/015-xai-anomaly-score/plan.md` |
