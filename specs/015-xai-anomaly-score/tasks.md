@@ -24,7 +24,7 @@ production decision.
 - [X] T001 Create XAI/anomaly results directory and index in `docs/xai_anomaly/README.md`
 - [X] T002 [P] Add feature-owned environment contract placeholders to `.env.example`
 - [X] T003 [P] Add XAI/anomaly source path filters and focused test placeholders to `.github/workflows/xai-anomaly.yml`
-- [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
+- [X] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
 - [X] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [X] T005d [P] Add a reproducible pretrained-model acquisition manifest and cross-platform download helpers in `specs/015-xai-anomaly-score/pretrained-model-acquisition-manifest.json` and `scripts/models/download-xai-registry-models.{py,sh,ps1}`
