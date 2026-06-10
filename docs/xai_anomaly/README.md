@@ -24,9 +24,9 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_8_investigation.md` | Deep-XAI request/artifact/evaluation contract and local persistence boundary for Cycle 015.8 | active |
 | `cycle_015_8_figure_plan.md` | Figure Planner output for Cycle 015.8 deep-XAI lifecycle evidence | active |
 | `cycle_015_8_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.8 local contract slice | active |
-| `cycle_015_0_investigation.md` | Cycle 015.0 runtime-truth local investigation for route immutability, snapshot digests, and BSIL activation prerequisites | active |
+| `cycle_015_0_investigation.md` | Cycle 015.0 atomic runtime-truth, job-scoped BSIL activation, acceptance gates, and rollback boundary | active |
 | `cycle_015_0_figure_plan.md` | Figure Planner output for Cycle 015.0 runtime-truth and BSIL activation evidence | active |
-| `cycle_015_0_figure_implementation.md` | Figure Implementer ownership record for the Cycle 015.0 local route-snapshot slice | active |
+| `cycle_015_0_figure_implementation.md` | Figure Implementer record for the complete local Cycle 015.0 evidence bundle | active |
 | `benchmark_evidence_layout.md` | Feature-owned layout for future Cycle 015 raw benchmark results, manifests, figures, and ledger links | active |
 | `security_retention_policy.md` | Feature-owned privacy, access, audit, and retention policy for Cycle 015 XAI artifacts | active |
 | `no_ground_truth_governance.md` | Setup-slice governance rules for reviewer feedback, prohibited metrics, and future trainable-model boundaries | active |
