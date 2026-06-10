@@ -16,6 +16,7 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_6_investigation.md` | Conformal assumption protocol, uncertainty propagation rules, and the distributional-only coverage boundary for Cycle 015.6 | active |
 | `cycle_015_6_figure_plan.md` | Figure Planner output for Cycle 015.6 uncertainty/conformal evidence | active |
 | `cycle_015_6_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.6 local slice | active |
+| `cycle_015_6_results.md` | Local validation state, helper-script readiness, and remaining production-only gaps for Cycle 015.6 | active |
 
 ## Current implementation state
 
@@ -36,8 +37,8 @@ Cycle 015.6 currently has:
   features, and invalid windows;
 - governed conformal snapshots with route/schema/expiry/drift gates;
 - distributional-only coverage evaluation helpers; and
-- PostgreSQL-backed conformal snapshot persistence plus local unit/integration
-  validation.
+- PostgreSQL-backed conformal snapshot persistence, local unit/integration
+  validation, and file-driven probe/figure/rollback helper tooling.
 
 ## Related sources
 
@@ -60,6 +61,10 @@ Cycle 015.6 currently has:
 | File | `backend/apps/anomalies/scoring/conformal_evaluation.py` |
 | File | `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py` |
 | File | `backend/tests/integration/anomalies/test_xai_conformal_runtime.py` |
+| File | `tools/prod/prod_probe_xai_conformal.py` |
+| File | `tools/prod/prod_generate_xai_cycle015_6_figures.py` |
+| File | `tools/prod/prod_run_xai_cycle015_6.sh` |
+| File | `tools/prod/prod_rollback_xai_cycle015_6.sh` |
 | Commit | `7e8e870e` |
 | Doc | `specs/015-xai-anomaly-score/spec.md` |
 | Doc | `specs/015-xai-anomaly-score/plan.md` |
@@ -67,3 +72,4 @@ Cycle 015.6 currently has:
 | Doc | `specs/015-xai-anomaly-score/no-ground-truth-doctrine.md` |
 | Doc | `specs/015-xai-anomaly-score/contracts/anomaly-score-contract.md` |
 | Doc | `specs/015-xai-anomaly-score/contracts/benchmark-evidence-contract.md` |
+| Doc | `docs/xai_anomaly/cycle_015_6_results.md` |

@@ -4,7 +4,7 @@
 **Cycle:** `015.6`
 **Role:** `Figure Implementer`
 **Owner:** `Codex local Cycle 015.6 session`
-**Status:** `planned`
+**Status:** `active`
 
 ## Source-of-truth references
 
@@ -18,14 +18,37 @@
 | Doc | `docs/xai_anomaly/cycle_015_6_figure_plan.md` |
 | Doc | `specs/015-xai-anomaly-score/tasks.md` |
 
-## Current lane ownership
+## Implemented artifacts
 
-This turn owns only the local implementation slice for Cycle 015.6. Production
-figure generation remains out of scope until the probe/benchmark tasks land.
+| Artifact | Role |
+|---|---|
+| `tools/prod/prod_probe_xai_conformal.py` | file-driven probe helper for conformal gate usability, drift, coverage, and score-withholding summaries |
+| `tools/prod/prod_generate_xai_cycle015_6_figures.py` | file-driven figure generator for coverage, drift, uncertainty, and withholding artifacts |
+| `backend/tests/unit/anomalies/test_prod_probe_xai_conformal.py` | unit coverage for probe summary and markdown output |
+| `backend/tests/unit/anomalies/test_prod_generate_xai_cycle015_6_figures.py` | unit coverage for generated PNGs, manifest, and markdown |
 
-## Planned figure-generator responsibilities
+## Generated output contract
 
-- render empirical versus target coverage from the conformal evaluation payload;
-- render drift and eligibility gates from the snapshot metadata;
-- render uncertainty versus missingness from scored windows; and
-- emit a manifest with input digests and explicit unavailable reasons.
+The figure generator currently writes:
+
+- `cycle_015_6__coverage_vs_target.png`
+- `cycle_015_6__drift_vs_eligibility.png`
+- `cycle_015_6__uncertainty_vs_missingness.png`
+- `cycle_015_6__withholding_reasons.png`
+- `figure_manifest.json`
+- `cycle_015_6_figures.md` (or caller-supplied markdown output path)
+
+## Verification performed
+
+Local focused validation passed against the current worktree:
+
+```text
+.\.venv\Scripts\python.exe -m pytest backend/tests/unit/anomalies/test_prod_probe_xai_conformal.py backend/tests/unit/anomalies/test_prod_generate_xai_cycle015_6_figures.py backend/tests/unit/anomalies/test_prod_run_xai_cycle015_6_shell_syntax.py backend/tests/unit/anomalies/test_prod_rollback_xai_cycle015_6_shell_syntax.py
+# 10 passed, 2 skipped
+
+.\.venv\Scripts\python.exe -m py_compile tools/prod/prod_probe_xai_conformal.py tools/prod/prod_generate_xai_cycle015_6_figures.py backend/tests/unit/anomalies/test_prod_probe_xai_conformal.py backend/tests/unit/anomalies/test_prod_generate_xai_cycle015_6_figures.py
+# success
+```
+
+Production figure generation remains pending until authoritative conformal
+artifacts exist.

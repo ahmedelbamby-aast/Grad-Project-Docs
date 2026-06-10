@@ -212,9 +212,9 @@ assumptions or drift gates fail.
 - [X] T131 [US2] Integrate uncertainty/conformal outputs into score service in `backend/apps/anomalies/scoring/service.py`
 - [X] T132 [P] [US2] Add missingness, coverage, drift, and withholding unit tests in `backend/tests/unit/anomalies/test_xai_conformal_uncertainty.py`
 - [X] T133 [P] [US2] Add adaptive bounded-state and PostgreSQL integration tests in `backend/tests/integration/anomalies/test_xai_conformal_runtime.py`
-- [ ] T134 [P] [US6] Add production conformal coverage/drift probe in `tools/prod/prod_probe_xai_conformal.py`
-- [ ] T135 [US6] Add Cycle 015.6 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_6.sh`
-- [ ] T136 [P] [US6] Implement Cycle 015.6 coverage figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_6_figures.py`
+- [X] T134 [P] [US6] Add production conformal coverage/drift probe in `tools/prod/prod_probe_xai_conformal.py`
+- [X] T135 [US6] Add Cycle 015.6 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_6.sh`
+- [X] T136 [P] [US6] Implement Cycle 015.6 coverage figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_6_figures.py`
 - [ ] T137 [US6] Execute rollback from `tools/prod/prod_rollback_xai_cycle015_6.sh`
 - [ ] T138 [US6] Record Cycle 015.6 decision in `docs/xai_anomaly/cycle_015_6_results.md`
 - [ ] T139 [US6] Record every Cycle 015.6 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
