@@ -71,6 +71,14 @@ inference time.
   Evidence` plus `Active In-Flight Model RTT` tables. Evidence:
   `backend/tests/unit/telemetry/test_telemetry_layer.py` and
   `backend/tests/unit/scripts/test_prod_watch_benchmark_metrics_contract.py`.
+- **Extended 2026-06-10 for postprocess attribution**: the same live rollup now
+  carries `postprocess_phase_timings_ms` and per-frame means for model output
+  decode, crop payload build, behavior inference wait, behavior response decode,
+  person cadence/cache, tracking, scene output decode/callback, and LPM. The
+  watcher prints each nested phase or the explicit unavailable reason
+  `job.metadata.benchmark_live_rollup.postprocess_phase_timings_ms_absent`.
+  Evidence: `backend/tests/unit/video_analysis/test_cycle20_post_stage_timeline.py`
+  and `backend/tests/unit/scripts/test_prod_watch_benchmark_metrics_contract.py`.
 - Treat missing benchmark summary, GPU CSV, metrics JSON, agreement JSON, and
   decode JSON as explicit unavailable metrics, not silent omissions.
 

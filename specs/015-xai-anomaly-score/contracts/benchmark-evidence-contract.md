@@ -35,6 +35,7 @@ or GPU-only FPS cannot satisfy this target.
 | Performance | Live/cumulative/DB FPS, latency percentiles, throughput, phase wall |
 | Throughput target | `>=15 FPS` DB-completed status, 32-frame full-cycle `<=2s` status, and unavailable reason if missing |
 | Model/runtime | Per-model RTT/call rate/status/input shape, GPU/VRAM, CPU/RSS |
+| Postprocess attribution | Nested postprocess phase totals/means for output decode, crop payload build, behavior response decode, tracking/cache, scene callback, LPM, and unavailable reason if absent |
 | Storage/queues | PostgreSQL/Redis latency/volume, queue/backpressure/retries |
 | Correctness | Model output parity or task metrics, identity metrics |
 | XAI quality | Calibration, fidelity, stability, sanity, explanation completeness |
