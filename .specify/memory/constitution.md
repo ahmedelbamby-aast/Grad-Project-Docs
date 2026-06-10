@@ -1,6 +1,33 @@
 <!--
 SYNC IMPACT REPORT
 ==================
+Version change: 2.13.0 -> 2.14.0
+Bump rationale: MINOR - Adds the Semi-Realtime Target Ladder and the
+Performance Constitution Pillars (P1-P7) to Section 7.1.1. After the 15 FPS
+DB-completed target is met, the next governed target is 25-30 FPS measured at
+the LAST pipeline stage (terminal lifecycle state), i.e. real-time /
+semi-realtime end-to-end operation. The pillars encode the measured lessons of
+Cycles 9-21 and 015.0 as binding implementation style so latency/throughput
+regressions cannot silently re-enter: critical-path minimalism, process-boundary
+offload (never in-process overlap on the frame-loop core), bounded everything,
+fail-closed persistence, incremental authoritative evidence, mid-run
+observability, and one-causal-variable benchmark discipline.
+
+Triggering observation: the owner requested a deep root-cause analysis after
+the Cycle 015.0 baseline (2.5-minute video, ~14-minute visible cycle, 1.773
+DB-completed FPS, 0 mid-run authoritative rows, idle GPU) and asked for
+constitution pillars plus an implementation style that prevents future latency
+raises; research Decision 20 (cross-process staged persistence and postprocess
+offload, Cycle 015.17) is the first lane governed by these pillars.
+
+Affected laws and consequences: Section 7.1.1 gains the target ladder and the
+pillars. Any change touching the offline/live frame path must state which
+pillar(s) it satisfies or why an exception is governed; in-process persistence
+overlap on the frame-loop core (the rejected Cycle 20.E shape) is forbidden
+without a new governed exception.
+
+Prior MINOR (2.12.0 -> 2.13.0) text below.
+
 Version change: 2.12.0 -> 2.13.0
 Bump rationale: MINOR - Adds the End-to-End Throughput Priority Target to
 Section 7.1.1. All active feature and optimization work must now treat
@@ -1128,6 +1155,30 @@ work. A candidate may not be accepted merely because it improves a sub-stage if
 DB-completed FPS remains below target or the dominant wall moves unaddressed.
 Correctness, no-ground-truth doctrine, streaming safety, and rollback gates
 remain binding; they may not be weakened to chase FPS.
+
+**Semi-realtime target ladder (v2.14.0).** Once the 15 FPS DB-completed gate is
+met, the next governed target is **25-30 FPS measured at the LAST pipeline
+stage** — the terminal lifecycle state after frames, detections, boxes,
+embeddings/derived records, telemetry/artifacts, and reconciliation are
+complete — i.e. real-time / semi-realtime end-to-end operation on the canonical
+stride-1 production benchmark. The ladder is sequential: no cycle may claim the
+25-30 FPS target while the 15 FPS gate is unmet, and every rung requires the
+same completed native-production benchmark evidence.
+
+**Performance Constitution Pillars (v2.14.0).** These pillars encode the
+measured lessons of Cycles 9-21 and the Cycle 015.0 baseline as binding
+implementation style. Any change touching the offline/live frame path MUST
+state which pillar(s) it satisfies, or carry a governed exception:
+
+| Pillar | Law | Measured origin |
+| --- | --- | --- |
+| P1 Critical-path minimalism | The frame loop carries only decode -> dispatch -> ordered stateful tracking. Row fanout, derived records, artifacts, and analytics belong on offload lanes. | postprocess = 68.753% of summed stage time while the GPU idled at 0-6% (Cycle 015.0) |
+| P2 Process-boundary offload | Overlap work in SEPARATE worker processes. In-process overlap that shares the frame-loop core is forbidden (the rejected Cycle 20.E shape: DB FPS -5.86%, through-pose wall -12.29%). | Cycle 20.E NOT ACCEPTED |
+| P3 Bounded everything | Every queue/stream/buffer/in-flight count has an explicit bound and an overflow policy; unbounded growth on an indefinite stream is a defect. Bounded in-flight inference per model (two in-flight behavior jobs regressed RTT p95 +75%). | Cycle 12.B |
+| P4 Fail-closed persistence | Async/offload persistence must fall back to the serial authoritative path on failure, and every lane must drain + serially reconcile before a terminal lifecycle state is reported. Terminal-state ambiguity invalidates throughput claims. | RC-8 lifecycle convergence defect |
+| P5 Incremental authoritative evidence | Authoritative rows must be observable DURING the run, not only after the lifecycle ends; 0 mid-run rows at 58% progress is a defect class, not a style choice. | Cycle 015.0 mid-run watcher |
+| P6 Mid-run observability | Live stage walls, per-model RTT, lane depth/backlog, and row counts must be watcher-readable while the task runs; end-of-task-only telemetry cannot attribute bottlenecks. | RC-4 observability lag |
+| P7 One-causal-variable discipline | Performance changes land one causal variable per cycle with a stride-1 native benchmark, parity/identity gates, figures, ledger row, and rollback; worker scaling is allowed only when independent work exists for the added workers. | Cycles 9-21 history; Cycle 21 governance |
 
 Production benchmark evidence MUST be precise enough to localize bottlenecks,
 not merely rank candidates by coarse total FPS. Every benchmark watcher,

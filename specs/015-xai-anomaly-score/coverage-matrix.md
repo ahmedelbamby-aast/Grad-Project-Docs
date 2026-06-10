@@ -53,6 +53,7 @@ traceability artifact, not implementation evidence.
 | FR-042 population-derived general baseline; General vs Local Boundaries | 015.14 | T272-T274, T278, T280-T285 |
 | FR-043 live real-time student-interaction graph plot | 015.13 | T259, T262, T264-T268 |
 | FR-044 probe fine-tuning lane (copies, filtered pseudo-labels, comparison) | 015.16 | T302-T317 |
+| FR-045 cross-process staged persistence and postprocess offload | 015.17 | T318-T333 |
 
 ## Success Criterion Coverage
 
@@ -89,6 +90,7 @@ traceability artifact, not implementation evidence.
 | SC-029 population-derived baseline, General/Local Boundaries, classroom deviation | 015.14 | T272-T274, T278 |
 | SC-030 live interaction-graph real-time update and soak budgets | 015.13 | T259, T262, T266 |
 | SC-031 reconstructable fine-tune runs, frozen-parent immutability, PROBE_ONLY retention | 015.16 | T305-T312, T315-T317 |
+| SC-032 incremental authoritative persistence with exact parity, drain/reconcile, FPS non-regression | 015.17 | T319-T333 |
 
 ## User Story Coverage
 
@@ -104,9 +106,9 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `44/44`
-- Success criteria covered: `31/31`
+- Functional requirements covered: `45/45`
+- Success criteria covered: `32/32`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
-  `17/17`
+  `18/18`
 - Mandatory no-ground-truth doctrine covered: `yes`

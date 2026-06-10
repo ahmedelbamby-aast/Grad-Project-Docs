@@ -115,9 +115,72 @@ inference time.
 - Accept no remediation as complete until `>=15 FPS` and `32 frames <=2s`
   are both met without correctness, streaming, rollback, or evidence regression.
 
+## Verdict On The Write-Behind / Producer-Consumer Hypothesis (2026-06-11)
+
+**The owner's understanding of the flush behavior is CORRECT.** The mid-run
+watcher evidence proves it: at `2650/4541` processed frames the authoritative
+tables held `0` frame, detection, bbox, embedding, and track rows. Data
+("anything flying through the system" — frames, detections, boxes, embeddings,
+telemetry) reaches PostgreSQL only in post-frame-loop stages
+(`persisting_aggregated_boxes` and later), and telemetry bulk-inserts at Celery
+session end (RC-4).
+
+**But the plain conclusion ("add write-behind, get throughput") is NOT
+supported by our own measurements — twice:**
+
+1. **The serial DB tail is small in this run.** Post-Step-2 to run-complete
+   wall was `61.328 s` of a `2560.737 s` run (~2.4%). Eliminating ALL of it
+   moves `1.773` DB-completed FPS by a few percent. The measured giants are
+   in-loop host-side postprocess (`4921.712 s`, 68.753%), inference
+   orchestration with an idle GPU (`2133.013 s`, GPU 0-6% util), and the pose
+   tail (`888.668 s`).
+2. **The in-process write-behind was already built and benchmarked — Cycle
+   20.E — and NOT ACCEPTED:** it persisted `4541/4541` overlap packets with `0`
+   failures, yet DB FPS regressed `5.86%`, total elapsed regressed `6.22%`,
+   and Step 2 through-pose wall regressed `12.29%`. Overlapping persistence on
+   the SAME process/CPU as the frame loop steals exactly the resource the loop
+   is starved of.
+
+**Accepted better decision — Cross-Process Staged Persistence & Postprocess
+Offload (Cycle 015.17).** The producer-consumer idea is right; the boundary was
+wrong. The recommended fan-out becomes:
+
+```text
+Inference worker (frame loop = decode -> dispatch -> minimal ordered tracking)
+      |
+      v  compact frame packets (bounded Redis Stream lanes, persistq:{job}:{lane})
+      +--> db_rows consumer     (separate Celery worker process: row fanout + bulk writes)
+      +--> embedding consumer   (later slice: embedding/derived records)
+      +--> analytics consumer   (later slice: kinematics/BSIL/XAI derived work)
+      +--> artifacts consumer   (later slice: JSON/labels/render artifacts)
+```
+
+What changes vs 20.E: consumers run in **separate Celery worker processes**
+(other CPU cores), so the frame loop sheds its postprocess fanout instead of
+sharing its core with a background thread. This is also exactly the
+"independent work" precondition Cycle 21 (worker scaling) has been blocked on.
+What stays from the evidence: ordered, stateful tracking stays on the producer
+path (sharding/identity lessons from 15.B1); behavior in-flight stays bounded
+(12.B lesson); streams are MAXLEN-bounded with drain + serial reconcile before
+terminal state (fail-closed; RC-8 lifecycle convergence is a gate).
+
+Implemented 2026-06-11 (first slice, default-off):
+`backend/apps/video_analysis/persistence_pipeline.py` (lanes, compact packet
+contract with idempotency `persist:{job}:{frame}`, bounded XADD producer,
+consumer-group Celery consumer with XAUTOCLAIM retry, drain/reconcile API,
+watcher-readable counters), settings + `.env.example` contract
+(`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` default), 11 unit tests in
+`backend/tests/unit/video_analysis/test_persistence_pipeline.py`, and CI wiring
+in `.github/workflows/inference-parallelization.yml`. Frame-loop integration,
+the `db_rows` writer adapter, postprocess offload, and the acceptance benchmark
+are the remaining Cycle 015.17 tasks in `specs/015-xai-anomaly-score/tasks.md`.
+
 ## Current Decision
 
 Cycle 015 downstream additive XAI/anomaly work remains blocked from production
 acceptance on the critical path. The next implementation cycle must attack the
 measured throughput bottlenecks above or prove, with production evidence, that
-it does not widen them.
+it does not widen them. The accepted architecture lane for the persistence and
+postprocess share of that work is Cycle 015.17 above; the future target ladder
+is `>=15` FPS DB-completed first (constitution 7.1.1), then the semi-realtime
+`25-30` FPS last-stage target (constitution v2.14.0).

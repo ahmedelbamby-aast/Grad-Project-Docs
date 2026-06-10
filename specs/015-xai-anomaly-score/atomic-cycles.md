@@ -542,6 +542,52 @@ baseline, TTA non-persistence proof, reviewer-exclusion-only guard,
 deltas, deterministic-baseline agreement trend, drift behavior, filter-threshold
 sensitivity, performance delta.
 
+## Cycle 015.17 - Staged Persistence And Postprocess Offload Pipeline
+
+**Indivisible capability**: A default-off, fail-closed, cross-process
+producer-consumer pipeline (bounded Redis Stream lanes + separate Celery
+consumer workers) that makes authoritative persistence incremental and moves
+postprocess fanout off the frame-loop core. Producer seam, `db_rows` consumer,
+drain/reconcile, and lifecycle convergence must ship together because partial
+offload without fail-closed reconciliation risks silent data loss, and overlap
+without a process boundary is the already-rejected Cycle 20.E shape.
+
+**Dependencies**: 015.0 (the measured baseline evidence). This cycle BLOCKS
+additive critical-path acceptance per the constitution throughput priority.
+**Streaming compatibility**: `offline-only` (live jobs are excluded by the
+enable guard).
+
+**Implementation scope**:
+
+- bounded Redis Stream lanes (`db_rows`, `embedding`, `analytics`,
+  `artifacts`) with compact idempotent frame packets
+  (`persist:{job}:{frame}`), MAXLEN trimming, and consumer groups;
+- separate-process Celery consumers with XAUTOCLAIM retry, bounded
+  batch/block/idle behavior, and explicit failure accounting;
+- producer seam in the offline path with serial fallback on any enqueue
+  failure and drain + serial reconcile before terminal lifecycle state;
+- terminal lifecycle convergence fix (RC-8) and watcher-readable per-lane
+  depth/pending/applied/failed evidence;
+- postprocess fanout offload into consumer lanes while ordered tracking stays
+  on the producer path; bounded in-flight inference (12.B lesson).
+
+**Benchmark hypothesis**: Moving persistence and postprocess fanout to other
+CPU cores raises DB-completed FPS toward the >=15 FPS target without parity,
+identity, lifecycle, or rollback regressions — unlike the in-process 20.E
+overlap, which regressed the frame loop it shared a core with.
+
+**Acceptance gates**: Mid-run nonzero authoritative rows; exact
+row/parity/identity/lifecycle correctness versus serial; all lanes drained
+with failures serially reconciled before terminal state; DB-completed FPS
+non-regression (target progress toward >=15 FPS, ladder to 25-30 FPS); bounded
+lane depth under soak; rollback = flag off with serial parity proof; ledger
+row and figures.
+
+**Required figures**: mid-run row-count progression (serial vs async), lane
+depth/pending/applied/failed timelines, DB-completed FPS and stage walls
+before/after, GPU utilization before/after, lifecycle convergence proof,
+rollback verification.
+
 ## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
 
 **Indivisible capability**: Cross-cutting operational/scientific acceptance
@@ -625,7 +671,8 @@ completeness.
 015.4 + 015.5 -> 015.14
 015.0 + 015.8 -> 015.15
 015.14 + 015.15 -> 015.16
-015.0 through 015.10, plus 015.13 + 015.14 + 015.15 + 015.16 -> 015.11 -> 015.12
+015.0 (throughput baseline evidence) -> 015.17 (BLOCKS additive critical-path acceptance)
+015.0 through 015.10, plus 015.13 + 015.14 + 015.15 + 015.16 + 015.17 -> 015.11 -> 015.12
 ```
 
 Parallel implementation work is allowed only where dependencies and file

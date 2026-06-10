@@ -541,6 +541,38 @@ corpus windows, never label them.
 - Unfiltered self-training on raw inferences: rejected — documented error
   accumulation; the accept/refuse/edit filter is mandatory.
 
+## Decision 20: Cross-Process Staged Persistence And Postprocess Offload (Not In-Process Write-Behind)
+
+**Decision**: Remediate the measured Cycle 015.0 throughput collapse
+(`1.773` DB-completed FPS; mid-run `0` authoritative rows at `2650/4541`
+frames; GPU `0-6%` util; postprocess `68.753%` of summed stage time) with a
+**cross-process producer-consumer pipeline**: the inference worker produces
+compact, idempotent frame packets onto bounded Redis Stream lanes
+(`db_rows`, `embedding`, `analytics`, `artifacts`), and separate Celery worker
+processes consume them. Ordered/stateful tracking stays on the producer path.
+Default-off, offline-only, fail-closed (enqueue failure → serial path; drain +
+serial reconcile before terminal lifecycle state).
+
+**Rationale**: The owner's observation is measured fact — authoritative rows
+flush only after the frame loop. But a plain in-process write-behind was
+already production-benchmarked (Cycle 20.E) and NOT ACCEPTED: DB FPS −5.86%,
+through-pose wall −12.29%, because the writer steals frame-loop CPU. The
+dominant cost is in-loop host-side postprocess, so the offload boundary must be
+a **process** boundary; this simultaneously creates the independent work that
+the blocked worker-scaling lane (Cycle 21) requires. Redis Streams are already
+production-validated in this repo (Cycle 17, accepted observability-only).
+
+**Alternatives considered**:
+
+- In-process write-behind thread/inline overlap: rejected — already measured
+  and refused (Cycle 20.E).
+- Skip the queue, just batch bigger `bulk_create`: rejected — the serial DB
+  tail is only ~2.4% of the run; the postprocess wall is the target.
+- Kafka or a new broker: rejected — Redis is already deployed, no new
+  infrastructure (no Docker/no sudo).
+- Worker-count scaling first: rejected — measured advice from the bottleneck
+  report: without independent work, extra workers idle or contend.
+
 ## Experimental Research Backlog
 
 The following questions remain research probes and cannot create production

@@ -46,6 +46,11 @@
   frozen-vs-fine-tuned comparison, SSL continued pretraining, ephemeral TTA,
   distillation — with parent immutability, accept/refuse/edit ledgers, and no
   ground-truth or accuracy claims.
+- [x] A cross-process staged persistence and postprocess offload lane
+  (FR-045/SC-032, Cycle 015.17) is specified — default-off, fail-closed,
+  bounded Redis Stream lanes + separate Celery consumers, drain/serial
+  reconcile before terminal state, mid-run observability — explicitly
+  excluding the rejected in-process Cycle 20.E shape.
 - [x] A corpus-ingested general/population baseline and dual comparison
   (`deviation_vs_self` + `deviation_vs_population`) are specified, assumed-normal,
   and never labeled ground truth.

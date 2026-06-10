@@ -685,6 +685,18 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   filtered inferences are never called ground truth, reviewer feedback may only
   exclude data, and a fine-tuned copy remains `PROBE_ONLY` until it passes the
   promotion lifecycle.
+- **FR-045**: The offline pipeline MUST support a default-off, fail-closed
+  **cross-process staged persistence and postprocess offload** lane: the
+  inference worker produces compact, idempotent frame packets onto bounded
+  Redis Stream lanes (`db_rows`, `embedding`, `analytics`, `artifacts`) and
+  separate Celery consumer processes apply them, while ordered/stateful
+  tracking stays on the producer path. Any enqueue failure MUST fall back to
+  the serial authoritative path, every lane MUST be drained and serially
+  reconciled before a terminal lifecycle state is reported, packet apply MUST
+  be at-least-once idempotent (`persist:{job}:{frame}`), live jobs are
+  excluded, in-process consumer execution on the frame-loop core is forbidden
+  (the rejected Cycle 20.E shape), and lane depth/backlog/applied/failed
+  counters MUST be observable mid-run by the production watcher.
 
 ### Key Entities
 
@@ -842,6 +854,14 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   the fine-tuned copy stays `PROBE_ONLY` absent a promotion record; and no run
   reports a behavioral accuracy/AUROC claim or calls filtered inferences ground
   truth.
+- **SC-032**: With the async persistence lane enabled on the canonical stride-1
+  benchmark, authoritative rows appear incrementally during the frame loop
+  (mid-run row counts nonzero), exact row/parity/identity/lifecycle correctness
+  is preserved versus the serial baseline, every lane drains to zero
+  pending/backlog with failures serially reconciled before terminal state, and
+  DB-completed FPS does not regress; acceptance toward the ≥15 FPS target (and
+  the 25–30 FPS semi-realtime ladder) is decided only by a completed native
+  RTX 5090 production benchmark with figures and rollback.
 
 ## Assumptions And Dependencies
 

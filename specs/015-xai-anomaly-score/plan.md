@@ -413,6 +413,30 @@ parameter provenance, accept/refuse/edit ledger, parent/child digests, benchmark
 deltas). Filtered inferences are never ground truth; reviewer feedback may only
 exclude windows; a copy advances only through the G1-G6 lifecycle.
 
+## Staged Persistence And Postprocess Offload (Cycle 015.17)
+
+The Cycle 015.0 baseline measured `1.773` DB-completed FPS with `0`
+authoritative rows mid-run, an idle GPU, and host-side postprocess at `68.753%`
+of summed stage time. The accepted remediation architecture (research
+Decision 20) is a **cross-process producer-consumer pipeline**:
+
+- the inference worker (producer) keeps only decode → dispatch → ordered
+  tracking on the critical path and enqueues compact idempotent frame packets
+  onto bounded Redis Stream lanes (`persistq:{job}:{lane}`);
+- separate Celery consumer processes apply the lanes (`db_rows` first;
+  `embedding`, `analytics`, `artifacts` as later slices), creating the
+  independent work the blocked worker-scaling lane requires;
+- fail-closed everywhere: enqueue failure → serial path; drain + serial
+  reconcile before terminal state; at-least-once idempotent apply; offline
+  jobs only; mid-run lane counters readable by the production watcher;
+- the rejected in-process overlap (Cycle 20.E) is explicitly forbidden as a
+  consumer execution mode.
+
+First slice implemented in `backend/apps/video_analysis/persistence_pipeline.py`
+(default-off) with unit tests and CI wiring; frame-loop integration, the
+`db_rows` writer adapter, postprocess offload, and the stride-1 production
+benchmark are tracked as Cycle 015.17 tasks.
+
 ## Mandatory No-Ground-Truth Doctrine
 
 [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
@@ -505,6 +529,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
 | Model promotion | `XAI_MODEL_PROMOTION_ENABLED`, `XAI_PROMOTION_MIN_SHADOW_HOURS`, `XAI_PROMOTION_LATENCY_SLO_MS`, `XAI_PROMOTION_DISTRIBUTION_TOLERANCE`, `XAI_PROMOTION_APPROVER_ROLES`, `XAI_PROMOTION_AUTOROLLBACK_ENABLED` |
 | Probe fine-tuning | `XAI_PROBE_FINETUNE_ENABLED`, `XAI_FINETUNE_OPTION_ALLOWLIST`, `XAI_PSEUDOLABEL_FILTER_POLICY`, `XAI_PSEUDOLABEL_MIN_AGREEMENT`, `XAI_FINETUNE_HOLDOUT_FRACTION`, `XAI_TTA_PERSIST_FORBIDDEN` |
+| Async persistence pipeline | `OFFLINE_ASYNC_PERSISTENCE_ENABLED` (default 0), `ASYNC_PERSISTENCE_LANES`, `ASYNC_PERSISTENCE_STREAM_MAXLEN`, `ASYNC_PERSISTENCE_CONSUMER_BATCH`, `ASYNC_PERSISTENCE_BLOCK_MS`, `ASYNC_PERSISTENCE_IDLE_EXIT_MS`, `ASYNC_PERSISTENCE_CLAIM_IDLE_MS`, `ASYNC_PERSISTENCE_MAX_APPLY_ATTEMPTS`, `ASYNC_PERSISTENCE_DRAIN_TIMEOUT_S` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 
