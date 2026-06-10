@@ -20,6 +20,7 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_7_investigation.md` | Identity-gated fusion protocol and explanation-graph local implementation boundary for Cycle 015.7 | active |
 | `cycle_015_7_figure_plan.md` | Figure Planner output for Cycle 015.7 graph and contradiction evidence | active |
 | `cycle_015_7_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.7 local slice | active |
+| `cycle_015_7_results.md` | Local validation state, helper-script readiness, and remaining production-only gaps for Cycle 015.7 | active |
 
 ## Current implementation state
 
@@ -51,7 +52,7 @@ Cycle 015.7 currently has:
 - deterministic explanation graph nodes/edges plus persisted explanation
   records and a read endpoint; and
 - local unit/integration validation for graph reconstruction and unresolved
-  identity visibility.
+  identity visibility plus file-driven probe/figure/rollback helper tooling.
 
 ## Related sources
 
@@ -84,6 +85,10 @@ Cycle 015.7 currently has:
 | File | `backend/apps/behavior/explainability/composer.py` |
 | File | `backend/tests/unit/behavior/test_xai_explanation_graph.py` |
 | File | `backend/tests/integration/behavior/test_xai_context_identity.py` |
+| File | `tools/prod/prod_probe_xai_fusion.py` |
+| File | `tools/prod/prod_generate_xai_cycle015_7_figures.py` |
+| File | `tools/prod/prod_run_xai_cycle015_7.sh` |
+| File | `tools/prod/prod_rollback_xai_cycle015_7.sh` |
 | Commit | `7e8e870e` |
 | Doc | `specs/015-xai-anomaly-score/spec.md` |
 | Doc | `specs/015-xai-anomaly-score/plan.md` |
@@ -93,3 +98,4 @@ Cycle 015.7 currently has:
 | Doc | `specs/015-xai-anomaly-score/contracts/benchmark-evidence-contract.md` |
 | Doc | `docs/xai_anomaly/cycle_015_6_results.md` |
 | Doc | `docs/xai_anomaly/cycle_015_7_investigation.md` |
+| Doc | `docs/xai_anomaly/cycle_015_7_results.md` |

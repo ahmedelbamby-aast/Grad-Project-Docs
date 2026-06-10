@@ -238,9 +238,9 @@ identity unresolved and reconstruct the explanation graph.
 - [X] T149 [P] [US3] Add explanation graph serializers/endpoints in `backend/apps/behavior/serializers.py`
 - [X] T150 [P] [US3] Add fusion, contradiction, identity, and graph reconstruction tests in `backend/tests/unit/behavior/test_xai_explanation_graph.py`
 - [X] T151 [P] [US3] Add crossing/fragmentation/unresolved integration tests in `backend/tests/integration/behavior/test_xai_context_identity.py`
-- [ ] T152 [P] [US6] Add production fusion/identity/graph probe in `tools/prod/prod_probe_xai_fusion.py`
-- [ ] T153 [US6] Add Cycle 015.7 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_7.sh`
-- [ ] T154 [P] [US6] Implement Cycle 015.7 graph/identity figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_7_figures.py`
+- [X] T152 [P] [US6] Add production fusion/identity/graph probe in `tools/prod/prod_probe_xai_fusion.py`
+- [X] T153 [US6] Add Cycle 015.7 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_7.sh`
+- [X] T154 [P] [US6] Implement Cycle 015.7 graph/identity figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_7_figures.py`
 - [ ] T155 [US6] Execute rollback from `tools/prod/prod_rollback_xai_cycle015_7.sh`
 - [ ] T156 [US6] Record Cycle 015.7 decision in `docs/xai_anomaly/cycle_015_7_results.md`
 - [ ] T157 [US6] Record every Cycle 015.7 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
