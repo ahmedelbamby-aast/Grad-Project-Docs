@@ -559,7 +559,7 @@ reconciled before terminal state, and DB-completed FPS does not regress.
 - [ ] T328 [US6] Add embedding-lane consumer slice (separate process embedding application) behind the same flag in `backend/apps/video_analysis/persistence_pipeline.py`
 - [X] T329 [US6] Add Cycle 015.17 stride-1 baseline/candidate benchmark runner in `tools/prod/prod_run_xai_cycle015_17.sh`
 - [ ] T330 [US6] Run the native RTX 5090 stride-1 baseline/candidate pair (after the GPU is free of training runs) and record parity/identity/lifecycle/FPS evidence
-- [ ] T331 [US6] Generate Cycle 015.17 figures + manifest/digests in `tools/prod/prod_generate_xai_cycle015_17_figures.py`
+- [X] T331 [US6] Generate Cycle 015.17 figures + manifest/digests in `tools/prod/prod_generate_xai_cycle015_17_figures.py`
 - [ ] T332 [US6] Execute rollback (flag off → serial parity proof) and record the Cycle 015.17 decision in `docs/xai_anomaly/cycle_015_17_results.md`
 - [ ] T333 [US6] Record every Cycle 015.17 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
