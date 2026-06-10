@@ -111,18 +111,18 @@ reconciled nonzero BSIL/lineage records without source-output regression.
 **Independent test**: Every active signal resolves to one definition and
 idempotently produces a bounded envelope with explicit missingness.
 
-- [ ] T034 [P] [US1] Write Cycle 015.1 investigation and atomic acceptance gates in `docs/xai_anomaly/cycle_015_1_investigation.md`
-- [ ] T035 [P] [US6] Name Cycle 015.1 Figure Planner in `docs/xai_anomaly/cycle_015_1_figure_plan.md`
-- [ ] T036 [P] [US6] Name separate Cycle 015.1 Figure Implementer in `docs/xai_anomaly/cycle_015_1_figure_implementation.md`
-- [ ] T037 [P] [US1] Implement evidence/signal value contracts in `backend/apps/behavior/explainability/contracts.py`
-- [ ] T038 [P] [US1] Implement signal registry and compatibility validation in `backend/apps/behavior/explainability/registry.py`
-- [ ] T039 [P] [US1] Implement common source/time/identity/quality normalization in `backend/apps/behavior/explainability/signals.py`
-- [ ] T040 [US1] Register all current raw/derived signals and bounded per-student pattern-feature definitions in `backend/apps/behavior/explainability/signal_definitions.py`
-- [ ] T041 [US1] Add idempotent evidence-envelope repository boundary in `backend/apps/behavior/repositories.py`
-- [ ] T042 [US1] Add signal-definition and evidence-envelope PostgreSQL models and migration in `backend/apps/behavior/models.py`
-- [ ] T043 [P] [US1] Add explicit evidence serializers and bounded API fields in `backend/apps/behavior/serializers.py`
-- [ ] T044 [P] [US1] Add registry, missingness, payload-size, and compatibility unit tests in `backend/tests/unit/behavior/test_xai_evidence_registry.py`
-- [ ] T045 [P] [US1] Add envelope idempotency, PostgreSQL, and replay integration tests in `backend/tests/integration/behavior/test_xai_evidence_persistence.py`
+- [X] T034 [P] [US1] Write Cycle 015.1 investigation and atomic acceptance gates in `docs/xai_anomaly/cycle_015_1_investigation.md`
+- [X] T035 [P] [US6] Name Cycle 015.1 Figure Planner in `docs/xai_anomaly/cycle_015_1_figure_plan.md`
+- [X] T036 [P] [US6] Name separate Cycle 015.1 Figure Implementer in `docs/xai_anomaly/cycle_015_1_figure_implementation.md`
+- [X] T037 [P] [US1] Implement evidence/signal value contracts in `backend/apps/behavior/explainability/contracts.py`
+- [X] T038 [P] [US1] Implement signal registry and compatibility validation in `backend/apps/behavior/explainability/registry.py`
+- [X] T039 [P] [US1] Implement common source/time/identity/quality normalization in `backend/apps/behavior/explainability/signals.py`
+- [X] T040 [US1] Register all current raw/derived signals and bounded per-student pattern-feature definitions in `backend/apps/behavior/explainability/signal_definitions.py`
+- [X] T041 [US1] Add idempotent evidence-envelope repository boundary in `backend/apps/behavior/repositories.py`
+- [X] T042 [US1] Add signal-definition and evidence-envelope PostgreSQL models and migration in `backend/apps/behavior/models.py`
+- [X] T043 [P] [US1] Add explicit evidence serializers and bounded API fields in `backend/apps/behavior/serializers.py`
+- [X] T044 [P] [US1] Add registry, missingness, payload-size, and compatibility unit tests in `backend/tests/unit/behavior/test_xai_evidence_registry.py`
+- [X] T045 [P] [US1] Add envelope idempotency, PostgreSQL, and replay integration tests in `backend/tests/integration/behavior/test_xai_evidence_persistence.py`
 - [ ] T046 [P] [US6] Add signal registry coverage production probe in `tools/prod/prod_probe_xai_signal_registry.py`
 - [ ] T047 [US6] Add Cycle 015.1 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_1.sh`
 - [ ] T048 [P] [US6] Implement Cycle 015.1 figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_1_figures.py`
