@@ -368,6 +368,26 @@ AI RMF) adapted to the doctrine.
 Every transition is an immutable `ModelPromotionRecord`, reversible, and ledgered.
 `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never enter a production score or state.
 
+### Probe Fine-Tuning Lane (corpus adaptation of copies)
+
+During corpus ingestion, probe models may be adapted **only as copies** (parent
+frozen and untouched; the copy is a new `PROBE_ONLY` lineage row):
+
+1. **Filtered pseudo-label self-training** — copy infers on the corpus; each
+   inference is screened by the accepted standard deterministic methods and
+   recorded as accepted/refused/edited; fine-tune on accepted/edited signals.
+2. **Frozen vs fine-tuned champion/challenger** — parent vs copy on held-out
+   corpus videos: serving metrics, signal stability, drift, baseline agreement.
+3. **Self-supervised continued pretraining** — continue the probe's own
+   label-free objective on the corpus (no pseudo-labels).
+4. **Ephemeral test-time adaptation** — TENT-style; never persisted weights.
+5. **Distillation from governed deterministic signals**.
+
+Every run persists a `ProbeFineTuneRun` (corpus manifest, filter policy with
+parameter provenance, accept/refuse/edit ledger, parent/child digests, benchmark
+deltas). Filtered inferences are never ground truth; reviewer feedback may only
+exclude windows; a copy advances only through the G1-G6 lifecycle.
+
 ## Mandatory No-Ground-Truth Doctrine
 
 [no-ground-truth-doctrine.md](no-ground-truth-doctrine.md) governs the complete
@@ -459,6 +479,7 @@ All operational values are configured and fingerprinted. Required categories:
 | General baseline | `ANOMALY_GENERAL_BASELINE_ENABLED`, `ANOMALY_BASELINE_CORPUS_MANIFEST`, `ANOMALY_BASELINE_MIN_VIDEOS`, `ANOMALY_BASELINE_MIN_DISTINCT_STUDENTS`, `ANOMALY_BASELINE_CONTEXT_TIERS`, `ANOMALY_DUAL_COMPARISON_ENABLED`, `ANOMALY_SELF_VS_POPULATION_WEIGHT`, `ANOMALY_CLASSROOM_DEVIATION_ENABLED` |
 | Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
 | Model promotion | `XAI_MODEL_PROMOTION_ENABLED`, `XAI_PROMOTION_MIN_SHADOW_HOURS`, `XAI_PROMOTION_LATENCY_SLO_MS`, `XAI_PROMOTION_DISTRIBUTION_TOLERANCE`, `XAI_PROMOTION_APPROVER_ROLES`, `XAI_PROMOTION_AUTOROLLBACK_ENABLED` |
+| Probe fine-tuning | `XAI_PROBE_FINETUNE_ENABLED`, `XAI_FINETUNE_OPTION_ALLOWLIST`, `XAI_PSEUDOLABEL_FILTER_POLICY`, `XAI_PSEUDOLABEL_MIN_AGREEMENT`, `XAI_FINETUNE_HOLDOUT_FRACTION`, `XAI_TTA_PERSIST_FORBIDDEN` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 

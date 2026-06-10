@@ -52,6 +52,7 @@ traceability artifact, not implementation evidence.
 | FR-041 promotion doctrine cap (signal-only, no behavioral accuracy) | Setup, 015.15 | T005c, T289, T295, T300-T301 |
 | FR-042 population-derived general baseline; General vs Local Boundaries | 015.14 | T272-T274, T278, T280-T285 |
 | FR-043 live real-time student-interaction graph plot | 015.13 | T259, T262, T264-T268 |
+| FR-044 probe fine-tuning lane (copies, filtered pseudo-labels, comparison) | 015.16 | T302-T317 |
 
 ## Success Criterion Coverage
 
@@ -87,6 +88,7 @@ traceability artifact, not implementation evidence.
 | SC-028 no behavioral-accuracy promotion; probe outputs excluded from prod score | Setup, 015.15 | T005c, T295-T296 |
 | SC-029 population-derived baseline, General/Local Boundaries, classroom deviation | 015.14 | T272-T274, T278 |
 | SC-030 live interaction-graph real-time update and soak budgets | 015.13 | T259, T262, T266 |
+| SC-031 reconstructable fine-tune runs, frozen-parent immutability, PROBE_ONLY retention | 015.16 | T305-T312, T315-T317 |
 
 ## User Story Coverage
 
@@ -102,9 +104,9 @@ traceability artifact, not implementation evidence.
 
 ## Coverage Result
 
-- Functional requirements covered: `43/43`
-- Success criteria covered: `30/30`
+- Functional requirements covered: `44/44`
+- Success criteria covered: `31/31`
 - User stories covered: `7/7`
 - Atomic cycles with explicit benchmark, figures, decision, and rollback:
-  `16/16`
+  `17/17`
 - Mandatory no-ground-truth doctrine covered: `yes`

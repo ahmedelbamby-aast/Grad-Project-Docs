@@ -465,6 +465,35 @@ accuracy/AUROC is recorded; and a rollback restores the prior stage.
 - [ ] T300 [US6] Execute rollback and record Cycle 015.15 decision in `docs/xai_anomaly/cycle_015_15_results.md`
 - [ ] T301 [US6] Record every Cycle 015.15 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
 
+## Phase 18: Cycle 015.16 - Probe Fine-Tuning Lane (Corpus Adaptation Of Copies)
+
+**Goal**: Adapt COPIES of probe models on the ingested corpus through governed
+options — filtered pseudo-label self-training, frozen-vs-fine-tuned
+champion/challenger, self-supervised continued pretraining, ephemeral test-time
+adaptation, and distillation from governed deterministic signals — with full
+reconstruction, no parent mutation, and no ground-truth claims.
+**Independent test**: A fine-tune run reproduces from its corpus manifest,
+filter-policy provenance, and accept/refuse/edit ledger; the frozen parent digest
+verifies unchanged; benchmark deltas vs the parent and the accepted deterministic
+baseline resolve; and the copy stays `PROBE_ONLY` absent a promotion record.
+
+- [ ] T302 [P] [US6] Write Cycle 015.16 investigation, option matrix (a-e), filter policy, error-accumulation counters, and rollback in `docs/xai_anomaly/cycle_015_16_investigation.md`
+- [ ] T303 [P] [US6] Name Cycle 015.16 Figure Planner in `docs/xai_anomaly/cycle_015_16_figure_plan.md`
+- [ ] T304 [P] [US6] Name separate Cycle 015.16 Figure Implementer in `docs/xai_anomaly/cycle_015_16_figure_implementation.md`
+- [ ] T305 [P] [US6] Implement fine-tune run/option/ledger contracts in `backend/apps/pipeline/services/probe_finetune.py`
+- [ ] T306 [US6] Add `ProbeFineTuneRun` model and migration in `backend/apps/pipeline/models.py`
+- [ ] T307 [US6] Implement accepted-standard-method inference filter (accept/refuse/edit, deterministic-baseline agreement, identity gating, temporal consistency, confidence/entropy gates — all parameter-provenance-bound) in `backend/apps/pipeline/services/probe_finetune_filter.py`
+- [ ] T308 [P] [US6] Implement copy-based fine-tune executors for options (a)/(c)/(e) and the ephemeral-TTA guard (d) in `backend/apps/pipeline/services/probe_finetune_runners.py`
+- [ ] T309 [P] [US6] Implement frozen-vs-fine-tuned champion/challenger comparison (b) on held-out corpus with serving/stability/drift/agreement deltas in `backend/apps/pipeline/services/probe_finetune_compare.py`
+- [ ] T310 [P] [US6] Add parent-digest-immutability, ledger-completeness, no-ground-truth-vocabulary, and TTA-non-persistence unit tests in `backend/tests/unit/pipeline/test_xai_probe_finetune.py`
+- [ ] T311 [P] [US6] Add reconstruction/idempotency and PostgreSQL integration tests in `backend/tests/integration/pipeline/test_xai_probe_finetune_persistence.py`
+- [ ] T312 [P] [US6] Add reviewer-exclusion-only guard tests (feedback can quarantine corpus windows, never label) in `backend/tests/unit/pipeline/test_xai_probe_finetune_review_guard.py`
+- [ ] T313 [P] [US6] Add production fine-tune-lane probe in `tools/prod/prod_probe_xai_probe_finetune.py`
+- [ ] T314 [US6] Add Cycle 015.16 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_16.sh`
+- [ ] T315 [P] [US6] Implement Cycle 015.16 figures (accept/refuse/edit distribution, parent-vs-child deltas, baseline-agreement trend, drift), manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_16_figures.py`
+- [ ] T316 [US6] Execute rollback and record Cycle 015.16 decision in `docs/xai_anomaly/cycle_015_16_results.md`
+- [ ] T317 [US6] Record every Cycle 015.16 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
+
 ## Dependency Graph
 
 ```text
@@ -483,7 +512,8 @@ Setup
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
 015.4 + 015.5 -> 015.14
 015.0 + 015.8 -> 015.15
-015.0 through 015.10, plus 015.13 + 015.14 + 015.15 -> 015.11 -> 015.12
+015.14 + 015.15 -> 015.16
+015.0 through 015.10, plus 015.13 + 015.14 + 015.15 + 015.16 -> 015.11 -> 015.12
 ```
 
 ## Parallel Execution Guidance

@@ -56,6 +56,10 @@ job-scoped artifacts for large arrays/images/traces.
   `PROBE_ONLY`/`SHADOW`/`CANARY` outputs are never persisted as a production
   `review_priority_score` or `pattern_state`, and no promotion record stores a
   behavioral accuracy/AUROC metric.
+- Probe fine-tuning operates only on copies: a `ProbeFineTuneRun` references the
+  frozen parent and the new child artifact digests; filtered inferences used for
+  fine-tuning are persisted as an accept/refuse/edit ledger and are never labeled
+  ground truth.
 
 ## Existing Entities Reused
 
@@ -637,6 +641,44 @@ reversible.
 - No behavioral accuracy/AUROC metric is recorded.
 - A rollback creates a `ROLLED_BACK` record and restores the prior stage.
 
+## New Entity: ProbeFineTuneRun
+
+**Owner**: `apps.pipeline` (probe fine-tuning lane); read through a neutral
+versioned contract.
+
+**Purpose**: Immutable record of one corpus adaptation of a probe COPY, making
+the fine-tune fully reconstructable and the frozen parent provably untouched.
+
+| Field | Type | Rule |
+|---|---|---|
+| `finetune_id` | UUID | Primary key |
+| `schema_version` | string | Required |
+| `option` | enum | `pseudo_label_self_training`, `frozen_vs_finetuned_comparison`, `ssl_continued_pretraining`, `test_time_adaptation_ephemeral`, `distillation_from_governed_signals` |
+| `parent_model_key`, `parent_artifact_digest` | strings | Frozen parent; never mutated |
+| `child_model_key`, `child_artifact_digest` | strings nullable | New copy lineage (null for ephemeral TTA) |
+| `corpus_manifest_ref` | artifact ref | Videos/windows used, digest-addressed |
+| `filter_policy` | bounded JSON | Accepted-standard-method gates with parameter provenance refs |
+| `decision_ledger_ref` | artifact ref | Accepted/refused/edited inference ledger |
+| `accepted_count`, `refused_count`, `edited_count` | integers | Required for option (a) |
+| `holdout_manifest_ref` | artifact ref | Held-out corpus slice for comparison |
+| `benchmark_ref` | reference | Champion/challenger vs frozen parent + deterministic baseline |
+| `benchmark_deltas` | bounded JSON | Serving metrics, signal stability, drift, baseline agreement |
+| `promotion_status` | enum | Always starts `PROBE_ONLY` |
+| `truth_state` | enum | Required |
+| `run_digest` | SHA-256 | Unique |
+| `created_at` | timestamp | Immutable |
+
+**Constraints**:
+
+- The parent artifact digest must verify unchanged after the run.
+- Option (d) ephemeral TTA must have `child_artifact_digest = null`; persisting
+  adapted weights without converting to option (a) + a promotion record is a
+  violation.
+- The decision ledger and filter policy are required for option (a); filtered
+  inferences are never labeled ground truth.
+- Reviewer feedback may only contribute exclusions to `corpus_manifest_ref`.
+- No field stores a behavioral accuracy/AUROC claim.
+
 ## Relationships
 
 ```text
@@ -661,6 +703,8 @@ AnomalyScoreContribution * --- 1 ParameterProvenanceRecord
 ObservedPatternProfileSnapshot 1 --- * ParameterProvenanceRecord (learned source)
 XAIModelRouteSnapshot 1 --- * ModelPromotionRecord
 ModelPromotionRecord 0..1 --- 1 ModelPromotionRecord (supersedes)
+ProbeFineTuneRun * --- 1 (parent registry model, frozen)
+ProbeFineTuneRun 0..1 --- 1 ModelPromotionRecord (child promotion path)
 ```
 
 ## State Transitions
@@ -716,6 +760,8 @@ valid/degraded/quarantined -> invalidated
 - Index parameter provenance by `param_key`, `source_kind`, scope, and digest.
 - Index model promotion records by `model_key`/`model_version`, `promotion_status`,
   `decision`, and promotion digest.
+- Index probe fine-tune runs by parent/child model key, option, truth state, and
+  run digest.
 - Index route/calibration snapshots by digest and compatibility fields.
 - Index artifact lifecycle by request/status/created time.
 - Partition or retention-manage high-volume evidence only after measured

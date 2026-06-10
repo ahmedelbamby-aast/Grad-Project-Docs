@@ -480,6 +480,47 @@ behavioral accuracy/AUROC), and rollback restoring the prior stage.
 versus budget, gate-coverage matrix, shadow/canary timeline, rollback
 verification.
 
+## Cycle 015.16 - Probe Fine-Tuning Lane (Corpus Adaptation Of Copies)
+
+**Indivisible capability**: Governed adaptation of probe COPIES on the ingested
+corpus plus its filter, ledger, comparison, and record. The filter policy, the
+copy-based executor, and the frozen-parent comparison must ship together because
+an unfiltered or unledgered fine-tune is exactly the error-accumulation failure
+the literature documents.
+
+**Dependencies**: 015.14 (corpus ingestion + parameter provenance) and 015.15
+(promotion lifecycle and lineage records).
+**Streaming compatibility**: `offline-only` (corpus adaptation and comparison);
+ephemeral test-time adaptation is `stream-safe-with-config` and never persists
+weights.
+
+**Implementation scope**:
+
+- implement the five governed options: (a) filtered pseudo-label self-training
+  (accept/refuse/edit by accepted standard deterministic methods), (b)
+  frozen-vs-fine-tuned champion/challenger on held-out corpus, (c)
+  self-supervised continued pretraining, (d) ephemeral test-time adaptation with
+  a non-persistence guard, (e) distillation from governed deterministic signals;
+- persist `ProbeFineTuneRun` with corpus manifest, provenance-bound filter
+  policy, decision ledger, parent/child digests, and benchmark deltas;
+- verify the frozen parent digest is unchanged after every run;
+- enforce reviewer-exclusion-only (feedback never supplies labels) and the
+  no-ground-truth vocabulary on all fine-tune artifacts.
+
+**Benchmark hypothesis**: A filtered, copy-based fine-tune measurably improves
+serving stability/agreement metrics versus the frozen parent on held-out corpus
+without parent mutation, error accumulation, or any behavioral-truth claim.
+
+**Acceptance gates**: Run reconstruction from manifest + ledger + provenance,
+parent-digest immutability, accept/refuse/edit ledger completeness, held-out
+champion/challenger deltas vs the frozen parent AND the accepted deterministic
+baseline, TTA non-persistence proof, reviewer-exclusion-only guard,
+`PROBE_ONLY` retention absent promotion, performance budgets, and rollback.
+
+**Required figures**: accept/refuse/edit distribution, parent-vs-child benchmark
+deltas, deterministic-baseline agreement trend, drift behavior, filter-threshold
+sensitivity, performance delta.
+
 ## Cycle 015.11 - Observability, Performance, Stability, Security, And Fairness
 
 **Indivisible capability**: Cross-cutting operational/scientific acceptance
@@ -562,7 +603,8 @@ completeness.
 015.3 + 015.5 + 015.7 + 015.10 -> 015.13
 015.4 + 015.5 -> 015.14
 015.0 + 015.8 -> 015.15
-015.0 through 015.10, plus 015.13 + 015.14 + 015.15 -> 015.11 -> 015.12
+015.14 + 015.15 -> 015.16
+015.0 through 015.10, plus 015.13 + 015.14 + 015.15 + 015.16 -> 015.11 -> 015.12
 ```
 
 Parallel implementation work is allowed only where dependencies and file

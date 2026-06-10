@@ -407,7 +407,10 @@ may graduate only to a governed **signal/representation** role, and only through
 the evidence-gated promotion lifecycle
 (`PROBE_ONLY` → `SHADOW` → `CANARY` → `MANDATORY`) in
 [pretrained-models-registry.md](pretrained-models-registry.md); each source's
-`promotion_status` travels with its lineage.
+`promotion_status` travels with its lineage. Corpus adaptation of probe COPIES
+(filtered pseudo-label self-training, SSL continued pretraining, ephemeral TTA,
+distillation) is governed by the registry's Probe Fine-Tuning Lane; a fine-tuned
+copy emits the same signal contracts under a new `FINETUNED_COPY` lineage.
 
 ## Source References
 

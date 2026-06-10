@@ -41,6 +41,11 @@
   graph plot is mandated (FR-043/SC-030) — additional to, not a replacement for,
   the existing plots — with live update-latency/soak budgets, backpressure
   drop, context-loss recovery, and numeric fallback.
+- [x] A governed Probe Fine-Tuning Lane (FR-044/SC-031) adapts COPIES of probe
+  models on the ingested corpus — filtered pseudo-label self-training,
+  frozen-vs-fine-tuned comparison, SSL continued pretraining, ephemeral TTA,
+  distillation — with parent immutability, accept/refuse/edit ledgers, and no
+  ground-truth or accuracy claims.
 - [x] A corpus-ingested general/population baseline and dual comparison
   (`deviation_vs_self` + `deviation_vs_population`) are specified, assumed-normal,
   and never labeled ground truth.

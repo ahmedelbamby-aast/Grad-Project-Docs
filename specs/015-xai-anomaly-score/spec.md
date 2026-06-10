@@ -90,6 +90,12 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   `MANDATORY`) and only as a governed signal/representation — never as a
   behavioral judge. Promotions are benchmark- and metric-driven, recorded,
   approved by a governed approver, and reversible.
+- Probe models may be adapted to the ingested corpus only as **copies** (the
+  frozen parent is never mutated) through the governed Probe Fine-Tuning Lane —
+  filtered pseudo-label self-training, frozen-vs-fine-tuned comparison,
+  self-supervised continued pretraining, ephemeral test-time adaptation, or
+  distillation from governed deterministic signals. Filtered inferences are
+  model-derived training signals, never ground truth.
 
 ## User Scenarios & Testing
 
@@ -377,6 +383,12 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   stage.
 - Someone proposes promoting a learned model into a behavioral decision authority
   or claiming anomaly accuracy/AUROC for it.
+- Pseudo-label self-training accumulates filter-passing but wrong inferences
+  (confirmation bias / error accumulation) and the fine-tuned copy drifts from
+  the deterministic baseline.
+- A fine-tuned copy is mistaken for, or overwrites, its frozen parent artifact.
+- A test-time-adapted state is accidentally persisted as new model weights.
+- Reviewer feedback is offered as labels for a fine-tune set.
 
 ## Mandatory Runtime Scenarios
 
@@ -627,6 +639,22 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   numeric/tabular fallback. This live graph **complements, and does not replace,**
   the existing plots, and remains identity-gated and non-accusatory (it never
   asserts collusion or cheating).
+- **FR-044**: During corpus ingestion the system MUST support a governed **Probe
+  Fine-Tuning Lane** operating only on **copies** of registered probe models:
+  (a) filtered pseudo-label self-training — the copy infers on the corpus, every
+  inference is screened by the accepted standard deterministic methods and
+  recorded as accepted/refused/edited, and the copy is fine-tuned on the
+  accepted/edited signals only; (b) frozen-vs-fine-tuned champion/challenger
+  comparison on held-out corpus videos; (c) self-supervised continued
+  pretraining of the probe's own label-free objective; (d) ephemeral test-time
+  adaptation that is never persisted as new weights; and (e) distillation from
+  governed deterministic signals. Each run MUST persist its corpus manifest,
+  filter policy with parameter provenance, accept/refuse/edit ledger,
+  parent/child artifact digests, and benchmark comparison against the standard
+  accepted baseline and the frozen parent. The parent model is never mutated,
+  filtered inferences are never called ground truth, reviewer feedback may only
+  exclude data, and a fine-tuned copy remains `PROBE_ONLY` until it passes the
+  promotion lifecycle.
 
 ### Key Entities
 
@@ -666,6 +694,11 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   (`PROBE_ONLY`/`SHADOW`/`CANARY`/`MANDATORY`), the benchmark, computed serving
   metrics, model card, governed approver, decision, and rollback proof that
   justified it.
+- **Probe Fine-Tune Run**: Immutable record of one corpus adaptation of a probe
+  copy — corpus manifest, option used, filter policy with parameter provenance,
+  accept/refuse/edit ledger, parent/child artifact digests, and the
+  champion/challenger benchmark versus the frozen parent and the accepted
+  deterministic baseline.
 
 ## Success Criteria
 
@@ -768,6 +801,13 @@ render in WebGL2 within budget with a numeric/tabular fallback.
   frame-time and update-latency budgets alongside the other live plots, recovers
   from context loss, keeps bounded state across an indefinite stream, drops only
   stale renderer updates under backpressure, and never leaks WebGL contexts.
+- **SC-031**: Every probe fine-tune run is fully reconstructable — corpus
+  manifest, filter policy provenance, accept/refuse/edit ledger, parent/child
+  digests, and benchmark deltas versus the frozen parent and the accepted
+  deterministic baseline all resolve; the frozen parent's digest is unchanged;
+  the fine-tuned copy stays `PROBE_ONLY` absent a promotion record; and no run
+  reports a behavioral accuracy/AUROC claim or calls filtered inferences ground
+  truth.
 
 ## Assumptions And Dependencies
 

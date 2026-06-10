@@ -54,6 +54,11 @@ active models and building an anomaly score layer.
 | Model registry promotion | MLflow Model Registry, https://mlflow.org/docs/latest/ml/model-registry | Staged `dev → staging → production` promotion with role-based approval |
 | Staged rollout / champion-challenger | DataRobot champion/challenger, https://www.datarobot.com/blog/introducing-mlops-champion-challenger-models/ | Shadow/canary promotion, governed approver, automated rollback |
 | Model documentation | Model Cards, https://arxiv.org/abs/1810.03993 | Promotion documentation (purpose, metrics, limits) |
+| Pseudo-label self-training | Noisy Student, https://arxiv.org/abs/1911.04252 | Filtered pseudo-label fine-tuning of probe COPIES |
+| Pseudo-label filtering | Less is More: Pseudo-Label Filtering for Continual TTA, https://arxiv.org/abs/2406.02609 | Adaptive filtering prevents error accumulation in self-training |
+| Source-free video adaptation | Source-free Video DA by Learning from Noisy Labels, https://arxiv.org/abs/2311.18572 | Adapting video models on unlabeled target video |
+| Test-time adaptation | TENT, https://arxiv.org/abs/2006.10726 | Ephemeral entropy-minimization adaptation; never persisted weights |
+| Consistency self-training | FixMatch, https://arxiv.org/abs/2001.07685 | Confidence-thresholded pseudo-labels with consistency |
 
 ## Decision 1: Use A Two-Lane XAI Architecture
 
@@ -494,6 +499,47 @@ gates.
   good": prohibited by the doctrine; requires a separate ground-truth program.
 - Keep everything `PROBE_ONLY` forever: rejected — a useful representation should
   be promotable to a governed signal once it earns it with evidence.
+
+## Decision 19: Probe Fine-Tuning Lane — Adapt Copies On The Ingested Corpus
+
+**Decision**: During corpus ingestion, probe models may be adapted **only as
+copies** (parent frozen, new lineage row, `PROBE_ONLY`) through five governed
+options:
+
+- **A. Filtered pseudo-label self-training**: the copy infers on the corpus;
+  every inference is screened by the accepted standard deterministic methods
+  (robust observed-pattern statistics, cross-model agreement, identity gating,
+  temporal consistency, confidence/entropy gates) and recorded as
+  accepted/refused/edited; the copy fine-tunes on accepted/edited signals only.
+- **B. Frozen vs fine-tuned champion/challenger**: parent and Option-A copy run
+  side-by-side on held-out corpus videos; compared on serving metrics, signal
+  stability, drift, and agreement with the deterministic baseline.
+- **C. Self-supervised continued pretraining (DAPT)**: continue the probe's own
+  label-free objective on the corpus (flow likelihood for STG-NF/DA-Flow, masked
+  reconstruction for VideoMAE-style) — no pseudo-labels at all.
+- **D. Ephemeral test-time adaptation**: TENT-style entropy/BN adaptation with
+  pseudo-label filtering at inference; never persisted as new weights.
+- **E. Distillation from governed deterministic signals**: the copy mimics
+  fast-path/ensemble outputs (machine-generated targets with lineage).
+
+**Rationale**: This is exactly the self-training / source-free-adaptation /
+test-time-adaptation playbook the literature uses on unlabeled video (Noisy
+Student; pseudo-label filtering for continual TTA; source-free video DA from
+noisy labels; TENT; FixMatch), constrained to our doctrine: filtered inferences
+are model-derived training signals — never ground truth — and the known failure
+mode (pseudo-label error accumulation / confirmation bias) is countered by the
+adaptive filter policy, held-out comparison against the frozen parent, and the
+deterministic-baseline agreement check. Reviewer feedback may only exclude
+corpus windows, never label them.
+
+**Alternatives considered**:
+
+- Fine-tune the registered model in place: rejected — destroys the frozen
+  baseline, breaks lineage and rollback.
+- Treat filter-passing pseudo-labels as ground truth and report accuracy:
+  prohibited by the doctrine.
+- Unfiltered self-training on raw inferences: rejected — documented error
+  accumulation; the accept/refuse/edit filter is mandatory.
 
 ## Experimental Research Backlog
 

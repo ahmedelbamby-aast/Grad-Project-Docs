@@ -189,6 +189,41 @@ quality as a signal, not any labeled accuracy.
   ground truth.
 - Skip the benchmark, the computed metrics, the rollback proof, or the approver.
 
+## Probe Fine-Tuning Lane (corpus adaptation of Class B COPIES)
+
+During corpus ingestion the system MAY take **copies** of Class B probe models
+and adapt them on the supported videos. The **original registry entry stays
+frozen and untouched**; every adapted model is a NEW registry row with
+`lineage = FINETUNED_COPY(parent_digest)`, its own artifact digest, and
+`promotion_status = PROBE_ONLY` until it independently passes the G1-G6
+promotion lifecycle above. The governed adaptation options:
+
+| Option | Method | How it works here | Industry/literature basis |
+|---|---|---|---|
+| **A — Filtered pseudo-label self-training** | teacher-student / Noisy-Student-style | probe copy infers on the corpus; every inference is screened by the **accepted standard deterministic methods** (robust observed-pattern statistics, cross-model agreement, identity gating, temporal consistency, confidence/entropy gates — all `learned`/`configured` provenance) and each one is **accepted / refused / edited** (e.g. temporal smoothing) with a recorded decision; the copy is fine-tuned on the accepted/edited inference signals only | Noisy Student (arXiv:1911.04252); pseudo-label filtering for continual TTA (arXiv:2406.02609); source-free video DA from noisy labels (arXiv:2311.18572) |
+| **B — Frozen vs fine-tuned champion/challenger** | side-by-side comparison | the original frozen probe and the Option-A copy run on held-out corpus videos; compared on serving metrics, signal stability, drift behavior, and **agreement with the deterministic accepted baseline** — recorded as champion/challenger evidence for the promotion lifecycle | champion/challenger + shadow evaluation (registry promotion practice above) |
+| **C — Self-supervised continued pretraining (DAPT)** | label-free objective continuation | continue the probe's own self-supervised objective on the corpus (normalizing-flow likelihood fit for STG-NF/DA-Flow; masked reconstruction for VideoMAE-style) — **no pseudo-labels at all**; the safest adaptation | domain-adaptive pretraining; SSL video representation literature |
+| **D — Test-time adaptation (ephemeral)** | TENT-style entropy minimization / BN-stat adaptation | adapts activation statistics during inference with filtered pseudo-labels; **never persisted** as new weights — a persisted variant must go through Option A + the promotion lifecycle | TENT (arXiv:2006.10726); CTTA filtering (arXiv:2406.02609) |
+| **E — Cross-model distillation from governed signals** | knowledge distillation | the copy is trained to match governed deterministic fast-path signals or frozen-ensemble outputs (machine-generated targets with full lineage, never behavioral ground truth) | self-training + distillation practice (e.g. arXiv:2507.15709) |
+
+### Binding rules for every option
+
+- **Copies only.** The parent frozen model is never mutated; the copy is a new
+  registry row + artifact digest + `XAIModelRouteSnapshot` lineage.
+- Accepted/refused/edited inference decisions are **model-derived training
+  signals**, never ground truth; the filter policy and every threshold carry
+  `learned`/`configured` parameter provenance, and the full accept/refuse/edit
+  ledger is persisted with the run.
+- Reviewer feedback may only **exclude/quarantine** corpus windows from a
+  fine-tune set; it never supplies labels or training targets (doctrine).
+- Evaluation compares the fine-tuned copy against the **standard accepted
+  baseline methods** (deterministic production path) and the frozen parent —
+  serving metrics, signal stability, agreement, drift — with **no behavioral
+  accuracy/AUROC claim**.
+- A fine-tuned copy reaches `SHADOW`/`CANARY`/`MANDATORY` only through the same
+  G1-G6 evidence-gated lifecycle; improvements are claimed as measured
+  benchmark deltas, never as "better cheating detection".
+
 ## How this registry overcomes "no ground-truth"
 
 1. **Class A is pure signal extraction** — frozen pretrained models turn video

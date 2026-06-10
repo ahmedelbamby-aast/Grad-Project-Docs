@@ -86,6 +86,16 @@ record, reversible, and approved by a designated governed approver. Gates are a
 bounded minimum bar, not an open-ended obstacle: once the recorded evidence
 meets them, promotion is permitted.
 
+Probe **fine-tuning** is permitted only on **copies** (the parent frozen model is
+never mutated) under the registry's Probe Fine-Tuning Lane: filtered
+pseudo-label self-training, self-supervised continued pretraining, ephemeral
+test-time adaptation, or distillation from governed deterministic signals.
+Accepted/refused/edited inference signals used for fine-tuning are model-derived
+training signals — they MUST NOT be called ground truth, and reviewer feedback
+may only exclude/quarantine corpus windows, never supply a label. A fine-tuned
+copy is a new `PROBE_ONLY` lineage entry and earns any higher stage only through
+the same evidence-gated lifecycle.
+
 ## Required Behavioral Vocabulary
 
 The user-facing and persisted states are:
