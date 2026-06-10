@@ -34,6 +34,33 @@ cheating, or normality target. The registry makes that boundary auditable.
   establishing a legitimate dataset, target semantics, evaluation authority, and
   promotion contract (per doctrine §"Permitted Pattern Methods").
 
+## Reproducible Acquisition Contract
+
+Cycle 015 now carries a manifest-driven acquisition contract so the model packs
+needed for reproducible local/dev setup are explicit and scriptable:
+
+- manifest:
+  `specs/015-xai-anomaly-score/pretrained-model-acquisition-manifest.json`
+- download helpers:
+  `scripts/models/download-xai-registry-models.py`,
+  `scripts/models/download-xai-registry-models.sh`,
+  `scripts/models/download-xai-registry-models.ps1`
+- verifier:
+  `scripts/ci/verify_pretrained_models.py`
+
+The manifest declares:
+
+- runtime pack archive names (`pt.zip`, `onnx.zip`, `openvino.zip`,
+  `tensorrt.zip`);
+- environment-variable names that provide source URIs and expected SHA-256
+  digests for those packs; and
+- a per-registry-model mapping from registry entry → required runtime packs →
+  reproducibility artifact paths.
+
+This keeps model acquisition reproducible without hardcoding secrets or private
+artifact URLs into the repo. A registry change is incomplete unless the manifest
+and verifier remain consistent with the registry tables.
+
 ## Class A — Production Signal Sources (frozen, deployed via Triton)
 
 These are the real backbone of the anomaly layer: each turns pixels into a

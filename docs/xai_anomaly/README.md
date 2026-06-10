@@ -21,6 +21,9 @@ and benchmark-support docs for `specs/015-xai-anomaly-score/`.
 | `cycle_015_7_figure_plan.md` | Figure Planner output for Cycle 015.7 graph and contradiction evidence | active |
 | `cycle_015_7_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.7 local slice | active |
 | `cycle_015_7_results.md` | Local validation state, helper-script readiness, and remaining production-only gaps for Cycle 015.7 | active |
+| `cycle_015_8_investigation.md` | Deep-XAI request/artifact/evaluation contract and local persistence boundary for Cycle 015.8 | active |
+| `cycle_015_8_figure_plan.md` | Figure Planner output for Cycle 015.8 deep-XAI lifecycle evidence | active |
+| `cycle_015_8_figure_implementation.md` | Figure Implementer ownership for the Cycle 015.8 local contract slice | active |
 
 ## Current implementation state
 
@@ -53,6 +56,13 @@ Cycle 015.7 currently has:
   records and a read endpoint; and
 - local unit/integration validation for graph reconstruction and unresolved
   identity visibility plus file-driven probe/figure/rollback helper tooling.
+
+Cycle 015.8 currently has:
+
+- deep-XAI request/artifact/evaluation dataclass contracts;
+- persisted ORM models and migrations for the deep lifecycle boundary; and
+- focused unit validation for method allowlisting, idempotency, deadlines, and
+  evaluation digest semantics.
 
 ## Related sources
 
@@ -89,6 +99,8 @@ Cycle 015.7 currently has:
 | File | `tools/prod/prod_generate_xai_cycle015_7_figures.py` |
 | File | `tools/prod/prod_run_xai_cycle015_7.sh` |
 | File | `tools/prod/prod_rollback_xai_cycle015_7.sh` |
+| File | `backend/apps/behavior/explainability/deep_contracts.py` |
+| File | `backend/tests/unit/behavior/test_xai_deep_methods.py` |
 | Commit | `7e8e870e` |
 | Doc | `specs/015-xai-anomaly-score/spec.md` |
 | Doc | `specs/015-xai-anomaly-score/plan.md` |
@@ -99,3 +111,4 @@ Cycle 015.7 currently has:
 | Doc | `docs/xai_anomaly/cycle_015_6_results.md` |
 | Doc | `docs/xai_anomaly/cycle_015_7_investigation.md` |
 | Doc | `docs/xai_anomaly/cycle_015_7_results.md` |
+| Doc | `docs/xai_anomaly/cycle_015_8_investigation.md` |

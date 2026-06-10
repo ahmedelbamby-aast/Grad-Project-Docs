@@ -60,3 +60,28 @@ Environment controls:
 Default release pack directory:
 
 - `<repo-root>/releases/model-packs`
+
+## Cycle 015 Reproducible Acquisition
+
+Cycle `015-xai-anomaly-score` adds a manifest-driven download helper for the
+pretrained model packs declared in
+`specs/015-xai-anomaly-score/pretrained-model-acquisition-manifest.json`.
+
+PowerShell:
+
+```powershell
+./scripts/models/download-xai-registry-models.ps1 --runtime all
+```
+
+Bash:
+
+```bash
+./scripts/models/download-xai-registry-models.sh --runtime all
+```
+
+The helper:
+
+- resolves pack URIs from environment variables declared in the manifest;
+- downloads or copies the archives into `releases/model-packs/`;
+- verifies SHA-256 digests; and
+- writes an optional JSON receipt for reproducibility evidence.

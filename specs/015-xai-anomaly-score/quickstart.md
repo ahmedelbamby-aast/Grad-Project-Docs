@@ -73,6 +73,23 @@ The investigation names:
 - Build anomaly review priority from bounded per-student multivariate
   observed-signal pattern comparison.
 
+## 4a. Bootstrap Reproducible Model Packs
+
+Before local work that depends on pretrained artifacts, validate the Cycle 015
+registry and download the declared runtime packs:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/ci/verify_pretrained_models.py
+python scripts/models/download-xai-registry-models.py --manifest specs/015-xai-anomaly-score/pretrained-model-acquisition-manifest.json --releases-dir releases/model-packs --runtime all --receipt backend/logs/xai_model_download_receipt.json
+```
+
+Then install the packs into `backend/models` using the existing bootstrap
+scripts when needed:
+
+```powershell
+./scripts/models/bootstrap-models.ps1 -Runtime all -ModelsDir ./backend/models -ReleasesDir ./releases/model-packs
+```
+
 ## 5. Validate Locally
 
 Run focused tests first:

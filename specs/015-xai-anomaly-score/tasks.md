@@ -26,7 +26,9 @@ production decision.
 - [ ] T003 [P] Add XAI/anomaly source path filters and focused test placeholders to `.github/workflows/xai-anomaly.yml`
 - [ ] T004 [P] Add static prohibited-accusation, manufactured-ground-truth, anomaly-training, prohibited-metric, and observed-pattern vocabulary verifier in `scripts/ci/verify_xai_language.py`
 - [ ] T005 [P] Add static signal/explainer registry coverage verifier in `scripts/ci/verify_xai_registry.py`
-- [ ] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
+- [X] T005a [P] Add pretrained-models registry verifier (Class A frozen signal sources present with route snapshots; Class B carry `promotion_status = PROBE_ONLY`; no trainable anomaly target) in `scripts/ci/verify_pretrained_models.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
+- [X] T005d [P] Add a reproducible pretrained-model acquisition manifest and cross-platform download helpers in `specs/015-xai-anomaly-score/pretrained-model-acquisition-manifest.json` and `scripts/models/download-xai-registry-models.{py,sh,ps1}`
+- [X] T005e [P] Add focused unit coverage for the pretrained-model verifier and acquisition helper in `backend/tests/unit/scripts/test_verify_pretrained_models.py` and `backend/tests/unit/scripts/test_download_xai_registry_models.py`
 - [ ] T005b [P] Add static no-hardcoded-operational-constant and parameter-provenance verifier (every threshold/weight/envelope/geometric constant resolves to a learned baseline reference or a fingerprinted `.env`/config key with `learned`/`configured` provenance) in `scripts/ci/verify_no_hardcode.py`
 - [ ] T005c [P] Add static model-promotion-gate verifier (any `MANDATORY` model carries a complete `ModelPromotionRecord` with benchmark/serving-metrics/model-card/approver/rollback; `PROBE_ONLY`/`SHADOW`/`CANARY` outputs never feed a production score/state; `target_role` is signal/representation only; no behavioral-accuracy metric) in `scripts/ci/verify_model_promotion.py` per `specs/015-xai-anomaly-score/pretrained-models-registry.md`
 - [ ] T006 [P] Add static placeholder/artifact authenticity verifier in `scripts/ci/verify_xai_artifacts.py`
@@ -251,11 +253,11 @@ identity unresolved and reconstruct the explanation graph.
 **Independent test**: Eligible methods complete idempotently with fidelity,
 sanity, stability, security, and critical-path isolation evidence.
 
-- [ ] T158 [P] [US4] Write Cycle 015.8 investigation and per-model method eligibility matrix in `docs/xai_anomaly/cycle_015_8_investigation.md`
-- [ ] T159 [P] [US6] Name Cycle 015.8 Figure Planner in `docs/xai_anomaly/cycle_015_8_figure_plan.md`
-- [ ] T160 [P] [US6] Name separate Cycle 015.8 Figure Implementer in `docs/xai_anomaly/cycle_015_8_figure_implementation.md`
-- [ ] T161 [P] [US4] Implement deep-XAI request/artifact/evaluation contracts in `backend/apps/behavior/explainability/deep_contracts.py`
-- [ ] T162 [US4] Add deep-XAI request/artifact/evaluation models and migration in `backend/apps/behavior/models.py`
+- [X] T158 [P] [US4] Write Cycle 015.8 investigation and per-model method eligibility matrix in `docs/xai_anomaly/cycle_015_8_investigation.md`
+- [X] T159 [P] [US6] Name Cycle 015.8 Figure Planner in `docs/xai_anomaly/cycle_015_8_figure_plan.md`
+- [X] T160 [P] [US6] Name separate Cycle 015.8 Figure Implementer in `docs/xai_anomaly/cycle_015_8_figure_implementation.md`
+- [X] T161 [P] [US4] Implement deep-XAI request/artifact/evaluation contracts in `backend/apps/behavior/explainability/deep_contracts.py`
+- [X] T162 [US4] Add deep-XAI request/artifact/evaluation models and migration in `backend/apps/behavior/models.py`
 - [ ] T163 [P] [US4] Implement D-RISE adapter in `backend/apps/behavior/explainability/adapters/deep_drise.py`
 - [ ] T164 [P] [US4] Implement CAM/IG eligibility adapters in `backend/apps/behavior/explainability/adapters/deep_gradient.py`
 - [ ] T165 [P] [US4] Implement pose joint-occlusion adapter in `backend/apps/behavior/explainability/adapters/deep_pose.py`

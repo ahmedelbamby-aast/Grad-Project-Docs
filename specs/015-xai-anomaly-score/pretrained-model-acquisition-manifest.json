@@ -1,0 +1,279 @@
+{
+  "schema_version": "xai.pretrained_model_acquisition.v1",
+  "release_pack_dir": "releases/model-packs",
+  "runtime_packs": {
+    "pt": {
+      "archive_name": "pt.zip",
+      "source_uri_env": "XAI_MODEL_PACK_PT_URI",
+      "sha256_env": "XAI_MODEL_PACK_PT_SHA256"
+    },
+    "onnx": {
+      "archive_name": "onnx.zip",
+      "source_uri_env": "XAI_MODEL_PACK_ONNX_URI",
+      "sha256_env": "XAI_MODEL_PACK_ONNX_SHA256"
+    },
+    "openvino": {
+      "archive_name": "openvino.zip",
+      "source_uri_env": "XAI_MODEL_PACK_OPENVINO_URI",
+      "sha256_env": "XAI_MODEL_PACK_OPENVINO_SHA256"
+    },
+    "tensorrt": {
+      "archive_name": "tensorrt.zip",
+      "source_uri_env": "XAI_MODEL_PACK_TENSORRT_URI",
+      "sha256_env": "XAI_MODEL_PACK_TENSORRT_SHA256"
+    }
+  },
+  "models": [
+    {
+      "registry_name": "person_detector",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/student_teacher/weights/student_teacher.pt",
+        "backend/models/student_teacher/weights/student_teacher.onnx",
+        "backend/models/student_teacher/weights/student_teacher.engine",
+        "backend/models/student_teacher/weights/student_teacher_openvino_model/student_teacher.xml",
+        "backend/models/student_teacher/weights/student_teacher_openvino_model/student_teacher.bin"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "rtmpose_model",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/rtmpose/rtmpose.pth",
+        "backend/models/rtmpose/rtmpose-m.onnx",
+        "backend/models/rtmpose/openvino/rtmpose-m.xml",
+        "backend/models/rtmpose/openvino/rtmpose-m.bin",
+        "backend/models/rtmpose/tensorrt/rtmpose-m.engine"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "posture_model",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/standing_sitting/weights/standing_sitting.pt",
+        "backend/models/standing_sitting/weights/standing_sitting.onnx",
+        "backend/models/standing_sitting/weights/standing_sitting.engine",
+        "backend/models/standing_sitting/weights/standing_sitting_openvino_model/standing_sitting.xml",
+        "backend/models/standing_sitting/weights/standing_sitting_openvino_model/standing_sitting.bin"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "gaze_horizontal_model",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/right_left/weights/right_left.pt",
+        "backend/models/right_left/weights/right_left.onnx",
+        "backend/models/right_left/weights/right_left.engine",
+        "backend/models/right_left/weights/right_left_openvino_model/right_left.xml",
+        "backend/models/right_left/weights/right_left_openvino_model/right_left.bin"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "gaze_vertical_model",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/up_down/weights/up_down.pt",
+        "backend/models/up_down/weights/up_down.onnx",
+        "backend/models/up_down/weights/up_down.engine",
+        "backend/models/up_down/weights/up_down_openvino_model/up_down.xml",
+        "backend/models/up_down/weights/up_down_openvino_model/up_down.bin"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "gaze_depth_model",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt", "onnx", "openvino", "tensorrt"],
+      "required_artifacts": [
+        "backend/models/forward_backward/weights/forward_backward.pt",
+        "backend/models/forward_backward/weights/forward_backward.onnx",
+        "backend/models/forward_backward/weights/forward_backward.engine",
+        "backend/models/forward_backward/weights/forward_backward_openvino_model/forward_backward.xml",
+        "backend/models/forward_backward/weights/forward_backward_openvino_model/forward_backward.bin"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "behavior_ensemble",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["tensorrt"],
+      "required_artifacts": [
+        "backend/models/triton_repository_cuda12/behavior_ensemble/config.pbtxt",
+        "backend/models/triton_repository_cuda12/behavior_ensemble/1/.gitkeep"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "osnet_ain_x1_0",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["tensorrt"],
+      "required_artifacts": [
+        "backend/models/triton_repository_cuda12/osnet_ain_x1_0/config.pbtxt",
+        "backend/models/triton_repository_cuda12/osnet_ain_x1_0/1/.gitkeep"
+      ],
+      "local_artifact_check": "optional"
+    },
+    {
+      "registry_name": "yoloe_scene_seg",
+      "class": "A",
+      "state": "READY",
+      "promotion_status": "READY",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["onnx", "tensorrt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "COMBINED head",
+      "class": "A",
+      "state": "training_prod",
+      "promotion_status": "training_prod",
+      "frozen": true,
+      "route_snapshot_required": true,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "STG-NF",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "DA-Flow",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "Deep SVDD",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "PatchCore / PaDiM",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "VideoMAE / V-JEPA",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "ST-GCN family",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "GAT / GraphSAGE",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "ARG / GroupFormer",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    },
+    {
+      "registry_name": "StrGNN / TADDY",
+      "class": "B",
+      "state": "PROBE_ONLY",
+      "promotion_status": "PROBE_ONLY",
+      "frozen": true,
+      "route_snapshot_required": false,
+      "runtime_packs": ["pt"],
+      "required_artifacts": [],
+      "local_artifact_check": "external"
+    }
+  ]
+}

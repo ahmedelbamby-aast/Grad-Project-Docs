@@ -22,6 +22,9 @@ requirement, cycle, contract, task, benchmark, and user-facing claim.
   (Class A) or a `PROBE_ONLY` representation/one-class candidate (Class B) — and
   is catalogued with its role and promotion constraint in
   [pretrained-models-registry.md](pretrained-models-registry.md).
+- The pretrained registry now has a reproducible acquisition manifest plus
+  download helpers and a verifier so required model packs, digests, and helper
+  commands are explicit rather than tribal knowledge.
 - Reviewer feedback, heuristic rules, assumed-normal history, source-model
   agreement, and current BSIL outputs are not anomaly ground truth.
 - The production layer compares bounded per-student multivariate temporal

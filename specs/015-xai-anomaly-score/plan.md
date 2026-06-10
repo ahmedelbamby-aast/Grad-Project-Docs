@@ -540,6 +540,8 @@ backend/apps/pipeline/services/
 
 frontend/src/features/xai/
 frontend/src/services/webgl/
+scripts/models/
+scripts/ci/
 tools/prod/
 backend/tests/
 frontend/tests/
