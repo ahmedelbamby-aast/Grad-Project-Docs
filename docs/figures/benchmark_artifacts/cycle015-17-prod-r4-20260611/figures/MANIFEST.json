@@ -1,0 +1,41 @@
+{
+  "schema_version": "xai.figure_manifest.v1",
+  "cycle": "015.17",
+  "figure_planner": "Codex Cycle 015.17 Figure Planner",
+  "figure_implementer": "Codex Cycle 015.17 Figure Implementer",
+  "role_separation_note": "One Codex agent performed both roles because no second agent was active. Planning and implementation evidence remain separated in cycle_015_17_figure_plan.md and cycle_015_17_figure_implementation.md.",
+  "generated_at": "2026-06-11T21:33:30.204166+00:00",
+  "inputs": {
+    "baseline_metrics": {
+      "path": "docs\\figures\\benchmark_artifacts\\cycle015-17-prod-r4-20260611\\baseline_metrics.json",
+      "sha256": "42290cfdba7808dabf4d58c3d2e50ea528155431a9109fd2034623f9ec8fcada"
+    },
+    "candidate_metrics": {
+      "path": "docs\\figures\\benchmark_artifacts\\cycle015-17-prod-r4-20260611\\candidate_metrics.json",
+      "sha256": "f78f6943e0906ceb2318ed40d363ecfa86a850f900f53d59aa204f59132ef109"
+    },
+    "lane_stats": {
+      "path": "docs\\figures\\benchmark_artifacts\\cycle015-17-prod-r4-20260611\\candidate_lane_stats.json",
+      "sha256": "f84d0ea65a51532f3a3ba0ef2f0816053ac298055d2a155fc192b6d61ea99831"
+    }
+  },
+  "figures": {
+    "throughput_comparison.png": "05392ca6d169aab3bd4ac8e4ec14bae531c5ffe771af9c0b942a0c3dbaec6935",
+    "correctness_parity.png": "bb088d1533c36c3f9f3d82d24976fe8c5d2ee939164e2214bb283379492a4b54",
+    "persistence_lane_evidence.png": "e9a970cb2e4916650a5c8a80406d49b5dbcd3b5c273c3b3c151953d8ebebe139",
+    "model_rtt_call_rate.png": "34c907e5e08183d31730b041e6c45aa22a756bba3003b0a02e9de1db086e17be",
+    "unavailable_summary.png": "8627efee19e695a48e965dbcd466be2c5999a1dad10a89c86dd086fc502c6a2e"
+  },
+  "unavailable": [
+    {
+      "metric": "step2_through_pose_s",
+      "reason": "metric_missing_or_non_numeric",
+      "run_role": "baseline"
+    },
+    {
+      "metric": "step2_through_pose_s",
+      "reason": "metric_missing_or_non_numeric",
+      "run_role": "candidate"
+    }
+  ]
+}

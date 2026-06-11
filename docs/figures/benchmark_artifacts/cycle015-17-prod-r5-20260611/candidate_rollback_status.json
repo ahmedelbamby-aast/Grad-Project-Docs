@@ -1,0 +1,10 @@
+{
+  "mode": "candidate",
+  "offline_async_persistence_enabled": false,
+  "recorded_at": "2026-06-11T21:25:52.824129+00:00",
+  "replay_key": "cycle015-17-prod-r5-20260611-candidate",
+  "rollback_verified": true,
+  "schema_version": "cycle015.17.rollback.v1",
+  "serial_setting_verified": true,
+  "workers_restarted": true
+}

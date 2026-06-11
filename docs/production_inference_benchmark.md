@@ -4776,3 +4776,72 @@ Evidence:
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/gpu_monitor.csv`
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/baseline_rollback_status.json`
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/MANIFEST.json`
+
+---
+
+## 55. Cycle 015.17 r4/r5 Async Persistence Closure — 2026-06-11
+
+The r4 serial baseline job
+`b3c9241e-9d94-4e9a-9cbf-de0cd56d1e8b` ran on SHA `770f47d8`, native
+Linux RTX 5090, canonical `combined.mp4`, frame stride `1`, PostgreSQL, and
+async persistence disabled. The r4 async candidate job
+`0d045329-6283-4cab-99c8-451cb200a71c` used the same SHA and completed with
+aggregate row parity but retained the deterministic six-row track `43`
+divergence.
+
+The r4 root cause was the frame packet signature, not the embedded-row repair.
+Secondary-model public labels omit track IDs, so `attention_tracking 43 -> 0`
+did not change the signature and the final revision was never enqueued.
+
+Commit `bec9f0f4` added the explicit track ID and exact persisted content fields
+to the signature. The corrected r5 candidate job
+`3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64` then reused the immediately preceding
+r4 serial baseline.
+
+| Metric | r4 serial baseline | r4 failed async | r5 corrected async |
+|---|---:|---:|---:|
+| DB-completed FPS | `1.654325` | `1.707491` | `1.678566` |
+| DB-completed elapsed | `2744.926 s` | `2659.457 s` | `2705.285 s` |
+| Step 2 frame wall | `1621.705863 s` | `1566.993768 s` | `1599.162909 s` |
+| Step 3 persistence wall | `43.848086 s` | `14.305064 s` | `19.189760 s` |
+| Frames | `4541` | `4541` | `4541` |
+| Detections / boxes | `127117` | `127117` | `127117` |
+| Embeddings | `126519` | `126519` | `126519` |
+| Student tracks | `138` | `139` | `138` |
+
+The independent r5 PostgreSQL comparison reported:
+
+| Fidelity gate | Delta | SHA-256 |
+|---|---:|---|
+| Detection/box content multiset | `0` | Identical |
+| Track-assignment multiset | `0` | Identical |
+| Embedding assignment/vector multiset | `0` | Identical |
+
+The r5 lane produced and applied `8189` packets, recorded `3648` revisions,
+pruned `11` zero-reference tracks, drained with zero pending entries, and
+reported `unresolved_frames=[]`. The four additional revisions relative to r4
+match disputed frames `512` through `515`. Both serial and corrected async jobs
+store the same 18 track-0 embeddings under vector digest
+`91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899`.
+
+Decision: the async track-assignment and reused-vector fidelity defect is
+**RESOLVED**. Cycle 015.17 remains **NOT ACCEPTED as a throughput
+optimization** because the corrected candidate improved DB-completed FPS by
+only `1.47%` and reached `1.678566 FPS`, far below the binding `15 FPS` target.
+Rollback restored `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` and restarted workers.
+
+Figure Planner: `Codex production benchmark agent`.
+
+Figure Implementer: `Codex production benchmark agent`.
+
+One active agent performed both roles; raw inputs, generated outputs, and
+digests remain separated by the figure and package manifests.
+
+Evidence:
+
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/r4_failure_comparison.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/figures/MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/PACKAGE_MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/exact_persistence_parity.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/PACKAGE_MANIFEST.json`

@@ -1,0 +1,223 @@
+{
+  "comparisons": {
+    "assignment_multiset_delta": 12,
+    "content_multiset_delta": 0
+  },
+  "divergent_region_rows": [
+    {
+      "confidence": 0.186523,
+      "frame_number": 512,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.460156
+      ]
+    },
+    {
+      "confidence": 0.320068,
+      "frame_number": 513,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.403906
+      ]
+    },
+    {
+      "confidence": 0.36377,
+      "frame_number": 514,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.275
+      ]
+    },
+    {
+      "confidence": 0.668945,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.21875
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.156616,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 2,
+      "xyxy": [
+        221.634766,
+        251.0,
+        226.432423,
+        259.461083
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "hand_raising",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.186523,
+      "frame_number": 512,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 43,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.460156
+      ]
+    },
+    {
+      "confidence": 0.320068,
+      "frame_number": 513,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 43,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.403906
+      ]
+    },
+    {
+      "confidence": 0.36377,
+      "frame_number": 514,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 43,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.275
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 43,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.156616,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 2,
+      "xyxy": [
+        221.634766,
+        251.0,
+        226.432423,
+        259.461083
+      ]
+    },
+    {
+      "confidence": 0.668945,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 43,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.21875
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "hand_raising",
+      "tracking_id": 43,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    }
+  ],
+  "embedding_track_summary": {
+    "baseline": {
+      "0": {
+        "row_count": 18,
+        "unique_vector_digests": 1,
+        "vector_digest_counts": {
+          "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 18
+        }
+      }
+    },
+    "candidate": {
+      "0": {
+        "row_count": 12,
+        "unique_vector_digests": 1,
+        "vector_digest_counts": {
+          "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 12
+        }
+      },
+      "43": {
+        "row_count": 6,
+        "unique_vector_digests": 1,
+        "vector_digest_counts": {
+          "92e8fd3f9b4431f0515cd672331cfe719cee4db850fdc64b79d04d844f5834b7": 6
+        }
+      }
+    }
+  },
+  "finding": "The public-label signature omitted explicit track IDs for secondary models, so track 43 to 0 revisions were not enqueued.",
+  "jobs": {
+    "baseline": "b3c9241e-9d94-4e9a-9cbf-de0cd56d1e8b",
+    "candidate": "0d045329-6283-4cab-99c8-451cb200a71c"
+  },
+  "schema_version": "cycle015.17.r4_failure.v1"
+}

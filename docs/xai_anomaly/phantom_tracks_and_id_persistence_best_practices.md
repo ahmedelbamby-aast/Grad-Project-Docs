@@ -155,9 +155,32 @@ review), not auto-merge. Deterministic ID stability, if ever required, must come
 from a stronger discriminator (classroom-fine-tuned ReID) or tracker-level re-ID
 at birth — never from thresholded merging on weakly-separated embeddings.
 
-**Decision:** do not auto-merge by appearance. Repair only the exact stale
-frame revision and keep Cycle 015.17 default-off until an r4 production
-baseline/candidate pair proves assignment and reused-vector parity.
+## r4/r5 Production Resolution
+
+r4 proved that the embedded-row repair was not reached. The packet signature
+used the public overlay label, and secondary-model labels intentionally omit
+the track ID. Therefore `attention_tracking 43 -> 0` looked unchanged and the
+authoritative revision was not enqueued.
+
+Commit `bec9f0f4` added explicit track ID, class, confidence, coordinates, and
+model to the signature. The r5 production candidate then matched the serial
+baseline exactly:
+
+- box content multiset delta `0`;
+- track-assignment multiset delta `0`;
+- embedding assignment/vector multiset delta `0`;
+- `138` tracks in both jobs;
+- the same 18 canonical track-0 vectors and no track `43`.
+
+The four extra r5 revisions match frames `512` through `515`, so the correction
+now occurs before embedding generation. The embedded-row reconciler remains a
+fail-closed fallback for other orderings.
+
+**Decision:** do not auto-merge by appearance. The stale-revision fidelity bug
+is resolved by exact ordered persistence, not ReID similarity. Keep Cycle
+015.17 default-off because its corrected production gain was only `1.47%`
+(`1.678566 FPS`), not because of a remaining correctness defect. Evidence is
+under `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/`.
 
 ## Optional future hardening (not yet needed)
 

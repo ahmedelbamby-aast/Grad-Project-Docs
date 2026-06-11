@@ -1,0 +1,117 @@
+{
+  "schema_version": "cycle015.17.package_manifest.v1",
+  "generated_at": "2026-06-11T21:33:41.6019566Z",
+  "package": "cycle015-17-prod-r4-20260611",
+  "files": [
+    {
+      "path": "baseline_lane_stats.json",
+      "sha256": "bfe03575d39c3c70ed854d3ad61cab231478c509f516980ddbeda1c4a35232bb",
+      "bytes": 1886
+    },
+    {
+      "path": "baseline_metrics.json",
+      "sha256": "42290cfdba7808dabf4d58c3d2e50ea528155431a9109fd2034623f9ec8fcada",
+      "bytes": 22561
+    },
+    {
+      "path": "baseline_metrics.md",
+      "sha256": "9671d88d27bc821aed2c6aaeea42fc26d43e10659001734eb16162afe820481a",
+      "bytes": 11302
+    },
+    {
+      "path": "baseline_midrun_samples.jsonl",
+      "sha256": "3ae9517f8cad06dde00110b96b9ed972fb124d9840e2815731efe5fb57891972",
+      "bytes": 123979
+    },
+    {
+      "path": "baseline_rollback_status.json",
+      "sha256": "74580dad95a31ea856d19ff696126c484a02bdd9df161517adeea823f10b6792",
+      "bytes": 321
+    },
+    {
+      "path": "baseline_rollback_status.md",
+      "sha256": "a5be984be9cafce9de4e2b7d694abc3c87a8284d6723a042953c3bfe96273925",
+      "bytes": 214
+    },
+    {
+      "path": "baseline_runtime_guard.json",
+      "sha256": "9fadd27136635ece1e17d9f8caca31022b7814f55e5ea6aa851fa20d91f85833",
+      "bytes": 462
+    },
+    {
+      "path": "candidate_lane_stats.json",
+      "sha256": "f84d0ea65a51532f3a3ba0ef2f0816053ac298055d2a155fc192b6d61ea99831",
+      "bytes": 3119
+    },
+    {
+      "path": "candidate_metrics.json",
+      "sha256": "f78f6943e0906ceb2318ed40d363ecfa86a850f900f53d59aa204f59132ef109",
+      "bytes": 22563
+    },
+    {
+      "path": "candidate_metrics.md",
+      "sha256": "682f075668b940391a67a8c5bf03e9161a57ee741ab53beeaa1bb4345a0de7d3",
+      "bytes": 16850
+    },
+    {
+      "path": "candidate_midrun_samples.jsonl",
+      "sha256": "b14ecd34fbc036f0994576ab2a191473646d6f989b3531cf9e6488ace3ce582c",
+      "bytes": 129715
+    },
+    {
+      "path": "candidate_rollback_status.json",
+      "sha256": "33a6246cc4a76cbc67b6746e32b55cb2baa7e8292c296741e1fee433853c2454",
+      "bytes": 323
+    },
+    {
+      "path": "candidate_rollback_status.md",
+      "sha256": "0447b7fe08221042ff937a5ab62642216b06faf90d76a714981469284d4dd307",
+      "bytes": 216
+    },
+    {
+      "path": "candidate_runtime_guard.json",
+      "sha256": "10a441b1196ad1788c2b90fb996462f2c37b00a0fc345ae17d308c60102d7c0a",
+      "bytes": 463
+    },
+    {
+      "path": "figures/correctness_parity.png",
+      "sha256": "bb088d1533c36c3f9f3d82d24976fe8c5d2ee939164e2214bb283379492a4b54",
+      "bytes": 120420
+    },
+    {
+      "path": "figures/FIGURES.md",
+      "sha256": "60519ba12546d4dfa491fa684f4bb58548117d6d05fbabb00ab0bf143538f62a",
+      "bytes": 908
+    },
+    {
+      "path": "figures/MANIFEST.json",
+      "sha256": "f80fd29c88bc7261e2dfd0e3672f20b012e4c3378330353798201d73733d50b5",
+      "bytes": 2003
+    },
+    {
+      "path": "figures/model_rtt_call_rate.png",
+      "sha256": "34c907e5e08183d31730b041e6c45aa22a756bba3003b0a02e9de1db086e17be",
+      "bytes": 69022
+    },
+    {
+      "path": "figures/persistence_lane_evidence.png",
+      "sha256": "e9a970cb2e4916650a5c8a80406d49b5dbcd3b5c273c3b3c151953d8ebebe139",
+      "bytes": 142160
+    },
+    {
+      "path": "figures/throughput_comparison.png",
+      "sha256": "05392ca6d169aab3bd4ac8e4ec14bae531c5ffe771af9c0b942a0c3dbaec6935",
+      "bytes": 98255
+    },
+    {
+      "path": "figures/unavailable_summary.png",
+      "sha256": "8627efee19e695a48e965dbcd466be2c5999a1dad10a89c86dd086fc502c6a2e",
+      "bytes": 29488
+    },
+    {
+      "path": "r4_failure_comparison.json",
+      "sha256": "67304e4ab41ff76c743b3b31428adee9f8b7245b38a349bd2c53dd74f83223a1",
+      "bytes": 4924
+    }
+  ]
+}

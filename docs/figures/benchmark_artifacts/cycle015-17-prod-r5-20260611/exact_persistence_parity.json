@@ -1,0 +1,265 @@
+{
+  "comparisons": {
+    "assignment_multiset_delta": 0,
+    "assignment_multiset_sha256": {
+      "baseline": "0ba8bb8d328150f3948b2796e52660f1eda43d846b306e8dcf6c82255f3683ce",
+      "candidate": "0ba8bb8d328150f3948b2796e52660f1eda43d846b306e8dcf6c82255f3683ce"
+    },
+    "content_multiset_delta": 0,
+    "content_multiset_sha256": {
+      "baseline": "e52a45219af2467eafd53d1bb14d09559873ca143921970fb3c9fcc9fa6a0665",
+      "candidate": "e52a45219af2467eafd53d1bb14d09559873ca143921970fb3c9fcc9fa6a0665"
+    },
+    "embedding_multiset_delta": 0,
+    "embedding_multiset_sha256": {
+      "baseline": "807667d0c79a838f45b173d4f5c2f5c19fbe738b18b8b08d664d703038b12f28",
+      "candidate": "807667d0c79a838f45b173d4f5c2f5c19fbe738b18b8b08d664d703038b12f28"
+    }
+  },
+  "corrected_region_rows": [
+    {
+      "confidence": 0.186523,
+      "frame_number": 512,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.460156
+      ]
+    },
+    {
+      "confidence": 0.320068,
+      "frame_number": 513,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.403906
+      ]
+    },
+    {
+      "confidence": 0.36377,
+      "frame_number": 514,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.275
+      ]
+    },
+    {
+      "confidence": 0.668945,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.21875
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.156616,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "attention_tracking",
+      "tracking_id": 2,
+      "xyxy": [
+        221.634766,
+        251.0,
+        226.432423,
+        259.461083
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "baseline",
+      "model_name": "hand_raising",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.186523,
+      "frame_number": 512,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.460156
+      ]
+    },
+    {
+      "confidence": 0.320068,
+      "frame_number": 513,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.403906
+      ]
+    },
+    {
+      "confidence": 0.36377,
+      "frame_number": 514,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.275
+      ]
+    },
+    {
+      "confidence": 0.668945,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.21875
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "confidence": 0.156616,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "attention_tracking",
+      "tracking_id": 2,
+      "xyxy": [
+        221.634766,
+        251.0,
+        226.432423,
+        259.461083
+      ]
+    },
+    {
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "job": "candidate",
+      "model_name": "hand_raising",
+      "tracking_id": 0,
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    }
+  ],
+  "embedding_track_summary": {
+    "baseline": {
+      "0": {
+        "row_count": 18,
+        "unique_vector_digests": 1,
+        "vector_digest_counts": {
+          "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 18
+        }
+      }
+    },
+    "candidate": {
+      "0": {
+        "row_count": 18,
+        "unique_vector_digests": 1,
+        "vector_digest_counts": {
+          "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 18
+        }
+      }
+    }
+  },
+  "jobs": {
+    "baseline": {
+      "bounding_boxes": 127117,
+      "embeddings": 126519,
+      "job_id": "b3c9241e-9d94-4e9a-9cbf-de0cd56d1e8b",
+      "replay_key": "cycle015-17-prod-r4-20260611-baseline",
+      "status": "completed",
+      "student_tracks": 138
+    },
+    "candidate": {
+      "bounding_boxes": 127117,
+      "embeddings": 126519,
+      "job_id": "3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64",
+      "replay_key": "cycle015-17-prod-r5-20260611-candidate",
+      "status": "completed",
+      "student_tracks": 138
+    }
+  },
+  "query_contract": {
+    "box_assignment_key": [
+      "box_content_key",
+      "student_track.tracking_id"
+    ],
+    "box_content_key": [
+      "frame_number",
+      "model_name",
+      "class_name",
+      "confidence_rounded_6dp",
+      "xyxy_rounded_6dp"
+    ],
+    "comparison": "exact multiset difference within deterministic replays of the same source",
+    "embedding_key": [
+      "frame_number",
+      "class_name",
+      "confidence_rounded_6dp",
+      "bbox_xyxy_rounded_6dp",
+      "student_track.tracking_id",
+      "embedding_model",
+      "embedding_vector_sha256"
+    ]
+  },
+  "schema_version": "cycle015.17.exact_persistence_parity.v1"
+}

@@ -314,11 +314,136 @@ the complete copied package is covered by `PACKAGE_MANIFEST.json`.
 ### Required production follow-up
 
 - **Inline orphan GC** (`OFFLINE_PERSIST_INLINE_ORPHAN_GC`, default-off,
-  implemented): reference-counted phantom prevention at write time
-  so zero-reference phantoms do not accumulate before finalization.
-- Run a fresh native Linux RTX 5090 stride-1 r4 baseline/candidate pair through
-  the actual terminal state.
-- Require exact frame signatures, exact track-reference parity, no unresolved
-  reconciliation frames, exact reused-vector digests, complete resource
-  evidence, rollback proof, figures, and ledger updates.
-- Keep `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` until that evidence exists.
+  implemented): reference-counted phantom prevention at write time so
+  zero-reference phantoms do not accumulate before finalization.
+- Preserve the r4 and r5 production packages and decisions below.
+- Keep `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`: correctness is now exact, but the
+  candidate did not produce a material end-to-end throughput gain.
+
+## r4 And r5 Production Closure (2026-06-11)
+
+Figure Planner: `Codex production benchmark agent`.
+
+Figure Implementer: `Codex production benchmark agent`.
+
+One active agent performed both roles because no separate figure lane was
+available. The figure plan remained the existing Cycle 015.17 metric contract;
+the implementation used
+`tools/prod/prod_generate_xai_cycle015_17_figures.py`, with raw inputs and
+output digests recorded separately in each figure manifest.
+
+### r4 Result: Embedded Repair Was Not Reached
+
+The r4 serial baseline ran on SHA `770f47d8` as job
+`b3c9241e-9d94-4e9a-9cbf-de0cd56d1e8b`. The r4 async candidate ran on the
+same SHA as job `0d045329-6283-4cab-99c8-451cb200a71c`. Both used native Linux
+RTX 5090, canonical `combined.mp4`, frame stride `1`, PostgreSQL, and the
+terminal-state runner.
+
+| Metric | r4 serial | r4 async | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `1.654325` | `1.707491` | `+3.21%` |
+| DB-completed elapsed | `2744.926 s` | `2659.457 s` | `-3.11%` |
+| Step 2 frame wall | `1621.705863 s` | `1566.993768 s` | `-3.37%` |
+| Step 3 persistence wall | `43.848086 s` | `14.305064 s` | `-67.38%` |
+| Student tracks | `138` | `139` | Diverged |
+
+All aggregate frame, detection, bounding-box, embedding, pose, and per-model
+counts matched. Exact comparison still found content delta `0` and six rows
+assigned to candidate track `43` instead of serial track `0`. The lane summary
+reported zero embedded-frame reconciliations because the new repair was never
+invoked.
+
+The missed condition was `_cycle20_frame_packet_signature`. It used
+`build_public_box_label` as the identity-bearing signature field. Public labels
+for secondary models intentionally contain only the model name, so
+`attention_tracking 43 -> 0` and `hand_raising 43 -> 0` produced identical
+signatures. Step 3 therefore did not enqueue the final authoritative revision.
+This was earlier than the embedding guard and explains why the embedded repair
+counters remained zero.
+
+r4 decision: **NEEDS FURTHER ITERATION / correctness failure**. Evidence:
+
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/r4_failure_comparison.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/figures/MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/PACKAGE_MANIFEST.json`
+
+### Signature Repair
+
+Commit `bec9f0f4` changed the in-memory and PostgreSQL packet signatures to
+include model, normalized class, six-decimal confidence, six-decimal
+coordinates, explicit `student_track.tracking_id`, and public label. The
+production-shaped regression test reproduces the exact
+`attention_tracking 43 -> 0` case and verifies that finalization replaces the
+stale pre-embedding packet and removes track `43`.
+
+The exact embedded-row reconciler remains as a fail-closed fallback. The r5
+run did not need it because the corrected signature caused the final revision
+to be ordered and applied before embeddings were generated.
+
+### r5 Corrected Candidate
+
+The r5 candidate ran on SHA `bec9f0f4` as job
+`3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64`. It used the immediately preceding r4
+serial job as its frozen baseline; no serial behavior-affecting code changed.
+
+| Metric | r4 serial baseline | r5 corrected async | Delta |
+|---|---:|---:|---:|
+| DB-completed FPS | `1.654325` | `1.678566` | `+1.47%` |
+| DB-completed elapsed | `2744.926 s` | `2705.285 s` | `-1.44%` |
+| Step 2 frame wall | `1621.705863 s` | `1599.162909 s` | `-1.39%` |
+| Step 3 persistence wall | `43.848086 s` | `19.189760 s` | `-56.24%` |
+| Audit run-complete wall | `2577.956851 s` | `2541.756147 s` | `-1.40%` |
+| Average GPU utilization | `4.247%` | `4.405%` | `+0.158 pp` |
+| Peak GPU utilization | `49%` | `49%` | Exact |
+
+The corrected lane produced and applied `8189` packets, drained with zero
+pending entries and zero enqueue failures, and recorded `3648` revised packets.
+That is four more final revisions than r4, matching the four disputed frames
+`512` through `515`. It pruned `11` zero-reference tracks and reported
+`unresolved_frames=[]`.
+
+### Exact Fidelity Gates
+
+An independent PostgreSQL comparison covered every persisted box and embedding.
+It did not rely on aggregate counts or raw local-ID equality across unrelated
+runs; these are deterministic replays of the same source and reviewed pipeline.
+
+| Exact multiset gate | Result | Digest result |
+|---|---:|---|
+| Detection/box content | delta `0` | identical SHA-256 |
+| Track assignment | delta `0` | identical SHA-256 |
+| Embedding assignment and vector | delta `0` | identical SHA-256 |
+
+Both jobs contain `138` tracks, `127117` detections/bounding boxes, and
+`126519` embeddings. The disputed rows are track `0` in both jobs. Track `0`
+contains the same `18` embeddings under vector digest
+`91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899`;
+track `43` is absent from the corrected candidate.
+
+The authoritative comparison is
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/exact_persistence_parity.json`.
+
+### r5 Figures
+
+![r5 throughput comparison](../figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/throughput_comparison.png)
+
+![r5 correctness parity](../figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/correctness_parity.png)
+
+![r5 persistence lane evidence](../figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/persistence_lane_evidence.png)
+
+![r5 model RTT and call rate](../figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/model_rtt_call_rate.png)
+
+![r5 unavailable metrics](../figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/unavailable_summary.png)
+
+The figure-input/output digests are recorded in
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/MANIFEST.json`;
+the full package is covered by `PACKAGE_MANIFEST.json`.
+
+### Final Decision
+
+The async fidelity bug is **resolved**. The optimization candidate remains
+**NOT ACCEPTED** because `1.678566 FPS` is only `+1.47%` over the matched
+baseline and remains far below the binding `15 FPS` target. Step 3 improved,
+but it is not the dominant end-to-end bottleneck. Production rollback restored
+`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` and restarted workers.

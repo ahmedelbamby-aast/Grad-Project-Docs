@@ -144,6 +144,43 @@ valid unless its run appears here.
 | Rollback | Serial setting verified; workers restarted |
 | Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/` |
 
+### B014 — Cycle 015.17 r4 serial baseline · ◷ BASELINE
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r4-20260611-baseline` · job `b3c9241e-9d94-4e9a-9cbf-de0cd56d1e8b` · commit `770f47d8` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence off |
+| Completion | `4541/4541` · `2744.926 s` · **1.654325 DB FPS** |
+| Correctness | frames `4541` · detections/bboxes `127117` · embeddings `126519` · tracks `138` |
+| Decision | ◷ frozen baseline for R006 and R007 |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/`; copied into the r5 package for the corrected comparison |
+
+### R006 — Cycle 015.17 r4 embedded-revision repair · ✘ REFUSED
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r4-20260611-candidate` · job `0d045329-6283-4cab-99c8-451cb200a71c` · commit `770f47d8` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence on |
+| Completion | `4541/4541` · `2659.457 s` · **1.707491 DB FPS** (`+3.21%`) |
+| Correctness | Aggregate rows exact · tracks `138 -> 139`; content delta `0`; six assignment rows still `0 -> 43` |
+| Lane | `8185` produced/applied · drained · zero unresolved · zero embedded-frame reconciliations |
+| **Decision** | ✘ **REFUSED** |
+| **Reason** | Secondary-model public labels omit track IDs, so the packet signature treated `attention_tracking 43 -> 0` as unchanged and never enqueued the authoritative revision. |
+| Rollback | Async persistence disabled and workers restarted |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r4-20260611/` |
+
+### R007 — Cycle 015.17 r5 corrected async persistence · ✘ NOT ACCEPTED
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r5-20260611-candidate` · job `3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64` · commit `bec9f0f4` |
+| Baseline | B014; no serial behavior-affecting code changed |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence on |
+| Completion | `4541/4541` · `2705.285 s` · **1.678566 DB FPS** (`+1.47%`) |
+| Exact correctness | content delta `0`; assignment delta `0`; embedding assignment/vector delta `0`; tracks `138 = 138` |
+| Lane | `8189` produced/applied · `3648` revisions · `11` phantoms pruned · drained · zero unresolved |
+| **Decision** | ✘ **NOT ACCEPTED as an optimization; fidelity defect resolved** |
+| **Reason** | Exact PostgreSQL fidelity passed, but the end-to-end gain is not material and remains far below the binding `15 FPS` target. |
+| Rollback | `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`; workers restarted; serial setting verified |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/` |
+
 ---
 
 ## Pending acceptance (Cycles 017–023)
@@ -167,3 +204,5 @@ Each will append a row here with stride=1, full §7.1.1 metrics, and decision+re
 | R003 | Cycle 015.17 attempt 1 cross-process persistence | ✘ REFUSED | Apply failures, drain timeout, serial repair, throughput regression, and track-row divergence. |
 | R004 | Cycle 015.17 r2 cross-process persistence | ✘ REFUSED | Clean DB lane, but DB FPS and track rows regressed; terminal lifecycle contamination invalidated clean GPU/rollback authority. |
 | R005 | Cycle 015.17 r3 cross-process persistence | ✘ REFUSED | Determinism control proved six stale embedded assignments and their reused vectors diverged from both serial runs. |
+| R006 | Cycle 015.17 r4 embedded-revision repair | ✘ REFUSED | The packet signature omitted explicit track IDs for secondary models, so the final `43 -> 0` revision was not enqueued. |
+| R007 | Cycle 015.17 r5 corrected async persistence | ✘ NOT ACCEPTED | Exact content, assignment, and embedding-vector parity passed; throughput improved only `1.47%` and remained `1.678566 FPS`. |
