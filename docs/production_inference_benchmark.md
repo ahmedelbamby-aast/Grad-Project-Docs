@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-06
+**Last updated:** 2026-06-11
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -4733,3 +4733,46 @@ Metrics that may be unavailable and their expected reasons:
 | Frontend FPS | SC-010 benchmark not yet run on production |
 
 *Updated: 2026-06-07 (cycle 014 production readiness pass)*
+
+---
+
+## 54. Cycle 015.17 r3 Determinism Control — 2026-06-11
+
+The completed serial control
+`cycle015-17-prod-r3det-20260611-baseline` / job
+`7082dc07-e149-4a65-9ef9-730aa71e26fc` ran on reviewed SHA
+`31d34d8b25f66812f2a0fc28c697e387377502f0`, native Linux RTX 5090,
+canonical `combined.mp4`, frame stride `1`, and
+`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`.
+
+| Metric | r3 serial | r3 async | r3det serial control |
+|---|---:|---:|---:|
+| DB-completed FPS | `1.679452` | `1.695435` | `1.638311` |
+| DB-completed elapsed | `2703.859 s` | `2678.369 s` | `2771.757 s` |
+| Frames | `4541` | `4541` | `4541` |
+| Detections / boxes | `127117` | `127117` | `127117` |
+| Embeddings | `126519` | `126519` | `126519` |
+| Student tracks | `138` | `139` | `138` |
+
+The two serial runs have identical full content and track-assignment
+multisets. The async run has identical detection content but differs on six
+assignments: all six rows are track `43` asynchronously and track `0` in both
+serial runs. The six async embeddings also use a different reused-vector
+digest from the canonical serial track-0 vector.
+
+This refutes the prior tracker-variance hypothesis. The residual is an async
+fidelity defect caused by a stale persisted revision becoming protected by the
+embedding-existence guard. Cycle 015.17 remains **NOT ACCEPTED** and
+`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` remains authoritative.
+
+Evidence:
+
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/PACKAGE_MANIFEST.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/baseline_runtime_guard.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/baseline_metrics.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/determinism_control_comparison.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/inference_audit.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/gpu_monitor.csv`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/baseline_rollback_status.json`
+- `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/MANIFEST.json`

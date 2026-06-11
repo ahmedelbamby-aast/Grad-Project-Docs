@@ -91,10 +91,51 @@ companion). Benchmarked independently after the 015.17 parity verdict.
 4. **Reference integrity**: a track row exists iff it is referenced — enforced
    eagerly by the inline GC (when enabled) and globally by the finalize prune.
 
-## Measured on prod (r3 candidate job, 2026-06-11) — why auto-merge is unsafe here
+The fourth guarantee needs one qualification: an embedding can make a stale
+frame revision referenced before finalization. That case requires the exact
+embedded-revision repair described below; zero-reference GC alone cannot repair
+it.
+
+## Measured on prod (r3 + determinism control, 2026-06-11)
+
+Evidence:
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/`.
+
+The second serial run produced the same `138` tracks and the same complete
+127117-row track-assignment multiset as the first serial run. The async run
+produced `139` tracks. Its detection-content multiset was identical, but six
+rows were assigned to track `43` while both serial runs assigned those exact
+rows to track `0`.
+
+This proves the residual was an async persistence fidelity defect, not an
+inherent tracker-variance band. The stale revision survived because linked
+embeddings caused `_persist_offline_detection_frame_packet` to return
+`skipped_existing_embeddings`.
+
+Track-level embedding reuse widened the defect: both serial runs stored all 18
+track-0 embeddings under vector digest
+`91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899`,
+while the async run stored the six stale track-43 rows under
+`92e8fd3f9b4431f0515cd672331cfe719cee4db850fdc64b79d04d844f5834b7`.
+An exact repair must therefore reconcile the track reference and the reused
+vector.
+
+The implemented finalization repair:
+
+- requires exact model/class/confidence/coordinate content equality;
+- reassigns bounding-box and embedding track references atomically;
+- restores the target track's earliest same-model canonical vector when
+  track-level reuse is enabled;
+- clears deleted-track Redis embedding keys after the PostgreSQL transaction
+  commits;
+- refuses missing target vectors, ambiguous duplicates, content mismatch, or
+  non-packet evidence references;
+- rechecks the authoritative packet signature and fails closed.
+
+## Why appearance auto-merge remains unsafe
 
 We scored the actual candidate job to test whether embeddings can deterministically
-resolve the residual ±1 (track 43, a 6-frame fragment, frames 512–515):
+resolve track 43 by appearance:
 
 - **Within-track cohesion is trivially 1.0 for every track** — embeddings are
   *reused* per track (126 382 / 126 519 reused), so the same vector repeats
@@ -114,9 +155,9 @@ review), not auto-merge. Deterministic ID stability, if ever required, must come
 from a stronger discriminator (classroom-fine-tuned ReID) or tracker-level re-ID
 at birth — never from thresholded merging on weakly-separated embeddings.
 
-**Decision:** accept the residual ±1 as inherent tracker/ReID variance
-(persistence is parity-correct: identical box/detection/embedding totals); the
-serial-vs-serial determinism control quantifies the inherent band.
+**Decision:** do not auto-merge by appearance. Repair only the exact stale
+frame revision and keep Cycle 015.17 default-off until an r4 production
+baseline/candidate pair proves assignment and reused-vector parity.
 
 ## Optional future hardening (not yet needed)
 

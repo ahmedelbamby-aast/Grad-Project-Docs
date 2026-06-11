@@ -1,0 +1,63 @@
+{
+  "async_embedding_metadata": null,
+  "async_persistence_metadata": {},
+  "drained": false,
+  "first_midrun_nonzero_sample": {
+    "authoritative_rows": {
+      "bounding_boxes": 25304,
+      "detections": 25282,
+      "embeddings": 0,
+      "frames": 774,
+      "student_tracks": 73
+    },
+    "job": {
+      "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+      "processed_frames": 775,
+      "status": "processing",
+      "total_frames": 4541
+    },
+    "lanes": {
+      "db_rows": {
+        "counters": {},
+        "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+        "lane": "db_rows",
+        "pending": null,
+        "stream_len": 0
+      },
+      "embedding": {
+        "counters": {},
+        "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+        "lane": "embedding",
+        "pending": null,
+        "stream_len": 0
+      }
+    },
+    "replay_key": "cycle015-17-prod-r3det-20260611-baseline",
+    "sampled_at": "2026-06-11T17:18:34.862368+00:00",
+    "schema_version": "cycle015.17.midrun_sample.v1"
+  },
+  "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+  "job_status": "completed",
+  "lanes": {
+    "db_rows": {
+      "counters": {},
+      "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+      "lane": "db_rows",
+      "pending": null,
+      "stream_len": 0
+    },
+    "embedding": {
+      "counters": {},
+      "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+      "lane": "embedding",
+      "pending": null,
+      "stream_len": 0
+    }
+  },
+  "midrun_nonzero_authoritative_rows": true,
+  "midrun_sample_count": 110,
+  "recorded_at": "2026-06-11T17:22:18.673480+00:00",
+  "replay_key": "cycle015-17-prod-r3det-20260611-baseline",
+  "schema_version": "cycle015.17.lane_stats.v1",
+  "serially_reconciled_frames": 0
+}

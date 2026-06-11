@@ -1,0 +1,112 @@
+{
+  "schema_version": "cycle015.17.package_manifest.v1",
+  "generated_at": "2026-06-11T18:25:37.2148952Z",
+  "source": "production r3 evidence plus governed local figure generation",
+  "files": [
+    {
+      "path": "baseline_lane_stats.json",
+      "bytes": 1743,
+      "sha256": "203ca1a5eacabf41526fc4a0c532d2a714889b7bcb8c19bd6f011b7420fe57f9"
+    },
+    {
+      "path": "baseline_metrics.json",
+      "bytes": 22088,
+      "sha256": "a153b906b9ad8953d467dabd92591a48860430c04a93ca56f6337a46c9cda9e7"
+    },
+    {
+      "path": "baseline_metrics.md",
+      "bytes": 11302,
+      "sha256": "cec86a304d26e843708e50c43997053456fdd472e637889d26c3c4827f7cf0b4"
+    },
+    {
+      "path": "baseline_midrun_samples.jsonl",
+      "bytes": 122623,
+      "sha256": "6e0cd36b6f8b05b56fd4f9995a5a8cc8eff09a23a2fc79f001b14179c141cc16"
+    },
+    {
+      "path": "baseline_rollback_status.json",
+      "bytes": 321,
+      "sha256": "6c8e3b4cc408d5d6a8a93564cd7670824822ed9875cc1d7c0265f547135c9578"
+    },
+    {
+      "path": "baseline_rollback_status.md",
+      "bytes": 214,
+      "sha256": "6c780919d9a71490122b52e91dc3475a67bc1a0b2a04cb5939f93c1e20b9f919"
+    },
+    {
+      "path": "baseline_runtime_guard.json",
+      "bytes": 462,
+      "sha256": "bcde70886bedec05fa2b13ba799255d2c12d9be7017e09aab96eca7e249e211f"
+    },
+    {
+      "path": "candidate_lane_stats.json",
+      "bytes": 2825,
+      "sha256": "26c82ce3556bdcaeeae183229285ed7ac10d42ae2884564b3c70e4209239d91d"
+    },
+    {
+      "path": "candidate_metrics.json",
+      "bytes": 22085,
+      "sha256": "be25ddb80b421665f88a0e5767e6dfcbfc9514a4855260a2feb1eea06f786ae8"
+    },
+    {
+      "path": "candidate_metrics.md",
+      "bytes": 16848,
+      "sha256": "3ea19a5f0ca3241b5b22eb8b39b908d7f23dd53926f9ce1a704e932c1fc8fe90"
+    },
+    {
+      "path": "candidate_midrun_samples.jsonl",
+      "bytes": 130428,
+      "sha256": "2c7f8030ad6d60d81da69c9f80b9d0bab79054f79d9eb067965e30be397c23b8"
+    },
+    {
+      "path": "candidate_rollback_status.json",
+      "bytes": 323,
+      "sha256": "f1768f6912839d6148aa2a93335486256563b3d6104da0dc66d8c1af6e17d1b5"
+    },
+    {
+      "path": "candidate_rollback_status.md",
+      "bytes": 216,
+      "sha256": "2c60a938619e43a0040a5422ba964b83d7c617b3e0024ba20963fc459f545d3c"
+    },
+    {
+      "path": "candidate_runtime_guard.json",
+      "bytes": 463,
+      "sha256": "afd459408d26a4e2fdc7af0cd27ec552ed255721ea1770d18c487d956bc5ac89"
+    },
+    {
+      "path": "figures/correctness_parity.png",
+      "bytes": 105358,
+      "sha256": "c4c40b2c964e86af6bf60dbc924f76109bee8ab65a9826af9c7e129e39416e3d"
+    },
+    {
+      "path": "figures/FIGURES.md",
+      "bytes": 908,
+      "sha256": "850726ae81983a9d3c0fe6ec0cc32680396b34f4c9426c4f1e36304bb7c0bd5a"
+    },
+    {
+      "path": "figures/MANIFEST.json",
+      "bytes": 2003,
+      "sha256": "319f30475f61083055a5775d912a17e2dc18b9648af1945d4e4cbdd7946670a5"
+    },
+    {
+      "path": "figures/model_rtt_call_rate.png",
+      "bytes": 58854,
+      "sha256": "0978eacfc0937dbb82793050d83daea955808560dbccf00219fe1ec65b289262"
+    },
+    {
+      "path": "figures/persistence_lane_evidence.png",
+      "bytes": 109685,
+      "sha256": "fea326cdde3c480e2ac76ca3236545fb82e5d89aba04b3ec15dbbcbbb68796e5"
+    },
+    {
+      "path": "figures/throughput_comparison.png",
+      "bytes": 83371,
+      "sha256": "98949055152dd2daafdf2d0f92e6e6dbbfa1b9320079398185525d56e6ad49cb"
+    },
+    {
+      "path": "figures/unavailable_summary.png",
+      "bytes": 26312,
+      "sha256": "61d8e180d76e79deebc4c1d6f0ac3f8d28691f6fca84ede870a3b8631ca43aeb"
+    }
+  ]
+}

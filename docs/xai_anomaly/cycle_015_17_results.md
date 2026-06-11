@@ -12,11 +12,21 @@
 | Commit | `6f0a48051514a6353bec21879eedb0e48535dd2a` |
 | File | `tools/prod/prod_run_xai_cycle015_17.sh` |
 | File | `tools/prod/prod_generate_xai_cycle015_17_figures.py` |
+| File | `backend/apps/video_analysis/tasks.py` |
+| File | `backend/tests/unit/video_analysis/test_async_persistence_seam.py` |
+| Symbol | `apps.video_analysis.tasks._reconcile_existing_embedded_frame_packet` |
+| Symbol | `apps.video_analysis.tasks._async_persistence_finalize` |
 | Doc | `docs/xai_anomaly/cycle_015_17_figure_plan.md` |
 | Doc | `docs/xai_anomaly/cycle_015_17_figure_implementation.md` |
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-20260611/` |
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/` |
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/figures/MANIFEST.json` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/MANIFEST.json` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/PACKAGE_MANIFEST.json` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/determinism_control_comparison.json` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/MANIFEST.json` |
 | Ledger | `docs/BENCHMARK_RESULTS_LEDGER.md` |
 
 ## Decision
@@ -143,9 +153,9 @@ material DB-completed throughput gain. The next candidate must collect GPU,
 CPU/RSS, PostgreSQL/Redis, correctness, identity, and rollback evidence through
 the actual terminal state.
 
-## r3 Remediation (2026-06-11) — track-parity fix + throughput-lever decision
+## r3 Remediation (2026-06-11) — track-parity investigation
 
-### Refusal reason 1: track parity (138 → 149) — FIXED
+### Refusal reason 1: zero-reference phantoms — FIXED
 
 Root cause: person-interpolation **revises** a frame's track assignment after a
 consumer has already persisted an earlier revision. The earlier revision's
@@ -165,8 +175,11 @@ left intact (never silently deleted), so the prune cannot lose data. The
 
 Unit coverage: `test_finalize_prunes_phantom_zero_box_tracks` (the exact
 138→149 scenario) and `test_finalize_keeps_non_authoritative_track_with_rows`
-(safety guard) in `tests/unit/video_analysis/test_async_persistence_seam.py`.
-All 17 seam tests pass.
+(safety guard) in
+`backend/tests/unit/video_analysis/test_async_persistence_seam.py`.
+
+This repair covers only tracks with no remaining references. It does not repair
+a stale frame revision after embeddings have already been attached.
 
 ### Refusal reason 2: FPS flat/degraded — db_rows is NOT the lever
 
@@ -200,34 +213,112 @@ Matched serial baseline + async candidate, stride-1, scene+SRVL on.
 | embedding_rows | 126 519 | **126 519** (identical) |
 | db_completed_fps | 1.679 | 1.695 |
 
-The phantom prune worked: the refused r2 diverged by **11** (138 → 149) of which
-**10 were zero-reference orphans** — all removed. The residual is a single track
-(candidate `tracking_id=43`, **6 boxes + 6 embeddings** — a real, well-formed
-track, correctly *not* pruned).
+The phantom prune removed the zero-reference component, but r3 still had one
+extra referenced track: candidate `tracking_id=43` held 6 boxes and 6
+embeddings. The previous revision of this document classified that residual as
+independent-run tracker variance because aggregate box, detection, and embedding
+counts matched.
 
-**This residual is run-to-run tracker non-determinism, not a persistence fault.**
-Proof: bounding_boxes, detections, and embeddings are **identical** between the
-two runs (127 117 / 127 117 / 126 519). The same 127 117 boxes are merely
-partitioned into 138 vs 139 tracklets — the tracker split 6 detections into a
-new ID in one independent run and folded them into an existing ID in the other.
-The persistence layer faithfully recorded each run's partition; it introduced
-no duplicate or orphan rows (totals match exactly).
+### Determinism control and corrected root cause
 
-**Decision:** the persistence-parity defect (zero-reference phantoms) is
-**resolved**. Exact track-count equality cannot be the acceptance gate while the
-upstream tracker is non-deterministic across independent runs — the
-defect-relevant invariants (box / detection / embedding parity) hold exactly. A
-serial-vs-serial determinism control (tag `cycle015-17-prod-r3det`) is running to
-quantify the inherent track-count variance; if two serial runs also differ by
-~1 track, async-vs-serial within that band confirms persistence parity.
+The completed second serial run
+`cycle015-17-prod-r3det-20260611-baseline` / job
+`7082dc07-e149-4a65-9ef9-730aa71e26fc` ran on the same reviewed SHA
+`31d34d8b25f66812f2a0fc28c697e387377502f0`, stride `1`, with async
+persistence disabled. It completed `4541/4541` frames in `2771.757 s`
+(`1.638311` DB-completed FPS), produced `138` tracks, and recorded verified
+serial rollback.
 
-### Follow-ups opened by this result
+The exact production database comparison uses a multiset key of frame number,
+model, six-decimal coordinates, class, six-decimal confidence, and track ID:
+
+| Comparison | Content-row delta | Track-assignment delta | Result |
+|---|---:|---:|---|
+| r3 serial vs r3det serial | `0` | `0` | Deterministic |
+| r3 serial vs r3 async | `0` | `6` changed rows | Async divergence |
+| r3det serial vs r3 async | `0` | `6` changed rows | Async divergence |
+
+The stored two-sided assignment multiset delta is `12`, representing six rows
+removed from the serial assignment and the same six added under the async
+assignment. All six async rows belong to track `43`; both serial runs assign
+those exact rows to track `0`.
+
+The previous tracker-variance interpretation is withdrawn. Equal aggregate row
+counts do not prove track-assignment parity. The async writer persisted a stale
+frame revision, the embedding stage attached rows to that revision, and the
+final authoritative correction was then blocked by the
+`skipped_existing_embeddings` guard. The zero-reference prune correctly leaves
+that track untouched because it still owns boxes and embeddings.
+
+The vector evidence also differs. Both serial runs assign all `18` track-0
+embeddings to vector digest
+`91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899`.
+The async run has `12` rows under that digest on track `0` and the six stale
+track-43 rows under digest
+`92e8fd3f9b4431f0515cd672331cfe719cee4db850fdc64b79d04d844f5834b7`.
+Therefore changing only the track foreign key would still fail serial
+embedding fidelity.
+
+The full query result, runtime guard, metrics, GPU CSV, inference audit, runner
+log, rollback proof, and digest manifest are preserved under
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/`.
+The r3 result remains a correctness failure and Cycle 015.17 remains
+**NOT ACCEPTED**.
+
+### Local embedded-revision repair
+
+The finalization path now opts into an exact frame-local reconciliation in
+`_reconcile_existing_embedded_frame_packet`:
+
+- it matches persisted and authoritative rows by exact model, class,
+  six-decimal confidence, and six-decimal coordinates;
+- it updates `BoundingBox.student_track`, color, public label, and every linked
+  `FrameEmbedding.student_track` atomically without deleting detections or
+  embeddings;
+- when `OFFLINE_EMBEDDING_REUSE_BY_TRACK=1`, it replaces the stale vector with
+  the target track's earliest same-model canonical vector and refuses if no
+  canonical vector exists;
+- it deletes a superseded track only after all packet references move and only
+  when no alias, lifecycle, or pose evidence references it;
+- after commit, it removes the deleted track's job-scoped Redis embedding keys
+  and track-set membership;
+- it refuses content mismatches and ambiguous duplicate boxes instead of using
+  IoU, appearance similarity, or a forced merge;
+- finalization rechecks the complete authoritative packet signature and raises
+  on any unresolved frame.
+
+PostgreSQL regression coverage is in
+`test_finalize_reassigns_stale_embedded_revision_without_replacing_rows`,
+`test_embedded_revision_reconcile_refuses_content_mismatch`, and
+`test_embedded_revision_reconcile_requires_target_vector_when_reusing`,
+`test_embedded_revision_reconcile_refuses_non_packet_track_references`.
+The broader appearance scorer remains non-destructive because the measured
+OSNet similarities are not safe merge evidence.
+
+### r3 Figure Evidence
+
+![r3 throughput comparison](../figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/throughput_comparison.png)
+
+![r3 correctness parity](../figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/correctness_parity.png)
+
+![r3 persistence lane evidence](../figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/persistence_lane_evidence.png)
+
+![r3 model RTT and call rate](../figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/model_rtt_call_rate.png)
+
+![r3 unavailable metrics](../figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/unavailable_summary.png)
+
+The figure-input and output digests are recorded in
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/figures/MANIFEST.json`;
+the complete copied package is covered by `PACKAGE_MANIFEST.json`.
+
+### Required production follow-up
 
 - **Inline orphan GC** (`OFFLINE_PERSIST_INLINE_ORPHAN_GC`, default-off,
   implemented): reference-counted phantom prevention at write time
-  (commit on branch), so phantoms never accumulate mid-run (observed ~148 before
-  the finalize prune). Defense in depth over the finalize reconcile.
-- **Embedding-based track-ID consistency** (`apps/tracking/track_identity.py`):
-  per-track EMA appearance prototype + cosine gating + cohesion score, the lever
-  that reduces the run-to-run partition variance behind the residual ±1. See
-  `docs/xai_anomaly/phantom_tracks_and_id_persistence_best_practices.md`.
+  so zero-reference phantoms do not accumulate before finalization.
+- Run a fresh native Linux RTX 5090 stride-1 r4 baseline/candidate pair through
+  the actual terminal state.
+- Require exact frame signatures, exact track-reference parity, no unresolved
+  reconciliation frames, exact reused-vector digests, complete resource
+  evidence, rollback proof, figures, and ledger updates.
+- Keep `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` until that evidence exists.

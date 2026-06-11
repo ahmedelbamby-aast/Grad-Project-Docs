@@ -1,0 +1,57 @@
+{
+  "schema_version": "cycle015.17.control_manifest.v1",
+  "generated_at": "2026-06-11T18:13:42.0382660Z",
+  "source": "production host read-only evidence collection",
+  "files": [
+    {
+      "path": "baseline_driver.log",
+      "bytes": 7404,
+      "sha256": "c5f7a1eda6a255aaac7d9955bc6de989985da7f663182d70a6daf72611612335"
+    },
+    {
+      "path": "baseline_lane_stats.json",
+      "bytes": 1747,
+      "sha256": "4390ea90ab5190f0efe787b0b082610091fc3e9a614290ad08207d722178af1d"
+    },
+    {
+      "path": "baseline_metrics.json",
+      "bytes": 22103,
+      "sha256": "c1625bcfb2ed83c5c31a48be933ee0b305467fdb6e7ddc3f748eaa22c232153e"
+    },
+    {
+      "path": "baseline_metrics.md",
+      "bytes": 11308,
+      "sha256": "e9322efb9c46e4ae5879770902c2bb860403b1eeaccbc46f0f709c26bbc9f90b"
+    },
+    {
+      "path": "baseline_rollback_status.json",
+      "bytes": 324,
+      "sha256": "602b4cf05c6643f44a0fea0bf28d2b1244fe4629d54bb87ce4214303621549c2"
+    },
+    {
+      "path": "baseline_runtime_guard.json",
+      "bytes": 465,
+      "sha256": "746c79bdeb28f92917fe3b1ecc6d1c5692d374ac352a013a408342ec9c878ea2"
+    },
+    {
+      "path": "bench_summary.json",
+      "bytes": 1902,
+      "sha256": "17c8fc905d6952bcaba7fd9618b3fae0337ca17a36ac3c180c3da88bc2646ab7"
+    },
+    {
+      "path": "determinism_control_comparison.json",
+      "bytes": 6756,
+      "sha256": "43e9dbcc44f68f03b10638aa077c75edadeeaa81ef55562cc5b80cdf2bcf0afb"
+    },
+    {
+      "path": "gpu_monitor.csv",
+      "bytes": 141559,
+      "sha256": "e2843a60f7b6003ffbd5f58149502a0d630d657d75be283f249f8f1ac3985012"
+    },
+    {
+      "path": "inference_audit.json",
+      "bytes": 11304,
+      "sha256": "76f4395cd408d9e4dc592d147f4dda9b9cb1f934d03f6bc1c268e3d65e6dfa41"
+    }
+  ]
+}

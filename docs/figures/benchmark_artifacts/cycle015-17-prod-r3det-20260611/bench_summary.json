@@ -1,0 +1,51 @@
+{
+  "error_message": null,
+  "evidence_artifacts": {
+    "inference_audit_path": "/home/bamby/grad_project/backend/data/videos/7082dc07-e149-4a65-9ef9-730aa71e26fc/inference_audit.json",
+    "pose_results_artifact_path": "/home/bamby/grad_project/backend/data/videos/7082dc07-e149-4a65-9ef9-730aa71e26fc/pose_results.json"
+  },
+  "failure_lineage": {
+    "reid_best_match": "1303ab68-c2bd-4ac9-9260-4ad26937803c",
+    "reid_match_score": 1.0
+  },
+  "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+  "operational_ingest": {
+    "actor_username": "runtime_validator",
+    "benchmark_evidence": true,
+    "canonical_admission_view": "VideoAnalysisJobListCreateView",
+    "replay_key": "cycle015-17-prod-r3det-20260611-baseline",
+    "replay_policy": "new-attempt",
+    "runner": "runtime_ingest_video",
+    "runtime_profile": "offline",
+    "session_metadata": {},
+    "source_metadata": {},
+    "source_path": "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4",
+    "source_sha256": "985bc0aa5db49c5936f392b158a3b55d255e3e80806d448424b995239d798e1c"
+  },
+  "original_job_id": "",
+  "pipeline_mode": "crop_frame",
+  "processed_frames": 4541,
+  "production_acceptance": {
+    "failed_lineage_rejected": false,
+    "replay_valid": true
+  },
+  "reconciliation_result": {},
+  "replay_key": "cycle015-17-prod-r3det-20260611-baseline",
+  "replay_lineage_status": "new_attempt",
+  "replay_policy": "new-attempt",
+  "replayed": false,
+  "runtime_profile": "offline",
+  "source_sha256": "985bc0aa5db49c5936f392b158a3b55d255e3e80806d448424b995239d798e1c",
+  "status": "completed",
+  "telemetry_linkage": {
+    "frame_lifecycle_event_count": 0,
+    "model_call_event_count": 4,
+    "run_session_summary_count": 2,
+    "run_statuses": [
+      "started",
+      "completed"
+    ]
+  },
+  "total_frames": 4541,
+  "websocket_group": "video_analysis_job_7082dc07-e149-4a65-9ef9-730aa71e26fc"
+}

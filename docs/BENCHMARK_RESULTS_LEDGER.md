@@ -110,6 +110,40 @@ valid unless its run appears here.
 | Rollback | Flag off and workers restarted; serial setting verified |
 | Evidence | `docs/xai_anomaly/cycle_015_17_results.md`; `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/` |
 
+### B012 — Cycle 015.17 r3 serial baseline · ◷ BASELINE
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r3-20260611-baseline` · job `83ca0e27-16b5-4fbb-ac5e-203168a4a088` · commit `31d34d8b` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence off |
+| Completion | `4541/4541` · `2703.859 s` · **1.679452 DB FPS** |
+| Correctness | frames `4541` · detections/bboxes `127117` · embeddings `126519` · tracks `138` |
+| Decision | ◷ baseline for R005 and B013 determinism control |
+| Evidence | `docs/xai_anomaly/cycle_015_17_results.md`; `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/` |
+
+### R005 — Cycle 015.17 r3 async persistence · ✘ REFUSED
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r3-20260611-candidate` · job `4144eef0-5fea-4508-af7c-3e0aaf461273` · commit `31d34d8b` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence on + zero-reference prune |
+| Completion | `4541/4541` · `2678.369 s` · **1.695435 DB FPS** |
+| Aggregate rows | frames/detections/bboxes/embeddings exact · tracks `138 -> 139` |
+| Exact comparison | Content delta `0`; six assignments changed from serial track `0` to async track `43`; six reused embedding vectors also differ |
+| **Decision** | ✘ **REFUSED** |
+| **Reason** | The embedding-existence guard blocked the final stale-revision correction. Aggregate row parity hid a deterministic track-assignment and reused-vector fidelity defect. |
+| Evidence | `docs/xai_anomaly/cycle_015_17_results.md`; `docs/figures/benchmark_artifacts/cycle015-17-prod-r3-20260611/`; `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/determinism_control_comparison.json` |
+
+### B013 — Cycle 015.17 serial determinism control · ◷ BASELINE CONTROL
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r3det-20260611-baseline` · job `7082dc07-e149-4a65-9ef9-730aa71e26fc` · commit `31d34d8b` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence off |
+| Completion | `4541/4541` · `2771.757 s` · **1.638311 DB FPS** |
+| Correctness | frames `4541` · detections/bboxes `127117` · embeddings `126519` · tracks `138` |
+| Determinism | Full content and track-assignment multisets exactly match B012; both assign the six disputed rows and all 18 related embeddings to track `0` with the same vector digest |
+| Decision | ◷ reproducibility control; no optimization acceptance claim |
+| Rollback | Serial setting verified; workers restarted |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/` |
+
 ---
 
 ## Pending acceptance (Cycles 017–023)
@@ -132,3 +166,4 @@ Each will append a row here with stride=1, full §7.1.1 metrics, and decision+re
 | R002 | Carry frames in inference queue for all-models embeddings | ✘ REFUSED | Superseded by preview-imread — avoids bounded-queue memory growth (§8.6). |
 | R003 | Cycle 015.17 attempt 1 cross-process persistence | ✘ REFUSED | Apply failures, drain timeout, serial repair, throughput regression, and track-row divergence. |
 | R004 | Cycle 015.17 r2 cross-process persistence | ✘ REFUSED | Clean DB lane, but DB FPS and track rows regressed; terminal lifecycle contamination invalidated clean GPU/rollback authority. |
+| R005 | Cycle 015.17 r3 cross-process persistence | ✘ REFUSED | Determinism control proved six stale embedded assignments and their reused vectors diverged from both serial runs. |

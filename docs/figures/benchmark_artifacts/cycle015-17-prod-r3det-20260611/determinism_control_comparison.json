@@ -1,0 +1,247 @@
+{
+  "comparisons": {
+    "r3_serial_vs_r3_async": {
+      "assignment_multiset_delta": 12,
+      "content_multiset_delta": 0
+    },
+    "r3_serial_vs_r3det_serial": {
+      "assignment_multiset_delta": 0,
+      "content_multiset_delta": 0
+    },
+    "r3det_serial_vs_r3_async": {
+      "assignment_multiset_delta": 12,
+      "content_multiset_delta": 0
+    }
+  },
+  "finding": {
+    "async_assignment_changed_rows": 6,
+    "async_content_identical": true,
+    "async_track_43_rows": 6,
+    "async_track_43_target_track_in_both_serial_runs": true,
+    "async_track_43_vector_differs_from_serial_track_0": true,
+    "serial_replays_assignment_identical": true
+  },
+  "generated_at": "2026-06-11T18:12:21.929142+00:00",
+  "jobs": {
+    "r3_async": {
+      "assignment_multiset_sha256": "5141f25216a8f123d81afff06db28f46d1df988c9b2f5d0d62e7fea321ebe59b",
+      "bounding_boxes": 127117,
+      "content_multiset_sha256": "8d72d7f0fef7b3e9ee6963d4dd112cbe7a2323b809a4216a4169f19edb686f2d",
+      "db_completed_elapsed_s": 2678.369,
+      "db_completed_fps": 1.695435,
+      "detections": 127117,
+      "embedding_track_summary": {
+        "0": {
+          "row_count": 12,
+          "unique_vector_digests": 1,
+          "vector_digest_counts": {
+            "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 12
+          }
+        },
+        "43": {
+          "row_count": 6,
+          "unique_vector_digests": 1,
+          "vector_digest_counts": {
+            "92e8fd3f9b4431f0515cd672331cfe719cee4db850fdc64b79d04d844f5834b7": 6
+          }
+        }
+      },
+      "embeddings": 126519,
+      "frames": 4541,
+      "job_id": "4144eef0-5fea-4508-af7c-3e0aaf461273",
+      "replay_key": "cycle015-17-prod-r3-20260611-candidate",
+      "status": "completed",
+      "student_tracks": 139
+    },
+    "r3_serial": {
+      "assignment_multiset_sha256": "27a007021cf20c8f3ee63af9e23c14a5d780850d19a7416db60d78544c94adcf",
+      "bounding_boxes": 127117,
+      "content_multiset_sha256": "8d72d7f0fef7b3e9ee6963d4dd112cbe7a2323b809a4216a4169f19edb686f2d",
+      "db_completed_elapsed_s": 2703.859,
+      "db_completed_fps": 1.679452,
+      "detections": 127117,
+      "embedding_track_summary": {
+        "0": {
+          "row_count": 18,
+          "unique_vector_digests": 1,
+          "vector_digest_counts": {
+            "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 18
+          }
+        }
+      },
+      "embeddings": 126519,
+      "frames": 4541,
+      "job_id": "83ca0e27-16b5-4fbb-ac5e-203168a4a088",
+      "replay_key": "cycle015-17-prod-r3-20260611-baseline",
+      "status": "completed",
+      "student_tracks": 138
+    },
+    "r3det_serial": {
+      "assignment_multiset_sha256": "27a007021cf20c8f3ee63af9e23c14a5d780850d19a7416db60d78544c94adcf",
+      "bounding_boxes": 127117,
+      "content_multiset_sha256": "8d72d7f0fef7b3e9ee6963d4dd112cbe7a2323b809a4216a4169f19edb686f2d",
+      "db_completed_elapsed_s": 2771.757,
+      "db_completed_fps": 1.638311,
+      "detections": 127117,
+      "embedding_track_summary": {
+        "0": {
+          "row_count": 18,
+          "unique_vector_digests": 1,
+          "vector_digest_counts": {
+            "91a5f29504d77d65387bfdfdf177e9bef317c33310adb1126c0ccbedc64be899": 18
+          }
+        }
+      },
+      "embeddings": 126519,
+      "frames": 4541,
+      "job_id": "7082dc07-e149-4a65-9ef9-730aa71e26fc",
+      "replay_key": "cycle015-17-prod-r3det-20260611-baseline",
+      "status": "completed",
+      "student_tracks": 138
+    }
+  },
+  "query_contract": {
+    "assignment_key": [
+      "content_key",
+      "student_track.tracking_id"
+    ],
+    "comparison": "exact multiset difference; raw local IDs are compared only within deterministic replays of the same source and reviewed SHA",
+    "content_key": [
+      "frame_number",
+      "model_name",
+      "xyxy_rounded_6dp",
+      "class_name",
+      "confidence_rounded_6dp"
+    ]
+  },
+  "r3_async_track_43_rows": [
+    {
+      "class_name": "student",
+      "confidence": 0.186523,
+      "frame_number": 512,
+      "model_name": "attention_tracking",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.460156
+      ]
+    },
+    {
+      "class_name": "student",
+      "confidence": 0.320068,
+      "frame_number": 513,
+      "model_name": "attention_tracking",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.403906
+      ]
+    },
+    {
+      "class_name": "student",
+      "confidence": 0.36377,
+      "frame_number": 514,
+      "model_name": "attention_tracking",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        298.03125,
+        156.0,
+        302.0,
+        160.275
+      ]
+    },
+    {
+      "class_name": "student",
+      "confidence": 0.668945,
+      "frame_number": 515,
+      "model_name": "attention_tracking",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        298.003126,
+        156.0,
+        302.0,
+        160.21875
+      ]
+    },
+    {
+      "class_name": "student",
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "model_name": "attention_tracking",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    },
+    {
+      "class_name": "student",
+      "confidence": 0.11554,
+      "frame_number": 515,
+      "model_name": "hand_raising",
+      "r3_async_embedding_tracks": [],
+      "r3_async_embedding_vector_sha256": [],
+      "r3_async_track": 43,
+      "r3_serial_tracks": [
+        0
+      ],
+      "r3det_serial_tracks": [
+        0
+      ],
+      "xyxy": [
+        301.762501,
+        156.0,
+        302.0,
+        172.298437
+      ]
+    }
+  ],
+  "schema_version": "cycle015.17.determinism_control.v1",
+  "source_git_sha": "31d34d8b25f66812f2a0fc28c697e387377502f0"
+}
