@@ -91,6 +91,33 @@ companion). Benchmarked independently after the 015.17 parity verdict.
 4. **Reference integrity**: a track row exists iff it is referenced — enforced
    eagerly by the inline GC (when enabled) and globally by the finalize prune.
 
+## Measured on prod (r3 candidate job, 2026-06-11) — why auto-merge is unsafe here
+
+We scored the actual candidate job to test whether embeddings can deterministically
+resolve the residual ±1 (track 43, a 6-frame fragment, frames 512–515):
+
+- **Within-track cohesion is trivially 1.0 for every track** — embeddings are
+  *reused* per track (126 382 / 126 519 reused), so the same vector repeats
+  within a track. Within-track cohesion cannot detect identity problems here.
+- **Cross-track discrimination is weak.** Track 43's nearest neighbours by
+  appearance are 0.93 (track 90), 0.93 (track 102), 0.92 (track 17/64/100/68) —
+  i.e. *many genuinely distinct students* sit at 0.92–0.93 cosine, **above** the
+  0.85 re-ID threshold. In a classroom (similar uniforms / pose / resolution),
+  OSNet embeddings do not separate students reliably.
+
+**Therefore a destructive appearance-merge is unsafe in this setting** and is
+also forbidden by §4.3/§4.6 ("never force a merge"): merging track 43 into its
+top match would risk fusing two different students. The data validates the
+doctrine. The embedding tooling's safe role here is **non-destructive scoring /
+flagging** (`reconcile_job_track_identities`, `reid_decision='rejected'` for
+review), not auto-merge. Deterministic ID stability, if ever required, must come
+from a stronger discriminator (classroom-fine-tuned ReID) or tracker-level re-ID
+at birth — never from thresholded merging on weakly-separated embeddings.
+
+**Decision:** accept the residual ±1 as inherent tracker/ReID variance
+(persistence is parity-correct: identical box/detection/embedding totals); the
+serial-vs-serial determinism control quantifies the inherent band.
+
 ## Optional future hardening (not yet needed)
 
 - Tie `StudentTrack` lifetime to box references with a DB `ON DELETE` trigger or
