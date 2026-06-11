@@ -142,3 +142,48 @@ lifecycle coordination, eliminating track-row fragmentation, and proving a
 material DB-completed throughput gain. The next candidate must collect GPU,
 CPU/RSS, PostgreSQL/Redis, correctness, identity, and rollback evidence through
 the actual terminal state.
+
+## r3 Remediation (2026-06-11) — track-parity fix + throughput-lever decision
+
+### Refusal reason 1: track parity (138 → 149) — FIXED
+
+Root cause: person-interpolation **revises** a frame's track assignment after a
+consumer has already persisted an earlier revision. The earlier revision's
+`StudentTrack` row survives the re-persist as a zero-reference orphan (no
+bounding boxes, no embeddings). The serial path never materialises those rows,
+so the candidate diverged by exactly the 10–11 superseded-revision phantoms.
+
+Fix: the `db_rows` finalize barrier now restores **exact** track parity. The
+frame loop computes the authoritative final per-box track set (`tracked_ids`)
+and passes it to `_async_persistence_finalize`, which calls
+`_async_persistence_prune_phantom_tracks`. That helper deletes every
+`StudentTrack` for the job whose `tracking_id` is outside
+`set(authoritative_track_ids) | {0}` **and** holds zero bounding boxes and zero
+embeddings. A non-authoritative track that still holds real rows is logged and
+left intact (never silently deleted), so the prune cannot lose data. The
+`pruned_phantom_tracks` count is recorded in the lane summary metadata.
+
+Unit coverage: `test_finalize_prunes_phantom_zero_box_tracks` (the exact
+138→149 scenario) and `test_finalize_keeps_non_authoritative_track_with_rows`
+(safety guard) in `tests/unit/video_analysis/test_async_persistence_seam.py`.
+All 17 seam tests pass.
+
+### Refusal reason 2: FPS flat/degraded — db_rows is NOT the lever
+
+Phase-split instrumentation of the r2 run shows the in-loop postprocess time is
+dominated by the **scene lane**, not persistence:
+
+| Phase | Wall | Share |
+|---|---|---|
+| `scene_callback_ms` (`run_scene_frame_lane`) | 826 s | 73.6% |
+| `scene_output_decode_ms` | 224 s | ~20% |
+| Step-3 db_rows persistence (serial → async) | 32.7 s → 14.5 s | <1.2% |
+
+The db_rows offload halves an already-tiny Step-3 cost (32.7 s → 14.5 s), which
+is invisible against a 2742 s run. **Decision:** db_rows cross-process
+persistence stays default-off (`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`) but is now
+parity-correct, so it is no longer a *correctness* blocker — it is simply not a
+throughput lever. The real FPS lever is the scene lane (≈94% of in-loop
+postprocess), which moves to its own causal cycle (015.18) under the one-causal-
+variable rule. Re-running 015.17 for FPS acceptance would change the wrong
+variable.
