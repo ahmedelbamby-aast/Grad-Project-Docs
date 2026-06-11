@@ -201,7 +201,7 @@ suppress spikes, and keep memory bounded.
 - [x] T097 [P] [US2] Add indefinite-stream bounded-state and restart integration tests in `backend/tests/integration/behavior/test_xai_temporal_bounded_state.py`
 - [ ] T098 [P] [US6] Add temporal state/soak production probe in `tools/prod/prod_probe_xai_temporal_state.py`
 - [ ] T099 [US6] Add Cycle 015.4 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_4.sh`
-- [ ] T100 [P] [US6] Implement Cycle 015.4 temporal/soak figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_4_figures.py`
+- [x] T100 [P] [US6] Implement Cycle 015.4 temporal/soak figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_4_figures.py`
 - [ ] T101 [P] [US6] Add live bounded-state soak helper in `tools/prod/prod_soak_xai_temporal_live.sh`
 - [ ] T102 [US6] Execute rollback and reconciliation from `tools/prod/prod_rollback_xai_cycle015_4.sh`
 - [ ] T103 [US6] Record Cycle 015.4 decision and figures in `docs/xai_anomaly/cycle_015_4_results.md`
