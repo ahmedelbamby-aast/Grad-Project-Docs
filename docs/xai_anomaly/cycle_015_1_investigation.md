@@ -1,6 +1,7 @@
 # Cycle 015.1 Investigation: Versioned Evidence Envelope And Signal Registry
 
 **Created:** 2026-06-11
+**Last updated:** 2026-06-11
 **Status:** `implemented_local; awaiting production benchmark`
 **Streaming compatibility:** `stream-safe` (envelope normalization/persistence
 is bounded; no live-unbounded state)
@@ -23,6 +24,7 @@ all later XAI/anomaly cycles, without critical-path regression.
 | Idempotent repository (replay returns existing row; bounded queries) | `backend/apps/behavior/repositories.py` |
 | Bounded read serializers | `backend/apps/behavior/serializers.py` |
 | Tests: 9 unit + 4 integration, all passing | `backend/tests/unit/behavior/test_xai_evidence_registry.py`, `backend/tests/integration/behavior/test_xai_evidence_persistence.py` |
+| Read-only production registry/route/persistence coverage probe | `tools/prod/prod_probe_xai_signal_registry.py` |
 
 Config: `XAI_EVIDENCE_MAX_PAYLOAD_BYTES` (default 16384) bounds every JSON
 field at the contract layer (FR-001/FR-008).

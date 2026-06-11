@@ -123,7 +123,7 @@ idempotently produces a bounded envelope with explicit missingness.
 - [X] T043 [P] [US1] Add explicit evidence serializers and bounded API fields in `backend/apps/behavior/serializers.py`
 - [X] T044 [P] [US1] Add registry, missingness, payload-size, and compatibility unit tests in `backend/tests/unit/behavior/test_xai_evidence_registry.py`
 - [X] T045 [P] [US1] Add envelope idempotency, PostgreSQL, and replay integration tests in `backend/tests/integration/behavior/test_xai_evidence_persistence.py`
-- [ ] T046 [P] [US6] Add signal registry coverage production probe in `tools/prod/prod_probe_xai_signal_registry.py`
+- [X] T046 [P] [US6] Add signal registry coverage production probe in `tools/prod/prod_probe_xai_signal_registry.py`
 - [ ] T047 [US6] Add Cycle 015.1 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_1.sh`
 - [ ] T048 [P] [US6] Implement Cycle 015.1 figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_1_figures.py`
 - [ ] T049 [US6] Execute and document Cycle 015.1 rollback in `docs/xai_anomaly/cycle_015_1_results.md`
