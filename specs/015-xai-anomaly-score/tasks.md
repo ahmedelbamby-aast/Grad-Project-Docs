@@ -161,21 +161,21 @@ with a compatible fast explainer.
 **Independent test**: Every ready route returns a deterministic explanation or
 explicit compatibility rejection.
 
-- [ ] T068 [P] [US1] Write Cycle 015.3 investigation and adapter coverage matrix in `docs/xai_anomaly/cycle_015_3_investigation.md`
-- [ ] T069 [P] [US6] Name Cycle 015.3 Figure Planner in `docs/xai_anomaly/cycle_015_3_figure_plan.md`
-- [ ] T070 [P] [US6] Name separate Cycle 015.3 Figure Implementer in `docs/xai_anomaly/cycle_015_3_figure_implementation.md`
-- [ ] T071 [P] [US1] Implement explainer interface and registry in `backend/apps/behavior/explainability/registry.py`
-- [ ] T072 [P] [US1] Implement detector fast explainer in `backend/apps/behavior/explainability/adapters/person_detector.py`
-- [ ] T073 [P] [US1] Implement posture/gaze/ensemble fast explainers in `backend/apps/behavior/explainability/adapters/behavior_models.py`
-- [ ] T074 [P] [US1] Implement RTMPose and pose-kinematics fast explainers in `backend/apps/behavior/explainability/adapters/pose.py`
-- [ ] T075 [P] [US1] Implement OSNet/tracking fast explainer in `backend/apps/behavior/explainability/adapters/reid_tracking.py`
-- [ ] T076 [P] [US1] Implement YOLOE scene fast explainer in `backend/apps/behavior/explainability/adapters/yoloe_scene.py`
-- [ ] T077 [P] [US1] Implement SRVL deterministic explainer in `backend/apps/behavior/explainability/adapters/srvl.py`
-- [ ] T078 [P] [US1] Implement BSIL/rule deterministic explainer in `backend/apps/behavior/explainability/adapters/bsil_rules.py`
-- [ ] T079 [US1] Implement common explanation fragment composer in `backend/apps/behavior/explainability/composer.py`
-- [ ] T080 [US1] Replace or retire placeholder explanation and visualization writers in `backend/apps/pipeline/model_lifecycle/explainability.py` and `backend/apps/pipeline/model_lifecycle/visualizations.py`
-- [ ] T081 [P] [US1] Add per-adapter deterministic, quality, contradiction, and counterfactual tests in `backend/tests/unit/behavior/test_xai_fast_explainers.py`
-- [ ] T082 [P] [US1] Add active-route coverage and output-parity integration tests in `backend/tests/integration/behavior/test_xai_fast_explainer_coverage.py`
+- [X] T068 [P] [US1] Write Cycle 015.3 investigation and adapter coverage matrix in `docs/xai_anomaly/cycle_015_3_investigation.md`
+- [X] T069 [P] [US6] Name Cycle 015.3 Figure Planner in `docs/xai_anomaly/cycle_015_3_figure_plan.md`
+- [X] T070 [P] [US6] Name separate Cycle 015.3 Figure Implementer in `docs/xai_anomaly/cycle_015_3_figure_implementation.md`
+- [X] T071 [P] [US1] Implement explainer interface and registry in `backend/apps/behavior/explainability/registry.py`
+- [X] T072 [P] [US1] Implement detector fast explainer in `backend/apps/behavior/explainability/adapters/person_detector.py`
+- [X] T073 [P] [US1] Implement posture/gaze/ensemble fast explainers in `backend/apps/behavior/explainability/adapters/behavior_models.py`
+- [X] T074 [P] [US1] Implement RTMPose and pose-kinematics fast explainers in `backend/apps/behavior/explainability/adapters/pose.py`
+- [X] T075 [P] [US1] Implement OSNet/tracking fast explainer in `backend/apps/behavior/explainability/adapters/reid_tracking.py`
+- [X] T076 [P] [US1] Implement YOLOE scene fast explainer in `backend/apps/behavior/explainability/adapters/yoloe_scene.py`
+- [X] T077 [P] [US1] Implement SRVL deterministic explainer in `backend/apps/behavior/explainability/adapters/srvl.py`
+- [X] T078 [P] [US1] Implement BSIL/rule deterministic explainer in `backend/apps/behavior/explainability/adapters/bsil_rules.py`
+- [X] T079 [US1] Implement common explanation fragment composer in `backend/apps/behavior/explainability/composer.py`
+- [X] T080 [US1] Replace or retire placeholder explanation and visualization writers in `backend/apps/pipeline/model_lifecycle/explainability.py` and `backend/apps/pipeline/model_lifecycle/visualizations.py`
+- [X] T081 [P] [US1] Add per-adapter deterministic, quality, contradiction, and counterfactual tests in `backend/tests/unit/behavior/test_xai_fast_explainers.py`
+- [X] T082 [P] [US1] Add active-route coverage and output-parity integration tests in `backend/tests/integration/behavior/test_xai_fast_explainer_coverage.py`
 - [ ] T083 [P] [US6] Add production adapter coverage/latency probe in `tools/prod/prod_probe_xai_fast_explainers.py`
 - [ ] T084 [US6] Add Cycle 015.3 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_3.sh`
 - [ ] T085 [P] [US6] Implement Cycle 015.3 figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_3_figures.py`
@@ -555,8 +555,8 @@ reconciled before terminal state, and DB-completed FPS does not regress.
 - [X] T324 [US6] Integrate the producer seam into the offline frame loop / Step 3 (enqueue instead of inline persist when enabled; serial fallback + drain/reconcile before terminal state) in `backend/apps/video_analysis/tasks.py`
 - [X] T325 [US6] Extend the production watcher with per-lane depth/pending/applied/failed evidence in `tools/prod/prod_watch_benchmark_metrics.sh`
 - [X] T326 [US6] Fix lifecycle/status terminal convergence (RC-8: completed evidence while `status=embedding`) with reconciler proof in `backend/apps/video_analysis/tasks.py`
-- [ ] T327 [US6] Offload postprocess fanout construction (row building, derived records) into the consumer lanes, keeping ordered tracking on the producer path, in `backend/apps/video_analysis/tasks.py` + `backend/apps/video_analysis/persistence_pipeline.py`
-- [ ] T328 [US6] Add embedding-lane consumer slice (separate process embedding application) behind the same flag in `backend/apps/video_analysis/persistence_pipeline.py`
+- [X] T327 [US6] Offload postprocess fanout construction (row building, derived records) into the consumer lanes, keeping ordered tracking on the producer path, in `backend/apps/video_analysis/tasks.py` + `backend/apps/video_analysis/persistence_pipeline.py`
+- [X] T328 [US6] Add embedding-lane consumer slice (separate process embedding application) behind the same flag in `backend/apps/video_analysis/persistence_pipeline.py`
 - [X] T329 [US6] Add Cycle 015.17 stride-1 baseline/candidate benchmark runner in `tools/prod/prod_run_xai_cycle015_17.sh`
 - [ ] T330 [US6] Run the native RTX 5090 stride-1 baseline/candidate pair (after the GPU is free of training runs) and record parity/identity/lifecycle/FPS evidence
 - [X] T331 [US6] Generate Cycle 015.17 figures + manifest/digests in `tools/prod/prod_generate_xai_cycle015_17_figures.py`

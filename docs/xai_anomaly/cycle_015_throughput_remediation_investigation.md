@@ -1,8 +1,8 @@
 # Cycle 015 Throughput Remediation Investigation
 
 **Created:** 2026-06-10
-**Last updated:** 2026-06-10
-**Status:** `highest_priority_remediation_planned`
+**Last updated:** 2026-06-11
+**Status:** `cycle_015_17_implemented_pending_production_benchmark`
 **Streaming compatibility:** `stream-safe-with-config`
 
 ## Source-of-truth references
@@ -20,7 +20,15 @@
 | Doc | `docs/cycle_9_and_10_improvements_todo.md` |
 | File | `tools/prod/prod_watch_benchmark_metrics.sh` |
 | File | `tools/prod/prod_run_xai_cycle015_0.sh` |
+| File | `tools/prod/prod_start_celery_workers.sh` |
 | File | `backend/apps/video_analysis/tasks.py` |
+| File | `backend/apps/video_analysis/persistence_pipeline.py` |
+| File | `backend/config/celery.py` |
+| File | `backend/tests/unit/video_analysis/test_async_persistence_seam.py` |
+| File | `backend/tests/unit/video_analysis/test_persistence_pipeline.py` |
+| File | `tools/prod/prod_generate_xai_cycle015_17_figures.py` |
+| Doc | `docs/xai_anomaly/cycle_015_17_figure_plan.md` |
+| Doc | `docs/xai_anomaly/cycle_015_17_figure_implementation.md` |
 | File | `backend/apps/pipeline/services/triton_client.py` |
 | File | `backend/apps/telemetry/celery_integration.py` |
 | File | `backend/apps/telemetry/writer.py` |
@@ -150,7 +158,7 @@ Inference worker (frame loop = decode -> dispatch -> minimal ordered tracking)
       |
       v  compact frame packets (bounded Redis Stream lanes, persistq:{job}:{lane})
       +--> db_rows consumer     (separate Celery worker process: row fanout + bulk writes)
-      +--> embedding consumer   (later slice: embedding/derived records)
+      +--> embedding consumer   (separate process: existing embedding stage)
       +--> analytics consumer   (later slice: kinematics/BSIL/XAI derived work)
       +--> artifacts consumer   (later slice: JSON/labels/render artifacts)
 ```
@@ -164,16 +172,25 @@ path (sharding/identity lessons from 15.B1); behavior in-flight stays bounded
 (12.B lesson); streams are MAXLEN-bounded with drain + serial reconcile before
 terminal state (fail-closed; RC-8 lifecycle convergence is a gate).
 
-Implemented 2026-06-11 (first slice, default-off):
-`backend/apps/video_analysis/persistence_pipeline.py` (lanes, compact packet
-contract with idempotency `persist:{job}:{frame}`, bounded XADD producer,
-consumer-group Celery consumer with XAUTOCLAIM retry, drain/reconcile API,
-watcher-readable counters), settings + `.env.example` contract
-(`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` default), 11 unit tests in
-`backend/tests/unit/video_analysis/test_persistence_pipeline.py`, and CI wiring
-in `.github/workflows/inference-parallelization.yml`. Frame-loop integration,
-the `db_rows` writer adapter, postprocess offload, and the acceptance benchmark
-are the remaining Cycle 015.17 tasks in `specs/015-xai-anomaly-score/tasks.md`.
+Implemented 2026-06-11 (default-off): the tracked-frame callbacks now publish
+compact revisioned packets during Step 2. The dedicated
+`pipeline.offline.persistence` Celery worker builds `StudentTrack`,
+`Detection`, `BoundingBox`, and label-file fanout outside the inference
+process. The ordered tracking assignment remains in the producer. The
+consumer acknowledges and deletes terminal Redis Stream entries, skips stale
+revisions, and uses explicit long-job task limits. Step 3 publishes any final
+signature changes, drains the lane, compares exact persisted box signatures,
+and serially repairs missing or stale frames before later stages proceed.
+The embedding control slice dispatches the existing idempotent embedding
+stage onto the dedicated persistence worker, with standard-task fallback
+after consumer apply failures. The remaining Cycle 015.17 authority work is
+the native RTX 5090 benchmark, rollback proof, figures, and ledger/result
+recording in `specs/015-xai-anomaly-score/tasks.md`.
+
+Figure planning and implementation evidence are separated in
+`docs/xai_anomaly/cycle_015_17_figure_plan.md` and
+`docs/xai_anomaly/cycle_015_17_figure_implementation.md`. Production images
+and manifests remain pending T330.
 
 ## Current Decision
 

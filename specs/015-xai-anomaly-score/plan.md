@@ -432,10 +432,11 @@ Decision 20) is a **cross-process producer-consumer pipeline**:
 - the rejected in-process overlap (Cycle 20.E) is explicitly forbidden as a
   consumer execution mode.
 
-First slice implemented in `backend/apps/video_analysis/persistence_pipeline.py`
-(default-off) with unit tests and CI wiring; frame-loop integration, the
-`db_rows` writer adapter, postprocess offload, and the stride-1 production
-benchmark are tracked as Cycle 015.17 tasks.
+The default-off implementation now includes frame-loop packet production,
+the `db_rows` writer, exact-signature reconciliation, and a compact embedding
+control lane that runs the existing idempotent embedding stage on the
+dedicated persistence worker. The stride-1 production benchmark, rollback
+proof, and decision evidence remain tracked as Cycle 015.17 tasks.
 
 ## Mandatory No-Ground-Truth Doctrine
 
