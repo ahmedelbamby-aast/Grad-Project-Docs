@@ -1,0 +1,100 @@
+# Phantom Tracks & Track-ID Persistence — Research-Backed Best Practices
+
+**Created:** 2026-06-11
+**Context:** Cycle 015.17 refused on track parity (serial 138 → async 149).
+Root cause: superseded person-interpolation revisions orphan `StudentTrack`
+rows. This doc records the researched best practices and how each maps to our
+cross-process (multi-worker) persistence pipeline.
+
+## Two distinct problems
+
+1. **Persistence-layer phantoms** — a concurrency/idempotency problem: a
+   consumer persists an early frame revision (creating a track row), a later
+   revision supersedes the frame's boxes, and the old track row is left with
+   zero references. This is *not* a tracking-algorithm bug.
+2. **Track-ID stability across workers** — the same physical person must keep
+   the same `tracking_id` regardless of which worker/thread persists it, and
+   concurrent writes must not duplicate or orphan rows.
+
+## Best practices from the literature
+
+### A. Idempotent consumer / ordered persistence (distributed systems)
+- **Idempotency key + DB unique constraint** — record a processed-message id (or
+  put it on the business entity) and rely on an atomic unique-constraint /
+  `INSERT … ON CONFLICT`, so duplicate / at-least-once redelivery cannot create
+  duplicate rows. The check-then-insert race is fixed by the constraint, *not*
+  by pre-checking. (microservices.io idempotent-consumer; Conduktor.)
+- **Monotonic version / last-writer-wins** — stamp each update with a
+  monotonically increasing revision; reject or overwrite with anything whose
+  revision is ≤ the persisted one, so a stale/superseded update leaves no
+  residue. (Kafka producer sequence numbers; monotonic-write consistency.)
+- **Single-writer-per-key ordering** — route all updates for a key to one
+  consumer so revisions apply in order (partitioned consumer groups).
+- **Reference-counted / cascade cleanup** — when the last reference to an entity
+  is removed, GC the entity in the *same* transaction, rather than leaving
+  orphans for a later sweep.
+
+### B. MOT track lifecycle (computer vision)
+- **tentative → confirmed → deleted** with `n_init` (min hits before a track is
+  confirmed) and `max_age` (frames before a lost track is deleted). DeepSORT
+  keeps tracks tentative for the first ~3 frames and *deletes* them if not
+  re-associated — this is precisely what stops single-false-positive "ghost"
+  tracks from being treated as real. (DeepSORT; ByteTrack.)
+- **ByteTrack** additionally associates low-confidence detections in a second
+  pass to avoid dropping a tracklet during occlusion (fewer ID switches:
+  IDF1 76.9 → 79.3, ID switches 291 → 159 vs SORT).
+
+## How our pipeline already follows the best practices
+
+| Best practice | Our implementation | Status |
+|---|---|---|
+| Idempotency key | SHA-256 `scene:{job}:{frame}`; `update_or_create(Frame)`; embedding-guard skip | ✅ |
+| Unique constraint | `UniqueConstraint(job, tracking_id)` on `StudentTrack` | ✅ |
+| Single-writer-per-key | `db_rows` lane = **1** consumer (`consumer_count_for_lane`) → ordered revisions | ✅ |
+| Monotonic revision | compact packet `packet_revision`; replace-pre-embedding supersede | ✅ |
+| Deterministic IDs across workers | authoritative `tracked_ids` computed once in the inference process and passed to finalize — consumers never invent IDs | ✅ |
+| Reference-counted cleanup | finalize prune (`_async_persistence_prune_phantom_tracks`) — batch reconcile | ✅ (global net) |
+
+The single-writer + idempotency-key + monotonic-revision combination is exactly
+the recommended idempotent-consumer design. The finalize prune is the standard
+"reconcile orphans" sweep.
+
+## The improvement applied (prevention, not just reconciliation)
+
+The finalize prune is correct but *post-hoc*: phantoms accumulate during the run
+(observed mid-run on r3: ~148 tracks) and are reconciled to 138 only at the end.
+Best practice B + A.4 says to GC at the moment the last reference is removed.
+
+**`OFFLINE_PERSIST_INLINE_ORPHAN_GC`** (default-off): when a revision supersedes
+a frame's boxes (`replaced_pre_embedding_packet`), capture the superseded
+tracks, and after the new boxes are written, delete — *in the same
+transaction* — any superseded track that lost its last box and is not in the new
+revision. The check is bounded to this frame's superseded tracks (no full-table
+scan), so it adds no hot-path scan; the finalize prune remains the global safety
+net (defense in depth). Implemented in `_persist_offline_detection_frame_packet`;
+tested by `test_inline_orphan_gc_removes_superseded_track` (and the default-off
+companion). Benchmarked independently after the 015.17 parity verdict.
+
+## Track-ID persistence across threads — guarantees
+
+1. **Deterministic assignment**: track IDs come from the tracker in the single
+   inference process; the authoritative final set is computed once and passed to
+   the finalize barrier. Consumers persist exactly those IDs — they never
+   allocate IDs locally, so two workers cannot disagree.
+2. **Ordered application**: the `db_rows` lane uses one consumer, so revisions
+   for a frame apply in arrival order (monotonic), and a later revision cleanly
+   supersedes an earlier one.
+3. **Idempotent redelivery**: at-least-once delivery is absorbed by the frame
+   `update_or_create` + embedding-existence guard + the `(job, tracking_id)`
+   unique constraint — redelivery never duplicates a track or its boxes
+   (covered by `test_db_rows_writer_applies_packet_and_is_idempotent`).
+4. **Reference integrity**: a track row exists iff it is referenced — enforced
+   eagerly by the inline GC (when enabled) and globally by the finalize prune.
+
+## Optional future hardening (not yet needed)
+
+- Tie `StudentTrack` lifetime to box references with a DB `ON DELETE` trigger or
+  a periodic reconcile, so orphans are structurally impossible.
+- Apply the MOT `n_init` idea at persistence time: defer creating a track row
+  until a track has ≥ N confirmed boxes, so transient single-frame tracks never
+  get rows (only relevant if the upstream tracker emits 1-frame tracks).
