@@ -1,7 +1,7 @@
 # Cycle 015.17 Figure Plan
 
 **Last updated:** 2026-06-11
-**Status:** `planned_pending_production_inputs`
+**Status:** `completed`
 **Figure Planner:** `Codex Cycle 015.17 Figure Planner`
 
 ## Source-of-truth references
@@ -26,6 +26,11 @@
 
 Every figure must be generated from the same raw artifacts used by the
 decision table. The manifest records each input path and SHA-256 digest.
+
+The production outputs are preserved under
+`docs/figures/benchmark_artifacts/cycle015-17-prod-20260611/figures/` and
+`docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/figures/`.
+The r2 manifest is the figure authority for the final `NOT ACCEPTED` decision.
 
 ## Role Separation
 

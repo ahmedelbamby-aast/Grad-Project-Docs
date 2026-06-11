@@ -2,7 +2,7 @@
 
 **Created:** 2026-06-10
 **Last updated:** 2026-06-11
-**Status:** `cycle_015_17_implemented_pending_production_benchmark`
+**Status:** `cycle_015_17_not_accepted`
 **Streaming compatibility:** `stream-safe-with-config`
 
 ## Source-of-truth references
@@ -29,6 +29,8 @@
 | File | `tools/prod/prod_generate_xai_cycle015_17_figures.py` |
 | Doc | `docs/xai_anomaly/cycle_015_17_figure_plan.md` |
 | Doc | `docs/xai_anomaly/cycle_015_17_figure_implementation.md` |
+| Doc | `docs/xai_anomaly/cycle_015_17_results.md` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/figures/MANIFEST.json` |
 | File | `backend/apps/pipeline/services/triton_client.py` |
 | File | `backend/apps/telemetry/celery_integration.py` |
 | File | `backend/apps/telemetry/writer.py` |
@@ -183,21 +185,28 @@ signature changes, drains the lane, compares exact persisted box signatures,
 and serially repairs missing or stale frames before later stages proceed.
 The embedding control slice dispatches the existing idempotent embedding
 stage onto the dedicated persistence worker, with standard-task fallback
-after consumer apply failures. The remaining Cycle 015.17 authority work is
-the native RTX 5090 benchmark, rollback proof, figures, and ledger/result
-recording in `specs/015-xai-anomaly-score/tasks.md`.
+after consumer apply failures.
 
 Figure planning and implementation evidence are separated in
 `docs/xai_anomaly/cycle_015_17_figure_plan.md` and
-`docs/xai_anomaly/cycle_015_17_figure_implementation.md`. Production images
-and manifests remain pending T330.
+`docs/xai_anomaly/cycle_015_17_figure_implementation.md`.
+
+The native RTX 5090 stride-1 production decision is **NOT ACCEPTED**. The
+corrected r2 candidate drained all `8185` `db_rows` packets with zero failures
+and zero serial reconciliation, but DB-completed FPS regressed
+`1.655863 -> 1.643340`, Step 2 frame wall regressed
+`1626.406689 s -> 1629.966177 s`, and student-track rows diverged
+`138 -> 149`. The runner also rolled back before the downstream embedding
+stage reached its actual terminal state, contaminating candidate GPU-tail and
+rollback timing authority. Full evidence and figures are recorded in
+`docs/xai_anomaly/cycle_015_17_results.md`.
 
 ## Current Decision
 
 Cycle 015 downstream additive XAI/anomaly work remains blocked from production
-acceptance on the critical path. The next implementation cycle must attack the
-measured throughput bottlenecks above or prove, with production evidence, that
-it does not widen them. The accepted architecture lane for the persistence and
-postprocess share of that work is Cycle 015.17 above; the future target ladder
-is `>=15` FPS DB-completed first (constitution 7.1.1), then the semi-realtime
-`25-30` FPS last-stage target (constitution v2.14.0).
+acceptance on the critical path. Cycle 015.17 remains default-off and is not an
+accepted architecture lane. The next implementation cycle must fix terminal
+lifecycle coordination and attack the measured Step 2 bottlenecks, or prove
+with production evidence that it does not widen them. The target ladder remains
+`>=15` FPS DB-completed first, then the semi-realtime `25-30` FPS last-stage
+target.

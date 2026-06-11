@@ -1,0 +1,7 @@
+# Cycle 015.17 Rollback Status
+
+- Replay key: `cycle015-17-prod-20260611-baseline`
+- Source mode: `baseline`
+- `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`
+- Workers restarted: `true`
+- Serial setting verified: `true`

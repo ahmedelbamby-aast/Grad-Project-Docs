@@ -1,0 +1,96 @@
+{
+  "async_embedding_metadata": {
+    "application_owner": "persistence_worker",
+    "lane": "embedding",
+    "state": "dispatched"
+  },
+  "async_persistence_metadata": {
+    "drained": true,
+    "enqueue_failures": 0,
+    "enqueued_frames": 4541,
+    "expected_frames": 4541,
+    "lane": "db_rows",
+    "lane_stats": {
+      "counters": {
+        "applied": "8185",
+        "produced": "8185"
+      },
+      "drained": true,
+      "lane": "db_rows",
+      "pending": 0,
+      "stream_len": 0
+    },
+    "produced_packets": 8185,
+    "revised_packets": 3644,
+    "serially_reconciled_frames": 0,
+    "state": "reconciled"
+  },
+  "drained": true,
+  "first_midrun_nonzero_sample": {
+    "authoritative_rows": {
+      "bounding_boxes": 966,
+      "detections": 966,
+      "embeddings": 0,
+      "frames": 35,
+      "student_tracks": 30
+    },
+    "job": {
+      "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+      "processed_frames": 25,
+      "status": "processing",
+      "total_frames": 4541
+    },
+    "lanes": {
+      "db_rows": {
+        "counters": {
+          "applied": "62",
+          "produced": "63"
+        },
+        "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+        "lane": "db_rows",
+        "pending": 1,
+        "stream_len": 1
+      },
+      "embedding": {
+        "counters": {},
+        "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+        "lane": "embedding",
+        "pending": null,
+        "stream_len": 0
+      }
+    },
+    "replay_key": "cycle015-17-prod-r2-20260611-candidate",
+    "sampled_at": "2026-06-11T02:57:40.451726+00:00",
+    "schema_version": "cycle015.17.midrun_sample.v1"
+  },
+  "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+  "job_status": "embedding",
+  "lanes": {
+    "db_rows": {
+      "counters": {
+        "applied": "8185",
+        "last_consumer_summary": "{\"job_id\": \"f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd\", \"lane\": \"db_rows\", \"applied\": 8185, \"failed\": 0, \"drained\": true}",
+        "produced": "8185"
+      },
+      "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+      "lane": "db_rows",
+      "pending": 0,
+      "stream_len": 0
+    },
+    "embedding": {
+      "counters": {
+        "produced": "1"
+      },
+      "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+      "lane": "embedding",
+      "pending": 2,
+      "stream_len": 2
+    }
+  },
+  "midrun_nonzero_authoritative_rows": true,
+  "midrun_sample_count": 109,
+  "recorded_at": "2026-06-11T03:40:16.722653+00:00",
+  "replay_key": "cycle015-17-prod-r2-20260611-candidate",
+  "schema_version": "cycle015.17.lane_stats.v1",
+  "serially_reconciled_frames": 0
+}

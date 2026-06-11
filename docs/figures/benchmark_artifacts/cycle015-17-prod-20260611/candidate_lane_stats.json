@@ -1,0 +1,104 @@
+{
+  "async_embedding_metadata": {
+    "application_owner": "persistence_worker",
+    "lane": "embedding",
+    "state": "dispatched"
+  },
+  "async_persistence_metadata": {
+    "drained": false,
+    "enqueue_failures": 0,
+    "enqueued_frames": 4541,
+    "expected_frames": 4541,
+    "lane": "db_rows",
+    "lane_stats": {
+      "counters": {
+        "applied": "1031",
+        "failed": "7139",
+        "last_consumer_summary": "{\"job_id\": \"349010db-51c9-4b1a-8806-4a22a8afc541\", \"lane\": \"db_rows\", \"applied\": 1031, \"failed\": 7139, \"drained\": false, \"superseded\": 4, \"error\": \"idle_exit_without_drain_marker\"}",
+        "produced": "8185",
+        "superseded": "4"
+      },
+      "drained": false,
+      "error": "drain_timeout",
+      "lane": "db_rows",
+      "pending": 0,
+      "stream_len": 12
+    },
+    "produced_packets": 8185,
+    "revised_packets": 3644,
+    "serially_reconciled_frames": 3968,
+    "state": "reconciled"
+  },
+  "drained": false,
+  "first_midrun_nonzero_sample": {
+    "authoritative_rows": {
+      "bounding_boxes": 823,
+      "detections": 823,
+      "embeddings": 0,
+      "frames": 30,
+      "student_tracks": 29
+    },
+    "job": {
+      "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+      "processed_frames": 25,
+      "status": "processing",
+      "total_frames": 4541
+    },
+    "lanes": {
+      "db_rows": {
+        "counters": {
+          "applied": "54",
+          "produced": "63"
+        },
+        "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+        "lane": "db_rows",
+        "pending": 9,
+        "stream_len": 9
+      },
+      "embedding": {
+        "counters": {},
+        "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+        "lane": "embedding",
+        "pending": null,
+        "stream_len": 0
+      }
+    },
+    "replay_key": "cycle015-17-prod-20260611-candidate",
+    "sampled_at": "2026-06-11T01:17:04.560845+00:00",
+    "schema_version": "cycle015.17.midrun_sample.v1"
+  },
+  "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+  "job_status": "completed",
+  "lanes": {
+    "db_rows": {
+      "counters": {
+        "applied": "1031",
+        "failed": "7139",
+        "last_consumer_summary": "{\"job_id\": \"349010db-51c9-4b1a-8806-4a22a8afc541\", \"lane\": \"db_rows\", \"applied\": 1031, \"failed\": 7139, \"drained\": false, \"superseded\": 4, \"error\": \"idle_exit_without_drain_marker\"}",
+        "produced": "8185",
+        "superseded": "4"
+      },
+      "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+      "lane": "db_rows",
+      "pending": 0,
+      "stream_len": 12
+    },
+    "embedding": {
+      "counters": {
+        "applied": "1",
+        "last_consumer_summary": "{\"job_id\": \"349010db-51c9-4b1a-8806-4a22a8afc541\", \"lane\": \"embedding\", \"applied\": 1, \"failed\": 0, \"drained\": true}",
+        "produced": "1"
+      },
+      "job_id": "349010db-51c9-4b1a-8806-4a22a8afc541",
+      "lane": "embedding",
+      "pending": 0,
+      "stream_len": 0
+    }
+  },
+  "midrun_nonzero_authoritative_rows": true,
+  "midrun_sample_count": 110,
+  "recorded_at": "2026-06-11T02:04:44.390488+00:00",
+  "replay_key": "cycle015-17-prod-20260611-candidate",
+  "schema_version": "cycle015.17.lane_stats.v1",
+  "serially_reconciled_frames": 3968
+}

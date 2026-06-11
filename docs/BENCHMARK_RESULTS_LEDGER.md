@@ -1,6 +1,7 @@
 # BENCHMARK RESULTS LEDGER — single source of truth for every benchmark
 
-**Branch:** `014-yoloe-scene-srvl` · **Authority:** Constitution §7.1.1 / §12.5
+**Last updated:** 2026-06-11
+**Branch:** `015-xai-anomaly-score` · **Authority:** Constitution §7.1.1 / §12.5
 This is the **one place** that records every benchmark run, accepted or refused,
 with its config, metrics, and the decision reason. No optimization decision is
 valid unless its run appears here.
@@ -59,6 +60,56 @@ valid unless its run appears here.
 | **Decision** | ★ **ACCEPTED** (Cycle 016 embedding architecture — items 4/8/9 proven live) · ◷ **baseline for Cycles 018–023** |
 | **Reason** | Real OSNet student/teacher embeddings extracted + cached end-to-end in the production pipeline, embedding-arbiter wired. Accepted as functional verification of the embedding architecture. Simultaneously the frozen latency baseline: the optimization program must beat **1912 s → ≤600 s** with correctness parity. |
 
+### B010 — Cycle 015.17 attempt 1 serial baseline · ◷ BASELINE
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-20260611-baseline` · job `449f1540-f586-4049-829b-a4dd46bf166f` · commit `a1551966` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence off |
+| Completion | `4541/4541` · `2729.178 s` · **1.663871 DB FPS** |
+| Correctness | frames `4541` · detections/bboxes `127117` · embeddings `126519` · tracks `138` |
+| GPU | average `4.672%` |
+| Decision | ◷ baseline for R003 |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-20260611/` |
+
+### R003 — Cycle 015.17 attempt 1 cross-process persistence · ✘ REFUSED
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-20260611-candidate` · job `349010db-51c9-4b1a-8806-4a22a8afc541` · commit `a1551966` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence on |
+| Completion | `4541/4541` · `2869.358 s` · **1.582584 DB FPS** (`-4.88%`) |
+| Correctness | frames/detections/bboxes/embeddings exact · tracks `138 -> 140` |
+| Lane | `8185` produced · `1031` applied · `7139` failed · not drained · `3968` serially reconciled |
+| **Decision** | ✘ **REFUSED** |
+| **Reason** | Consumer color ownership reset between packets, causing apply failures, drain timeout, serial repair, throughput regression, and track-row divergence. |
+| Rollback | Async persistence disabled and workers restarted |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-20260611/` |
+
+### B011 — Cycle 015.17 r2 serial baseline · ◷ BASELINE
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r2-20260611-baseline` · job `e60e678a-8862-4f87-8177-54b979aaf884` · commit `6f0a4805` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence off |
+| Completion | `4541/4541` · `2742.376 s` · **1.655863 DB FPS** |
+| Correctness | frames `4541` · detections/bboxes `127117` · embeddings `126519` · tracks `138` |
+| Step 2 / GPU | `1626.406689 s` · average `4.666%` · peak `51%` |
+| Decision | ◷ baseline for R004 |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/` |
+
+### R004 — Cycle 015.17 r2 cross-process persistence · ✘ REFUSED
+| Field | Value |
+|---|---|
+| Run | `cycle015-17-prod-r2-20260611-candidate` · job `f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd` · commit `6f0a4805` |
+| Config | Native Linux RTX 5090 · canonical `combined.mp4` · stride **1** · async persistence on |
+| Completion | `4541/4541` · `2763.274 s` · **1.643340 DB FPS** (`-0.76%`) |
+| Step 2 | `1629.966177 s` (`+0.22%`) |
+| Correctness | frames/detections/bboxes/embeddings exact · tracks `138 -> 149` |
+| Lane | `8185` produced/applied · zero failed · drained · zero serial reconciliation |
+| GPU | average `5.032%` · peak `48%`; embedding tail not captured |
+| **Decision** | ✘ **REFUSED** |
+| **Reason** | DB FPS regressed and stayed far below `15 FPS`; track rows diverged; runner rolled back at `03:40:31Z` before actual terminal completion at `03:43:32Z`, invalidating clean terminal GPU/rollback authority. |
+| Rollback | Flag off and workers restarted; serial setting verified |
+| Evidence | `docs/xai_anomaly/cycle_015_17_results.md`; `docs/figures/benchmark_artifacts/cycle015-17-prod-r2-20260611/` |
+
 ---
 
 ## Pending acceptance (Cycles 017–023)
@@ -79,3 +130,5 @@ Each will append a row here with stride=1, full §7.1.1 metrics, and decision+re
 |---|---|---|---|
 | R001 | YOLOE INT8 engine | ✘ REFUSED | Inference already not the bottleneck (GPU idle, B003); INT8 risks the 26L recall gain for negligible latency benefit. |
 | R002 | Carry frames in inference queue for all-models embeddings | ✘ REFUSED | Superseded by preview-imread — avoids bounded-queue memory growth (§8.6). |
+| R003 | Cycle 015.17 attempt 1 cross-process persistence | ✘ REFUSED | Apply failures, drain timeout, serial repair, throughput regression, and track-row divergence. |
+| R004 | Cycle 015.17 r2 cross-process persistence | ✘ REFUSED | Clean DB lane, but DB FPS and track rows regressed; terminal lifecycle contamination invalidated clean GPU/rollback authority. |

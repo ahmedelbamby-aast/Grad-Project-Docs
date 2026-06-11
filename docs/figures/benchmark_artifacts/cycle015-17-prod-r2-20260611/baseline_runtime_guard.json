@@ -1,0 +1,12 @@
+{
+  "canonical_video": "Raw Data/Diverse Classroom Enviroments/combined.mp4",
+  "frame_stride": 1,
+  "git_branch": "015-xai-anomaly-score",
+  "git_sha": "6f0a48051514a6353bec21879eedb0e48535dd2a",
+  "mode": "baseline",
+  "offline_async_persistence_enabled": false,
+  "recorded_at": "2026-06-11T02:09:17.812425+00:00",
+  "replay_key": "cycle015-17-prod-r2-20260611-baseline",
+  "schema_version": "cycle015.17.runtime_guard.v1",
+  "tracked_worktree_clean": true
+}

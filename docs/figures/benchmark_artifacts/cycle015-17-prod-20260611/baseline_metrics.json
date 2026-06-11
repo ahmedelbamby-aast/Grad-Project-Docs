@@ -1,0 +1,730 @@
+{
+  "audit": {
+    "async_dispatch": {
+      "by_label": {},
+      "calls": 0,
+      "enabled": false,
+      "max_ms": 0.0,
+      "mean_ms": 0.0,
+      "total_ms": 0.0
+    },
+    "event_count": 17,
+    "path": "/home/bamby/grad_project/backend/data/videos/449f1540-f586-4049-829b-a4dd46bf166f/inference_audit.json",
+    "pose_tail_profile": {},
+    "post_render_finalize_wall_s": 0.047849,
+    "run_complete_wall_s": 2562.042404,
+    "step1_primary_tracking_wall_s": null,
+    "step2_frame_wall_s": 1607.723744,
+    "step2_pose_tail_over_frame_s": 893.810582,
+    "step2_stage_timings_s": {
+      "decode_s": 0.064742,
+      "inference_s": 2153.903369,
+      "postprocess_s": 4897.851158,
+      "preprocess_s": 110.130605
+    },
+    "step2_through_pose_upload_s": 2501.534326,
+    "step3_persistence_wall_s": 32.4978,
+    "step4_render_wall_s": 27.887174
+  },
+  "box_throughput": {
+    "depth_gaze_model": {
+      "boxes_per_call_ms": null,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": null,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 0,
+      "calls_per_s": 0.0,
+      "description": "Forward/backward gaze (attention_tracking)",
+      "mean_rtt_ms": 0.0,
+      "model_name": "depth_gaze_model",
+      "output_kind": "bbox",
+      "p95_rtt_ms": 0.0,
+      "unavailable_reason": "no_bbox_rows"
+    },
+    "horizontal_gaze_model": {
+      "boxes_per_call_ms": null,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": null,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 0,
+      "calls_per_s": 0.0,
+      "description": "Left/right gaze (attention_tracking)",
+      "mean_rtt_ms": 0.0,
+      "model_name": "horizontal_gaze_model",
+      "output_kind": "bbox",
+      "p95_rtt_ms": 0.0,
+      "unavailable_reason": "no_bbox_rows"
+    },
+    "person_detector": {
+      "boxes_per_call_ms": 0.0,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": 0.0,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 910,
+      "calls_per_s": 0.333434,
+      "description": "Student/teacher detector (person_detection)",
+      "mean_rtt_ms": 17.372,
+      "model_name": "person_detector",
+      "output_kind": "bbox",
+      "p95_rtt_ms": 45.858,
+      "unavailable_reason": "no_bbox_rows"
+    },
+    "posture_model": {
+      "boxes_per_call_ms": 0.0,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": 0.0,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 1,
+      "calls_per_s": 0.000366,
+      "description": "Sitting/standing classifier (sitting_standing)",
+      "mean_rtt_ms": 29.391,
+      "model_name": "posture_model",
+      "output_kind": "bbox",
+      "p95_rtt_ms": 29.391,
+      "unavailable_reason": "no_bbox_rows"
+    },
+    "rtmpose_model": {
+      "boxes_per_call_ms": 0.0,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": 0.0,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 4559,
+      "calls_per_s": 1.670467,
+      "description": "RTMPose pose estimator",
+      "mean_rtt_ms": 42.617,
+      "model_name": "rtmpose_model",
+      "output_kind": "keypoints",
+      "p95_rtt_ms": 45.336,
+      "unavailable_reason": "output_kind_is_keypoints"
+    },
+    "vertical_gaze_model": {
+      "boxes_per_call_ms": null,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": null,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 0,
+      "calls_per_s": 0.0,
+      "description": "Up/down gaze + hand_raising",
+      "mean_rtt_ms": 0.0,
+      "model_name": "vertical_gaze_model",
+      "output_kind": "bbox",
+      "p95_rtt_ms": 0.0,
+      "unavailable_reason": "no_bbox_rows"
+    },
+    "yoloe_scene_seg": {
+      "boxes_per_call_ms": 0.0,
+      "boxes_per_frame": 0.0,
+      "boxes_per_model_call": 0.0,
+      "boxes_per_ms": 0.0,
+      "boxes_per_second": 0.0,
+      "boxes_total": 0,
+      "call_count": 4541,
+      "calls_per_s": 1.663871,
+      "description": "YOLOE-26s-seg scene segmentation (014, disabled-by-default)",
+      "mean_rtt_ms": 25.495,
+      "model_name": "yoloe_scene_seg",
+      "output_kind": "segmentation",
+      "p95_rtt_ms": 45.584,
+      "unavailable_reason": "output_kind_is_segmentation"
+    }
+  },
+  "correctness": {
+    "bbox_by_model": {
+      "attention_tracking": 11775,
+      "hand_raising": 8801,
+      "person_detection": 73529,
+      "sitting_standing": 33012
+    },
+    "bbox_rows": 127117,
+    "detection_rows": 127117,
+    "embedding_rows": 126519,
+    "frame_rows": 4541,
+    "pose_kinematics_override_rows": 0,
+    "pose_kinematics_record_rows": 72931,
+    "student_tracks": 138
+  },
+  "embedding": {
+    "created_at_max": "2026-06-11T01:15:12.463406+00:00",
+    "created_at_min": "2026-06-11T01:12:28.062136+00:00",
+    "created_span_s": 164.401,
+    "summary": {
+      "created_count": 126519,
+      "deadline_exceeded": false,
+      "error_count": 0,
+      "error_ratio": 0.0,
+      "reused_track_embedding_count": 126382,
+      "skipped_existing_count": 0,
+      "stage_outcome": "completed"
+    }
+  },
+  "gpu": {
+    "avg_power_w": 68.921,
+    "avg_util_pct": 4.672,
+    "path": "/home/bamby/grad_project/backend/logs/gpu_monitor_bench_20260611T032940.csv",
+    "peak_mem_used_mib": 32099.0,
+    "peak_util_pct": 49.0,
+    "samples": 2670
+  },
+  "job": {
+    "child_inference_audit_paths": [],
+    "child_job_ids": [],
+    "completed_at": "2026-06-11T01:15:13.681602+00:00",
+    "created_at": "2026-06-11T00:29:44.503857+00:00",
+    "db_completed_elapsed_s": 2729.178,
+    "db_completed_fps": 1.663871,
+    "error_message": "",
+    "filename": "combined.mp4",
+    "inference_audit_path": "/home/bamby/grad_project/backend/data/videos/449f1540-f586-4049-829b-a4dd46bf166f/inference_audit.json",
+    "job_id": "449f1540-f586-4049-829b-a4dd46bf166f",
+    "offline_video_sharding": {},
+    "pipeline_mode": "crop_frame",
+    "processed_frames": 4541,
+    "replay_key": "cycle015-17-prod-20260611-baseline",
+    "status": "completed",
+    "total_frames": 4541
+  },
+  "pose_kinematics": {
+    "artifact_ref_count": 72931,
+    "artifacts_enabled": true,
+    "avg_history_window_seconds": 4.520472912753168,
+    "config_digest_count": 1,
+    "current_settings_enabled": true,
+    "deduplicated_record_count": 72931,
+    "duplicate_record_count": 0,
+    "duplicate_scope_count": 0,
+    "enabled": true,
+    "history_bound_violations": 0,
+    "history_max_samples": 150,
+    "history_seconds": 5.0,
+    "input_record_count": 72931,
+    "max_history_sample_count": 150,
+    "max_history_window_seconds": 5.0,
+    "metadata_record_count": 72931,
+    "min_keypoint_confidence": 0.3,
+    "override_decision_counts": {},
+    "override_events_total": 0,
+    "override_margin": 0.15,
+    "override_min_frames": 3,
+    "quality_counts": {
+      "good": 22135,
+      "invalid": 737,
+      "occluded": 1148,
+      "partial_body": 35078,
+      "weak": 13833
+    },
+    "records_total": 72931,
+    "state_counts": {
+      "degraded": 23961,
+      "unavailable": 737,
+      "valid": 48233
+    },
+    "telemetry_enabled": true
+  },
+  "post_stage_timeline": {
+    "derived": {},
+    "enabled": false,
+    "missing_required": [
+      "inference_started_at",
+      "frame_inference_done_at",
+      "first_persist_packet_ready_at",
+      "first_frame_persisted_at",
+      "all_frames_persisted_at",
+      "first_embedding_eligible_at",
+      "first_embedding_started_at",
+      "embedding_done_at",
+      "terminal_coordinator_done_at"
+    ],
+    "streaming_post_stages_enabled": false,
+    "timestamps": {},
+    "unavailable": {
+      "cycle20_post_stage_timeline": {
+        "reason": "metadata_missing"
+      }
+    }
+  },
+  "redis_stream": {
+    "available": true,
+    "db_polls_avoided_estimate": 0,
+    "enabled": false,
+    "expected_maxlen": 1000,
+    "expected_ttl_seconds": 86400,
+    "fallback_count": 0,
+    "first_event_id": "",
+    "last_event": {},
+    "last_event_id": "",
+    "memory_usage_bytes": 0,
+    "metadata_summary": {
+      "attempted": 0,
+      "enabled": false,
+      "errors": 0,
+      "last_stream_id": "",
+      "maxlen": 1000,
+      "redis_unavailable": 0,
+      "stream_key": "",
+      "ttl_seconds": 86400,
+      "written": 0
+    },
+    "read_error": "",
+    "read_error_count": 0,
+    "redis_ttl_seconds": -2,
+    "stream_key": "bench:cycle015-17-prod-20260611-baseline:events",
+    "watch_db_full_poll_every_n": 1,
+    "watch_enabled": false,
+    "write_count_estimate": 0,
+    "xlen": 0
+  },
+  "source_video": {
+    "basis": "job.metadata.fps and VideoAnalysisJob.total_frames",
+    "duration_s": 151.366667,
+    "fps": 30.0,
+    "frame_count": 4541
+  },
+  "summary_json": {
+    "path": "/home/bamby/grad_project/backend/logs/bench_summary_20260611T032940.json",
+    "payload": {
+      "error_message": null,
+      "evidence_artifacts": {
+        "inference_audit_path": "/home/bamby/grad_project/backend/data/videos/449f1540-f586-4049-829b-a4dd46bf166f/inference_audit.json",
+        "pose_results_artifact_path": "/home/bamby/grad_project/backend/data/videos/449f1540-f586-4049-829b-a4dd46bf166f/pose_results.json"
+      },
+      "failure_lineage": {
+        "reid_best_match": "a915920d-268d-4e37-baf5-dbf60ff14e62",
+        "reid_match_score": 1.0
+      },
+      "job_id": "449f1540-f586-4049-829b-a4dd46bf166f",
+      "operational_ingest": {
+        "actor_username": "runtime_validator",
+        "benchmark_evidence": true,
+        "canonical_admission_view": "VideoAnalysisJobListCreateView",
+        "replay_key": "cycle015-17-prod-20260611-baseline",
+        "replay_policy": "new-attempt",
+        "runner": "runtime_ingest_video",
+        "runtime_profile": "offline",
+        "session_metadata": {},
+        "source_metadata": {},
+        "source_path": "/home/bamby/grad_project/Raw Data/Diverse Classroom Enviroments/combined.mp4",
+        "source_sha256": "985bc0aa5db49c5936f392b158a3b55d255e3e80806d448424b995239d798e1c"
+      },
+      "original_job_id": "",
+      "pipeline_mode": "crop_frame",
+      "processed_frames": 4541,
+      "production_acceptance": {
+        "failed_lineage_rejected": false,
+        "replay_valid": true
+      },
+      "reconciliation_result": {},
+      "replay_key": "cycle015-17-prod-20260611-baseline",
+      "replay_lineage_status": "new_attempt",
+      "replay_policy": "new-attempt",
+      "replayed": false,
+      "runtime_profile": "offline",
+      "source_sha256": "985bc0aa5db49c5936f392b158a3b55d255e3e80806d448424b995239d798e1c",
+      "status": "completed",
+      "telemetry_linkage": {
+        "frame_lifecycle_event_count": 0,
+        "model_call_event_count": 4,
+        "run_session_summary_count": 2,
+        "run_statuses": [
+          "started",
+          "completed"
+        ]
+      },
+      "total_frames": 4541,
+      "websocket_group": "video_analysis_job_449f1540-f586-4049-829b-a4dd46bf166f"
+    }
+  },
+  "telemetry": {
+    "model_calls": {
+      "behavior_ensemble": {
+        "calls_per_s": 1.317979,
+        "count": 3597,
+        "input_shape": "[32, 3, 320, 320]",
+        "max_rtt_ms": 1027.778,
+        "mean_rtt_ms": 113.006,
+        "p50_rtt_ms": 158.545,
+        "p95_rtt_ms": 180.136,
+        "p99_rtt_ms": 190.369,
+        "status_counts": {
+          "ok": 3597
+        }
+      },
+      "gaze_horizontal_model": {
+        "calls_per_s": 0.000366,
+        "count": 1,
+        "input_shape": "[1, 3, 320, 320]",
+        "max_rtt_ms": 28.23,
+        "mean_rtt_ms": 28.23,
+        "p50_rtt_ms": 28.23,
+        "p95_rtt_ms": 28.23,
+        "p99_rtt_ms": 28.23,
+        "status_counts": {
+          "ok": 1
+        }
+      },
+      "gaze_vertical_model": {
+        "calls_per_s": 0.000366,
+        "count": 1,
+        "input_shape": "[1, 3, 320, 320]",
+        "max_rtt_ms": 27.269,
+        "mean_rtt_ms": 27.269,
+        "p50_rtt_ms": 27.269,
+        "p95_rtt_ms": 27.269,
+        "p99_rtt_ms": 27.269,
+        "status_counts": {
+          "ok": 1
+        }
+      },
+      "person_detector": {
+        "calls_per_s": 0.333434,
+        "count": 910,
+        "input_shape": "[1, 3, 640, 640]",
+        "max_rtt_ms": 110.843,
+        "mean_rtt_ms": 17.372,
+        "p50_rtt_ms": 13.899,
+        "p95_rtt_ms": 45.858,
+        "p99_rtt_ms": 51.931,
+        "status_counts": {
+          "ok": 910
+        }
+      },
+      "posture_model": {
+        "calls_per_s": 0.000366,
+        "count": 1,
+        "input_shape": "[1, 3, 320, 320]",
+        "max_rtt_ms": 29.391,
+        "mean_rtt_ms": 29.391,
+        "p50_rtt_ms": 29.391,
+        "p95_rtt_ms": 29.391,
+        "p99_rtt_ms": 29.391,
+        "status_counts": {
+          "ok": 1
+        }
+      },
+      "rtmpose_model": {
+        "calls_per_s": 1.670467,
+        "count": 4559,
+        "input_shape": "[16, 3, 256, 192]",
+        "max_rtt_ms": 87.848,
+        "mean_rtt_ms": 42.617,
+        "p50_rtt_ms": 42.762,
+        "p95_rtt_ms": 45.336,
+        "p99_rtt_ms": 52.853,
+        "status_counts": {
+          "ok": 4559
+        }
+      },
+      "yoloe_scene_seg": {
+        "calls_per_s": 1.663871,
+        "count": 4541,
+        "input_shape": "[1, 3, 640, 640]",
+        "max_rtt_ms": 584.476,
+        "mean_rtt_ms": 25.495,
+        "p50_rtt_ms": 21.077,
+        "p95_rtt_ms": 45.584,
+        "p99_rtt_ms": 58.555,
+        "status_counts": {
+          "ok": 4541
+        }
+      }
+    },
+    "session_count": 1,
+    "session_id": "059af157-eafb-40c3-b55c-bb14dbc6b2c2",
+    "session_ids": [
+      "059af157-eafb-40c3-b55c-bb14dbc6b2c2"
+    ],
+    "session_mean_frame_latency_ms": 1577.1746034257112,
+    "session_p95_frame_latency_ms": 2761.4504424855113,
+    "session_wall_time_s": 2562.64
+  },
+  "throughput_layers": [
+    {
+      "basis": "job.metadata.fps and VideoAnalysisJob.total_frames",
+      "count": 4541,
+      "layer": "source_video_nominal",
+      "notes": "Input media FPS, not processing throughput.",
+      "throughput_per_s": 30.0,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 151.366667
+    },
+    {
+      "basis": "VideoAnalysisJob.processed_frames / (completed_at - created_at)",
+      "count": 4541,
+      "layer": "job_db_completed",
+      "notes": "",
+      "throughput_per_s": 1.663871,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "step1.primary_tracking.start -> step1.primary_tracking.complete",
+      "count": 4541,
+      "layer": "step1_primary_tracking",
+      "notes": "",
+      "throughput_per_s": null,
+      "unavailable_reason": "step1_audit_timestamps_missing_or_skipped",
+      "unit": "frames/s",
+      "wall_s": null
+    },
+    {
+      "basis": "step2.triton_shadow.start -> step2.frame_stage_timings",
+      "count": 4541,
+      "layer": "step2_frame_inference_loop",
+      "notes": "",
+      "throughput_per_s": 2.82449,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 1607.723744
+    },
+    {
+      "basis": "step2.triton_shadow.start -> step2.pose_upload",
+      "count": 4541,
+      "layer": "step2_through_pose_tail",
+      "notes": "",
+      "throughput_per_s": 1.815286,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 2501.534326
+    },
+    {
+      "basis": "step2.frame_stage_timings -> step2.pose_upload",
+      "count": 4541,
+      "layer": "step2_pose_tail_only",
+      "notes": "",
+      "throughput_per_s": 5.080495,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 893.810582
+    },
+    {
+      "basis": "summed Step 2 per-frame stage timing",
+      "count": 4541,
+      "layer": "step2_stage_decode_s",
+      "notes": "",
+      "throughput_per_s": 70139.94007,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 0.064742
+    },
+    {
+      "basis": "summed Step 2 per-frame stage timing",
+      "count": 4541,
+      "layer": "step2_stage_inference_s",
+      "notes": "",
+      "throughput_per_s": 2.108265,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 2153.903369
+    },
+    {
+      "basis": "summed Step 2 per-frame stage timing",
+      "count": 4541,
+      "layer": "step2_stage_postprocess_s",
+      "notes": "",
+      "throughput_per_s": 0.927141,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 4897.851158
+    },
+    {
+      "basis": "summed Step 2 per-frame stage timing",
+      "count": 4541,
+      "layer": "step2_stage_preprocess_s",
+      "notes": "",
+      "throughput_per_s": 41.232862,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 110.130605
+    },
+    {
+      "basis": "step3.persistence.start -> step3.persistence.complete",
+      "count": 4541,
+      "layer": "step3_persistence",
+      "notes": "",
+      "throughput_per_s": 139.732536,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 32.4978
+    },
+    {
+      "basis": "first_frame_persisted_at -> all_frames_persisted_at",
+      "count": 0,
+      "layer": "cycle20_post_stage_persistence",
+      "notes": "Only populated for Cycle 20 timeline-enabled runs.",
+      "throughput_per_s": null,
+      "unavailable_reason": "cycle20_post_stage_timeline_missing",
+      "unit": "packets/s",
+      "wall_s": null
+    },
+    {
+      "basis": "embedding wall over processed frame count",
+      "count": 4541,
+      "layer": "embedding_stage_frame_equivalent",
+      "notes": "Frame-equivalent rate; embedding work is detection/track based.",
+      "throughput_per_s": null,
+      "unavailable_reason": "embedding_wall_missing",
+      "unit": "frames/s",
+      "wall_s": null
+    },
+    {
+      "basis": "embedding created + reused + skipped + error rows over embedding wall",
+      "count": 252901,
+      "layer": "embedding_stage_work_items",
+      "notes": "",
+      "throughput_per_s": null,
+      "unavailable_reason": "embedding_summary_or_wall_missing",
+      "unit": "embedding-items/s",
+      "wall_s": null
+    },
+    {
+      "basis": "step4.render.start -> step4.render.complete",
+      "count": 4541,
+      "layer": "step4_render",
+      "notes": "",
+      "throughput_per_s": 162.834714,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 27.887174
+    },
+    {
+      "basis": "step4.render.complete -> run.complete",
+      "count": 4541,
+      "layer": "post_render_finalize",
+      "notes": "",
+      "throughput_per_s": 94902.71479,
+      "unavailable_reason": "",
+      "unit": "frames/s",
+      "wall_s": 0.047849
+    },
+    {
+      "basis": "TelemetryModelCall count over DB completed elapsed",
+      "count": 13610,
+      "layer": "telemetry_model_calls",
+      "notes": "",
+      "throughput_per_s": 4.98685,
+      "unavailable_reason": "",
+      "unit": "calls/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "db_frame_rows count over DB completed elapsed",
+      "count": 4541,
+      "layer": "db_frame_rows",
+      "notes": "",
+      "throughput_per_s": 1.663871,
+      "unavailable_reason": "",
+      "unit": "rows/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "db_detection_rows count over DB completed elapsed",
+      "count": 127117,
+      "layer": "db_detection_rows",
+      "notes": "",
+      "throughput_per_s": 46.577028,
+      "unavailable_reason": "",
+      "unit": "rows/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "db_bbox_rows count over DB completed elapsed",
+      "count": 127117,
+      "layer": "db_bbox_rows",
+      "notes": "",
+      "throughput_per_s": 46.577028,
+      "unavailable_reason": "",
+      "unit": "rows/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "db_embedding_rows count over DB completed elapsed",
+      "count": 126519,
+      "layer": "db_embedding_rows",
+      "notes": "",
+      "throughput_per_s": 46.357914,
+      "unavailable_reason": "",
+      "unit": "rows/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "db_pose_kinematics_rows count over DB completed elapsed",
+      "count": 72931,
+      "layer": "db_pose_kinematics_rows",
+      "notes": "",
+      "throughput_per_s": 26.722698,
+      "unavailable_reason": "",
+      "unit": "rows/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "BoundingBox rows for person_detector over DB completed elapsed",
+      "count": 0,
+      "layer": "boxes_person_detector",
+      "notes": "generated_boxes per second for person_detector",
+      "throughput_per_s": null,
+      "unavailable_reason": "no_bbox_rows",
+      "unit": "boxes/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "BoundingBox rows for posture_model over DB completed elapsed",
+      "count": 0,
+      "layer": "boxes_posture_model",
+      "notes": "generated_boxes per second for posture_model",
+      "throughput_per_s": null,
+      "unavailable_reason": "no_bbox_rows",
+      "unit": "boxes/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "BoundingBox rows for horizontal_gaze_model over DB completed elapsed",
+      "count": 0,
+      "layer": "boxes_horizontal_gaze_model",
+      "notes": "generated_boxes per second for horizontal_gaze_model",
+      "throughput_per_s": null,
+      "unavailable_reason": "no_bbox_rows",
+      "unit": "boxes/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "BoundingBox rows for vertical_gaze_model over DB completed elapsed",
+      "count": 0,
+      "layer": "boxes_vertical_gaze_model",
+      "notes": "generated_boxes per second for vertical_gaze_model",
+      "throughput_per_s": null,
+      "unavailable_reason": "no_bbox_rows",
+      "unit": "boxes/s",
+      "wall_s": 2729.178
+    },
+    {
+      "basis": "BoundingBox rows for depth_gaze_model over DB completed elapsed",
+      "count": 0,
+      "layer": "boxes_depth_gaze_model",
+      "notes": "generated_boxes per second for depth_gaze_model",
+      "throughput_per_s": null,
+      "unavailable_reason": "no_bbox_rows",
+      "unit": "boxes/s",
+      "wall_s": 2729.178
+    }
+  ],
+  "worker_rss": {
+    "avg_rss_mib": 0.0,
+    "path": "",
+    "peak_rss_mib": 0.0,
+    "sampled_pids": [],
+    "samples": 0
+  }
+}

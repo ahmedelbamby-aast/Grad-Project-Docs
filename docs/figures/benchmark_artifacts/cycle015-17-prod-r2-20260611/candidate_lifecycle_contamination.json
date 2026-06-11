@@ -1,0 +1,28 @@
+{
+  "decision_effect": "candidate metrics/GPU window and rollback are not a clean terminal one-variable measurement; run is refusal-only",
+  "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+  "preterminal_embedding_lane": {
+    "counters": {
+      "produced": "1"
+    },
+    "job_id": "f50e8e0e-d997-4008-ac8f-b5a9a65fbdcd",
+    "lane": "embedding",
+    "pending": 2,
+    "stream_len": 2
+  },
+  "preterminal_job_status": "embedding",
+  "preterminal_lane_stats_recorded_at": "2026-06-11T03:40:16.722653+00:00",
+  "recorded_at": "2026-06-11T03:50:48.943579+00:00",
+  "replay_key": "cycle015-17-prod-r2-20260611-candidate",
+  "rollback_recorded_at": "2026-06-11T03:40:31.583604+00:00",
+  "schema_version": "cycle015.17.lifecycle_contamination.v1",
+  "terminal_completed_at": "2026-06-11T03:43:32.244947+00:00",
+  "terminal_counts": {
+    "bounding_boxes": 127117,
+    "detections": 127117,
+    "embeddings": 126519,
+    "frames": 4541,
+    "student_tracks": 149
+  },
+  "terminal_status": "completed"
+}
