@@ -562,6 +562,7 @@ reconciled before terminal state, and DB-completed FPS does not regress.
 - [X] T331 [US6] Generate Cycle 015.17 figures + manifest/digests in `tools/prod/prod_generate_xai_cycle015_17_figures.py`
 - [X] T332 [US6] Execute rollback (flag off → serial parity proof) and record the Cycle 015.17 decision in `docs/xai_anomaly/cycle_015_17_results.md`
 - [X] T333 [US6] Record every Cycle 015.17 run and decision in `docs/BENCHMARK_RESULTS_LEDGER.md`
+- [X] T334 [US6] Apply the operator-approved r5 production offline default, preserve live exclusion, and record runtime activation evidence in `docs/figures/benchmark_artifacts/cycle015-17-prod-default-20260612/runtime_activation.json`
 
 ## Dependency Graph
 

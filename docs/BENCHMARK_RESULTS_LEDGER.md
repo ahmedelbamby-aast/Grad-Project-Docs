@@ -1,6 +1,6 @@
 # BENCHMARK RESULTS LEDGER — single source of truth for every benchmark
 
-**Last updated:** 2026-06-11
+**Last updated:** 2026-06-12
 **Branch:** `015-xai-anomaly-score` · **Authority:** Constitution §7.1.1 / §12.5
 This is the **one place** that records every benchmark run, accepted or refused,
 with its config, metrics, and the decision reason. No optimization decision is
@@ -17,7 +17,8 @@ valid unless its run appears here.
   (`Raw Data/Diverse Classroom Enviroments/combined.mp4`, 4541 frames @ 30 fps).
 
 ## Status legend
-★ ACCEPTED · ✘ REFUSED · ◷ BASELINE (reference, not a decision) · ☐ PENDING
+★ ACCEPTED · ✘ REFUSED · ◷ BASELINE (reference, not a decision) ·
+◆ OPERATIONAL DEFAULT (not benchmark acceptance) · ☐ PENDING
 
 ---
 
@@ -180,6 +181,18 @@ valid unless its run appears here.
 | **Reason** | Exact PostgreSQL fidelity passed, but the end-to-end gain is not material and remains far below the binding `15 FPS` target. |
 | Rollback | `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`; workers restarted; serial setting verified |
 | Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/` |
+
+### O001 — Cycle 015.17 r5 production offline default · ◆ OPERATIONAL DEFAULT
+| Field | Value |
+|---|---|
+| Source | R007 · job `3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64` |
+| Deployed commit | `d64c2c91` |
+| Production config | stride `1`; async enabled; lanes `db_rows,embedding`; queue `pipeline.offline.persistence`; idle exit `10000000 ms` |
+| Scope | Offline production jobs only; live jobs remain excluded and require async disabled |
+| **Decision** | ◆ Use the fidelity-correct r5 configuration as the production offline default |
+| Benchmark authority | R007 remains **NOT ACCEPTED** as a throughput optimization; no new benchmark decision |
+| Rollback | Set `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` and restart all Celery workers |
+| Evidence | `docs/figures/benchmark_artifacts/cycle015-17-prod-default-20260612/runtime_activation.json` |
 
 ---
 

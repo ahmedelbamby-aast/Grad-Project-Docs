@@ -1,6 +1,6 @@
 # Production Inference Benchmark & Issue Log
 
-**Last updated:** 2026-06-11
+**Last updated:** 2026-06-12
 
 **Environment:** Linux, no Docker, no sudo — NVIDIA RTX 5090 (32 GB GDDR7, sm_120 Blackwell)  
 **Recorded:** 2026-05-30  
@@ -4845,3 +4845,22 @@ Evidence:
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/exact_persistence_parity.json`
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/figures/MANIFEST.json`
 - `docs/figures/benchmark_artifacts/cycle015-17-prod-r5-20260611/PACKAGE_MANIFEST.json`
+
+### 55.1 Operator Activation Of The r5 Offline Default — 2026-06-12
+
+The operator selected the fidelity-correct r5 environment as the production
+offline default. This does not change the R007 benchmark decision:
+`1.678566 FPS` remains **NOT ACCEPTED** as a throughput optimization and the
+binding `15 FPS` target remains open.
+
+Production now uses frame stride `1`, async `db_rows,embedding` lanes, the
+dedicated `pipeline.offline.persistence` queue, and the benchmark-proven
+consumer idle bound. Commit `d64c2c91` makes the optimized production profile
+and benchmark cleanup preserve this state. Live jobs remain excluded and the
+live endpoint policy requires the async flag to be disabled.
+
+The production-generated activation record is
+`docs/figures/benchmark_artifacts/cycle015-17-prod-default-20260612/runtime_activation.json`.
+It records the exact environment, deployed SHA, Django runtime guard, worker
+topology, validation results, and rollback instruction. No new benchmark or
+figure decision was made by this operational activation.

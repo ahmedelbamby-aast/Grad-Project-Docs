@@ -1,0 +1,59 @@
+{
+  "celery": {
+    "node_count": 6,
+    "nodes_online": [
+      "default_control@beta",
+      "offline_behavior@beta",
+      "offline_control@beta",
+      "offline_persistence@beta",
+      "offline_person@beta",
+      "offline_pose@beta"
+    ],
+    "persistence_concurrency": 2,
+    "persistence_queue": "pipeline.offline.persistence"
+  },
+  "django_runtime": {
+    "ASYNC_PERSISTENCE_IDLE_EXIT_MS": 10000000,
+    "ASYNC_PERSISTENCE_LANES": "db_rows,embedding",
+    "OFFLINE_ASYNC_PERSISTENCE_ENABLED": true,
+    "TRITON_OFFLINE_FRAME_STRIDE": 1,
+    "live_job_enabled": false,
+    "offline_job_enabled": true
+  },
+  "operator_decision": {
+    "benchmark_decision_unchanged": true,
+    "binding_15_fps_target_met": false,
+    "live_profile_enabled": false,
+    "offline_production_default_enabled": true,
+    "throughput_optimization_status": "NOT ACCEPTED"
+  },
+  "production_env": {
+    "ASYNC_PERSISTENCE_IDLE_EXIT_MS": "10000000",
+    "ASYNC_PERSISTENCE_LANES": "db_rows,embedding",
+    "CELERY_PERSISTENCE_QUEUE": "pipeline.offline.persistence",
+    "OFFLINE_ASYNC_PERSISTENCE_ENABLED": "1",
+    "TRITON_OFFLINE_FRAME_STRIDE": "1"
+  },
+  "production_git_sha": "d64c2c915ee388e133126f24a156dd14b29a2d62",
+  "recorded_at": "2026-06-11T22:00:48.728062+00:00",
+  "rollback": {
+    "action": "restart all Celery workers",
+    "env": "OFFLINE_ASYNC_PERSISTENCE_ENABLED=0",
+    "pre_activation_backup": "/home/bamby/grad_project/backend/.env.accepted-r5-20260611T215453Z.bak"
+  },
+  "schema_version": "cycle015.17.production_default_activation.v1",
+  "source_benchmark": {
+    "db_completed_fps": 1.678566,
+    "exact_assignment_delta": 0,
+    "exact_content_delta": 0,
+    "exact_embedding_vector_delta": 0,
+    "job_id": "3095ec8a-ce49-4057-a7b3-2c7ea4d2cc64",
+    "run": "cycle015-17-prod-r5-20260611-candidate",
+    "track_rows": 138
+  },
+  "validation": {
+    "django_check": "passed",
+    "focused_tests": "53 passed",
+    "linux_shell_syntax": "passed"
+  }
+}

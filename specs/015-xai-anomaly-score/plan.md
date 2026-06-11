@@ -432,11 +432,12 @@ Decision 20) is a **cross-process producer-consumer pipeline**:
 - the rejected in-process overlap (Cycle 20.E) is explicitly forbidden as a
   consumer execution mode.
 
-The default-off implementation now includes frame-loop packet production,
-the `db_rows` writer, exact-signature reconciliation, and a compact embedding
-control lane that runs the existing idempotent embedding stage on the
-dedicated persistence worker. The stride-1 production benchmark, rollback
-proof, and decision evidence remain tracked as Cycle 015.17 tasks.
+The generic default-off implementation now includes frame-loop packet
+production, the `db_rows` writer, exact-signature reconciliation, and a compact
+embedding control lane that runs the existing idempotent embedding stage on
+the dedicated persistence worker. After exact r5 fidelity parity, the operator
+selected this configuration as the optimized production offline default on
+2026-06-12. Live jobs remain excluded and require the flag to be disabled.
 
 ## Mandatory No-Ground-Truth Doctrine
 
@@ -530,7 +531,7 @@ All operational values are configured and fingerprinted. Required categories:
 | Parameter provenance | `XAI_PARAM_PROVENANCE_REQUIRED`, `XAI_NO_HARDCODE_VERIFY`, and every tunable bound sourced from a fingerprinted `.env`/config key (none inline) |
 | Model promotion | `XAI_MODEL_PROMOTION_ENABLED`, `XAI_PROMOTION_MIN_SHADOW_HOURS`, `XAI_PROMOTION_LATENCY_SLO_MS`, `XAI_PROMOTION_DISTRIBUTION_TOLERANCE`, `XAI_PROMOTION_APPROVER_ROLES`, `XAI_PROMOTION_AUTOROLLBACK_ENABLED` |
 | Probe fine-tuning | `XAI_PROBE_FINETUNE_ENABLED`, `XAI_FINETUNE_OPTION_ALLOWLIST`, `XAI_PSEUDOLABEL_FILTER_POLICY`, `XAI_PSEUDOLABEL_MIN_AGREEMENT`, `XAI_FINETUNE_HOLDOUT_FRACTION`, `XAI_TTA_PERSIST_FORBIDDEN` |
-| Async persistence pipeline | `OFFLINE_ASYNC_PERSISTENCE_ENABLED` (default 0), `ASYNC_PERSISTENCE_LANES`, `ASYNC_PERSISTENCE_STREAM_MAXLEN`, `ASYNC_PERSISTENCE_CONSUMER_BATCH`, `ASYNC_PERSISTENCE_BLOCK_MS`, `ASYNC_PERSISTENCE_IDLE_EXIT_MS`, `ASYNC_PERSISTENCE_CLAIM_IDLE_MS`, `ASYNC_PERSISTENCE_MAX_APPLY_ATTEMPTS`, `ASYNC_PERSISTENCE_DRAIN_TIMEOUT_S` |
+| Async persistence pipeline | `OFFLINE_ASYNC_PERSISTENCE_ENABLED` (generic default 0; optimized production offline profile 1), `ASYNC_PERSISTENCE_LANES`, `ASYNC_PERSISTENCE_STREAM_MAXLEN`, `ASYNC_PERSISTENCE_CONSUMER_BATCH`, `ASYNC_PERSISTENCE_BLOCK_MS`, `ASYNC_PERSISTENCE_IDLE_EXIT_MS`, `ASYNC_PERSISTENCE_CLAIM_IDLE_MS`, `ASYNC_PERSISTENCE_MAX_APPLY_ATTEMPTS`, `ASYNC_PERSISTENCE_DRAIN_TIMEOUT_S` |
 | Security/retention | `XAI_ARTIFACT_RETENTION_DAYS`, `XAI_AUDIT_ACCESS_ENABLED`, `XAI_REVIEW_ROLE_ALLOWLIST` |
 | Benchmark | `XAI_BENCHMARK_ENABLED`, `XAI_RENDER_BENCHMARK_ENABLED`, `XAI_FIDELITY_BENCHMARK_ENABLED` |
 

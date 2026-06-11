@@ -1,7 +1,7 @@
 # Cycle 015.17 Cross-Process Persistence Results
 
-**Last updated:** 2026-06-11
-**Status:** `NOT ACCEPTED`
+**Last updated:** 2026-06-12
+**Status:** `NOT ACCEPTED AS THROUGHPUT OPTIMIZATION / OPERATOR-ACTIVATED OFFLINE DEFAULT`
 **Streaming compatibility:** `stream-safe-with-config`
 
 ## Source-of-truth references
@@ -10,6 +10,7 @@
 |---|---|
 | Commit | `a15519667c97bd01301ebd414b0ee1a38d31adb3` |
 | Commit | `6f0a48051514a6353bec21879eedb0e48535dd2a` |
+| Commit | `d64c2c915ee388e133126f24a156dd14b29a2d62` |
 | File | `tools/prod/prod_run_xai_cycle015_17.sh` |
 | File | `tools/prod/prod_generate_xai_cycle015_17_figures.py` |
 | File | `backend/apps/video_analysis/tasks.py` |
@@ -27,6 +28,7 @@
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/` |
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/determinism_control_comparison.json` |
 | Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-r3det-20260611/MANIFEST.json` |
+| Artifact | `docs/figures/benchmark_artifacts/cycle015-17-prod-default-20260612/runtime_activation.json` |
 | Ledger | `docs/BENCHMARK_RESULTS_LEDGER.md` |
 
 ## Decision
@@ -447,3 +449,25 @@ The async fidelity bug is **resolved**. The optimization candidate remains
 baseline and remains far below the binding `15 FPS` target. Step 3 improved,
 but it is not the dominant end-to-end bottleneck. Production rollback restored
 `OFFLINE_ASYNC_PERSISTENCE_ENABLED=0` and restarted workers.
+
+### Production Default Activation
+
+On 2026-06-12, the operator accepted the fidelity-correct r5 configuration as
+the production **offline** default so subsequent work continues from that
+state. This is an operational default decision, not a reclassification of the
+throughput result. The generic application fallback remains disabled and live
+jobs remain excluded.
+
+The production `.env` and optimized offline profile now use:
+
+- `TRITON_OFFLINE_FRAME_STRIDE=1`
+- `OFFLINE_ASYNC_PERSISTENCE_ENABLED=1`
+- `ASYNC_PERSISTENCE_LANES=db_rows,embedding`
+- `ASYNC_PERSISTENCE_IDLE_EXIT_MS=10000000`
+- `CELERY_PERSISTENCE_QUEUE=pipeline.offline.persistence`
+
+Commit `d64c2c91` preserves these values when the production profile or Cycle
+015.17 benchmark runner is applied. The live endpoint policy requires
+`OFFLINE_ASYNC_PERSISTENCE_ENABLED=0`. Production-generated runtime evidence,
+including six responsive Celery nodes and the offline/live guard result, is in
+`docs/figures/benchmark_artifacts/cycle015-17-prod-default-20260612/runtime_activation.json`.
