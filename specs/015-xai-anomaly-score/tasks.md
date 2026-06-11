@@ -189,16 +189,16 @@ gap handling.
 **Independent test**: Replay and indefinite-stream tests reproduce transitions,
 suppress spikes, and keep memory bounded.
 
-- [ ] T088 [P] [US2] Write Cycle 015.4 investigation and bounded-state contract in `docs/xai_anomaly/cycle_015_4_investigation.md`
-- [ ] T089 [P] [US6] Name Cycle 015.4 Figure Planner in `docs/xai_anomaly/cycle_015_4_figure_plan.md`
-- [ ] T090 [P] [US6] Name separate Cycle 015.4 Figure Implementer in `docs/xai_anomaly/cycle_015_4_figure_implementation.md`
-- [ ] T091 [P] [US2] Implement bounded per-student multivariate signal-pattern windows in `backend/apps/behavior/explainability/temporal_windows.py`
-- [ ] T092 [P] [US2] Implement temporal pattern explanation, cold-start, contamination, and quarantine semantics in `backend/apps/behavior/explainability/temporal_explanations.py`
-- [ ] T093 [P] [US2] Implement episode contribution/counterfactual composition in `backend/apps/behavior/explainability/episode_explanations.py`
-- [ ] T094 [US2] Integrate temporal evidence with existing behavior temporal services in `backend/apps/behavior/temporal/windows.py`
-- [ ] T095 [US2] Add bounded cache/eviction/reconnect behavior in `backend/apps/behavior/temporal/cache.py`
-- [ ] T096 [P] [US2] Add controlled pattern-fixture, spike, sustained, drift, cold-start, contamination, quarantine, gap, and deterministic replay tests in `backend/tests/unit/behavior/test_xai_temporal_explanations.py`
-- [ ] T097 [P] [US2] Add indefinite-stream bounded-state and restart integration tests in `backend/tests/integration/behavior/test_xai_temporal_bounded_state.py`
+- [x] T088 [P] [US2] Write Cycle 015.4 investigation and bounded-state contract in `docs/xai_anomaly/cycle_015_4_investigation.md`
+- [x] T089 [P] [US6] Name Cycle 015.4 Figure Planner in `docs/xai_anomaly/cycle_015_4_figure_plan.md`
+- [x] T090 [P] [US6] Name separate Cycle 015.4 Figure Implementer in `docs/xai_anomaly/cycle_015_4_figure_implementation.md`
+- [x] T091 [P] [US2] Implement bounded per-student multivariate signal-pattern windows in `backend/apps/behavior/explainability/temporal_windows.py`
+- [x] T092 [P] [US2] Implement temporal pattern explanation, cold-start, contamination, and quarantine semantics in `backend/apps/behavior/explainability/temporal_explanations.py`
+- [x] T093 [P] [US2] Implement episode contribution/counterfactual composition in `backend/apps/behavior/explainability/episode_explanations.py`
+- [x] T094 [US2] Integrate temporal evidence with existing behavior temporal services in `backend/apps/behavior/temporal/windows.py`
+- [x] T095 [US2] Add bounded cache/eviction/reconnect behavior in `backend/apps/behavior/temporal/cache.py`
+- [x] T096 [P] [US2] Add controlled pattern-fixture, spike, sustained, drift, cold-start, contamination, quarantine, gap, and deterministic replay tests in `backend/tests/unit/behavior/test_xai_temporal_explanations.py`
+- [x] T097 [P] [US2] Add indefinite-stream bounded-state and restart integration tests in `backend/tests/integration/behavior/test_xai_temporal_bounded_state.py`
 - [ ] T098 [P] [US6] Add temporal state/soak production probe in `tools/prod/prod_probe_xai_temporal_state.py`
 - [ ] T099 [US6] Add Cycle 015.4 stride-1 benchmark/collector in `tools/prod/prod_run_xai_cycle015_4.sh`
 - [ ] T100 [P] [US6] Implement Cycle 015.4 temporal/soak figures, manifest/digests, and generator tests in `tools/prod/prod_generate_xai_cycle015_4_figures.py`
